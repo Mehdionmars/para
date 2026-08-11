@@ -246,6 +246,7 @@ export interface FolderInterface {
 export interface Brand {
   id: number;
   name: string;
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -500,14 +501,22 @@ export interface StockMovement {
    * newStock - previousStock, positive or negative.
    */
   delta: number;
-  source: 'import' | 'manual' | 'order' | 'adjustment';
+  source: 'import' | 'manual' | 'order' | 'adjustment' | 'restock';
   /**
-   * e.g. "Import CSV — 2026-08-10", "Correction manuelle".
+   * e.g. "Import CSV — 2026-08-10", "Correction manuelle", or a restock note.
    */
   reason?: string | null;
   batchNumber?: string | null;
   expiryDate?: string | null;
   supplier?: (number | null) | Supplier;
+  /**
+   * Optional purchase order / invoice reference for a restock.
+   */
+  reference?: string | null;
+  /**
+   * The staff member who performed this movement — empty for automated sources (import, order).
+   */
+  createdBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -870,6 +879,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface BrandsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1044,6 +1054,8 @@ export interface StockMovementsSelect<T extends boolean = true> {
   batchNumber?: T;
   expiryDate?: T;
   supplier?: T;
+  reference?: T;
+  createdBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1215,6 +1227,29 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Home {
   id: number;
   /**
+   * Render order and visibility of each fixed homepage section slot. Edited from the Storefront Builder (/dashboard/storefront) — reordering this array reorders the homepage.
+   */
+  sections?:
+    | {
+        key:
+          | 'hero'
+          | 'ctaPair1'
+          | 'rails'
+          | 'promotionsGrid'
+          | 'services'
+          | 'coffrets'
+          | 'campaign'
+          | 'dermoCorner'
+          | 'brandsMarquee'
+          | 'ctaPair2'
+          | 'instagram'
+          | 'newsletter'
+          | 'trustBar';
+        visible?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Slides shown in the top hero carousel.
    */
   heroSlides?:
@@ -1328,6 +1363,18 @@ export interface Home {
       }[]
     | null;
   /**
+   * Editorial copy + image for the seasonal campaign block (left tile).
+   */
+  campaignCopy?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    railTitle?: string | null;
+    image?: (number | null) | Media;
+  };
+  /**
    * Products shown in the seasonal campaign block.
    */
   campaignProducts?: (number | Product)[] | null;
@@ -1404,7 +1451,41 @@ export interface Home {
         id?: string | null;
       }[]
     | null;
+  /**
+   * "Nos services" cards on the homepage.
+   */
+  servicesTeaser?:
+    | {
+        title: string;
+        sub?: string | null;
+        cta?: string | null;
+        href?: string | null;
+        icon:
+          | 'ScanLine'
+          | 'Truck'
+          | 'MessageCircleQuestion'
+          | 'LifeBuoy'
+          | 'ShieldCheck'
+          | 'BadgeCheck'
+          | 'Headset'
+          | 'Sparkles'
+          | 'Heart'
+          | 'Gift';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Newsletter signup banner near the bottom of the homepage.
+   */
+  newsletterSection?: {
+    title?: string | null;
+    subtitle?: string | null;
+    placeholder?: string | null;
+    buttonLabel?: string | null;
+    successMessage?: string | null;
+  };
   freeShippingThreshold?: number | null;
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1511,6 +1592,13 @@ export interface CataloguePage {
  * via the `definition` "home_select".
  */
 export interface HomeSelect<T extends boolean = true> {
+  sections?:
+    | T
+    | {
+        key?: T;
+        visible?: T;
+        id?: T;
+      };
   heroSlides?:
     | T
     | {
@@ -1572,6 +1660,17 @@ export interface HomeSelect<T extends boolean = true> {
         claim?: T;
         id?: T;
       };
+  campaignCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        railTitle?: T;
+        image?: T;
+      };
   campaignProducts?: T;
   coffrets?:
     | T
@@ -1621,7 +1720,27 @@ export interface HomeSelect<T extends boolean = true> {
         text?: T;
         id?: T;
       };
+  servicesTeaser?:
+    | T
+    | {
+        title?: T;
+        sub?: T;
+        cta?: T;
+        href?: T;
+        icon?: T;
+        id?: T;
+      };
+  newsletterSection?:
+    | T
+    | {
+        title?: T;
+        subtitle?: T;
+        placeholder?: T;
+        buttonLabel?: T;
+        successMessage?: T;
+      };
   freeShippingThreshold?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

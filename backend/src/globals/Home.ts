@@ -6,6 +6,43 @@ import { CATEGORY_OPTIONS } from '../collections/Products'
 export const RAIL_PRODUCT_SOURCES = ['manual', 'latest', 'featured', 'bestSelling', 'category'] as const
 export const RAIL_SORT_ORDERS = ['newest', 'price-asc', 'price-desc', 'name-asc', 'rating-desc'] as const
 
+/** Every fixed homepage section slot the storefront builder can reorder/hide.
+ * These map 1:1 to the components rendered in frontend/app/(site)/page.tsx —
+ * there is exactly one instance of each slot, not a freely-duplicable block. */
+export const SECTION_KEYS = [
+  'hero',
+  'ctaPair1',
+  'rails',
+  'promotionsGrid',
+  'services',
+  'coffrets',
+  'campaign',
+  'dermoCorner',
+  'brandsMarquee',
+  'ctaPair2',
+  'instagram',
+  'newsletter',
+  'trustBar',
+] as const
+
+export const SECTION_LABELS: Record<(typeof SECTION_KEYS)[number], string> = {
+  hero: 'Bannière hero',
+  ctaPair1: 'CTA — paire d’images (haut)',
+  rails: 'Rails produits',
+  promotionsGrid: 'Grille promotions',
+  services: 'Nos services',
+  coffrets: 'Coffrets / cartes cadeaux',
+  campaign: 'Campagne éditoriale',
+  dermoCorner: 'Conseil dermo',
+  brandsMarquee: 'Marques (défilement)',
+  ctaPair2: 'CTA — paire d’images (bas)',
+  instagram: 'Instagram',
+  newsletter: 'Newsletter',
+  trustBar: 'Barre de confiance',
+}
+
+export const SERVICE_ICONS = ['ScanLine', 'Truck', 'MessageCircleQuestion', 'LifeBuoy', 'ShieldCheck', 'BadgeCheck', 'Headset', 'Sparkles', 'Heart', 'Gift'] as const
+
 const imageField = (name = 'image', required = true) =>
   ({
     name,
@@ -31,7 +68,25 @@ export const Home: GlobalConfig = {
   admin: {
     description: 'Every editable block on the homepage, in the order it renders.',
   },
+  versions: {
+    drafts: {
+      autosave: false,
+    },
+    max: 20,
+  },
   fields: [
+    {
+      name: 'sections',
+      type: 'array',
+      admin: {
+        description:
+          'Render order and visibility of each fixed homepage section slot. Edited from the Storefront Builder (/dashboard/storefront) — reordering this array reorders the homepage.',
+      },
+      fields: [
+        { name: 'key', type: 'select', options: SECTION_KEYS.map((k) => ({ label: SECTION_LABELS[k], value: k })), required: true },
+        { name: 'visible', type: 'checkbox', defaultValue: true },
+      ],
+    },
     {
       name: 'heroSlides',
       type: 'array',
@@ -191,6 +246,25 @@ export const Home: GlobalConfig = {
       ],
     },
     {
+      name: 'campaignCopy',
+      type: 'group',
+      admin: { description: 'Editorial copy + image for the seasonal campaign block (left tile).' },
+      fields: [
+        { name: 'eyebrow', type: 'text', defaultValue: 'Campagne du mois' },
+        { name: 'title', type: 'text', defaultValue: 'Douceur premiers jours' },
+        {
+          name: 'description',
+          type: 'textarea',
+          defaultValue:
+            'Une sélection validée par nos pharmaciennes pour la peau fragile des tout-petits : lavants sans savon, baumes réparateurs et huiles de massage.',
+        },
+        { name: 'ctaLabel', type: 'text', defaultValue: 'Voir la sélection' },
+        { name: 'ctaUrl', type: 'text', defaultValue: '/catalogue' },
+        { name: 'railTitle', type: 'text', defaultValue: 'Les indispensables bébé' },
+        imageField('image', false),
+      ],
+    },
+    {
       name: 'campaignProducts',
       type: 'relationship',
       admin: { description: 'Products shown in the seasonal campaign block.' },
@@ -284,6 +358,34 @@ export const Home: GlobalConfig = {
         { name: 'date', type: 'text', required: true },
         { name: 'stars', type: 'number', max: 5, min: 1, required: true },
         { name: 'text', type: 'textarea', required: true },
+      ],
+    },
+    {
+      name: 'servicesTeaser',
+      type: 'array',
+      admin: { description: '"Nos services" cards on the homepage.' },
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'sub', type: 'text' },
+        { name: 'cta', type: 'text' },
+        { name: 'href', type: 'text', defaultValue: '/services' },
+        { name: 'icon', type: 'select', options: [...SERVICE_ICONS], required: true },
+      ],
+    },
+    {
+      name: 'newsletterSection',
+      type: 'group',
+      admin: { description: 'Newsletter signup banner near the bottom of the homepage.' },
+      fields: [
+        { name: 'title', type: 'text', defaultValue: 'Recevez nos conseils & nouveautés' },
+        {
+          name: 'subtitle',
+          type: 'textarea',
+          defaultValue: 'Inscrivez-vous pour découvrir nos conseils pharmaceutiques, nouveautés et offres exclusives.',
+        },
+        { name: 'placeholder', type: 'text', defaultValue: 'Votre adresse email' },
+        { name: 'buttonLabel', type: 'text', defaultValue: "S'inscrire" },
+        { name: 'successMessage', type: 'text', defaultValue: 'Merci ! Votre code −10% arrive par email' },
       ],
     },
     {

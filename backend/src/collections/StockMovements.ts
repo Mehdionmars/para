@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { canManageInventory, isAdmin, isStaff, staffOnlyInAdmin } from '../access/roles'
 
-export const STOCK_MOVEMENT_SOURCES = ['import', 'manual', 'order', 'adjustment'] as const
+export const STOCK_MOVEMENT_SOURCES = ['import', 'manual', 'order', 'adjustment', 'restock'] as const
 
 /**
  * Append-only audit log — every change to a product's stock (from the bulk
@@ -65,7 +65,7 @@ export const StockMovements: CollectionConfig = {
     {
       name: 'reason',
       type: 'text',
-      admin: { description: 'e.g. "Import CSV — 2026-08-10", "Correction manuelle".' },
+      admin: { description: 'e.g. "Import CSV — 2026-08-10", "Correction manuelle", or a restock note.' },
     },
     {
       type: 'row',
@@ -85,6 +85,17 @@ export const StockMovements: CollectionConfig = {
       name: 'supplier',
       type: 'relationship',
       relationTo: 'suppliers',
+    },
+    {
+      name: 'reference',
+      type: 'text',
+      admin: { description: 'Optional purchase order / invoice reference for a restock.' },
+    },
+    {
+      name: 'createdBy',
+      type: 'relationship',
+      admin: { description: 'The staff member who performed this movement — empty for automated sources (import, order).' },
+      relationTo: 'users',
     },
   ],
 }

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOrManager, canEditContent, staffOnlyInAdmin } from '../access/roles'
+import { slugField } from '../lib/slugField'
 
 export const Brands: CollectionConfig = {
   slug: 'brands',
@@ -12,6 +13,7 @@ export const Brands: CollectionConfig = {
     update: canEditContent,
   },
   admin: {
+    defaultColumns: ['name', 'slug'],
     useAsTitle: 'name',
   },
   fields: [
@@ -21,5 +23,6 @@ export const Brands: CollectionConfig = {
       required: true,
       unique: true,
     },
+    slugField('name'),
   ],
 }
