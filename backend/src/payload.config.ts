@@ -5,6 +5,7 @@ import type { ImportBeforeHook } from '@payloadcms/plugin-import-export/types'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
+import { openapi, swaggerUI } from 'payload-oapi'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
@@ -23,10 +24,12 @@ import { Users } from './collections/Users'
 import { CataloguePage } from './globals/CataloguePage'
 import { CollectionsPage } from './globals/CollectionsPage'
 import { Home } from './globals/Home'
+import { Navigation } from './globals/Navigation'
 import { SiteChrome } from './globals/SiteChrome'
 import { Theme } from './globals/Theme'
 import { cloudinaryAdapter } from './lib/cloudinaryAdapter'
 import { productsBeforeImport } from './lib/productImportHook'
+import { apiMonitoringPlugin } from './plugins/apiMonitoringPlugin'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -38,12 +41,20 @@ const cloudinaryConfigured = Boolean(
 export default buildConfig({
   admin: {
     components: {
-      afterNavLinks: ['/components/ImportProductsNavLink#ImportProductsNavLink'],
+      afterNavLinks: [
+        '/components/ImportProductsNavLink#ImportProductsNavLink',
+        '/components/ApiMonitoringNavLink#ApiMonitoringNavLink',
+      ],
       graphics: {
         Icon: '/components/AdminLogo#AdminIcon',
         Logo: '/components/AdminLogo#AdminLogo',
       },
       views: {
+        apiMonitoring: {
+          Component: '/components/ApiMonitoringView#ApiMonitoringView',
+          meta: { title: 'Monitoring API' },
+          path: '/api-monitoring',
+        },
         importProducts: {
           Component: '/components/ImportProductsView#ImportProductsView',
           meta: { title: 'Import produits' },
@@ -85,7 +96,7 @@ export default buildConfig({
     },
   }),
   editor: lexicalEditor(),
-  globals: [Home, CollectionsPage, CataloguePage, SiteChrome, Theme],
+  globals: [Home, CollectionsPage, CataloguePage, SiteChrome, Theme, Navigation],
   plugins: [
     // Falls back to Payload's default local-disk storage when Cloudinary env
     // vars aren't set yet, so `npm run dev` still works before the client
@@ -129,6 +140,14 @@ export default buildConfig({
         { slug: 'stores' },
       ],
     }),
+    // Adds the `api-request-logs` collection and logs every collection/
+    // global operation into it — powers the "Monitoring API" admin view.
+    // Runs before the OpenAPI plugin so that collection is documented too.
+    apiMonitoringPlugin,
+    // OpenAPI spec at /api/openapi.json + a Swagger UI at /api/docs for the
+    // Payload REST API — no separate container needed.
+    openapi({ metadata: { title: "Para d'Hiver API", version: '1.0.0' }, openapiVersion: '3.1' }),
+    swaggerUI({}),
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   sharp,

@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { userHasRole } from '../../../../access/roles'
+import { withApiLog } from '../../../../lib/withApiLog'
 
 export const maxDuration = 30
 
@@ -25,7 +26,7 @@ type RestockBody = {
  * are derived from that one atomic result — never a separate read that
  * could race with another request.
  */
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const payload = await getPayload({ config: configPromise })
   const { user } = await payload.auth({ headers: request.headers })
 
@@ -139,3 +140,5 @@ export async function POST(request: Request) {
     client.release()
   }
 }
+
+export const POST = withApiLog('/api/inventory/restock', handlePOST)

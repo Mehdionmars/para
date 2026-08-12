@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import { IMPORT_FIELDS, type ColumnMapping, suggestColumnForField } from '../../../lib/importFields'
 import { normalizeProductRow, resolveBrandId } from '../../../lib/productImportHook'
 import { parseSpreadsheet } from '../../../lib/parseSpreadsheet'
+import { withApiLog } from '../../../lib/withApiLog'
 
 export const maxDuration = 60
 
@@ -50,7 +51,7 @@ async function readRows(request: Request) {
   return { columns: [...columns], mapping, mode, rows, sheetNames: sheets.map((s) => s.name) }
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const payload = await getPayload({ config: configPromise })
   const { user } = await payload.auth({ headers: request.headers })
   if (!user) {
@@ -157,3 +158,5 @@ export async function POST(request: Request) {
 
   return Response.json({ created, errors, skipped, total: parsed.rows.length, updated })
 }
+
+export const POST = withApiLog('/api/import-products', handlePOST)

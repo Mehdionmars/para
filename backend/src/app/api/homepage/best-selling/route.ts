@@ -1,6 +1,8 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { withApiLog } from '../../../../lib/withApiLog'
+
 export const maxDuration = 30
 
 const EXCLUDED_STATUSES = new Set(['cancelled', 'refunded'])
@@ -13,7 +15,7 @@ const ORDERS_SAMPLE_SIZE = 300
  * access control for trusted server code) to read them, but only ever
  * returns a {productId, quantity} ranking, never order/customer data.
  */
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const url = new URL(request.url)
   const limit = Math.min(Number(url.searchParams.get('limit')) || 20, 50)
 
@@ -42,3 +44,5 @@ export async function GET(request: Request) {
 
   return Response.json({ ranked })
 }
+
+export const GET = withApiLog('/api/homepage/best-selling', handleGET)

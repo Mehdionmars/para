@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { syncInstagramPosts } from '../../../lib/instagramSync'
+import { withApiLog } from '../../../lib/withApiLog'
 
 export const maxDuration = 30
 
@@ -18,7 +19,7 @@ export const maxDuration = 30
  * unauthenticated scheduler can call it; INSTAGRAM_ACCESS_TOKEN itself is
  * only ever read server-side inside lib/instagramSync.ts.
  */
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const secret = process.env.INSTAGRAM_SYNC_SECRET
   if (!secret) {
     return Response.json({ error: 'INSTAGRAM_SYNC_SECRET is not configured on the server' }, { status: 500 })
@@ -34,3 +35,5 @@ export async function POST(request: Request) {
 
   return Response.json(result, { status: result.error ? 502 : 200 })
 }
+
+export const POST = withApiLog('/api/instagram-sync', handlePOST)

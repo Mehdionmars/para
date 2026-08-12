@@ -146,7 +146,7 @@ export const SiteChrome: GlobalConfig = {
           visible: true,
           links: [
             { label: 'Produits', href: '/shop', visible: true },
-            { label: 'Marques', href: '/shop/brands', visible: true },
+            { label: 'Marques', href: '/marques', visible: true },
             { label: 'Promotions', href: '/shop/soldes', visible: true },
             { label: 'Nouveautés', href: '/shop/nouveautes', visible: true },
           ],

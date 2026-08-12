@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.vscode
+media
+public/media
+*.log
+npm-debug.log*
+.env
+.env.local
+test.env
+tsconfig.tsbuildinfo
+tests
+playwright-report
+test-results
+README.md

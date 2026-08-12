@@ -81,6 +81,7 @@ export interface Config {
     'instagram-posts': InstagramPost;
     exports: Export;
     imports: Import;
+    'api-request-logs': ApiRequestLog;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-folders': FolderInterface;
@@ -108,6 +109,7 @@ export interface Config {
     'instagram-posts': InstagramPostsSelect<false> | InstagramPostsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
+    'api-request-logs': ApiRequestLogsSelect<false> | ApiRequestLogsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
@@ -125,6 +127,7 @@ export interface Config {
     'catalogue-page': CataloguePage;
     'site-chrome': SiteChrome;
     theme: Theme;
+    navigation: Navigation;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
@@ -132,6 +135,7 @@ export interface Config {
     'catalogue-page': CataloguePageSelect<false> | CataloguePageSelect<true>;
     'site-chrome': SiteChromeSelect<false> | SiteChromeSelect<true>;
     theme: ThemeSelect<false> | ThemeSelect<true>;
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
   };
   locale: null;
   widgets: {
@@ -626,6 +630,25 @@ export interface Import {
   focalY?: number | null;
 }
 /**
+ * Journal des requêtes API — écrit automatiquement, lecture seule.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "api-request-logs".
+ */
+export interface ApiRequestLog {
+  id: number;
+  method?: string | null;
+  path: string;
+  collectionSlug?: string | null;
+  operation?: string | null;
+  statusCode?: number | null;
+  durationMs?: number | null;
+  userEmail?: string | null;
+  ip?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -788,6 +811,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'instagram-posts';
         value: number | InstagramPost;
+      } | null)
+    | ({
+        relationTo: 'api-request-logs';
+        value: number | ApiRequestLog;
       } | null)
     | ({
         relationTo: 'payload-folders';
@@ -1141,6 +1168,22 @@ export interface ImportsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "api-request-logs_select".
+ */
+export interface ApiRequestLogsSelect<T extends boolean = true> {
+  method?: T;
+  path?: T;
+  collectionSlug?: T;
+  operation?: T;
+  statusCode?: T;
+  durationMs?: T;
+  userEmail?: T;
+  ip?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1257,7 +1300,7 @@ export interface Home {
         sub?: string | null;
         cta: string;
         /**
-         * e.g. /shop, /shop/visage, /shop/brand/vichy, /produit/162
+         * e.g. /shop, /shop/visage, /marques/vichy, /produit/uriage-eau-thermale
          */
         ctaUrl?: string | null;
         /**
@@ -1457,6 +1500,10 @@ export interface Home {
    */
   summerEditCopy?: {
     eyebrow?: string | null;
+    /**
+     * Optional, shown beside the eyebrow, e.g. "2026".
+     */
+    year?: string | null;
     title?: string | null;
     /**
      * Second line of the title, set in the accent color — leave empty for a single-color title.
@@ -1467,10 +1514,15 @@ export interface Home {
     ctaUrl?: string | null;
     heroImage?: (number | null) | Media;
     heroImageMobile?: (number | null) | Media;
+    imagePosition?: ('right' | 'left') | null;
     /**
-     * Background mood for the hero band.
+     * Subtle zoom-in amount on reveal/hover (1 = none, 1.15 = max).
      */
-    theme?: ('cream' | 'plum') | null;
+    imageScale?: number | null;
+    /**
+     * Subtle bottom gradient scrim on the image, for a caption-like effect.
+     */
+    overlay?: boolean | null;
     /**
      * Up to 3 short highlights under the CTA, e.g. "Protection solaire".
      */
@@ -1481,6 +1533,52 @@ export interface Home {
           id?: string | null;
         }[]
       | null;
+    /**
+     * Behaviour of each act's product rail.
+     */
+    carousel?: {
+      autoplay?: boolean | null;
+      autoplaySpeedMs?: number | null;
+      showCounter?: boolean | null;
+      /**
+       * Thin progress line under the counter.
+       */
+      showProgress?: boolean | null;
+    };
+    /**
+     * Scroll-triggered motion — always respects a visitor's reduced-motion preference.
+     */
+    animation?: {
+      /**
+       * Title/image/highlights fade and rise in once scrolled into view.
+       */
+      enableReveal?: boolean | null;
+      /**
+       * Very subtle vertical drift on the hero image while scrolling past it.
+       */
+      enableParallax?: boolean | null;
+      /**
+       * Each act's products cascade in, one after another, on scroll.
+       */
+      staggerProducts?: boolean | null;
+      speed?: ('slow' | 'normal' | 'fast') | null;
+    };
+    /**
+     * A seasonal palette override for this campaign only — the rest of the storefront (and its own theme) is unaffected.
+     */
+    colors?: {
+      background?: string | null;
+      text?: string | null;
+      /**
+       * Titles, eyebrow, act numbers.
+       */
+      accent?: string | null;
+      cta?: string | null;
+    };
+    /**
+     * Uncheck to match the rest of the homepage's max-width container.
+     */
+    fullWidth?: boolean | null;
   };
   /**
    * "Actes" of the campaign (e.g. Protéger, Réparer) — each is its own compact editorial band with a small automatic product carousel. Maximum 3 acts, 4 products each.
@@ -1877,6 +1975,76 @@ export interface Theme {
   createdAt?: string | null;
 }
 /**
+ * Main navigation and every mega menu — shown on every page. Edited from the Storefront Builder's "Navigation" tab (/dashboard/storefront). Decoupled from the Categories collection on purpose: adding a category no longer auto-adds a nav entry — add it here once instead.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: number;
+  /**
+   * Main navigation items, in display order — drag to reorder.
+   */
+  items?:
+    | {
+        label: string;
+        visible?: boolean | null;
+        type: 'category' | 'brand' | 'collection' | 'page' | 'custom';
+        category?: (number | null) | Category;
+        brand?: (number | null) | Brand;
+        collectionRoute?: ('/catalogue' | '/marques' | '/collections' | '/shop/soldes' | '/shop/nouveautes') | null;
+        pageRoute?: ('/' | '/services' | '/contact') | null;
+        /**
+         * e.g. /marques
+         */
+        customUrl?: string | null;
+        /**
+         * Optional small pill next to the label, e.g. "Nouveau".
+         */
+        badgeLabel?: string | null;
+        badgeColor?: ('none' | 'plum' | 'teal' | 'sale') | null;
+        megaMenuEnabled?: boolean | null;
+        megaMenu?: {
+          subtitle?: string | null;
+          columns?:
+            | {
+                title: string;
+                links?:
+                  | {
+                      label: string;
+                      type: 'category' | 'brand' | 'custom';
+                      category?: (number | null) | Category;
+                      brand?: (number | null) | Brand;
+                      /**
+                       * e.g. /marques
+                       */
+                      customUrl?: string | null;
+                      visible?: boolean | null;
+                      id?: string | null;
+                    }[]
+                  | null;
+                id?: string | null;
+              }[]
+            | null;
+          /**
+           * Optional promotional tile shown beside the columns.
+           */
+          promo?: {
+            image?: (number | null) | Media;
+            title?: string | null;
+            description?: string | null;
+            ctaLabel?: string | null;
+            ctaUrl?: string | null;
+          };
+        };
+        id?: string | null;
+      }[]
+    | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home_select".
  */
@@ -2004,6 +2172,7 @@ export interface HomeSelect<T extends boolean = true> {
     | T
     | {
         eyebrow?: T;
+        year?: T;
         title?: T;
         titleAccent?: T;
         description?: T;
@@ -2011,7 +2180,9 @@ export interface HomeSelect<T extends boolean = true> {
         ctaUrl?: T;
         heroImage?: T;
         heroImageMobile?: T;
-        theme?: T;
+        imagePosition?: T;
+        imageScale?: T;
+        overlay?: T;
         highlights?:
           | T
           | {
@@ -2019,6 +2190,31 @@ export interface HomeSelect<T extends boolean = true> {
               label?: T;
               id?: T;
             };
+        carousel?:
+          | T
+          | {
+              autoplay?: T;
+              autoplaySpeedMs?: T;
+              showCounter?: T;
+              showProgress?: T;
+            };
+        animation?:
+          | T
+          | {
+              enableReveal?: T;
+              enableParallax?: T;
+              staggerProducts?: T;
+              speed?: T;
+            };
+        colors?:
+          | T
+          | {
+              background?: T;
+              text?: T;
+              accent?: T;
+              cta?: T;
+            };
+        fullWidth?: T;
       };
   summerEditActs?:
     | T
@@ -2289,6 +2485,63 @@ export interface ThemeSelect<T extends boolean = true> {
   colorTextPrimary?: T;
   colorTextMuted?: T;
   colorBackgroundSecondary?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        label?: T;
+        visible?: T;
+        type?: T;
+        category?: T;
+        brand?: T;
+        collectionRoute?: T;
+        pageRoute?: T;
+        customUrl?: T;
+        badgeLabel?: T;
+        badgeColor?: T;
+        megaMenuEnabled?: T;
+        megaMenu?:
+          | T
+          | {
+              subtitle?: T;
+              columns?:
+                | T
+                | {
+                    title?: T;
+                    links?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          category?: T;
+                          brand?: T;
+                          customUrl?: T;
+                          visible?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              promo?:
+                | T
+                | {
+                    image?: T;
+                    title?: T;
+                    description?: T;
+                    ctaLabel?: T;
+                    ctaUrl?: T;
+                  };
+            };
+        id?: T;
+      };
   _status?: T;
   updatedAt?: T;
   createdAt?: T;
