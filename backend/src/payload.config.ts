@@ -23,6 +23,8 @@ import { Users } from './collections/Users'
 import { CataloguePage } from './globals/CataloguePage'
 import { CollectionsPage } from './globals/CollectionsPage'
 import { Home } from './globals/Home'
+import { SiteChrome } from './globals/SiteChrome'
+import { Theme } from './globals/Theme'
 import { cloudinaryAdapter } from './lib/cloudinaryAdapter'
 import { productsBeforeImport } from './lib/productImportHook'
 
@@ -83,7 +85,7 @@ export default buildConfig({
     },
   }),
   editor: lexicalEditor(),
-  globals: [Home, CollectionsPage, CataloguePage],
+  globals: [Home, CollectionsPage, CataloguePage, SiteChrome, Theme],
   plugins: [
     // Falls back to Payload's default local-disk storage when Cloudinary env
     // vars aren't set yet, so `npm run dev` still works before the client

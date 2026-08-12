@@ -123,11 +123,15 @@ export interface Config {
     home: Home;
     'collections-page': CollectionsPage;
     'catalogue-page': CataloguePage;
+    'site-chrome': SiteChrome;
+    theme: Theme;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
     'collections-page': CollectionsPageSelect<false> | CollectionsPageSelect<true>;
     'catalogue-page': CataloguePageSelect<false> | CataloguePageSelect<true>;
+    'site-chrome': SiteChromeSelect<false> | SiteChromeSelect<true>;
+    theme: ThemeSelect<false> | ThemeSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1227,24 +1231,11 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Home {
   id: number;
   /**
-   * Render order and visibility of each fixed homepage section slot. Edited from the Storefront Builder (/dashboard/storefront) — reordering this array reorders the homepage.
+   * Render order and visibility of each homepage section. Edited from the Storefront Builder (/dashboard/storefront) — reordering this array reorders the homepage. Either one of the fixed section keys, or "rail:<railKey>" addressing one specific entry in `rails` below (each rail is independently orderable, not grouped under a single "rails" slot).
    */
   sections?:
     | {
-        key:
-          | 'hero'
-          | 'ctaPair1'
-          | 'rails'
-          | 'promotionsGrid'
-          | 'services'
-          | 'coffrets'
-          | 'campaign'
-          | 'dermoCorner'
-          | 'brandsMarquee'
-          | 'ctaPair2'
-          | 'instagram'
-          | 'newsletter'
-          | 'trustBar';
+        key: string;
         visible?: boolean | null;
         id?: string | null;
       }[]
@@ -1254,15 +1245,37 @@ export interface Home {
    */
   heroSlides?:
     | {
+        /**
+         * Unchecking hides this slide without deleting it.
+         */
+        active?: boolean | null;
+        /**
+         * Eyebrow shown above the title, e.g. "Édition hiver".
+         */
         tag?: string | null;
         title: string;
         sub?: string | null;
         cta: string;
         /**
+         * e.g. /shop, /shop/visage, /shop/brand/vichy, /produit/162
+         */
+        ctaUrl?: string | null;
+        /**
+         * Optional second button — leave both fields empty to omit it.
+         */
+        secondaryCta?: string | null;
+        secondaryCtaUrl?: string | null;
+        align?: ('right' | 'left') | null;
+        /**
+         * Dark gradient scrim behind the text, for legibility over busy photos.
+         */
+        overlay?: boolean | null;
+        /**
          * CSS gradient/color used behind the slide, e.g. linear-gradient(120deg,#2f1f3d,#5E4074 60%,#4b3563)
          */
         bg?: string | null;
         image: number | Media;
+        mobileImage?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -1296,7 +1309,7 @@ export interface Home {
         /**
          * Where this rail's products come from, resolved live against the database on every storefront request (not baked in at content-sync time).
          */
-        productSource: 'manual' | 'latest' | 'featured' | 'bestSelling' | 'category';
+        productSource: 'manual' | 'latest' | 'featured' | 'bestSelling' | 'category' | 'brand' | 'promotion';
         /**
          * Used when "Source" is set to Sélection manuelle.
          */
@@ -1306,7 +1319,7 @@ export interface Home {
          */
         category?: ('Visage' | 'Corps' | 'Cheveux' | 'Solaire' | 'Baby & Mom') | null;
         /**
-         * Optional extra filter, combined with whichever source is selected above.
+         * Required when "Source" is Par marque; an optional extra filter for any other source.
          */
         brandFilter?: (number | null) | Brand;
         /**
@@ -1317,9 +1330,21 @@ export interface Home {
          * Ignored for Sélection manuelle (keeps pick order) and Meilleures ventes (ranked by real order quantities, falling back to "Plus récents" until real sales exist).
          */
         sortOrder?: ('newest' | 'price-asc' | 'price-desc' | 'name-asc' | 'rating-desc') | null;
+        /**
+         * "Voir tout" link at the top-right of the rail.
+         */
+        ctaLabel?: string | null;
+        ctaUrl?: string | null;
+        /**
+         * A small editorial accent so consecutive rails don't all look identical.
+         */
+        badgeStyle?: ('none' | 'new' | 'rank' | 'team') | null;
+        /**
+         * Legacy single-brand spotlight support — superseded by the "Marques à l'honneur" section below for new content.
+         */
         editorialImage?: (number | null) | Media;
         /**
-         * Shown instead of the editorial image when this rail highlights a brand.
+         * Deprecated: kept only so no historical data is lost. New brand spotlights belong in the "Marques à l'honneur" section (brandsFeatured) below, not here.
          */
         brandFeature?: {
           name?: string | null;
@@ -1330,6 +1355,21 @@ export interface Home {
           bg?: string | null;
           image?: (number | null) | Media;
         };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The single, consolidated "Marques à l'honneur" carousel — replaces the old pattern of attaching a one-off brand spotlight to individual rails (which produced duplicate-looking sections).
+   */
+  brandsFeatured?:
+    | {
+        brand: number | Brand;
+        /**
+         * Short line under the brand name, e.g. "Dermatologie et eau thermale."
+         */
+        phrase?: string | null;
+        image?: (number | null) | Media;
+        ctaLabel?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1349,7 +1389,38 @@ export interface Home {
       }[]
     | null;
   /**
-   * "Conseil dermo" strip: an active ingredient + claim for a handful of products.
+   * Copy for the "Les offres du moment" section. Products themselves are always resolved live by category tab — this only controls title/subtitle/count, not a fixed list of products.
+   */
+  promotionsGrid?: {
+    title?: string | null;
+    subtitle?: string | null;
+    limit?: number | null;
+  };
+  /**
+   * Editorial header for the Dermo Corner section (the product picks below are configured separately, in dermoPicks).
+   */
+  dermoCornerCopy?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    /**
+     * Heading for the product carousel shown below the image/text band (a separate section, not merged into one card).
+     */
+    picksTitle?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * Automatically scroll through the product picks below.
+     */
+    autoplay?: boolean | null;
+    /**
+     * Milliseconds between each autoplay advance. Ignored if autoplay is off.
+     */
+    autoplaySpeedMs?: number | null;
+  };
+  /**
+   * "Conseil dermo" strip: an active ingredient + claim for a handful of products. Maximum 8 — extra entries are ignored on the storefront.
    */
   dermoPicks?:
     | {
@@ -1363,7 +1434,71 @@ export interface Home {
       }[]
     | null;
   /**
-   * Editorial copy + image for the seasonal campaign block (left tile).
+   * Editorial image + copy for the "Image + carrousel produits" section — an editorial image on the left with a product carousel beside it, distinct from Dermo Corner (which stacks image/text above its rail instead of beside it).
+   */
+  imageCarouselCopy?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    /**
+     * Small heading shown above the product carousel, beside the image.
+     */
+    picksTitle?: string | null;
+    image?: (number | null) | Media;
+  };
+  /**
+   * Products shown in the carousel beside the image. Maximum 8 — extra entries are ignored on the storefront.
+   */
+  imageCarouselProducts?: (number | Product)[] | null;
+  /**
+   * Seasonal editorial campaign block — an asymmetric hero (image + oversized title) followed by up to 3 "acts", each its own small product carousel. Independent of Dermo Corner and "Nos coups de cœur".
+   */
+  summerEditCopy?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    /**
+     * Second line of the title, set in the accent color — leave empty for a single-color title.
+     */
+    titleAccent?: string | null;
+    description?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    heroImage?: (number | null) | Media;
+    heroImageMobile?: (number | null) | Media;
+    /**
+     * Background mood for the hero band.
+     */
+    theme?: ('cream' | 'plum') | null;
+    /**
+     * Up to 3 short highlights under the CTA, e.g. "Protection solaire".
+     */
+    highlights?:
+      | {
+          icon: 'Sun' | 'Droplet' | 'Leaf' | 'Sparkles' | 'ShieldCheck';
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * "Actes" of the campaign (e.g. Protéger, Réparer) — each is its own compact editorial band with a small automatic product carousel. Maximum 3 acts, 4 products each.
+   */
+  summerEditActs?:
+    | {
+        eyebrow?: string | null;
+        title: string;
+        description?: string | null;
+        /**
+         * Maximum 4 — extra entries are ignored on the storefront.
+         */
+        products?: (number | Product)[] | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Editorial copy + image for the "Nos coups de cœur" block (image + product carousel, left/right on desktop).
    */
   campaignCopy?: {
     eyebrow?: string | null;
@@ -1379,10 +1514,33 @@ export interface Home {
    */
   campaignProducts?: (number | Product)[] | null;
   /**
-   * Gift box / gift card cards.
+   * Heading, link and layout for the "Coffrets & cadeaux" block (GiftSetsCarousel).
+   */
+  coffretsCopy?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    layout?: ('carousel' | 'grid') | null;
+    /**
+     * Approximate number of cards visible at once on desktop (carousel layout).
+     */
+    visibleDesktop?: number | null;
+    /**
+     * Approximate number of cards visible at once on mobile (carousel layout).
+     */
+    visibleMobile?: number | null;
+  };
+  /**
+   * Gift box / gift card cards, 4 to 8 recommended. Reorder by dragging.
    */
   coffrets?:
     | {
+        /**
+         * Uncheck to hide this card without deleting it.
+         */
+        active?: boolean | null;
         tag?: string | null;
         title: string;
         sub?: string | null;
@@ -1392,6 +1550,8 @@ export interface Home {
          */
         priceFrom?: boolean | null;
         image: number | Media;
+        ctaLabel?: string | null;
+        ctaUrl?: string | null;
         /**
          * Confirmation toast text shown after adding to cart.
          */
@@ -1588,6 +1748,135 @@ export interface CataloguePage {
   createdAt?: string | null;
 }
 /**
+ * Top bar, header and footer — shown on every page. Edited from the Storefront Builder's "Global" tab (/dashboard/storefront).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-chrome".
+ */
+export interface SiteChrome {
+  id: number;
+  /**
+   * Scrolling promo ticker above the header.
+   */
+  topBar?: {
+    enabled?: boolean | null;
+    /**
+     * Shown as a scrolling marquee on desktop/tablet.
+     */
+    messages?:
+      | {
+          text: string;
+          /**
+           * Uncheck to hide without deleting.
+           */
+          active?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Seconds for one full loop of the marquee — lower is faster.
+     */
+    marqueeSpeedSec?: number | null;
+    /**
+     * A moving ticker is hard to read on a phone — mobile shows this single static message instead.
+     */
+    mobileMessage?: string | null;
+  };
+  logo?: {
+    /**
+     * Leave empty to keep the default logo mark.
+     */
+    image?: (number | null) | Media;
+    wordmark?: string | null;
+    href?: string | null;
+  };
+  headerSearch?: {
+    enabled?: boolean | null;
+    placeholder?: string | null;
+  };
+  /**
+   * The 4 header action icons, in display order. "Favoris" and "Panier" keep their real route/behavior — only label, icon and visibility apply to them.
+   */
+  headerActions?:
+    | {
+        key: 'services' | 'contact' | 'favoris' | 'panier';
+        label: string;
+        icon: 'MapPin' | 'MessageCircle' | 'Phone' | 'Mail' | 'HelpCircle' | 'Heart' | 'ShoppingBag';
+        /**
+         * Ignored for "Favoris" and "Panier" — their route is fixed in code, never CMS-editable.
+         */
+        href?: string | null;
+        visible?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Footer link columns, in display order. Reorder by dragging; hide a column without deleting it via "Visible".
+   */
+  footerColumns?:
+    | {
+        title: string;
+        visible?: boolean | null;
+        links?:
+          | {
+              label: string;
+              href: string;
+              visible?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Site-wide color theme — picking a preset or a color here re-colors the whole storefront. Edited from the Storefront Builder's "Apparence" tab (/dashboard/storefront).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme".
+ */
+export interface Theme {
+  id: number;
+  /**
+   * Picking a preset fills the colors below; nudging a color afterwards switches this to "Personnalisé".
+   */
+  preset?: ('parad-hiver' | 'minimal' | 'botanical' | 'soft-beauty' | 'premium' | 'ocean' | 'custom') | null;
+  /**
+   * Hex color only. Overrides --pdh-plum everywhere on the storefront.
+   */
+  colorPrimary?: string | null;
+  /**
+   * Hex color only. Overrides --pdh-teal everywhere on the storefront.
+   */
+  colorSecondary?: string | null;
+  /**
+   * Hex color only. Overrides --pdh-accent everywhere on the storefront.
+   */
+  colorAccent?: string | null;
+  /**
+   * Hex color only. Overrides --pdh-sale everywhere on the storefront.
+   */
+  colorSale?: string | null;
+  /**
+   * Hex color only. Overrides --pdh-ink everywhere on the storefront.
+   */
+  colorTextPrimary?: string | null;
+  /**
+   * Hex color only. Overrides --pdh-muted everywhere on the storefront.
+   */
+  colorTextMuted?: string | null;
+  /**
+   * Hex color only. Overrides --pdh-cream everywhere on the storefront.
+   */
+  colorBackgroundSecondary?: string | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home_select".
  */
@@ -1602,12 +1891,19 @@ export interface HomeSelect<T extends boolean = true> {
   heroSlides?:
     | T
     | {
+        active?: T;
         tag?: T;
         title?: T;
         sub?: T;
         cta?: T;
+        ctaUrl?: T;
+        secondaryCta?: T;
+        secondaryCtaUrl?: T;
+        align?: T;
+        overlay?: T;
         bg?: T;
         image?: T;
+        mobileImage?: T;
         id?: T;
       };
   ctaPair1?:
@@ -1632,6 +1928,9 @@ export interface HomeSelect<T extends boolean = true> {
         brandFilter?: T;
         limit?: T;
         sortOrder?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        badgeStyle?: T;
         editorialImage?: T;
         brandFeature?:
           | T
@@ -1643,6 +1942,15 @@ export interface HomeSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  brandsFeatured?:
+    | T
+    | {
+        brand?: T;
+        phrase?: T;
+        image?: T;
+        ctaLabel?: T;
+        id?: T;
+      };
   ctaPair2?:
     | T
     | {
@@ -1652,12 +1960,73 @@ export interface HomeSelect<T extends boolean = true> {
         image?: T;
         id?: T;
       };
+  promotionsGrid?:
+    | T
+    | {
+        title?: T;
+        subtitle?: T;
+        limit?: T;
+      };
+  dermoCornerCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        picksTitle?: T;
+        image?: T;
+        autoplay?: T;
+        autoplaySpeedMs?: T;
+      };
   dermoPicks?:
     | T
     | {
         product?: T;
         actif?: T;
         claim?: T;
+        id?: T;
+      };
+  imageCarouselCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        picksTitle?: T;
+        image?: T;
+      };
+  imageCarouselProducts?: T;
+  summerEditCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        titleAccent?: T;
+        description?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        heroImage?: T;
+        heroImageMobile?: T;
+        theme?: T;
+        highlights?:
+          | T
+          | {
+              icon?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  summerEditActs?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        products?: T;
         id?: T;
       };
   campaignCopy?:
@@ -1672,15 +2041,30 @@ export interface HomeSelect<T extends boolean = true> {
         image?: T;
       };
   campaignProducts?: T;
+  coffretsCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        layout?: T;
+        visibleDesktop?: T;
+        visibleMobile?: T;
+      };
   coffrets?:
     | T
     | {
+        active?: T;
         tag?: T;
         title?: T;
         sub?: T;
         price?: T;
         priceFrom?: T;
         image?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
         toast?: T;
         id?: T;
       };
@@ -1826,6 +2210,86 @@ export interface CataloguePageSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-chrome_select".
+ */
+export interface SiteChromeSelect<T extends boolean = true> {
+  topBar?:
+    | T
+    | {
+        enabled?: T;
+        messages?:
+          | T
+          | {
+              text?: T;
+              active?: T;
+              id?: T;
+            };
+        marqueeSpeedSec?: T;
+        mobileMessage?: T;
+      };
+  logo?:
+    | T
+    | {
+        image?: T;
+        wordmark?: T;
+        href?: T;
+      };
+  headerSearch?:
+    | T
+    | {
+        enabled?: T;
+        placeholder?: T;
+      };
+  headerActions?:
+    | T
+    | {
+        key?: T;
+        label?: T;
+        icon?: T;
+        href?: T;
+        visible?: T;
+        id?: T;
+      };
+  footerColumns?:
+    | T
+    | {
+        title?: T;
+        visible?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              visible?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme_select".
+ */
+export interface ThemeSelect<T extends boolean = true> {
+  preset?: T;
+  colorPrimary?: T;
+  colorSecondary?: T;
+  colorAccent?: T;
+  colorSale?: T;
+  colorTextPrimary?: T;
+  colorTextMuted?: T;
+  colorBackgroundSecondary?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
