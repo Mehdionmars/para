@@ -620,7 +620,7 @@ async function run() {
     const doc = await payload.create({
       collection: 'products',
       data: {
-        badge: p.badge || undefined,
+        badges: p.badge ? [{ enabled: true, type: 'custom' as const, text: p.badge }] : [],
         brand: brandByName.get(p.brand)!,
         category: p.cat,
         description: p.desc,
@@ -633,6 +633,7 @@ async function run() {
         rating: p.rating,
         reviews: p.reviews,
         size: p.size,
+        stock: 50,
         tint: p.tint,
       },
     })

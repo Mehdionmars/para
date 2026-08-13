@@ -777,6 +777,59 @@ export const Home: GlobalConfig = {
         { name: 'placeholder', type: 'text', defaultValue: 'Votre adresse email' },
         { name: 'buttonLabel', type: 'text', defaultValue: "S'inscrire" },
         { name: 'successMessage', type: 'text', defaultValue: 'Merci ! Votre code −10% arrive par email' },
+        {
+          type: 'collapsible',
+          label: 'Logo',
+          fields: [
+            { name: 'logoEnabled', type: 'checkbox', defaultValue: true, label: 'Afficher le logo' },
+            {
+              name: 'logoSize',
+              type: 'number',
+              admin: { condition: (_, siblingData) => siblingData?.logoEnabled !== false, description: 'En pixels — recommandé 70-80px, discret et non dominant.' },
+              defaultValue: 76,
+              label: 'Taille (px)',
+              max: 140,
+              min: 40,
+            },
+            {
+              name: 'logoPosition',
+              type: 'select',
+              admin: { condition: (_, siblingData) => siblingData?.logoEnabled !== false },
+              defaultValue: 'left',
+              label: 'Position',
+              options: [
+                { label: 'À gauche du texte', value: 'left' },
+                { label: 'Au-dessus du texte', value: 'top' },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'collapsible',
+          label: 'Couleurs',
+          fields: [
+            { name: 'backgroundColor', type: 'text', admin: { description: 'Couleur hex, ex. #5E4074' }, defaultValue: '#5E4074', label: 'Fond' },
+            { name: 'textColor', type: 'text', admin: { description: 'Couleur hex, ex. #FFFFFF' }, defaultValue: '#FFFFFF', label: 'Texte' },
+            { name: 'ctaColor', type: 'text', admin: { description: 'Couleur hex, ex. #008AA5' }, defaultValue: '#008AA5', label: 'Couleur du CTA' },
+          ],
+        },
+        {
+          type: 'collapsible',
+          label: 'Mise en forme & particules',
+          fields: [
+            { name: 'borderRadius', type: 'number', defaultValue: 26, label: 'Rayon des coins (px)', max: 60, min: 0 },
+            { name: 'particlesEnabled', type: 'checkbox', defaultValue: true, label: 'Afficher les particules de neige' },
+            {
+              name: 'particlesOpacity',
+              type: 'number',
+              admin: { condition: (_, siblingData) => siblingData?.particlesEnabled !== false, step: 0.01 },
+              defaultValue: 0.18,
+              label: 'Opacité des particules',
+              max: 1,
+              min: 0,
+            },
+          ],
+        },
       ],
     },
     {

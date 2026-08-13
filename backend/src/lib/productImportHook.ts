@@ -73,7 +73,7 @@ export async function resolveBrandId(payload: Payload, name: string): Promise<nu
 }
 
 export type NormalizedProductRow = {
-  badge: string
+  badges: unknown[]
   barcode: string
   brandName: string
   category: (typeof CATEGORY_OPTIONS)[number] | undefined
@@ -96,7 +96,7 @@ export function normalizeProductRow(raw: Record<string, unknown>, mapping?: Colu
   const description = asText(findColumn(raw, 'description', mapping))
 
   return {
-    badge: '',
+    badges: [],
     barcode: asText(findColumn(raw, 'barcode', mapping)).replace(/\.$/, ''),
     brandName: asText(findColumn(raw, 'brand', mapping)),
     // Explicit category column wins; falls back to scanning the name, then
@@ -144,7 +144,7 @@ export async function productsBeforeImport({
 
       const next: Partial<Record<string, unknown>> = {
         ...row,
-        badge: row.badge ?? n.badge,
+        badges: row.badges ?? n.badges,
         description: n.description || undefined,
         name: n.name || undefined,
         // price comes straight from the PPH column (Prix Public de Vente) —

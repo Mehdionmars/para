@@ -7,8 +7,12 @@ FROM node:22-alpine AS base
 FROM base AS deps
 # libc6-compat: sharp and other native deps expect glibc-ish shims on musl.
 RUN apk add --no-cache libc6-compat
+# Match the npm version the lockfile was generated with — an older npm
+# bundled with the base image can disagree with a newer npm's lockfile tree
+# (especially with legacy-peer-deps=true in .npmrc) and reject `npm ci`.
+RUN npm install -g npm@11
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 
 # ---- builder ------------------------------------------------------------

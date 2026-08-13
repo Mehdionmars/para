@@ -29,6 +29,7 @@ import { SiteChrome } from './globals/SiteChrome'
 import { Theme } from './globals/Theme'
 import { cloudinaryAdapter } from './lib/cloudinaryAdapter'
 import { productsBeforeImport } from './lib/productImportHook'
+import { migrations } from './migrations'
 import { apiMonitoringPlugin } from './plugins/apiMonitoringPlugin'
 
 const filename = fileURLToPath(import.meta.url)
@@ -94,6 +95,13 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    // Payload's dev-only schema `push` is hard-disabled whenever
+    // NODE_ENV=production (see @payloadcms/db-postgres's connect.js), so the
+    // containerized backend needs real migrations instead — `prodMigrations`
+    // makes Payload run any pending ones automatically on boot, against a
+    // fresh Postgres (empty `docker compose up` volume) with no manual
+    // `payload migrate` step.
+    prodMigrations: migrations,
   }),
   editor: lexicalEditor(),
   globals: [Home, CollectionsPage, CataloguePage, SiteChrome, Theme, Navigation],

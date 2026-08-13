@@ -18,7 +18,9 @@ import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } f
 import { AdminIcon as AdminIcon_48bd4f5ed20a278ca9298ebbc521db88 } from '../../../components/AdminLogo'
 import { AdminLogo as AdminLogo_48bd4f5ed20a278ca9298ebbc521db88 } from '../../../components/AdminLogo'
 import { ImportProductsNavLink as ImportProductsNavLink_dd7df59df4f7e8f48fd2cf2d049c6df6 } from '../../../components/ImportProductsNavLink'
+import { ApiMonitoringNavLink as ApiMonitoringNavLink_315fe034564eebdbf259215bc5c68462 } from '../../../components/ApiMonitoringNavLink'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
+import { ApiMonitoringView as ApiMonitoringView_68e78c9faa4360932d21e2a4ba942c05 } from '../../../components/ApiMonitoringView'
 import { ImportProductsView as ImportProductsView_ab66bc9d59b10c3cadecf39dbad5c41c } from '../../../components/ImportProductsView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -44,7 +46,9 @@ export const importMap = {
   "/components/AdminLogo#AdminIcon": AdminIcon_48bd4f5ed20a278ca9298ebbc521db88,
   "/components/AdminLogo#AdminLogo": AdminLogo_48bd4f5ed20a278ca9298ebbc521db88,
   "/components/ImportProductsNavLink#ImportProductsNavLink": ImportProductsNavLink_dd7df59df4f7e8f48fd2cf2d049c6df6,
+  "/components/ApiMonitoringNavLink#ApiMonitoringNavLink": ApiMonitoringNavLink_315fe034564eebdbf259215bc5c68462,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
+  "/components/ApiMonitoringView#ApiMonitoringView": ApiMonitoringView_68e78c9faa4360932d21e2a4ba942c05,
   "/components/ImportProductsView#ImportProductsView": ImportProductsView_ab66bc9d59b10c3cadecf39dbad5c41c,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

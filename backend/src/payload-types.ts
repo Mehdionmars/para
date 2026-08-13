@@ -307,9 +307,29 @@ export interface Product {
    */
   oldPrice?: number | null;
   /**
-   * Small label on the product card, e.g. "-20%", "Nouveau". Leave empty for none.
+   * Small pills shown on the product card, top-left — e.g. "Top", "Nouveau", "Promo". Stacked in order; 3 maximum to keep the card readable.
    */
-  badge?: string | null;
+  badges?:
+    | {
+        enabled?: boolean | null;
+        type?:
+          | ('top' | 'nouveau' | 'bestseller' | 'promo' | 'exclusivite' | 'coupdecoeur' | 'editionlimitee' | 'custom')
+          | null;
+        /**
+         * Leave empty to use the default label for the selected type (e.g. "Nouveau"). Required for "Personnalisé".
+         */
+        text?: string | null;
+        /**
+         * Hex color, e.g. #5E4074. Leave empty to use the theme default.
+         */
+        bgColor?: string | null;
+        /**
+         * Hex color, e.g. #FFFFFF. Leave empty to use the theme default.
+         */
+        textColor?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   rating?: number | null;
   reviews?: number | null;
   /**
@@ -335,6 +355,35 @@ export interface Product {
   stock?: number | null;
   reservedStock?: number | null;
   lowStockThreshold?: number | null;
+  /**
+   * Ce produit possède plusieurs variantes.
+   */
+  hasVariants?: boolean | null;
+  /**
+   * La dimension qui distingue les variantes (ex. "Contenance" pour 50 ml / 100 ml / 200 ml).
+   */
+  variantOptionType?: ('contenance' | 'format' | 'taille' | 'couleur' | 'parfum' | 'pack' | 'autre') | null;
+  /**
+   * Une ligne par variante — chacune avec son propre prix, stock et SKU. Laisser l'image vide pour utiliser l'image principale du produit.
+   */
+  variants?:
+    | {
+        /**
+         * Ex. "50 ml", "Rouge", "Pack de 2".
+         */
+        optionValue: string;
+        sku?: string | null;
+        barcode?: string | null;
+        price: number;
+        oldPrice?: number | null;
+        stock?: number | null;
+        reservedStock?: number | null;
+        lowStockThreshold?: number | null;
+        image?: (number | null) | Media;
+        active?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   isPublished?: boolean | null;
   /**
    * Highlighted in featured/curated rails.
@@ -940,7 +989,16 @@ export interface ProductsSelect<T extends boolean = true> {
   size?: T;
   price?: T;
   oldPrice?: T;
-  badge?: T;
+  badges?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        text?: T;
+        bgColor?: T;
+        textColor?: T;
+        id?: T;
+      };
   rating?: T;
   reviews?: T;
   tint?: T;
@@ -957,6 +1015,23 @@ export interface ProductsSelect<T extends boolean = true> {
   stock?: T;
   reservedStock?: T;
   lowStockThreshold?: T;
+  hasVariants?: T;
+  variantOptionType?: T;
+  variants?:
+    | T
+    | {
+        optionValue?: T;
+        sku?: T;
+        barcode?: T;
+        price?: T;
+        oldPrice?: T;
+        stock?: T;
+        reservedStock?: T;
+        lowStockThreshold?: T;
+        image?: T;
+        active?: T;
+        id?: T;
+      };
   isPublished?: T;
   featured?: T;
   discontinued?: T;
@@ -1741,6 +1816,27 @@ export interface Home {
     placeholder?: string | null;
     buttonLabel?: string | null;
     successMessage?: string | null;
+    logoEnabled?: boolean | null;
+    /**
+     * En pixels — recommandé 70-80px, discret et non dominant.
+     */
+    logoSize?: number | null;
+    logoPosition?: ('left' | 'top') | null;
+    /**
+     * Couleur hex, ex. #5E4074
+     */
+    backgroundColor?: string | null;
+    /**
+     * Couleur hex, ex. #FFFFFF
+     */
+    textColor?: string | null;
+    /**
+     * Couleur hex, ex. #008AA5
+     */
+    ctaColor?: string | null;
+    borderRadius?: number | null;
+    particlesEnabled?: boolean | null;
+    particlesOpacity?: number | null;
   };
   freeShippingThreshold?: number | null;
   _status?: ('draft' | 'published') | null;
@@ -1970,6 +2066,61 @@ export interface Theme {
    * Hex color only. Overrides --pdh-cream everywhere on the storefront.
    */
   colorBackgroundSecondary?: string | null;
+  /**
+   * Hex color only.
+   */
+  buttonBg?: string | null;
+  /**
+   * Hex color only.
+   */
+  buttonText?: string | null;
+  /**
+   * Hex color only.
+   */
+  buttonHoverBg?: string | null;
+  /**
+   * Hex color only.
+   */
+  buttonHoverText?: string | null;
+  /**
+   * Rayon des coins en pixels — 999 pour un bouton en pilule.
+   */
+  buttonRadius?: number | null;
+  buttonFontWeight?: number | null;
+  /**
+   * En em — 0.08 par défaut.
+   */
+  buttonLetterSpacing?: number | null;
+  /**
+   * Hex color only.
+   */
+  badgeBg?: string | null;
+  /**
+   * Hex color only.
+   */
+  badgeText?: string | null;
+  /**
+   * En pixels — 10 à 11px recommandé.
+   */
+  badgeFontSize?: number | null;
+  badgeFontWeight?: number | null;
+  /**
+   * En em — 0.06 par défaut.
+   */
+  badgeLetterSpacing?: number | null;
+  /**
+   * 999 pour un badge en pilule.
+   */
+  badgeRadius?: number | null;
+  badgePaddingX?: number | null;
+  /**
+   * Vise une hauteur totale de 24-26px avec la taille de texte par défaut.
+   */
+  badgePaddingY?: number | null;
+  /**
+   * Espace vertical entre badges empilés.
+   */
+  badgeGap?: number | null;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -2318,6 +2469,15 @@ export interface HomeSelect<T extends boolean = true> {
         placeholder?: T;
         buttonLabel?: T;
         successMessage?: T;
+        logoEnabled?: T;
+        logoSize?: T;
+        logoPosition?: T;
+        backgroundColor?: T;
+        textColor?: T;
+        ctaColor?: T;
+        borderRadius?: T;
+        particlesEnabled?: T;
+        particlesOpacity?: T;
       };
   freeShippingThreshold?: T;
   _status?: T;
@@ -2485,6 +2645,22 @@ export interface ThemeSelect<T extends boolean = true> {
   colorTextPrimary?: T;
   colorTextMuted?: T;
   colorBackgroundSecondary?: T;
+  buttonBg?: T;
+  buttonText?: T;
+  buttonHoverBg?: T;
+  buttonHoverText?: T;
+  buttonRadius?: T;
+  buttonFontWeight?: T;
+  buttonLetterSpacing?: T;
+  badgeBg?: T;
+  badgeText?: T;
+  badgeFontSize?: T;
+  badgeFontWeight?: T;
+  badgeLetterSpacing?: T;
+  badgeRadius?: T;
+  badgePaddingX?: T;
+  badgePaddingY?: T;
+  badgeGap?: T;
   _status?: T;
   updatedAt?: T;
   createdAt?: T;

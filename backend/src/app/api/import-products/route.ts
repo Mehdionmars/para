@@ -119,7 +119,7 @@ async function handlePOST(request: Request) {
       // price comes straight from the PPH column (Prix Public de Vente) —
       // it IS the selling price, never a cost/purchase price to mark up.
       const data: Record<string, unknown> = {
-        badge: n.badge,
+        badges: n.badges,
         brand: brandId,
         description: n.description || n.name,
         name: n.name,
