@@ -19,6 +19,7 @@ export const SUMMER_EDIT_HIGHLIGHT_ICONS = ['Sun', 'Droplet', 'Leaf', 'Sparkles'
 
 export const SECTION_KEYS = [
   'hero',
+  'marketingBanner',
   'ctaPair1',
   'summerEdit',
   'promotionsGrid',
@@ -37,6 +38,7 @@ export const SECTION_KEYS = [
 
 export const SECTION_LABELS: Record<(typeof SECTION_KEYS)[number], string> = {
   hero: 'Bannière hero',
+  marketingBanner: 'Bannière marketing (saisonnière)',
   ctaPair1: 'CTA — paire d’images (haut)',
   summerEdit: 'Summer Edit',
   promotionsGrid: 'Grille promotions',
@@ -58,6 +60,7 @@ export const SECTION_LABELS: Record<(typeof SECTION_KEYS)[number], string> = {
  * Services/Marketing) — display-only, does not affect Home's schema. */
 export const SECTION_GROUPS = {
   hero: 'content',
+  marketingBanner: 'content',
   ctaPair1: 'content',
   ctaPair2: 'content',
   summerEdit: 'products',
@@ -182,6 +185,31 @@ export const Home: GlobalConfig = {
         },
         imageField(),
         imageField('mobileImage', false),
+      ],
+    },
+    {
+      name: 'marketingBannerCopy',
+      type: 'group',
+      admin: {
+        description:
+          'Single full-width seasonal/campaign banner (e.g. "Saison été", "Black Friday") — swap the image, copy and dates to change campaign without touching code.',
+      },
+      fields: [
+        imageField('image', false),
+        imageField('imageMobile', false),
+        { name: 'eyebrow', type: 'text', admin: { description: 'e.g. "SAISON ÉTÉ"' } },
+        { name: 'title', type: 'text' },
+        { name: 'description', type: 'textarea' },
+        { name: 'ctaLabel', type: 'text' },
+        { name: 'ctaUrl', type: 'text', defaultValue: '/catalogue' },
+        { name: 'badgeLabel', type: 'text', admin: { description: 'Optional small promo pill, e.g. "-20%". Leave empty to omit.' } },
+        {
+          type: 'row',
+          fields: [
+            { name: 'startDate', type: 'date', admin: { description: 'Leave empty to show immediately.' } },
+            { name: 'endDate', type: 'date', admin: { description: 'Leave empty to show indefinitely.' } },
+          ],
+        },
       ],
     },
     {

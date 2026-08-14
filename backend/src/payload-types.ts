@@ -1398,6 +1398,33 @@ export interface Home {
       }[]
     | null;
   /**
+   * Single full-width seasonal/campaign banner (e.g. "Saison été", "Black Friday") — swap the image, copy and dates to change campaign without touching code.
+   */
+  marketingBannerCopy?: {
+    image?: (number | null) | Media;
+    imageMobile?: (number | null) | Media;
+    /**
+     * e.g. "SAISON ÉTÉ"
+     */
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    /**
+     * Optional small promo pill, e.g. "-20%". Leave empty to omit.
+     */
+    badgeLabel?: string | null;
+    /**
+     * Leave empty to show immediately.
+     */
+    startDate?: string | null;
+    /**
+     * Leave empty to show indefinitely.
+     */
+    endDate?: string | null;
+  };
+  /**
    * Two-tile CTA banner right under the hero (exactly 2 tiles).
    */
   ctaPair1?:
@@ -2224,6 +2251,20 @@ export interface HomeSelect<T extends boolean = true> {
         image?: T;
         mobileImage?: T;
         id?: T;
+      };
+  marketingBannerCopy?:
+    | T
+    | {
+        image?: T;
+        imageMobile?: T;
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        badgeLabel?: T;
+        startDate?: T;
+        endDate?: T;
       };
   ctaPair1?:
     | T
