@@ -11,12 +11,18 @@ import sharp from 'sharp'
 
 import { Brands } from './collections/Brands'
 import { Categories } from './collections/Categories'
+import { CouponRedemptions } from './collections/CouponRedemptions'
+import { Coupons } from './collections/Coupons'
 import { InstagramPosts } from './collections/InstagramPosts'
 import { Inventory } from './collections/Inventory'
 import { Media } from './collections/Media'
+import { Notifications } from './collections/Notifications'
+import { OrderStatusHistory } from './collections/OrderStatusHistory'
 import { Orders } from './collections/Orders'
+import { PushSubscriptions } from './collections/PushSubscriptions'
 import { Products } from './collections/Products'
 import { Services } from './collections/Services'
+import { ShippingRules } from './collections/ShippingRules'
 import { StockMovements } from './collections/StockMovements'
 import { Stores } from './collections/Stores'
 import { Suppliers } from './collections/Suppliers'
@@ -84,6 +90,12 @@ export default buildConfig({
     Inventory,
     StockMovements,
     InstagramPosts,
+    Coupons,
+    CouponRedemptions,
+    ShippingRules,
+    OrderStatusHistory,
+    Notifications,
+    PushSubscriptions,
   ],
   // Includes the backend's own origin (not just the frontend's) — custom
   // admin views like /admin/import-products call this app's own /api routes

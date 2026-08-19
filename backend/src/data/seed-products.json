@@ -1,0 +1,564 @@
+[
+  {
+    "name": "Effaclar Gel Moussant Purifiant",
+    "slug": "la-roche-posay-effaclar-gel-moussant-purifiant-400ml",
+    "brand": "La Roche-Posay",
+    "category": "Visage",
+    "size": "400 ml",
+    "price": 226,
+    "oldPrice": 348,
+    "description": "Gel nettoyant moussant purifiant pour peaux grasses à imperfections. Élimine l'excès de sébum et les impuretés tout en respectant la barrière cutanée, grâce à l'eau thermale de La Roche-Posay et au zinc. Recommandé matin et soir pour les peaux acnéiques.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6c612d726f6368652d706f7361792d65666661636c61722d67656c2d6d6f757373616e742d707572696669616e742d3230306d6cb75ed8cb.jpg",
+    "sku": "LRP-EFFACLAR-GEL-400",
+    "barcode": "3337872411083",
+    "stock": 180,
+    "featured": true,
+    "badges": [
+      {
+        "type": "bestseller",
+        "enabled": true
+      },
+      {
+        "type": "exclusivite",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Créaline H2O TS Eau Micellaire",
+    "slug": "bioderma-crealine-h2o-ts-eau-micellaire-250ml",
+    "brand": "Bioderma",
+    "category": "Visage",
+    "size": "250 ml",
+    "price": 108,
+    "oldPrice": null,
+    "description": "Eau micellaire douce pour peaux très sèches et sensibles du visage. Démaquille et nettoie sans rinçage, enrichie en glycérine et extrait de plantain pour hydrater et apaiser tout en renforçant la barrière protectrice naturelle de la peau.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/62696f6465726d612d637265616c696e652d68326f2d74732d6561752d6d6963656c6c616972652d3235306d6c2d666163652df5b8cd.jpg",
+    "sku": "BIO-CREALINE-H2O-TS-250",
+    "barcode": "3701129805015",
+    "stock": 0,
+    "badges": [
+      {
+        "type": "routine",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Minéral 89 Booster Quotidien",
+    "slug": "vichy-mineral-89-booster-quotidien-50ml",
+    "brand": "Vichy",
+    "category": "Visage",
+    "size": "50 ml",
+    "price": 228,
+    "oldPrice": null,
+    "description": "Sérum quotidien composé à 89% d'eau volcanique de Vichy enrichie en 15 minéraux et acide hyaluronique. Renforce les défenses naturelles de la peau et apporte une hydratation intense. Sans alcool, sans paraben, sans parfum.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/3a085aa99720728e8ee34b35a5946b35a13c883a2e66b6aaea5c3ab87ed4e9bc291aadc3.jpg",
+    "sku": "VCH-MINERAL89-BOOST-50",
+    "barcode": "3337875543248",
+    "stock": 45,
+    "badges": [
+      {
+        "type": "nouveau",
+        "enabled": true
+      },
+      {
+        "type": "coupdecoeur",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Gel Moussant Nettoyant",
+    "slug": "cerave-gel-moussant-nettoyant-88ml",
+    "brand": "CeraVe",
+    "category": "Visage",
+    "size": "88 ml",
+    "price": 134,
+    "oldPrice": null,
+    "description": "Gel nettoyant moussant pour peaux normales à grasses, formulé par des dermatologues avec 3 céramides essentiels et acide hyaluronique. Élimine l'excès de sébum et les impuretés sans agresser le film hydrolipidique. Non comédogène.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6365726176652d67656c2d6d6f757373616e742d38386d6c2d66616365beebfa83.jpg",
+    "sku": "CRV-GEL-MOUSSANT-88",
+    "barcode": "3337875597357",
+    "stock": 220,
+    "badges": [
+      {
+        "type": "routine",
+        "enabled": true
+      },
+      {
+        "type": "bestseller",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Rêve de Miel Gel Lavant Surgras",
+    "slug": "nuxe-reve-de-miel-gel-lavant-surgras-400ml",
+    "brand": "Nuxe",
+    "category": "Corps",
+    "size": "400 ml",
+    "price": 141,
+    "oldPrice": null,
+    "description": "Gel lavant surgras au miel d'acacia et à l'huile de tournesol pour le soin quotidien des peaux sèches et sensibles, visage et corps. Respecte la barrière hydrolipidique tout en apportant douceur et confort après chaque douche.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6e7578652d726576652d64652d6d69656c2d67656c2d6c6176616e742d737572677261732d7669736167652d65742d636f7270732d3430306d6c30586bb9.jpg",
+    "sku": "NUX-REVEDEMIEL-GEL-400",
+    "barcode": "3264680004063",
+    "stock": 95,
+    "badges": [
+      {
+        "type": "coupdecoeur",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Cold Cream Crème Mains Concentrée",
+    "slug": "avene-cold-cream-mains-concentree-50ml",
+    "brand": "Avène",
+    "category": "Corps",
+    "size": "50 ml",
+    "price": 54,
+    "oldPrice": null,
+    "description": "Crème mains concentrée pour mains sèches à très sèches ou abîmées. Nourrit, apaise et répare grâce au Cold Cream, à l'eau thermale d'Avène et à l'alpha-bisabolol. Texture riche à absorption rapide, sans effet gras.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/30333238323737303134353737392d33303831333964392d383033622d343233612d616334342d66393939643433383235656545b559c6.jpg",
+    "sku": "AVN-COLDCREAM-MAINS-50",
+    "barcode": "3282770145779",
+    "stock": 150
+  },
+  {
+    "name": "Lait Hydratant Visage et Corps",
+    "slug": "cerave-lait-hydratant-visage-corps-236ml",
+    "brand": "CeraVe",
+    "category": "Corps",
+    "size": "236 ml",
+    "price": 98,
+    "oldPrice": null,
+    "description": "Lait hydratant pour peaux très sèches, visage et corps. Contient 3 céramides, acide hyaluronique et glycérine pour restaurer la barrière d'hydratation, réduire les tiraillements et lisser la texture de la peau. Sans parfum.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6365726176652d6c6169742d687964726174616e742d3233366d6c24673696.jpg",
+    "sku": "CRV-LAIT-HYDRATANT-236",
+    "barcode": "3337875597210",
+    "stock": 300,
+    "badges": [
+      {
+        "type": "bestseller",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Xémose C8+ Crème Relipidante Anti-Grattage",
+    "slug": "uriage-xemose-creme-relipidante-200ml",
+    "brand": "Uriage",
+    "category": "Corps",
+    "size": "200 ml",
+    "price": 134,
+    "oldPrice": null,
+    "description": "Crème relipidante pour peaux atopiques sujettes à l'eczéma et à la sécheresse extrême. Formulée avec l'eau thermale d'Uriage, 8 céramides biomimétiques et beurre de karité pour soulager les démangeaisons et protéger la barrière cutanée dès la naissance.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/7572696167652d78656d6f73652d63382d6372656d652d72656c69706964616e74652d616e74692d67726174746167652d3230306d6c2d70726f64756974162710ee.jpg",
+    "sku": "URI-XEMOSE-CREME-200",
+    "barcode": "3661434004841",
+    "stock": 4
+  },
+  {
+    "name": "Shampoing Extra-Doux à l'Avoine",
+    "slug": "klorane-shampoing-extra-doux-avoine-400ml",
+    "brand": "Klorane",
+    "category": "Cheveux",
+    "size": "400 ml",
+    "price": 108,
+    "oldPrice": null,
+    "description": "Shampoing extra-doux au lait d'avoine bio, adapté aux cheveux fragiles de toute la famille dès 3 ans. Formule sans sulfates qui adoucit, protège et hydrate les cheveux tout en les nettoyant en douceur.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6b6c6f72616e652d7368616d706f696e672d65787472612d646f75782d612d6c2d61766f696e652d3430306d6c44ecec60.jpg",
+    "sku": "KLO-SH-AVOINE-400",
+    "barcode": "3282770145373",
+    "stock": 210,
+    "badges": [
+      {
+        "type": "routine",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Kelual DS Shampooing Traitant",
+    "slug": "ducray-kelual-ds-shampooing-traitant-100ml",
+    "brand": "Ducray",
+    "category": "Cheveux",
+    "size": "100 ml",
+    "price": 129,
+    "oldPrice": null,
+    "description": "Shampooing traitant antipelliculaire pour états pelliculaires sévères associés à des démangeaisons du cuir chevelu. Formulé avec ciclopirox olamine et piroctone olamine, il réduit de moitié le nombre de pellicules dès la première semaine.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/696d672d363232347e982588.jpg",
+    "sku": "DUC-KELUAL-DS-100",
+    "barcode": "3282770140453",
+    "stock": 60,
+    "badges": [
+      {
+        "type": "exclusivite",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Phytocyane Shampooing Revigorant",
+    "slug": "phyto-phytocyane-shampooing-revigorant-250ml",
+    "brand": "Phyto",
+    "category": "Cheveux",
+    "size": "250 ml",
+    "price": 92,
+    "oldPrice": null,
+    "description": "Shampooing revigorant complément d'un traitement antichute chez la femme. Enrichi en extrait de ginkgo biloba pour stimuler la microcirculation et en romarin pour protéger le cuir chevelu, il nettoie en douceur et redonne du volume aux cheveux.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/333730313433363931353535312d313b5ccba9.jpg",
+    "sku": "PHY-PHYTOCYANE-SH-250",
+    "barcode": "3701436915551",
+    "stock": 35
+  },
+  {
+    "name": "Shampooing Quinine et Edelweiss Bio",
+    "slug": "klorane-shampooing-quinine-edelweiss-100ml",
+    "brand": "Klorane",
+    "category": "Cheveux",
+    "size": "100 ml",
+    "price": 108,
+    "oldPrice": null,
+    "description": "Shampooing antichute à la quinine et à l'edelweiss bio, complément d'un traitement contre la chute de cheveux. Un complexe de vitamines B et de caféine renforce la fibre capillaire et stimule la microcirculation du cuir chevelu.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6b6c6f72616e652d7368616d706f6f696e672d616e74692d63687574652d3130306d6c2d666163657bf45b71.jpg",
+    "sku": "KLO-SH-QUININE-100",
+    "barcode": "3282770141283",
+    "stock": 75
+  },
+  {
+    "name": "Anthelios UVMune 400 Fluide Solaire Invisible SPF50+",
+    "slug": "la-roche-posay-anthelios-uvmune-400-fluide-spf50-50ml",
+    "brand": "La Roche-Posay",
+    "category": "Solaire",
+    "size": "50 ml",
+    "price": 115,
+    "oldPrice": 147,
+    "description": "Fluide solaire invisible SPF50+ à très haute protection pour peaux sensibles, sans parfum. Grâce au Mexoryl, protège aussi des UVA longs (380-400nm) responsables des dommages cellulaires profonds. Fini invisible, non gras, résiste à l'eau.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6c612d726f6368652d706f7361792d616e7468656c696f732d333333373837353739373539372d66726f6e742d30cd91eed6.jpg",
+    "sku": "LRP-ANTHELIOS-UVMUNE-50",
+    "barcode": "3337875797597",
+    "stock": 400,
+    "featured": true,
+    "badges": [
+      {
+        "type": "bestseller",
+        "enabled": true
+      },
+      {
+        "type": "nouveau",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Capital Soleil Crème Solaire Onctueuse SPF50+",
+    "slug": "vichy-capital-soleil-creme-onctueuse-spf50-50ml",
+    "brand": "Vichy",
+    "category": "Solaire",
+    "size": "50 ml",
+    "price": 76,
+    "oldPrice": 108,
+    "description": "Crème solaire onctueuse haute protection pour peau sensible, normale à sèche. Combine filtres chimiques et minéraux contre les rayons UVA/UVB avec de la glycérine et de l'acide hyaluronique. Texture soyeuse, résistante à l'eau.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/76696368792d6361706974616c2d736f6c65696c2d6372656d652d736f6c616972652d6f6e637475657573652d7370662d35302d6661636528286717.jpg",
+    "sku": "VCH-CAPSOLEIL-CREME-50",
+    "barcode": "3337871324445",
+    "stock": 260,
+    "badges": [
+      {
+        "type": "solde",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Fusion Water Magic Fluide Solaire SPF50",
+    "slug": "isdin-fusion-water-magic-fluide-spf50-50ml",
+    "brand": "Isdin",
+    "category": "Solaire",
+    "size": "50 ml",
+    "price": 243,
+    "oldPrice": null,
+    "description": "Protection solaire visage ultra-légère avec système de filtres Full Spectrum contre UVB, UVA, lumière bleue et infrarouges A. Enrichie en acide hyaluronique, glycérine et extrait d'algues méditerranéennes. Absorption immédiate, sans film gras.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/1401349ec0627c69ea410f77a0289b1985bc6d0a514efbbcbc5230882b37b404b4f516f1.jpg",
+    "sku": "ISD-FUSIONWATER-50",
+    "barcode": "8429420306240",
+    "stock": 0,
+    "badges": [
+      {
+        "type": "editionlimitee",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Couvrance Fond de Teint Correcteur Fluide SPF20",
+    "slug": "avene-couvrance-fond-de-teint-fluide-spf20-30ml",
+    "brand": "Avène",
+    "category": "Maquillage",
+    "size": "30 ml",
+    "price": 195,
+    "oldPrice": null,
+    "description": "Fond de teint fluide correcteur pour peaux sensibles, avec SPF20. Couvre parfaitement les petites irrégularités du teint et les imperfections légères à modérées, sans effet masque, grâce à des pigments photo-correcteurs.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/32b2b0f15a.jpg",
+    "sku": "AVN-COUVRANCE-FDT-30",
+    "barcode": "3282770100549",
+    "stock": 25,
+    "badges": [
+      {
+        "type": "nouveau",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Couvrance Mascara Haute Tolérance",
+    "slug": "avene-couvrance-mascara-haute-tolerance-7ml",
+    "brand": "Avène",
+    "category": "Maquillage",
+    "size": "7 ml",
+    "price": 190,
+    "oldPrice": null,
+    "description": "Mascara haute tolérance spécialement formulé pour les yeux sensibles et les porteuses de lentilles de contact. Volume, courbe et définition des cils grâce à une brosse innovante anti-paquets. Tenue 8 heures, se retire facilement.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/30333238323737303339323835322d35633133336437312d666331342d343364382d613362662d3834613163623538343634396451e3c7.jpg",
+    "sku": "AVN-COUVRANCE-MASC-7",
+    "barcode": "3282770392852",
+    "stock": 40
+  },
+  {
+    "name": "Toleriane Fluide Correcteur Haute Couvrance SPF25",
+    "slug": "la-roche-posay-toleriane-fluide-correcteur-spf25-30ml",
+    "brand": "La Roche-Posay",
+    "category": "Maquillage",
+    "size": "30 ml",
+    "price": 211,
+    "oldPrice": null,
+    "description": "Fond de teint fluide correcteur haute couvrance pour peaux fragiles ou intolérantes, avec eau thermale de La Roche-Posay. Texture fine et légère, très étalable, tenue toute la journée sans effet masque. Protection SPF25.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6c612d726f6368652d706f7361792d676162617269742d323285c4a0e5.jpg",
+    "sku": "LRP-TOLERIANE-FLUIDE-30",
+    "barcode": "3337875836746",
+    "stock": 30
+  },
+  {
+    "name": "Hydra Bébé Crème Visage à l'Avocat Bio",
+    "slug": "mustela-hydra-bebe-creme-visage-avocat-40ml",
+    "brand": "Mustela",
+    "category": "Baby & Mom",
+    "size": "40 ml",
+    "price": 86,
+    "oldPrice": null,
+    "description": "Crème hydratante visage spécialement formulée pour les nouveau-nés et nourrissons, à la perséose d'avocat bio. Combine glycérine végétale, huile de jojoba, beurre de karité et vitamine E pour hydrater et apaiser dès la naissance.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6d757374656c612d68796472612d626562652d6372656d652d766973616765d73a64a1.jpg",
+    "sku": "MUS-HYDRABEBE-VISAGE-40",
+    "barcode": "3504105035952",
+    "stock": 110,
+    "featured": true,
+    "badges": [
+      {
+        "type": "bestseller",
+        "enabled": true
+      },
+      {
+        "type": "routine",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Bébé 1er Change Crème",
+    "slug": "uriage-bebe-1er-change-creme-100ml",
+    "brand": "Uriage",
+    "category": "Baby & Mom",
+    "size": "100 ml",
+    "price": 86,
+    "oldPrice": null,
+    "description": "Crème pour le change à l'edelweiss bio qui réduit les rougeurs, apaise la peau et prévient l'érythème fessier. Formulée à 96% d'ingrédients d'origine naturelle avec l'eau thermale d'Uriage, oxyde de zinc, cire d'abeille, karité et jojoba.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/3336363134333430303835393711ea526d.jpg",
+    "sku": "URI-BEBE-1ERCHANGE-100",
+    "barcode": "3661434008597",
+    "stock": 90
+  },
+  {
+    "name": "Lait Solaire SPF50+ Très Haute Protection",
+    "slug": "mustela-lait-solaire-spf50-40ml",
+    "brand": "Mustela",
+    "category": "Baby & Mom",
+    "size": "40 ml",
+    "price": 118,
+    "oldPrice": null,
+    "description": "Lait solaire très haute protection pour bébés et toute la famille dès la naissance. Formulé sans octocrylène et enrichi en perséose d'avocat, il hydrate tout en protégeant contre les UVA/UVB. Résistant à l'eau, respectueux des océans.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/736f6c616972652d74756265343061742d33353034313035303336373638a108d31b.jpg",
+    "sku": "MUS-LAITSOLAIRE-40",
+    "barcode": "3504105036768",
+    "stock": 130,
+    "badges": [
+      {
+        "type": "nouveau",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Dentifrice Anti-Caries Professional",
+    "slug": "elmex-dentifrice-anti-caries-professional-75ml",
+    "brand": "Elmex",
+    "category": "Bucco-Dentaire",
+    "size": "75 ml",
+    "price": 81,
+    "oldPrice": null,
+    "description": "Dentifrice quotidien à partir de 7 ans contenant un neutraliseur prébiotique d'acides qui bloque les attaques acido-sucrées responsables des caries en rétablissant la neutralité du pH de la flore buccale. Fluor et calcium renforcent l'émail dentaire.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/fc634fc4effad27bf8aca972f030f6be96fe7a886ae599ab22ade1381c93c1f693ff9eb9.jpg",
+    "sku": "ELX-ANTICARIES-PRO-75",
+    "barcode": "8718951653092",
+    "stock": 500,
+    "badges": [
+      {
+        "type": "bestseller",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Dentifrice Complete Protection",
+    "slug": "parodontax-dentifrice-complete-protection-75ml",
+    "brand": "Parodontax",
+    "category": "Bucco-Dentaire",
+    "size": "75 ml",
+    "price": 54,
+    "oldPrice": null,
+    "description": "Dentifrice quotidien au fluor qui nettoie en profondeur les dents tout en aidant à stopper et prévenir les saignements des gencives. Formulé avec du fluorure de sodium (1400 ppm) et de la silice pour un nettoyage complet et une haleine fraîche.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/696d672d3430303845b7ece2.jpg",
+    "sku": "PDX-COMPLETEPROTECT-75",
+    "barcode": "5054563041555",
+    "stock": 340
+  },
+  {
+    "name": "Brosse à Dents Parodontie",
+    "slug": "inava-brosse-a-dents-parodontie",
+    "brand": "Inava",
+    "category": "Bucco-Dentaire",
+    "size": "1 unité",
+    "price": 47,
+    "oldPrice": null,
+    "description": "Brosse à dents aux poils souples Tynex coupés en V inversé pour un accès facilité aux espaces interdentaires. Adaptée à la reprise progressive du brossage après une intervention chirurgicale, elle protège les gencives fragiles et les tissus cicatriciels.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/696e6176612d7061726f646f6e7469652d62726f7373652d612d64656e74732d6f7074696f6e911d4f9f.jpg",
+    "sku": "INV-BROSSE-PARODONTIE",
+    "barcode": "3577057054159",
+    "stock": 0
+  },
+  {
+    "name": "Vitamine D3 1000 UI Comprimés à Croquer",
+    "slug": "solgar-vitamine-d3-1000ui-100-comprimes",
+    "brand": "Solgar",
+    "category": "Compléments alimentaires",
+    "size": "100 comprimés",
+    "price": 163,
+    "oldPrice": null,
+    "description": "Complément alimentaire apportant 1000 UI (25µg) de vitamine D3 par comprimé à croquer, pour le maintien des os et des dents et le fonctionnement normal du système immunitaire. Saveur fraise-banane, sans gluten ni levure, convient aux végétariens.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/736f6c6761722d766974616d696e652d64332d313030302d75692d636f6d7072696d65732d612d63726f717565722d66616365559d5d9f.jpg",
+    "sku": "SOL-VITD3-1000-100",
+    "barcode": "0033984549562",
+    "stock": 55,
+    "featured": true,
+    "badges": [
+      {
+        "type": "offrespeciale",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Acérola 1000 + Vitamine D3 Comprimés Effervescents",
+    "slug": "arkopharma-acerola-1000-vitd3-20-comprimes",
+    "brand": "Arkopharma",
+    "category": "Compléments alimentaires",
+    "size": "20 comprimés",
+    "price": 86,
+    "oldPrice": null,
+    "description": "Complément alimentaire 100% végétal associant vitamine C d'acérola (170 mg) et vitamine D3 de lichen boréal (2000 UI) en comprimés effervescents. La vitamine C aide à réduire la fatigue tandis que la vitamine D3 soutient la santé osseuse.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/61726b6f706861726d612d616365726f6c612d313030302d766974616d696e652d64332d32302d636f6d7072696d65732d66616365caaf3dab.jpg",
+    "sku": "ARK-ACEROLA1000-D3-20",
+    "barcode": "3578835504088",
+    "stock": 2,
+    "badges": [
+      {
+        "type": "nouveau",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Oméga 3 Capsules",
+    "slug": "solgar-omega-3-30-capsules",
+    "brand": "Solgar",
+    "category": "Compléments alimentaires",
+    "size": "30 capsules",
+    "price": 270,
+    "oldPrice": null,
+    "description": "Complément alimentaire à base d'huile de poisson des mers froides, apportant des acides gras polyinsaturés oméga-3 sous forme naturelle. Deux capsules fournissent 720 mg d'EPA et 480 mg de DHA. Sans sucre, sans gluten, sans additifs artificiels.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/736f6c6761722d6f6d6567612d332d6875696c652d64652d706f6973736f6e2d33302d63617073756c65732d666163651263002a.jpg",
+    "sku": "SOL-OMEGA3-30",
+    "barcode": "0033984020504",
+    "stock": 3
+  },
+  {
+    "name": "Lipikar Syndet AP+ Crème Lavante Relipidante",
+    "slug": "la-roche-posay-lipikar-syndet-ap-200ml",
+    "brand": "La Roche-Posay",
+    "category": "Hygiène",
+    "size": "200 ml",
+    "price": 103,
+    "oldPrice": null,
+    "description": "Crème lavante sans savon pour l'hygiène quotidienne des peaux atopiques sujettes à l'eczéma, dès la naissance. Formulée avec glycérine, niacinamide, beurre de karité et mannose pour réduire les démangeaisons et la sécheresse.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6c612d726f6368652d706f7361792d6c6970696b61722d73796e6465742d61702d6372656d652d6c6176616e74652d72656c69706964616e74652d3230306d6cb35d7b94.jpg",
+    "sku": "LRP-LIPIKAR-SYNDET-200",
+    "barcode": "3337875537308",
+    "stock": 175,
+    "badges": [
+      {
+        "type": "routine",
+        "enabled": true
+      },
+      {
+        "type": "coupdecoeur",
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "name": "Lipikar Huile Lavante AP+",
+    "slug": "la-roche-posay-lipikar-huile-lavante-400ml",
+    "brand": "La Roche-Posay",
+    "category": "Hygiène",
+    "size": "400 ml",
+    "price": 152,
+    "oldPrice": null,
+    "description": "Huile lavante pour les sécheresses cutanées sévères et les peaux atopiques, de la naissance à l'âge adulte. Formulée avec Aqua Posae Filiformis, niacinamide et beurre de karité pour apaiser les démangeaisons et hydrater 24 heures.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/6e4125807e904b1b97094e2f31dfde0216d42a9b24f2e7030bee681caf19082c93e2fe47.jpg",
+    "sku": "LRP-LIPIKAR-HUILE-400",
+    "barcode": "3337875656764",
+    "stock": 85
+  },
+  {
+    "name": "Soin Lavant Doux Apaisant",
+    "slug": "saforelle-soin-lavant-doux-100ml",
+    "brand": "Saforelle",
+    "category": "Hygiène",
+    "size": "100 ml",
+    "price": 38,
+    "oldPrice": null,
+    "description": "Soin lavant intime et corporel doux, prescrit par les gynécologues depuis 1990. Formulé avec extrait de bardane, sans savon, sans paraben et sans colorant, il nettoie et apaise les peaux sensibles ou irritées tout en respectant la flore.",
+    "imageUrl": "https://cdn.pharma-gdd.com/cache/product_show/dbabcd47cbb09677dbdc9522d234cf1cf56f477ebe0eeec5587ab5c4b251c501a06b5ce0.jpg",
+    "sku": "SAF-LAVANTDOUX-100",
+    "barcode": "3401373973026",
+    "stock": 200,
+    "badges": [
+      {
+        "type": "exclusivite",
+        "enabled": true
+      }
+    ]
+  }
+]

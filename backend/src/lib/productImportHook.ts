@@ -8,7 +8,11 @@ const CATEGORY_KEYWORDS: [RegExp, (typeof CATEGORY_OPTIONS)[number]][] = [
   [/solair|spf|uv/i, 'Solaire'],
   [/cheveux|capillaire|shampoo|shampooing|ampoule/i, 'Cheveux'],
   [/b[ée]b[ée]|maman|grossesse/i, 'Baby & Mom'],
-  [/corps|lait corps|gel douche|d[ée]odorant|[ée]pilat/i, 'Corps'],
+  [/maquillage|make-?up|mascara|rouge [aà] l[eè]vres|fond de teint|blush|fard|eyeliner|anticernes|correcteur/i, 'Maquillage'],
+  [/dentifrice|dentaire|bucco|buccal|gencive|bain de bouche|haleine/i, 'Bucco-Dentaire'],
+  [/compl[ée]ment|vitamine|probiotique|om[ée]ga|g[ée]lule|comprim[ée]|collag[eè]ne/i, 'Compléments alimentaires'],
+  [/hygi[eè]ne|savon|gel douche|d[ée]odorant/i, 'Hygiène'],
+  [/corps|lait corps|[ée]pilat/i, 'Corps'],
   [/visage|facial|nettoyant|s[ée]rum|cr[eè]me/i, 'Visage'],
 ]
 

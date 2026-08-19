@@ -115,22 +115,21 @@ export async function upsertImportRow(
       data.price = raw.price
       data.category = raw.category
       data.description = (data.description as string | undefined) || raw.title
-      // New products always land as an unpublished draft with 0 sellable
-      // stock, regardless of what the sheet says — an administrator must
-      // review and publish them before they're live on the storefront. The
-      // sheet's reported quantity is still preserved below as an Inventory
-      // record (a receiving reference), just not reflected in live stock or
-      // a stock-movement entry yet — there's no real stock change to log
-      // when the product starts and stays at 0.
-      data.isPublished = false
-      data.stock = 0
+      // New products default to an unpublished draft with 0 sellable stock
+      // — an administrator must review and publish them before they're live
+      // on the storefront. A sheet that explicitly states its own status
+      // (e.g. an "isPublished"/"status" column) and/or stock quantity wins
+      // over that default instead of being silently discarded, so a
+      // pre-reviewed supplier feed can land live in one pass.
+      data.isPublished = raw.isPublished ?? false
+      data.stock = raw.stock ?? 0
       const doc = await payload.create({ collection: 'products', data: data as never })
       productId = doc.id as number
       created = true
     }
 
-    const newStock = created ? 0 : raw.stock !== undefined ? raw.stock : previousStock
-    const stockChanged = !created && raw.stock !== undefined && raw.stock !== previousStock
+    const newStock = raw.stock !== undefined ? raw.stock : previousStock
+    const stockChanged = raw.stock !== undefined && raw.stock !== previousStock
     if (stockChanged) {
       await payload.create({
         collection: 'stock-movements',

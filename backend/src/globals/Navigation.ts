@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { canEditContent } from '../access/roles'
+import { revalidateStorefront } from '../lib/revalidateStorefront'
 
 // Real existing storefront routes that aren't a Category/Brand relationship
 // (a quick-filter view of the catalogue, or a plain static page) — kept as a
@@ -24,6 +25,152 @@ export const NAV_PAGE_ROUTES = [
 export const NAV_BADGE_COLORS = ['none', 'plum', 'teal', 'sale'] as const
 export const NAV_LINK_TYPES = ['category', 'brand', 'collection', 'page', 'custom'] as const
 export const MEGA_LINK_TYPES = ['category', 'brand', 'custom'] as const
+
+export const NAV_ANIMATION_TYPES = [
+  { label: 'Aucune', value: 'none' },
+  { label: 'Clignotement discret', value: 'blink' },
+  { label: 'Pulsation', value: 'pulse' },
+  { label: 'Reflet (shimmer)', value: 'shimmer' },
+  { label: 'Halo lumineux', value: 'glow' },
+] as const
+
+export const NAV_FONT_WEIGHTS = [
+  { label: 'Léger (300)', value: '300' },
+  { label: 'Normal (400)', value: '400' },
+  { label: 'Moyen (500)', value: '500' },
+  { label: 'Semi-gras (600)', value: '600' },
+  { label: 'Gras (700)', value: '700' },
+] as const
+
+// Hex, 3/6/8 digits. Empty is always allowed and means "inherit the theme"
+// — that's what keeps every pre-existing nav item rendering exactly as
+// before once these fields ship.
+const HEX_COLOR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
+
+const hexColorField = (name: string, label: string, description: string) => ({
+  name,
+  type: 'text' as const,
+  admin: { description },
+  label,
+  validate: (value: unknown) =>
+    !value || (typeof value === 'string' && HEX_COLOR.test(value))
+      ? true
+      : 'Utilisez un code hexadécimal, ex. #C0002B (ou laissez vide pour hériter du thème).',
+})
+
+/** Per-item colour overrides. Every field is optional: unset means the nav
+ * item keeps the theme colour it has always used, so this group can be
+ * added to a live navigation without touching a single existing entry. */
+/**
+ * @param enumNames - Postgres enum types to reuse for the select fields.
+ *   Payload derives an enum name from the field path, and the mega-menu path
+ *   (`navigation.items.megaMenu.columns.links.appearance.fontWeight`) blows
+ *   past Postgres's 63-character identifier limit. Pointing both usages at
+ *   the top-level item's enum is also semantically right: the options are the
+ *   same list, so they should be the same type.
+ */
+const buildAppearanceGroup = (enumNames?: { fontWeight: string }) => ({
+  name: 'appearance',
+  type: 'group' as const,
+  admin: { description: 'Laisser vide pour utiliser les couleurs du thème.' },
+  fields: [
+    hexColorField('color', 'Couleur du texte', 'Couleur au repos, ex. #C0002B.'),
+    hexColorField('hoverColor', 'Couleur au survol', 'Par défaut : la couleur au repos.'),
+    hexColorField('activeColor', 'Couleur page active', 'Utilisée quand la page courante correspond à ce lien.'),
+    hexColorField('backgroundColor', 'Couleur de fond', 'Optionnel — pastille de fond derrière le lien.'),
+    hexColorField('borderColor', 'Couleur de bordure', 'Optionnel — contour fin autour du lien, ex. #C0002B.'),
+    {
+      name: 'fontWeight',
+      type: 'select' as const,
+      ...(enumNames ? { enumName: enumNames.fontWeight } : {}),
+      label: 'Poids de police',
+      options: [...NAV_FONT_WEIGHTS],
+    },
+    {
+      name: 'opacity',
+      type: 'number' as const,
+      admin: {
+        description:
+          'De 0 (invisible) à 1 (pleine intensité). Laisser vide ou 1 pour un lien normal ; 0.6–0.8 pour un lien secondaire.',
+        step: 0.05,
+      },
+      label: 'Opacité (0 → 1)',
+      max: 1,
+      min: 0,
+      // Deliberately no defaultValue: an unset field emits no CSS variable at
+      // all, so every nav item that existed before this shipped keeps its
+      // exact current rendering rather than being pinned to an explicit 1.
+      validate: (value: unknown) =>
+        value === null || value === undefined || (typeof value === 'number' && value >= 0 && value <= 1)
+          ? true
+          : 'L’opacité doit être comprise entre 0 et 1.',
+    },
+  ],
+})
+
+const appearanceGroup = buildAppearanceGroup()
+
+/** CSS-driven attention effects. `enabled` is a separate checkbox from
+ * `type` on purpose: an editor can switch an animation off for a campaign
+ * without losing the type/duration they tuned. */
+const buildAnimationGroup = (enumNames?: { type: string }) => ({
+  name: 'animation',
+  type: 'group' as const,
+  admin: { description: 'Effets CSS. Automatiquement désactivés pour les visiteurs ayant demandé de réduire les animations (prefers-reduced-motion).' },
+  fields: [
+    { name: 'enabled', type: 'checkbox' as const, defaultValue: false, label: 'Activer l\'animation' },
+    {
+      name: 'type',
+      type: 'select' as const,
+      admin: { condition: (_: unknown, siblingData: { enabled?: boolean }) => siblingData?.enabled === true },
+      ...(enumNames ? { enumName: enumNames.type } : {}),
+      defaultValue: 'none',
+      label: 'Type',
+      options: [...NAV_ANIMATION_TYPES],
+    },
+    {
+      name: 'duration',
+      type: 'number' as const,
+      admin: {
+        condition: (_: unknown, siblingData: { enabled?: boolean }) => siblingData?.enabled === true,
+        description: 'Durée d\'un cycle, en secondes. 2 = discret, <1 = agressif.',
+      },
+      defaultValue: 2,
+      label: 'Durée (s)',
+      min: 0.2,
+      max: 20,
+    },
+    {
+      name: 'delay',
+      type: 'number' as const,
+      admin: { condition: (_: unknown, siblingData: { enabled?: boolean }) => siblingData?.enabled === true },
+      defaultValue: 0,
+      label: 'Délai (s)',
+      min: 0,
+      max: 20,
+    },
+    {
+      name: 'iterationCount',
+      type: 'text' as const,
+      admin: {
+        condition: (_: unknown, siblingData: { enabled?: boolean }) => siblingData?.enabled === true,
+        description: '"infinite" ou un nombre de répétitions, ex. 3.',
+      },
+      defaultValue: 'infinite',
+      label: 'Répétitions',
+      validate: (value: unknown) =>
+        !value || value === 'infinite' || (typeof value === 'string' && /^\d+$/.test(value))
+          ? true
+          : 'Indiquez "infinite" ou un nombre entier.',
+    },
+  ],
+})
+
+const animationGroup = buildAnimationGroup()
+
+// Mega-menu links reuse the top-level item enums (see buildAppearanceGroup).
+const megaAppearanceGroup = buildAppearanceGroup({ fontWeight: 'enum_navigation_items_appearance_font_weight' })
+const megaAnimationGroup = buildAnimationGroup({ type: 'enum_navigation_items_animation_type' })
 
 const linkTypeFields = (linkTypes: readonly string[]) => [
   {
@@ -85,6 +232,16 @@ export const Navigation: GlobalConfig = {
     description:
       'Main navigation and every mega menu — shown on every page. Edited from the Storefront Builder\'s "Navigation" tab (/dashboard/storefront). Decoupled from the Categories collection on purpose: adding a category no longer auto-adds a nav entry — add it here once instead.',
   },
+  hooks: {
+    // Purges the storefront's cached navigation the moment this global is
+    // saved, so a colour, label, badge or ordering change is live without a
+    // rebuild. Failures are logged, never thrown — see revalidateStorefront.
+    afterChange: [
+      async ({ req }) => {
+        await revalidateStorefront(req.payload, ['navigation'])
+      },
+    ],
+  },
   versions: {
     drafts: {
       autosave: false,
@@ -93,15 +250,47 @@ export const Navigation: GlobalConfig = {
   },
   fields: [
     {
+      name: 'navPreview',
+      type: 'ui',
+      admin: { components: { Field: '/components/NavItemPreviewField#NavItemPreviewField' } },
+      label: 'Aperçu',
+    },
+    {
       name: 'items',
       type: 'array',
       admin: { description: 'Main navigation items, in display order — drag to reorder.' },
       fields: [
         { name: 'label', type: 'text', required: true },
-        { name: 'visible', type: 'checkbox', defaultValue: true },
+        // `visible` is this item's on/off switch — it predates this group and
+        // is already wired through sync-cms, so it stays the single source of
+        // truth rather than gaining a duplicate "enabled" sibling. Ordering
+        // likewise comes from the array's own drag-to-reorder, not a separate
+        // `order` number that could disagree with it.
+        { name: 'visible', type: 'checkbox', defaultValue: true, label: 'Afficher ce lien' },
+        {
+          name: 'openInNewTab',
+          type: 'checkbox',
+          admin: { description: 'Ouvre le lien dans un nouvel onglet (rel="noopener" ajouté automatiquement).' },
+          defaultValue: false,
+          label: 'Ouvrir dans un nouvel onglet',
+        },
         ...linkTypeFields(NAV_LINK_TYPES),
         { name: 'badgeLabel', type: 'text', admin: { description: 'Optional small pill next to the label, e.g. "Nouveau".' } },
-        { name: 'badgeColor', type: 'select', defaultValue: 'none', options: [...NAV_BADGE_COLORS] },
+        {
+          name: 'badgeColor',
+          type: 'select',
+          admin: { description: 'Palette du thème. Pour une couleur libre, remplissez les deux champs hexadécimaux ci-dessous — ils ont priorité.' },
+          defaultValue: 'none',
+          options: [...NAV_BADGE_COLORS],
+        },
+        // Free-hex overrides rather than a nested `badge` group: badgeLabel/
+        // badgeColor already hold this item's badge and are populated on live
+        // data. A parallel group would be a second source of truth for the
+        // same pill.
+        hexColorField('badgeBackgroundColor', 'Badge — couleur de fond', 'Ex. #C0002B. Prioritaire sur la palette ci-dessus.'),
+        hexColorField('badgeTextColor', 'Badge — couleur du texte', 'Ex. #FFFFFF. Par défaut : blanc.'),
+        appearanceGroup,
+        animationGroup,
         { name: 'megaMenuEnabled', type: 'checkbox', defaultValue: false },
         {
           name: 'megaMenu',
@@ -118,7 +307,21 @@ export const Navigation: GlobalConfig = {
                 {
                   name: 'links',
                   type: 'array',
-                  fields: [{ name: 'label', type: 'text', required: true }, ...linkTypeFields(MEGA_LINK_TYPES), { name: 'visible', type: 'checkbox', defaultValue: true }],
+                  // The very same appearance/animation groups as a top-level
+                  // item, not a parallel set of fields: a link styled in the
+                  // navbar and the same link inside the mega menu must be
+                  // describable the same way, and one shared definition is
+                  // what guarantees they can't drift.
+                  fields: [
+                    { name: 'label', type: 'text', required: true },
+                    ...linkTypeFields(MEGA_LINK_TYPES),
+                    { name: 'visible', type: 'checkbox', defaultValue: true },
+                    { name: 'badgeLabel', type: 'text', admin: { description: 'Pastille facultative, ex. "Nouveau".' } },
+                    hexColorField('badgeBackgroundColor', 'Badge — couleur de fond', 'Ex. #C0002B.'),
+                    hexColorField('badgeTextColor', 'Badge — couleur du texte', 'Ex. #FFFFFF.'),
+                    megaAppearanceGroup,
+                    megaAnimationGroup,
+                  ],
                 },
               ],
             },

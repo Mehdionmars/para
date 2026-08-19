@@ -75,7 +75,7 @@ export const COLUMN_ALIASES: Record<ImportField, string[]> = {
   price: ['price', 'prix', 'pph'],
   slug: ['slug'],
   sku: ['sku'],
-  status: ['status', 'statut'],
+  status: ['status', 'statut', 'ispublished', 'is_published', 'publie'],
   stock: ['stock', 'quantite', 'quantity'],
   supplier: ['supplier', 'fournisseur'],
   title: ['title', 'titre', 'name', 'nom', 'nom du produit', 'designation'],

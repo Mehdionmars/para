@@ -1,6 +1,16 @@
 import * as migration_20260813_103331_initial from './20260813_103331_initial';
 import * as migration_20260813_140000_add_product_variants from './20260813_140000_add_product_variants';
 import * as migration_20260813_220000_add_marketing_banner from './20260813_220000_add_marketing_banner';
+import * as migration_20260814_224900_marketing_banners_array from './20260814_224900_marketing_banners_array';
+import * as migration_20260817_150000_add_product_categories from './20260817_150000_add_product_categories';
+import * as migration_20260818_120000_nav_item_appearance from './20260818_120000_nav_item_appearance';
+import * as migration_20260818_190000_product_badge_priority from './20260818_190000_product_badge_priority';
+import * as migration_20260819_100000_variant_pricing_mode from './20260819_100000_variant_pricing_mode';
+import * as migration_20260819_140000_order_status_returned from './20260819_140000_order_status_returned';
+import * as migration_20260819_180000_coupons_shipping from './20260819_180000_coupons_shipping';
+import * as migration_20260819_220000_order_status_notifications from './20260819_220000_order_status_notifications';
+import * as migration_20260819_230000_locked_documents_rels from './20260819_230000_locked_documents_rels';
+import * as migration_20260820_090000_nav_opacity_mega_style from './20260820_090000_nav_opacity_mega_style';
 
 export const migrations = [
   {
@@ -17,5 +27,55 @@ export const migrations = [
     up: migration_20260813_220000_add_marketing_banner.up,
     down: migration_20260813_220000_add_marketing_banner.down,
     name: '20260813_220000_add_marketing_banner'
+  },
+  {
+    up: migration_20260814_224900_marketing_banners_array.up,
+    down: migration_20260814_224900_marketing_banners_array.down,
+    name: '20260814_224900_marketing_banners_array'
+  },
+  {
+    up: migration_20260817_150000_add_product_categories.up,
+    down: migration_20260817_150000_add_product_categories.down,
+    name: '20260817_150000_add_product_categories'
+  },
+  {
+    up: migration_20260818_120000_nav_item_appearance.up,
+    down: migration_20260818_120000_nav_item_appearance.down,
+    name: '20260818_120000_nav_item_appearance'
+  },
+  {
+    up: migration_20260818_190000_product_badge_priority.up,
+    down: migration_20260818_190000_product_badge_priority.down,
+    name: '20260818_190000_product_badge_priority'
+  },
+  {
+    up: migration_20260819_100000_variant_pricing_mode.up,
+    down: migration_20260819_100000_variant_pricing_mode.down,
+    name: '20260819_100000_variant_pricing_mode'
+  },
+  {
+    up: migration_20260819_140000_order_status_returned.up,
+    down: migration_20260819_140000_order_status_returned.down,
+    name: '20260819_140000_order_status_returned'
+  },
+  {
+    up: migration_20260819_180000_coupons_shipping.up,
+    down: migration_20260819_180000_coupons_shipping.down,
+    name: '20260819_180000_coupons_shipping'
+  },
+  {
+    up: migration_20260819_220000_order_status_notifications.up,
+    down: migration_20260819_220000_order_status_notifications.down,
+    name: '20260819_220000_order_status_notifications'
+  },
+  {
+    up: migration_20260819_230000_locked_documents_rels.up,
+    down: migration_20260819_230000_locked_documents_rels.down,
+    name: '20260819_230000_locked_documents_rels'
+  },
+  {
+    up: migration_20260820_090000_nav_opacity_mega_style.up,
+    down: migration_20260820_090000_nav_opacity_mega_style.down,
+    name: '20260820_090000_nav_opacity_mega_style'
   },
 ];

@@ -4,7 +4,17 @@ import type { CollectionConfig, FieldAccess, PayloadRequest, Where } from 'paylo
 import { adminOrManager, canEditContent, hasRole, staffOnlyInAdmin } from '../access/roles'
 import { slugField } from '../lib/slugField'
 
-export const CATEGORY_OPTIONS = ['Visage', 'Corps', 'Cheveux', 'Solaire', 'Baby & Mom'] as const
+export const CATEGORY_OPTIONS = [
+  'Visage',
+  'Corps',
+  'Cheveux',
+  'Solaire',
+  'Baby & Mom',
+  'Maquillage',
+  'Bucco-Dentaire',
+  'Compléments alimentaires',
+  'Hygiène',
+] as const
 
 export const VARIANT_OPTION_TYPES = [
   { label: 'Contenance', value: 'contenance' },
@@ -16,30 +26,46 @@ export const VARIANT_OPTION_TYPES = [
   { label: 'Autre', value: 'autre' },
 ] as const
 
-export const BADGE_TYPES = [
-  { label: 'Top', value: 'top' },
-  { label: 'Nouveau', value: 'nouveau' },
-  { label: 'Best-seller', value: 'bestseller' },
-  { label: 'Promo', value: 'promo' },
-  { label: 'Exclusivité', value: 'exclusivite' },
-  { label: 'Coup de cœur', value: 'coupdecoeur' },
-  { label: 'Édition limitée', value: 'editionlimitee' },
-  { label: 'Personnalisé', value: 'custom' },
-] as const
+/**
+ * One preset per badge type: default wording, default colours and the
+ * default sort priority (lower shows first).
+ *
+ * Single source of truth — the storefront mirrors this table rather than
+ * keeping its own copy, so adding a type here is the only edit needed to
+ * make it available end to end. Existing enum values are never renamed
+ * (`nouveau`, `bestseller`, `exclusivite`… predate this) because that would
+ * invalidate rows already stored in Postgres.
+ *
+ * Priority 1 is deliberately left free: it belongs to the automatic discount
+ * badge, which is computed from oldPrice/price and always outranks a
+ * manually configured one.
+ */
+export const BADGE_TYPE_PRESETS = {
+  nouveau: { label: 'Nouveauté', bgColor: '#6D28D9', textColor: '#FFFFFF', priority: 2 },
+  bestseller: { label: 'Best-seller', bgColor: '#111827', textColor: '#FFFFFF', priority: 3 },
+  exclusivite: { label: 'Exclu web', bgColor: '#008AA5', textColor: '#FFFFFF', priority: 4 },
+  routine: { label: 'Routine', bgColor: '#F7EEE5', textColor: '#373020', priority: 5 },
+  coupdecoeur: { label: 'Coup de cœur', bgColor: '#F7EEE5', textColor: '#6D28D9', priority: 6 },
+  offrespeciale: { label: 'Offre spéciale', bgColor: '#6D28D9', textColor: '#FFFFFF', priority: 7 },
+  solde: { label: 'Solde', bgColor: '#DC2626', textColor: '#FFFFFF', priority: 7 },
+  promo: { label: 'Promo', bgColor: '#DC2626', textColor: '#FFFFFF', priority: 7 },
+  top: { label: 'Top', bgColor: '#111827', textColor: '#FFFFFF', priority: 8 },
+  editionlimitee: { label: 'Édition limitée', bgColor: '#373020', textColor: '#FFFFFF', priority: 8 },
+  custom: { label: '', bgColor: '', textColor: '', priority: 8 },
+} as const satisfies Record<string, { label: string; bgColor: string; textColor: string; priority: number }>
+
+export type BadgeType = keyof typeof BADGE_TYPE_PRESETS
+
+export const BADGE_TYPES = (Object.keys(BADGE_TYPE_PRESETS) as BadgeType[]).map((value) => ({
+  label: BADGE_TYPE_PRESETS[value].label || 'Personnalisé',
+  value,
+}))
 
 // Shown when a badge's own `text` is left empty — lets an editor swap a
-// type's default wording (e.g. type "top" showing "Coup de cœur" instead of
-// "Top") without that being a second, disconnected free-text field.
-export const BADGE_TYPE_DEFAULT_LABEL: Record<string, string> = {
-  top: 'Top',
-  nouveau: 'Nouveau',
-  bestseller: 'Best-seller',
-  promo: 'Promo',
-  exclusivite: 'Exclusivité',
-  coupdecoeur: 'Coup de cœur',
-  editionlimitee: 'Édition limitée',
-  custom: '',
-}
+// type's default wording without that being a second, disconnected field.
+export const BADGE_TYPE_DEFAULT_LABEL: Record<string, string> = Object.fromEntries(
+  (Object.keys(BADGE_TYPE_PRESETS) as BadgeType[]).map((k) => [k, BADGE_TYPE_PRESETS[k].label]),
+)
 
 // stockManager can submit an update (collection-level), but field-level
 // access below still confines what actually changes: everything except the
@@ -112,6 +138,25 @@ export const Products: CollectionConfig = {
         if (variants.length > 0) {
           await assertVariantIdentifiersUnique({ req, currentId: originalDoc?.id, variants })
         }
+
+        // `price` can't be a Payload-level `required` on the row, because it
+        // must be absent in same-price mode — so the "per-variant needs a
+        // price" half of the rule is enforced here. Without it a product
+        // could be switched to per-variant and ship variants with no price
+        // at all, which the storefront would render as an empty amount.
+        const pricingMode = data?.variantPricingMode ?? originalDoc?.variantPricingMode
+        if (pricingMode === 'per-variant') {
+          const missing = variants
+            .map((v, i) => ({ i, price: (v as { price?: number | null }).price }))
+            .filter(({ price }) => price === undefined || price === null)
+          if (missing.length > 0) {
+            throw new APIError(
+              `Mode « prix par variante » : prix manquant sur ${missing.length} variante(s) (ligne ${missing.map((m) => m.i + 1).join(', ')}).`,
+              400,
+            )
+          }
+        }
+
         return data
       },
     ],
@@ -175,23 +220,48 @@ export const Products: CollectionConfig = {
       },
       maxRows: 3,
       fields: [
-        { name: 'enabled', type: 'checkbox', defaultValue: true },
+        { name: 'enabled', type: 'checkbox', defaultValue: true, label: 'Afficher ce badge' },
         {
           name: 'type',
           type: 'select',
-          defaultValue: 'top',
+          admin: { description: 'Définit le libellé, les couleurs et la priorité par défaut — chacun restant modifiable ci-dessous.' },
+          defaultValue: 'nouveau',
           options: [...BADGE_TYPES],
         },
         {
           name: 'text',
           type: 'text',
           admin: {
-            description: 'Leave empty to use the default label for the selected type (e.g. "Nouveau"). Required for "Personnalisé".',
+            description: 'Vide = libellé par défaut du type (ex. "Nouveauté"). Obligatoire pour "Personnalisé".',
           },
+          label: 'Texte',
         },
-        { name: 'bgColor', type: 'text', admin: { description: 'Hex color, e.g. #5E4074. Leave empty to use the theme default.' } },
-        { name: 'textColor', type: 'text', admin: { description: 'Hex color, e.g. #FFFFFF. Leave empty to use the theme default.' } },
+        {
+          name: 'priority',
+          type: 'number',
+          admin: {
+            description: 'Ordre d\'affichage, du plus petit au plus grand. Vide = priorité par défaut du type. La réduction automatique (-30%) reste toujours en tête.',
+          },
+          label: 'Priorité',
+          min: 1,
+          max: 99,
+        },
+        { name: 'bgColor', type: 'text', admin: { description: 'Hex, ex. #6D28D9. Vide = couleur par défaut du type.' }, label: 'Couleur de fond' },
+        { name: 'textColor', type: 'text', admin: { description: 'Hex, ex. #FFFFFF. Vide = couleur par défaut du type.' }, label: 'Couleur du texte' },
       ],
+    },
+    {
+      // `ui` = render-only, no column and no stored value. Shows the badge
+      // stack exactly as the storefront will order and colour it, including
+      // the automatic discount pill (which has no field of its own) and the
+      // 3-badge cap — both invisible in the array UI above.
+      name: 'badgesPreview',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '/components/BadgesPreviewField#BadgesPreviewField',
+        },
+      },
     },
     {
       type: 'row',
@@ -319,6 +389,28 @@ export const Products: CollectionConfig = {
           options: [...VARIANT_OPTION_TYPES],
         },
         {
+          // A contenance is not automatically a price difference. Uriage Eau
+          // Thermale sells 40/50/75 ml at one price; a shampoo sells 200 ml
+          // and 400 ml at two. Without this switch an editor is forced to
+          // retype the same price on every row and any later price change has
+          // to be applied N times — which is exactly how a variant silently
+          // drifts from the product's real price.
+          name: 'variantPricingMode',
+          type: 'select',
+          access: contentFieldAccess,
+          admin: {
+            condition: (data) => !!data?.hasVariants,
+            description:
+              'Prix unique : toutes les variantes utilisent le prix du produit ci-dessus. Prix par variante : chaque ligne a le sien. Le stock, le SKU et le code-barres restent toujours propres à chaque variante.',
+          },
+          defaultValue: 'same-price',
+          label: 'Tarification des variantes',
+          options: [
+            { label: 'Prix unique (le prix du produit)', value: 'same-price' },
+            { label: 'Prix par variante', value: 'per-variant' },
+          ],
+        },
+        {
           name: 'variants',
           type: 'array',
           access: contentFieldAccess,
@@ -335,8 +427,24 @@ export const Products: CollectionConfig = {
             {
               type: 'row',
               fields: [
-                { name: 'price', type: 'number', min: 0, required: true },
-                { name: 'oldPrice', type: 'number', min: 0 },
+                {
+                  // Optional, and only surfaced in "per-variant" mode: in
+                  // "same-price" the product's own price is authoritative and
+                  // a value here would be a second, divergent source of truth.
+                  name: 'price',
+                  type: 'number',
+                  admin: {
+                    condition: (data) => data?.variantPricingMode === 'per-variant',
+                    description: 'Prix propre à cette variante.',
+                  },
+                  min: 0,
+                },
+                {
+                  name: 'oldPrice',
+                  type: 'number',
+                  admin: { condition: (data) => data?.variantPricingMode === 'per-variant' },
+                  min: 0,
+                },
               ],
             },
             {

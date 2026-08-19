@@ -36,6 +36,10 @@ services:
     environment:
       DATABASE_URI: postgresql://postgres:postgres@postgres:5432/para_dhiver
       FRONTEND_URL: http://localhost:3000
+      # Container-to-container address for the cache purge. FRONTEND_URL stays
+      # the browser-facing origin (it backs CORS/CSRF), and inside this
+      # container "localhost:3000" would resolve to the backend itself.
+      STOREFRONT_INTERNAL_URL: http://frontend:3000
       SERVER_URL: http://localhost:3001
       PORT: '3001'
     ports:
@@ -54,6 +58,8 @@ services:
     environment:
       CMS_URL: http://backend:3001
       PORT: '3000'
+      # Shared secret for the CMS -> storefront cache purge (/api/revalidate).
+      REVALIDATE_SECRET: pdh-revalidate-d791fe064051b9ad4a8ed1d69db89074
     ports:
       - '3000:3000'
     depends_on:

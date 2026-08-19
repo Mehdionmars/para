@@ -103,6 +103,10 @@ const colorField = (name: string, defaultValue: string) =>
     defaultValue,
   }) as const
 
+// Shared by marketingBanners' eyebrow/title/description fields — hidden
+// when the campaign's image already has its own text baked in.
+const showWhenOverlayImage = (_: unknown, siblingData: { imageMode?: string }) => siblingData?.imageMode !== 'imageOnly'
+
 export const Home: GlobalConfig = {
   slug: 'home',
   access: {
@@ -188,21 +192,41 @@ export const Home: GlobalConfig = {
       ],
     },
     {
-      name: 'marketingBannerCopy',
-      type: 'group',
+      name: 'marketingBanners',
+      type: 'array',
       admin: {
         description:
-          'Single full-width seasonal/campaign banner (e.g. "Saison été", "Black Friday") — swap the image, copy and dates to change campaign without touching code.',
+          'Full-width seasonal/campaign banners (e.g. "Saison été", "Black Friday", "Noël") — one CMS entry per campaign, reused across seasons. Only the first entry that is Active and inside its date window renders on the homepage; the rest stay ready to switch on without touching code.',
       },
       fields: [
+        {
+          name: 'campaign',
+          type: 'text',
+          admin: { description: 'Internal identifier, e.g. "summer-2026" — not shown on the storefront, just for telling campaigns apart here.' },
+          required: true,
+        },
         imageField('image', false),
         imageField('imageMobile', false),
-        { name: 'eyebrow', type: 'text', admin: { description: 'e.g. "SAISON ÉTÉ"' } },
-        { name: 'title', type: 'text' },
-        { name: 'description', type: 'textarea' },
+        {
+          name: 'imageMode',
+          type: 'select',
+          admin: {
+            description:
+              'Overlay: eyebrow/title/description/CTA are drawn on top of the image (use for plain photos). Image only: the image already contains its own text/CTA baked in — no text is drawn over it, the whole banner just links to the URL below.',
+          },
+          defaultValue: 'overlay',
+          options: [
+            { label: 'Texte en surimpression', value: 'overlay' },
+            { label: 'Image seule (texte déjà intégré)', value: 'imageOnly' },
+          ],
+        },
+        { name: 'eyebrow', type: 'text', admin: { condition: showWhenOverlayImage, description: 'e.g. "SAISON ÉTÉ"' } },
+        { name: 'title', type: 'text', admin: { condition: showWhenOverlayImage } },
+        { name: 'description', type: 'textarea', admin: { condition: showWhenOverlayImage } },
         { name: 'ctaLabel', type: 'text' },
         { name: 'ctaUrl', type: 'text', defaultValue: '/catalogue' },
-        { name: 'badgeLabel', type: 'text', admin: { description: 'Optional small promo pill, e.g. "-20%". Leave empty to omit.' } },
+        { name: 'badgeLabel', type: 'text', admin: { description: 'Optional small promo pill, e.g. "JUSQU\'À -30%". Leave empty to omit.' } },
+        { name: 'active', type: 'checkbox', defaultValue: true },
         {
           type: 'row',
           fields: [

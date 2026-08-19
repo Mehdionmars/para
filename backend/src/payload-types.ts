@@ -79,6 +79,12 @@ export interface Config {
     inventory: Inventory;
     'stock-movements': StockMovement;
     'instagram-posts': InstagramPost;
+    coupons: Coupon;
+    'coupon-redemptions': CouponRedemption;
+    'shipping-rules': ShippingRule;
+    'order-status-history': OrderStatusHistory;
+    notifications: Notification;
+    'push-subscriptions': PushSubscription;
     exports: Export;
     imports: Import;
     'api-request-logs': ApiRequestLog;
@@ -107,6 +113,12 @@ export interface Config {
     inventory: InventorySelect<false> | InventorySelect<true>;
     'stock-movements': StockMovementsSelect<false> | StockMovementsSelect<true>;
     'instagram-posts': InstagramPostsSelect<false> | InstagramPostsSelect<true>;
+    coupons: CouponsSelect<false> | CouponsSelect<true>;
+    'coupon-redemptions': CouponRedemptionsSelect<false> | CouponRedemptionsSelect<true>;
+    'shipping-rules': ShippingRulesSelect<false> | ShippingRulesSelect<true>;
+    'order-status-history': OrderStatusHistorySelect<false> | OrderStatusHistorySelect<true>;
+    notifications: NotificationsSelect<false> | NotificationsSelect<true>;
+    'push-subscriptions': PushSubscriptionsSelect<false> | PushSubscriptionsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
     'api-request-logs': ApiRequestLogsSelect<false> | ApiRequestLogsSelect<true>;
@@ -296,7 +308,16 @@ export interface Product {
   name: string;
   slug?: string | null;
   brand?: (number | null) | Brand;
-  category: 'Visage' | 'Corps' | 'Cheveux' | 'Solaire' | 'Baby & Mom';
+  category:
+    | 'Visage'
+    | 'Corps'
+    | 'Cheveux'
+    | 'Solaire'
+    | 'Baby & Mom'
+    | 'Maquillage'
+    | 'Bucco-Dentaire'
+    | 'Compléments alimentaires'
+    | 'Hygiène';
   /**
    * e.g. "400 ml", "50 ml"
    */
@@ -312,19 +333,38 @@ export interface Product {
   badges?:
     | {
         enabled?: boolean | null;
+        /**
+         * Définit le libellé, les couleurs et la priorité par défaut — chacun restant modifiable ci-dessous.
+         */
         type?:
-          | ('top' | 'nouveau' | 'bestseller' | 'promo' | 'exclusivite' | 'coupdecoeur' | 'editionlimitee' | 'custom')
+          | (
+              | 'nouveau'
+              | 'bestseller'
+              | 'exclusivite'
+              | 'routine'
+              | 'coupdecoeur'
+              | 'offrespeciale'
+              | 'solde'
+              | 'promo'
+              | 'top'
+              | 'editionlimitee'
+              | 'custom'
+            )
           | null;
         /**
-         * Leave empty to use the default label for the selected type (e.g. "Nouveau"). Required for "Personnalisé".
+         * Vide = libellé par défaut du type (ex. "Nouveauté"). Obligatoire pour "Personnalisé".
          */
         text?: string | null;
         /**
-         * Hex color, e.g. #5E4074. Leave empty to use the theme default.
+         * Ordre d'affichage, du plus petit au plus grand. Vide = priorité par défaut du type. La réduction automatique (-30%) reste toujours en tête.
+         */
+        priority?: number | null;
+        /**
+         * Hex, ex. #6D28D9. Vide = couleur par défaut du type.
          */
         bgColor?: string | null;
         /**
-         * Hex color, e.g. #FFFFFF. Leave empty to use the theme default.
+         * Hex, ex. #FFFFFF. Vide = couleur par défaut du type.
          */
         textColor?: string | null;
         id?: string | null;
@@ -364,6 +404,10 @@ export interface Product {
    */
   variantOptionType?: ('contenance' | 'format' | 'taille' | 'couleur' | 'parfum' | 'pack' | 'autre') | null;
   /**
+   * Prix unique : toutes les variantes utilisent le prix du produit ci-dessus. Prix par variante : chaque ligne a le sien. Le stock, le SKU et le code-barres restent toujours propres à chaque variante.
+   */
+  variantPricingMode?: ('same-price' | 'per-variant') | null;
+  /**
    * Une ligne par variante — chacune avec son propre prix, stock et SKU. Laisser l'image vide pour utiliser l'image principale du produit.
    */
   variants?:
@@ -374,7 +418,10 @@ export interface Product {
         optionValue: string;
         sku?: string | null;
         barcode?: string | null;
-        price: number;
+        /**
+         * Prix propre à cette variante.
+         */
+        price?: number | null;
         oldPrice?: number | null;
         stock?: number | null;
         reservedStock?: number | null;
@@ -492,15 +539,84 @@ export interface Order {
     id?: string | null;
   }[];
   subtotal: number;
+  /**
+   * Remise appliquée, calculée côté serveur au moment de la commande.
+   */
+  discount?: number | null;
   shipping?: number | null;
   total: number;
-  status: 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  /**
+   * Code tel qu'appliqué.
+   */
+  couponCode?: string | null;
+  coupon?: (number | null) | Coupon;
+  status: 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   /**
    * e.g. "CMI" or "À la livraison"
    */
   paymentMethod?: string | null;
   notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Codes promotionnels. Toute la validation (dates, limites, éligibilité, plafond) est faite côté serveur au moment du checkout — le montant envoyé par le navigateur n'est jamais utilisé.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons".
+ */
+export interface Coupon {
+  id: number;
+  /**
+   * Saisi par le client. Normalisé en MAJUSCULES, sans espaces.
+   */
+  code: string;
+  type: 'percentage' | 'fixed';
+  /**
+   * 10 = -10% (pourcentage) ou -10 MAD (montant fixe).
+   */
+  value: number;
+  /**
+   * Sous-total minimum du panier. Vide = aucun minimum.
+   */
+  minimumAmount?: number | null;
+  /**
+   * Plafonne la remise. Ex. 20% plafonné à 100 MAD : un panier de 1000 MAD est remisé de 100, pas de 200.
+   */
+  maximumDiscount?: number | null;
+  /**
+   * Vide = actif immédiatement.
+   */
+  startDate?: string | null;
+  /**
+   * Vide = pas d'expiration.
+   */
+  endDate?: string | null;
+  /**
+   * Nombre total d'utilisations, tous clients confondus. Vide = illimité.
+   */
+  usageLimit?: number | null;
+  /**
+   * Utilisations par adresse email. Vide = illimité.
+   */
+  perCustomerLimit?: number | null;
+  /**
+   * Incrémenté automatiquement à chaque commande validée. Lecture seule.
+   */
+  usageCount?: number | null;
+  /**
+   * Laisser les trois vides = le coupon s'applique à tout le panier. Sinon la remise ne porte que sur les lignes correspondantes (union des trois critères).
+   */
+  eligibility?: {
+    products?: (number | Product)[] | null;
+    categories?: (number | Category)[] | null;
+    brands?: (number | Brand)[] | null;
+  };
+  /**
+   * Décocher désactive le code immédiatement, sans toucher aux dates.
+   */
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -601,6 +717,146 @@ export interface InstagramPost {
    * Lower shows first. Left at 0 for every post, the storefront falls back to newest-first — set a lower value on specific posts to pin them earlier. Never touched by the sync job once a post exists.
    */
   sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Historique des coupons utilisés. En lecture seule.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupon-redemptions".
+ */
+export interface CouponRedemption {
+  id: number;
+  coupon: number | Coupon;
+  order?: (number | null) | Order;
+  /**
+   * Normalisé en minuscules — la limite par client se compte dessus.
+   */
+  customerEmail: string;
+  /**
+   * Code tel qu'appliqué, conservé même si le coupon est renommé ou supprimé.
+   */
+  code?: string | null;
+  discountAmount: number;
+  orderSubtotal?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Frais de livraison par ville. Le checkout recalcule toujours les frais depuis ces règles — le montant envoyé par le navigateur est ignoré.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-rules".
+ */
+export interface ShippingRule {
+  id: number;
+  /**
+   * Ex. "Casablanca". La correspondance ignore la casse et les accents.
+   */
+  city: string;
+  /**
+   * Optionnel — informatif.
+   */
+  region?: string | null;
+  price: number;
+  /**
+   * Sous-total (après remise) à partir duquel la livraison est offerte. Vide = jamais offerte.
+   */
+  freeFrom?: number | null;
+  /**
+   * Tarif appliqué à toute ville sans règle propre. Une seule règle peut l'être.
+   */
+  isDefault?: boolean | null;
+  enabled?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Journal des changements de statut. Lecture seule, y compris pour les administrateurs.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-status-history".
+ */
+export interface OrderStatusHistory {
+  id: number;
+  order: number | Order;
+  fromStatus?:
+    ('pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded') | null;
+  toStatus: 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded';
+  /**
+   * Vide si le changement vient du checkout public.
+   */
+  changedBy?: (number | null) | User;
+  /**
+   * Email au moment du changement (conservé même si le compte est supprimé).
+   */
+  changedByEmail?: string | null;
+  reason?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Journal des notifications. Une ligne par commande × événement × canal.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications".
+ */
+export interface Notification {
+  id: number;
+  order?: (number | null) | Order;
+  customerEmail?: string | null;
+  type:
+    | 'ORDER_CREATED'
+    | 'ORDER_CONFIRMED'
+    | 'ORDER_PREPARING'
+    | 'ORDER_SHIPPED'
+    | 'ORDER_DELIVERED'
+    | 'ORDER_CANCELLED'
+    | 'ORDER_RETURNED'
+    | 'ORDER_REFUNDED';
+  channel: 'email' | 'whatsapp' | 'push' | 'internal';
+  /**
+   * « pending » signifie composée mais non délivrée — typiquement aucun provider configuré pour ce canal.
+   */
+  status: 'pending' | 'sent' | 'failed' | 'read';
+  title?: string | null;
+  message?: string | null;
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  sentAt?: string | null;
+  /**
+   * Renseignée quand la notification est marquée comme lue.
+   */
+  readAt?: string | null;
+  error?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Abonnements Web Push. Collectés dès maintenant, envoi non encore actif.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "push-subscriptions".
+ */
+export interface PushSubscription {
+  id: number;
+  /**
+   * Vide pour un visiteur non identifié.
+   */
+  customerEmail?: string | null;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  userAgent?: string | null;
+  lastUsedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -862,6 +1118,30 @@ export interface PayloadLockedDocument {
         value: number | InstagramPost;
       } | null)
     | ({
+        relationTo: 'coupons';
+        value: number | Coupon;
+      } | null)
+    | ({
+        relationTo: 'coupon-redemptions';
+        value: number | CouponRedemption;
+      } | null)
+    | ({
+        relationTo: 'shipping-rules';
+        value: number | ShippingRule;
+      } | null)
+    | ({
+        relationTo: 'order-status-history';
+        value: number | OrderStatusHistory;
+      } | null)
+    | ({
+        relationTo: 'notifications';
+        value: number | Notification;
+      } | null)
+    | ({
+        relationTo: 'push-subscriptions';
+        value: number | PushSubscription;
+      } | null)
+    | ({
         relationTo: 'api-request-logs';
         value: number | ApiRequestLog;
       } | null)
@@ -995,6 +1275,7 @@ export interface ProductsSelect<T extends boolean = true> {
         enabled?: T;
         type?: T;
         text?: T;
+        priority?: T;
         bgColor?: T;
         textColor?: T;
         id?: T;
@@ -1017,6 +1298,7 @@ export interface ProductsSelect<T extends boolean = true> {
   lowStockThreshold?: T;
   hasVariants?: T;
   variantOptionType?: T;
+  variantPricingMode?: T;
   variants?:
     | T
     | {
@@ -1110,8 +1392,11 @@ export interface OrdersSelect<T extends boolean = true> {
         id?: T;
       };
   subtotal?: T;
+  discount?: T;
   shipping?: T;
   total?: T;
+  couponCode?: T;
+  coupon?: T;
   status?: T;
   paymentStatus?: T;
   paymentMethod?: T;
@@ -1180,6 +1465,107 @@ export interface InstagramPostsSelect<T extends boolean = true> {
   username?: T;
   isPublished?: T;
   sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons_select".
+ */
+export interface CouponsSelect<T extends boolean = true> {
+  code?: T;
+  type?: T;
+  value?: T;
+  minimumAmount?: T;
+  maximumDiscount?: T;
+  startDate?: T;
+  endDate?: T;
+  usageLimit?: T;
+  perCustomerLimit?: T;
+  usageCount?: T;
+  eligibility?:
+    | T
+    | {
+        products?: T;
+        categories?: T;
+        brands?: T;
+      };
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupon-redemptions_select".
+ */
+export interface CouponRedemptionsSelect<T extends boolean = true> {
+  coupon?: T;
+  order?: T;
+  customerEmail?: T;
+  code?: T;
+  discountAmount?: T;
+  orderSubtotal?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-rules_select".
+ */
+export interface ShippingRulesSelect<T extends boolean = true> {
+  city?: T;
+  region?: T;
+  price?: T;
+  freeFrom?: T;
+  isDefault?: T;
+  enabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-status-history_select".
+ */
+export interface OrderStatusHistorySelect<T extends boolean = true> {
+  order?: T;
+  fromStatus?: T;
+  toStatus?: T;
+  changedBy?: T;
+  changedByEmail?: T;
+  reason?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications_select".
+ */
+export interface NotificationsSelect<T extends boolean = true> {
+  order?: T;
+  customerEmail?: T;
+  type?: T;
+  channel?: T;
+  status?: T;
+  title?: T;
+  message?: T;
+  metadata?: T;
+  sentAt?: T;
+  readAt?: T;
+  error?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "push-subscriptions_select".
+ */
+export interface PushSubscriptionsSelect<T extends boolean = true> {
+  customerEmail?: T;
+  endpoint?: T;
+  p256dh?: T;
+  auth?: T;
+  userAgent?: T;
+  lastUsedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1398,32 +1784,44 @@ export interface Home {
       }[]
     | null;
   /**
-   * Single full-width seasonal/campaign banner (e.g. "Saison été", "Black Friday") — swap the image, copy and dates to change campaign without touching code.
+   * Full-width seasonal/campaign banners (e.g. "Saison été", "Black Friday", "Noël") — one CMS entry per campaign, reused across seasons. Only the first entry that is Active and inside its date window renders on the homepage; the rest stay ready to switch on without touching code.
    */
-  marketingBannerCopy?: {
-    image?: (number | null) | Media;
-    imageMobile?: (number | null) | Media;
-    /**
-     * e.g. "SAISON ÉTÉ"
-     */
-    eyebrow?: string | null;
-    title?: string | null;
-    description?: string | null;
-    ctaLabel?: string | null;
-    ctaUrl?: string | null;
-    /**
-     * Optional small promo pill, e.g. "-20%". Leave empty to omit.
-     */
-    badgeLabel?: string | null;
-    /**
-     * Leave empty to show immediately.
-     */
-    startDate?: string | null;
-    /**
-     * Leave empty to show indefinitely.
-     */
-    endDate?: string | null;
-  };
+  marketingBanners?:
+    | {
+        /**
+         * Internal identifier, e.g. "summer-2026" — not shown on the storefront, just for telling campaigns apart here.
+         */
+        campaign: string;
+        image?: (number | null) | Media;
+        imageMobile?: (number | null) | Media;
+        /**
+         * Overlay: eyebrow/title/description/CTA are drawn on top of the image (use for plain photos). Image only: the image already contains its own text/CTA baked in — no text is drawn over it, the whole banner just links to the URL below.
+         */
+        imageMode?: ('overlay' | 'imageOnly') | null;
+        /**
+         * e.g. "SAISON ÉTÉ"
+         */
+        eyebrow?: string | null;
+        title?: string | null;
+        description?: string | null;
+        ctaLabel?: string | null;
+        ctaUrl?: string | null;
+        /**
+         * Optional small promo pill, e.g. "JUSQU'À -30%". Leave empty to omit.
+         */
+        badgeLabel?: string | null;
+        active?: boolean | null;
+        /**
+         * Leave empty to show immediately.
+         */
+        startDate?: string | null;
+        /**
+         * Leave empty to show indefinitely.
+         */
+        endDate?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Two-tile CTA banner right under the hero (exactly 2 tiles).
    */
@@ -1462,7 +1860,19 @@ export interface Home {
         /**
          * Used when "Source" is set to Par catégorie.
          */
-        category?: ('Visage' | 'Corps' | 'Cheveux' | 'Solaire' | 'Baby & Mom') | null;
+        category?:
+          | (
+              | 'Visage'
+              | 'Corps'
+              | 'Cheveux'
+              | 'Solaire'
+              | 'Baby & Mom'
+              | 'Maquillage'
+              | 'Bucco-Dentaire'
+              | 'Compléments alimentaires'
+              | 'Hygiène'
+            )
+          | null;
         /**
          * Required when "Source" is Par marque; an optional extra filter for any other source.
          */
@@ -1916,7 +2326,19 @@ export interface CataloguePage {
   tagToCategory?:
     | {
         tag: string;
-        category?: ('Visage' | 'Corps' | 'Cheveux' | 'Solaire' | 'Baby & Mom') | null;
+        category?:
+          | (
+              | 'Visage'
+              | 'Corps'
+              | 'Cheveux'
+              | 'Solaire'
+              | 'Baby & Mom'
+              | 'Maquillage'
+              | 'Bucco-Dentaire'
+              | 'Compléments alimentaires'
+              | 'Hygiène'
+            )
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -2167,6 +2589,10 @@ export interface Navigation {
     | {
         label: string;
         visible?: boolean | null;
+        /**
+         * Ouvre le lien dans un nouvel onglet (rel="noopener" ajouté automatiquement).
+         */
+        openInNewTab?: boolean | null;
         type: 'category' | 'brand' | 'collection' | 'page' | 'custom';
         category?: (number | null) | Category;
         brand?: (number | null) | Brand;
@@ -2180,7 +2606,56 @@ export interface Navigation {
          * Optional small pill next to the label, e.g. "Nouveau".
          */
         badgeLabel?: string | null;
+        /**
+         * Palette du thème. Pour une couleur libre, remplissez les deux champs hexadécimaux ci-dessous — ils ont priorité.
+         */
         badgeColor?: ('none' | 'plum' | 'teal' | 'sale') | null;
+        /**
+         * Ex. #C0002B. Prioritaire sur la palette ci-dessus.
+         */
+        badgeBackgroundColor?: string | null;
+        /**
+         * Ex. #FFFFFF. Par défaut : blanc.
+         */
+        badgeTextColor?: string | null;
+        /**
+         * Laisser vide pour utiliser les couleurs du thème.
+         */
+        appearance?: {
+          /**
+           * Couleur au repos, ex. #C0002B.
+           */
+          color?: string | null;
+          /**
+           * Par défaut : la couleur au repos.
+           */
+          hoverColor?: string | null;
+          /**
+           * Utilisée quand la page courante correspond à ce lien.
+           */
+          activeColor?: string | null;
+          /**
+           * Optionnel — pastille de fond derrière le lien.
+           */
+          backgroundColor?: string | null;
+          fontWeight?: ('300' | '400' | '500' | '600' | '700') | null;
+        };
+        /**
+         * Effets CSS. Automatiquement désactivés pour les visiteurs ayant demandé de réduire les animations (prefers-reduced-motion).
+         */
+        animation?: {
+          enabled?: boolean | null;
+          type?: ('none' | 'blink' | 'pulse' | 'shimmer' | 'glow') | null;
+          /**
+           * Durée d'un cycle, en secondes. 2 = discret, <1 = agressif.
+           */
+          duration?: number | null;
+          delay?: number | null;
+          /**
+           * "infinite" ou un nombre de répétitions, ex. 3.
+           */
+          iterationCount?: string | null;
+        };
         megaMenuEnabled?: boolean | null;
         megaMenu?: {
           subtitle?: string | null;
@@ -2252,19 +2727,23 @@ export interface HomeSelect<T extends boolean = true> {
         mobileImage?: T;
         id?: T;
       };
-  marketingBannerCopy?:
+  marketingBanners?:
     | T
     | {
+        campaign?: T;
         image?: T;
         imageMobile?: T;
+        imageMode?: T;
         eyebrow?: T;
         title?: T;
         description?: T;
         ctaLabel?: T;
         ctaUrl?: T;
         badgeLabel?: T;
+        active?: T;
         startDate?: T;
         endDate?: T;
+        id?: T;
       };
   ctaPair1?:
     | T
@@ -2717,6 +3196,7 @@ export interface NavigationSelect<T extends boolean = true> {
     | {
         label?: T;
         visible?: T;
+        openInNewTab?: T;
         type?: T;
         category?: T;
         brand?: T;
@@ -2725,6 +3205,26 @@ export interface NavigationSelect<T extends boolean = true> {
         customUrl?: T;
         badgeLabel?: T;
         badgeColor?: T;
+        badgeBackgroundColor?: T;
+        badgeTextColor?: T;
+        appearance?:
+          | T
+          | {
+              color?: T;
+              hoverColor?: T;
+              activeColor?: T;
+              backgroundColor?: T;
+              fontWeight?: T;
+            };
+        animation?:
+          | T
+          | {
+              enabled?: T;
+              type?: T;
+              duration?: T;
+              delay?: T;
+              iterationCount?: T;
+            };
         megaMenuEnabled?: T;
         megaMenu?:
           | T
@@ -2796,6 +3296,12 @@ export interface TaskCreateCollectionExport {
       | 'inventory'
       | 'stock-movements'
       | 'instagram-posts'
+      | 'coupons'
+      | 'coupon-redemptions'
+      | 'shipping-rules'
+      | 'order-status-history'
+      | 'notifications'
+      | 'push-subscriptions'
       | 'exports'
       | 'imports';
     drafts?: ('yes' | 'no') | null;

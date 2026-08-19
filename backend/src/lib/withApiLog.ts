@@ -1,7 +1,10 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-type RouteHandler = (request: Request) => Promise<Response>
+// Rest args so dynamic segments work too: Next passes a `{ params }` context
+// as the second argument to /api/notifications/[id]/read and friends, and it
+// has to reach the handler untouched.
+type RouteHandler<Args extends unknown[] = []> = (request: Request, ...args: Args) => Promise<Response>
 
 async function logRequest(path: string, method: string, statusCode: number, durationMs: number) {
   try {
@@ -23,11 +26,14 @@ async function logRequest(path: string, method: string, statusCode: number, dura
  * collection/global hook system (so `apiMonitoringPlugin` can't see them) —
  * times the call and writes the same shape of row to `api-request-logs`.
  */
-export function withApiLog(path: string, handler: RouteHandler): RouteHandler {
-  return async (request: Request) => {
+export function withApiLog<Args extends unknown[] = []>(
+  path: string,
+  handler: RouteHandler<Args>,
+): RouteHandler<Args> {
+  return async (request: Request, ...args: Args) => {
     const start = Date.now()
     try {
-      const response = await handler(request)
+      const response = await handler(request, ...args)
       void logRequest(path, request.method, response.status, Date.now() - start)
       return response
     } catch (err) {
