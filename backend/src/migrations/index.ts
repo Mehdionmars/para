@@ -11,6 +11,8 @@ import * as migration_20260819_180000_coupons_shipping from './20260819_180000_c
 import * as migration_20260819_220000_order_status_notifications from './20260819_220000_order_status_notifications';
 import * as migration_20260819_230000_locked_documents_rels from './20260819_230000_locked_documents_rels';
 import * as migration_20260820_090000_nav_opacity_mega_style from './20260820_090000_nav_opacity_mega_style';
+import * as migration_20260820_140000_search_trigram from './20260820_140000_search_trigram';
+import * as migration_20260820_170000_product_stock_state from './20260820_170000_product_stock_state';
 
 export const migrations = [
   {
@@ -77,5 +79,15 @@ export const migrations = [
     up: migration_20260820_090000_nav_opacity_mega_style.up,
     down: migration_20260820_090000_nav_opacity_mega_style.down,
     name: '20260820_090000_nav_opacity_mega_style'
+  },
+  {
+    up: migration_20260820_140000_search_trigram.up,
+    down: migration_20260820_140000_search_trigram.down,
+    name: '20260820_140000_search_trigram'
+  },
+  {
+    up: migration_20260820_170000_product_stock_state.up,
+    down: migration_20260820_170000_product_stock_state.down,
+    name: '20260820_170000_product_stock_state'
   },
 ];

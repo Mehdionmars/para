@@ -370,6 +370,10 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Calculé automatiquement : stock > 0 et stock ≤ seuil. Alimente le filtre « Stock faible ».
+   */
+  isLowStock?: boolean | null;
   rating?: number | null;
   reviews?: number | null;
   /**
@@ -1280,6 +1284,7 @@ export interface ProductsSelect<T extends boolean = true> {
         textColor?: T;
         id?: T;
       };
+  isLowStock?: T;
   rating?: T;
   reviews?: T;
   tint?: T;
@@ -2638,7 +2643,15 @@ export interface Navigation {
            * Optionnel — pastille de fond derrière le lien.
            */
           backgroundColor?: string | null;
+          /**
+           * Optionnel — contour fin autour du lien, ex. #C0002B.
+           */
+          borderColor?: string | null;
           fontWeight?: ('300' | '400' | '500' | '600' | '700') | null;
+          /**
+           * De 0 (invisible) à 1 (pleine intensité). Laisser vide ou 1 pour un lien normal ; 0.6–0.8 pour un lien secondaire.
+           */
+          opacity?: number | null;
         };
         /**
          * Effets CSS. Automatiquement désactivés pour les visiteurs ayant demandé de réduire les animations (prefers-reduced-motion).
@@ -2673,6 +2686,64 @@ export interface Navigation {
                        */
                       customUrl?: string | null;
                       visible?: boolean | null;
+                      /**
+                       * Pastille facultative, ex. "Nouveau".
+                       */
+                      badgeLabel?: string | null;
+                      /**
+                       * Ex. #C0002B.
+                       */
+                      badgeBackgroundColor?: string | null;
+                      /**
+                       * Ex. #FFFFFF.
+                       */
+                      badgeTextColor?: string | null;
+                      /**
+                       * Laisser vide pour utiliser les couleurs du thème.
+                       */
+                      appearance?: {
+                        /**
+                         * Couleur au repos, ex. #C0002B.
+                         */
+                        color?: string | null;
+                        /**
+                         * Par défaut : la couleur au repos.
+                         */
+                        hoverColor?: string | null;
+                        /**
+                         * Utilisée quand la page courante correspond à ce lien.
+                         */
+                        activeColor?: string | null;
+                        /**
+                         * Optionnel — pastille de fond derrière le lien.
+                         */
+                        backgroundColor?: string | null;
+                        /**
+                         * Optionnel — contour fin autour du lien, ex. #C0002B.
+                         */
+                        borderColor?: string | null;
+                        fontWeight?: ('300' | '400' | '500' | '600' | '700') | null;
+                        /**
+                         * De 0 (invisible) à 1 (pleine intensité). Laisser vide ou 1 pour un lien normal ; 0.6–0.8 pour un lien secondaire.
+                         */
+                        opacity?: number | null;
+                      };
+                      /**
+                       * Effets CSS. Automatiquement désactivés pour les visiteurs ayant demandé de réduire les animations (prefers-reduced-motion).
+                       */
+                      animation?: {
+                        enabled?: boolean | null;
+                        type?: ('none' | 'blink' | 'pulse' | 'shimmer' | 'glow') | null;
+                        /**
+                         * Durée d'un cycle, en secondes. 2 = discret, <1 = agressif.
+                         */
+                        duration?: number | null;
+                        delay?: number | null;
+                        /**
+                         * "infinite" ou un nombre de répétitions, ex. 3.
+                         */
+                        iterationCount?: string | null;
+                      };
                       id?: string | null;
                     }[]
                   | null;
@@ -3214,7 +3285,9 @@ export interface NavigationSelect<T extends boolean = true> {
               hoverColor?: T;
               activeColor?: T;
               backgroundColor?: T;
+              borderColor?: T;
               fontWeight?: T;
+              opacity?: T;
             };
         animation?:
           | T
@@ -3243,6 +3316,29 @@ export interface NavigationSelect<T extends boolean = true> {
                           brand?: T;
                           customUrl?: T;
                           visible?: T;
+                          badgeLabel?: T;
+                          badgeBackgroundColor?: T;
+                          badgeTextColor?: T;
+                          appearance?:
+                            | T
+                            | {
+                                color?: T;
+                                hoverColor?: T;
+                                activeColor?: T;
+                                backgroundColor?: T;
+                                borderColor?: T;
+                                fontWeight?: T;
+                                opacity?: T;
+                              };
+                          animation?:
+                            | T
+                            | {
+                                enabled?: T;
+                                type?: T;
+                                duration?: T;
+                                delay?: T;
+                                iterationCount?: T;
+                              };
                           id?: T;
                         };
                     id?: T;

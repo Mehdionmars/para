@@ -251,6 +251,22 @@ export const Products: CollectionConfig = {
       ],
     },
     {
+      name: 'isLowStock',
+      type: 'checkbox',
+      admin: {
+        description: 'Calculé automatiquement : stock > 0 et stock ≤ seuil. Alimente le filtre « Stock faible ».',
+        position: 'sidebar',
+        readOnly: true,
+      },
+      // Maintained by the products_low_stock_trg trigger (migration
+      // 20260820_170000) so the value is always derived from stock and
+      // lowStockThreshold, whoever wrote the row. Writes are refused at field
+      // level: letting a client set it would let a full product be flagged
+      // low-stock, and the dashboard filter reads exactly this column.
+      access: { create: () => false, update: () => false },
+      label: 'Stock faible',
+    },
+    {
       // `ui` = render-only, no column and no stored value. Shows the badge
       // stack exactly as the storefront will order and colour it, including
       // the automatic discount pill (which has no field of its own) and the
