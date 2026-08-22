@@ -207,6 +207,15 @@ async function main() {
         data.hasVariants = true
         data.variantOptionType = p.variantOptionType ?? 'contenance'
         data.variants = p.variants
+        // Without this the mode stayed at its 'same-price' default while the
+        // rows carried their own amounts: the prices were written, hidden
+        // from the admin (the field only shows in per-variant mode) and then
+        // discarded at render time, so switching option never moved the
+        // price. Rows that all agree on one amount really are same-price.
+        const prices = new Set(
+          p.variants.map((v) => (v as { price?: number | null }).price).filter((v) => v !== null && v !== undefined),
+        )
+        if (prices.size > 1) data.variantPricingMode = 'per-variant'
         totals.variantsCreated += p.variants.length
       }
 

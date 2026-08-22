@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { notifyOrderEvent } from '../../../lib/notifications/service'
+import { notifyStockChange } from '../../../lib/notifications/stock'
 import { evaluateCoupon, resolveShipping } from '../../../lib/pricing'
 import { withApiLog } from '../../../lib/withApiLog'
 
@@ -12,7 +13,14 @@ export const maxDuration = 30
  * the whole stock of a product. */
 const MAX_QTY_PER_LINE = 20
 
-type CheckoutLine = { id?: number; qty?: number }
+type CheckoutLine = {
+  id?: number
+  /** The `products_variants` row id, when the shopper picked an option.
+   * Absent on a product that has none. Never trusted for price or stock —
+   * it only says *which* row to read, exactly like `id`. */
+  variantId?: string | null
+  qty?: number
+}
 type CheckoutBody = {
   name?: string
   email?: string
@@ -33,6 +41,31 @@ type ResolvedLine = {
   quantity: number
   categoryValue: string | null
   brandId: number | null
+  /** Snapshot of the option bought, or nulls when the product has none. */
+  variantId: string | null
+  variantLabel: string | null
+  variantType: string | null
+  sku: string | null
+}
+
+/** The human name of a variant dimension, mirroring VARIANT_OPTION_TYPES in
+ * collections/Products.ts. Stored on the order line so the back office can
+ * print "Contenance : 100 ml" without re-reading a product that may have
+ * been edited since. */
+const VARIANT_TYPE_LABELS: Record<string, string> = {
+  contenance: 'Contenance',
+  format: 'Format',
+  taille: 'Taille',
+  couleur: 'Couleur',
+  parfum: 'Parfum',
+  pack: 'Pack',
+  autre: 'Option',
+}
+
+/** Cart identity. Two different options of one product are two lines, and
+ * the same option sent twice is one line of the summed quantity. */
+function lineKey(productId: number, variantId: string | null): string {
+  return `${productId}::${variantId ?? ''}`
 }
 
 /**
@@ -72,26 +105,33 @@ async function handlePOST(request: Request) {
     return Response.json({ error: 'Panier vide.' }, { status: 400 })
   }
 
-  // Merge duplicate ids before touching the database: the same product sent
-  // twice must become one line of qty 2, not two lines that each pass the
-  // stock check on their own and together oversell.
-  const requested = new Map<number, number>()
+  // Merge duplicates before touching the database: the same product *and the
+  // same option* sent twice must become one line of qty 2, not two lines that
+  // each pass the stock check on their own and together oversell. Two
+  // different options of one product stay two lines — they draw on two
+  // different stocks.
+  const requested = new Map<string, { productId: number; variantId: string | null; qty: number }>()
   for (const line of body.lines) {
     const id = Number(line?.id)
     const qty = Math.floor(Number(line?.qty))
+    const rawVariant = line?.variantId
+    const variantId = typeof rawVariant === 'string' && rawVariant.trim() ? rawVariant.trim() : null
     if (!Number.isInteger(id) || id <= 0) {
       return Response.json({ error: 'Produit invalide dans le panier.' }, { status: 400 })
     }
     if (!Number.isInteger(qty) || qty <= 0) {
       return Response.json({ error: 'Quantité invalide.' }, { status: 400 })
     }
-    requested.set(id, (requested.get(id) || 0) + qty)
+    const key = lineKey(id, variantId)
+    const existing = requested.get(key)
+    if (existing) existing.qty += qty
+    else requested.set(key, { productId: id, qty, variantId })
   }
 
-  for (const [id, qty] of requested) {
-    if (qty > MAX_QTY_PER_LINE) {
+  for (const entry of requested.values()) {
+    if (entry.qty > MAX_QTY_PER_LINE) {
       return Response.json(
-        { error: `Quantité maximale de ${MAX_QTY_PER_LINE} par produit dépassée.`, productId: id },
+        { error: `Quantité maximale de ${MAX_QTY_PER_LINE} par produit dépassée.`, productId: entry.productId },
         { status: 400 },
       )
     }
@@ -101,22 +141,36 @@ async function handlePOST(request: Request) {
   const client = await pool.connect()
 
   const resolved: ResolvedLine[] = []
-  const movements: { productId: number; previousStock: number; newStock: number; quantity: number }[] = []
+  const movements: {
+    productId: number
+    previousStock: number
+    newStock: number
+    quantity: number
+    name: string
+    lowStockThreshold: number
+  }[] = []
   let subtotal = 0
 
   try {
     await client.query('BEGIN')
 
-    // Deterministic lock order (ascending id) across every checkout, so two
-    // concurrent orders holding overlapping carts can't deadlock by grabbing
-    // the same two rows in opposite order.
-    const ids = [...requested.keys()].sort((a, b) => a - b)
+    // Deterministic lock order across every checkout, so two concurrent
+    // orders holding overlapping carts can't deadlock by grabbing the same
+    // rows in opposite order: products ascending by id, and within a product
+    // its variant rows ascending by id.
+    const byProduct = new Map<number, { variantId: string | null; qty: number }[]>()
+    for (const entry of requested.values()) {
+      const list = byProduct.get(entry.productId) || []
+      list.push({ qty: entry.qty, variantId: entry.variantId })
+      byProduct.set(entry.productId, list)
+    }
+    const ids = [...byProduct.keys()].sort((a, b) => a - b)
 
     for (const id of ids) {
-      const qty = requested.get(id)!
-
       const found = await client.query(
-        'SELECT id, name, price, stock, is_published, discontinued, category, brand_id FROM products WHERE id = $1 FOR UPDATE',
+        `SELECT id, name, sku, price, stock, is_published, discontinued, category, brand_id, low_stock_threshold,
+                has_variants, variant_option_type, variant_pricing_mode
+           FROM products WHERE id = $1 FOR UPDATE`,
         [id],
       )
       const row = found.rows[0]
@@ -136,25 +190,116 @@ async function handlePOST(request: Request) {
         )
       }
 
-      const previousStock = Number(row.stock)
-      if (previousStock < qty) {
+      const productPrice = Number(row.price)
+      const perVariantPricing = row.variant_pricing_mode === 'per-variant'
+      const variantType = row.has_variants
+        ? VARIANT_TYPE_LABELS[String(row.variant_option_type || 'contenance')] || 'Option'
+        : null
+
+      const lines = byProduct.get(id)!.sort((a, b) => (a.variantId ?? '').localeCompare(b.variantId ?? ''))
+
+      // The product's own stock covers the whole product across every option.
+      // A variant line has to clear both it and the variant's own count, so
+      // neither number can be driven negative and the catalogue's product-
+      // level availability stays truthful.
+      const productQty = lines.reduce((n, l) => n + l.qty, 0)
+      const previousProductStock = Number(row.stock)
+      if (previousProductStock < productQty) {
         await client.query('ROLLBACK')
         return Response.json(
           {
-            available: previousStock,
+            available: previousProductStock,
             error:
-              previousStock === 0
+              previousProductStock === 0
                 ? `« ${row.name} » est en rupture de stock.`
-                : `« ${row.name} » : il ne reste que ${previousStock} unité(s).`,
+                : `« ${row.name} » : il ne reste que ${previousProductStock} unité(s).`,
             productId: id,
           },
           { status: 409 },
         )
       }
 
+      for (const line of lines) {
+        const qty = line.qty
+        let price = productPrice
+        let variantLabel: string | null = null
+        let sku: string | null = row.sku ?? null
+
+        if (line.variantId) {
+          const variantFound = await client.query(
+            `SELECT id, option_value, sku, price, stock, active
+               FROM products_variants
+              WHERE id = $1 AND _parent_id = $2
+              FOR UPDATE`,
+            [line.variantId, id],
+          )
+          const variant = variantFound.rows[0]
+
+          if (!variant || variant.active === false) {
+            await client.query('ROLLBACK')
+            return Response.json(
+              { error: `L'option choisie pour « ${row.name} » n'est plus disponible.`, productId: id, variantId: line.variantId },
+              { status: 409 },
+            )
+          }
+
+          const previousVariantStock = Number(variant.stock)
+          if (previousVariantStock < qty) {
+            await client.query('ROLLBACK')
+            return Response.json(
+              {
+                available: previousVariantStock,
+                error:
+                  previousVariantStock === 0
+                    ? `« ${row.name} » (${variant.option_value}) est en rupture de stock.`
+                    : `« ${row.name} » (${variant.option_value}) : il ne reste que ${previousVariantStock} unité(s).`,
+                productId: id,
+                variantId: line.variantId,
+              },
+              { status: 409 },
+            )
+          }
+
+          const variantDecremented = await client.query(
+            'UPDATE products_variants SET stock = stock - $1 WHERE id = $2 AND stock >= $1 RETURNING stock',
+            [qty, line.variantId],
+          )
+          if (variantDecremented.rowCount === 0) {
+            await client.query('ROLLBACK')
+            return Response.json(
+              { error: 'Stock insuffisant.', productId: id, variantId: line.variantId },
+              { status: 409 },
+            )
+          }
+
+          // In same-price mode the variant row legitimately carries no price
+          // and the product's is authoritative — reading v.price there would
+          // charge 0 MAD.
+          if (perVariantPricing && variant.price !== null && variant.price !== undefined) {
+            price = Number(variant.price)
+          }
+          variantLabel = variant.option_value ? String(variant.option_value) : null
+          sku = variant.sku ? String(variant.sku) : sku
+        }
+
+        resolved.push({
+          brandId: row.brand_id ?? null,
+          categoryValue: row.category ?? null,
+          name: row.name,
+          price,
+          productId: id,
+          quantity: qty,
+          sku,
+          variantId: line.variantId,
+          variantLabel,
+          variantType: line.variantId ? variantType : null,
+        })
+        subtotal += price * qty
+      }
+
       const decremented = await client.query(
         'UPDATE products SET stock = stock - $1, updated_at = now() WHERE id = $2 AND stock >= $1 RETURNING stock',
-        [qty, id],
+        [productQty, id],
       )
       if (decremented.rowCount === 0) {
         // Belt-and-braces: the FOR UPDATE above should make this unreachable,
@@ -163,10 +308,14 @@ async function handlePOST(request: Request) {
         return Response.json({ error: 'Stock insuffisant.', productId: id }, { status: 409 })
       }
 
-      const price = Number(row.price)
-      resolved.push({ brandId: row.brand_id ?? null, categoryValue: row.category ?? null, name: row.name, price, productId: id, quantity: qty })
-      movements.push({ newStock: Number(decremented.rows[0].stock), previousStock, productId: id, quantity: qty })
-      subtotal += price * qty
+      movements.push({
+        lowStockThreshold: Number(row.low_stock_threshold) || 0,
+        name: String(row.name),
+        newStock: Number(decremented.rows[0].stock),
+        previousStock: previousProductStock,
+        productId: id,
+        quantity: productQty,
+      })
     }
 
     await client.query('COMMIT')
@@ -230,7 +379,19 @@ async function handlePOST(request: Request) {
         customerEmail: email,
         customerName: name,
         customerPhone: body.phone?.trim() || undefined,
-        items: resolved.map((l) => ({ name: l.name, price: l.price, product: l.productId, quantity: l.quantity })),
+        // Every field here is a snapshot: re-reading the product later to
+        // rebuild a past order would report today's name, price and options,
+        // not what was sold.
+        items: resolved.map((l) => ({
+          name: l.name,
+          price: l.price,
+          product: l.productId,
+          quantity: l.quantity,
+          sku: l.sku ?? undefined,
+          variantId: l.variantId ?? undefined,
+          variantLabel: l.variantLabel ?? undefined,
+          variantType: l.variantType ?? undefined,
+        })),
         coupon: appliedCouponId ?? undefined,
         couponCode: appliedCouponCode ?? undefined,
         discount,
@@ -325,6 +486,22 @@ async function handlePOST(request: Request) {
           },
         })
         .catch(() => {})
+    }
+
+    // Stock alerts, after the order exists. A sale that empties a product is
+    // exactly when the shop needs to know.
+    for (const m of movements) {
+      await notifyStockChange({
+        change: {
+          lowStockThreshold: m.lowStockThreshold,
+          newStock: m.newStock,
+          occurrenceId: `order-${order.id}`,
+          previousStock: m.previousStock,
+          productId: m.productId,
+          productName: m.name,
+        },
+        payload,
+      })
     }
 
     return Response.json({

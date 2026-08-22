@@ -57,7 +57,7 @@ async function handlePOST(request: Request) {
         customerEmail: string
         customerName: string
         status: string
-        items?: { name?: string; quantity?: number; price?: number }[]
+        items?: { name?: string; quantity?: number; price?: number; variantLabel?: string | null; variantType?: string | null; sku?: string | null }[]
         subtotal?: number
         discount?: number
         shipping?: number
@@ -82,7 +82,17 @@ async function handlePOST(request: Request) {
     createdAt: order.createdAt,
     customerName: order.customerName,
     discount: order.discount ?? 0,
-    items: (order.items ?? []).map((i) => ({ name: i.name, price: i.price, quantity: i.quantity })),
+    // The option is part of what the customer ordered, so a tracking page
+    // that lists "Sunscreen Hydro × 2" without saying which size is not
+    // showing them their order.
+    items: (order.items ?? []).map((i) => ({
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      sku: i.sku ?? null,
+      variantLabel: i.variantLabel ?? null,
+      variantType: i.variantType ?? null,
+    })),
     orderNumber: order.orderNumber,
     shipping: order.shipping ?? 0,
     status: order.status,

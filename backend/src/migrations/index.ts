@@ -13,6 +13,13 @@ import * as migration_20260819_230000_locked_documents_rels from './20260819_230
 import * as migration_20260820_090000_nav_opacity_mega_style from './20260820_090000_nav_opacity_mega_style';
 import * as migration_20260820_140000_search_trigram from './20260820_140000_search_trigram';
 import * as migration_20260820_170000_product_stock_state from './20260820_170000_product_stock_state';
+import * as migration_20260821_090000_stock_notifications from './20260821_090000_stock_notifications';
+import * as migration_20260821_150000_notification_attempts from './20260821_150000_notification_attempts';
+import * as migration_20260822_090000_notification_recipient from './20260822_090000_notification_recipient';
+import * as migration_20260822_190000_brand_logo from './20260822_190000_brand_logo';
+import * as migration_20260823_090000_order_item_variant from './20260823_090000_order_item_variant';
+import * as migration_20260823_100000_variant_pricing_backfill from './20260823_100000_variant_pricing_backfill';
+import * as migration_20260823_120000_chrome_appearance from './20260823_120000_chrome_appearance';
 
 export const migrations = [
   {
@@ -89,5 +96,40 @@ export const migrations = [
     up: migration_20260820_170000_product_stock_state.up,
     down: migration_20260820_170000_product_stock_state.down,
     name: '20260820_170000_product_stock_state'
+  },
+  {
+    up: migration_20260821_090000_stock_notifications.up,
+    down: migration_20260821_090000_stock_notifications.down,
+    name: '20260821_090000_stock_notifications'
+  },
+  {
+    up: migration_20260821_150000_notification_attempts.up,
+    down: migration_20260821_150000_notification_attempts.down,
+    name: '20260821_150000_notification_attempts'
+  },
+  {
+    up: migration_20260822_090000_notification_recipient.up,
+    down: migration_20260822_090000_notification_recipient.down,
+    name: '20260822_090000_notification_recipient'
+  },
+  {
+    up: migration_20260822_190000_brand_logo.up,
+    down: migration_20260822_190000_brand_logo.down,
+    name: '20260822_190000_brand_logo'
+  },
+  {
+    up: migration_20260823_090000_order_item_variant.up,
+    down: migration_20260823_090000_order_item_variant.down,
+    name: '20260823_090000_order_item_variant'
+  },
+  {
+    up: migration_20260823_100000_variant_pricing_backfill.up,
+    down: migration_20260823_100000_variant_pricing_backfill.down,
+    name: '20260823_100000_variant_pricing_backfill'
+  },
+  {
+    up: migration_20260823_120000_chrome_appearance.up,
+    down: migration_20260823_120000_chrome_appearance.down,
+    name: '20260823_120000_chrome_appearance'
   },
 ];

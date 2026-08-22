@@ -10,7 +10,7 @@ type ValidateBody = {
   code?: string
   email?: string
   city?: string
-  lines?: { id?: number; qty?: number }[]
+  lines?: { id?: number; variantId?: string | null; qty?: number }[]
 }
 
 /**
@@ -38,37 +38,68 @@ async function handlePOST(request: Request) {
   const code = body.code?.trim()
   if (!code) return Response.json({ error: 'Entrez un code promo.', ok: false }, { status: 400 })
 
-  const requested = new Map<number, number>()
+  // Keyed by product *and* option, like the cart and the checkout: two
+  // contenances of one product can carry two different prices, so collapsing
+  // them onto the product id would preview a subtotal the checkout then
+  // disagrees with.
+  const requested = new Map<string, { productId: number; variantId: string | null; qty: number }>()
   for (const line of body.lines || []) {
     const id = Number(line?.id)
     const qty = Math.floor(Number(line?.qty))
+    const variantId = typeof line?.variantId === 'string' && line.variantId.trim() ? line.variantId.trim() : null
     if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(qty) || qty <= 0) continue
-    requested.set(id, (requested.get(id) || 0) + qty)
+    const key = `${id}::${variantId ?? ''}`
+    const existing = requested.get(key)
+    if (existing) existing.qty += qty
+    else requested.set(key, { productId: id, qty, variantId })
   }
   if (requested.size === 0) {
     return Response.json({ error: 'Votre panier est vide.', ok: false }, { status: 400 })
   }
 
+  const productIds = [...new Set([...requested.values()].map((l) => l.productId))]
+
   // Prices, category and brand all come from the products table — the body
-  // only said which product and how many.
+  // only said which product, which option, and how many.
   const products = await payload.find({
     collection: 'products',
     depth: 0,
-    limit: requested.size,
+    limit: productIds.length,
     overrideAccess: true,
-    where: { id: { in: [...requested.keys()] } },
+    where: { id: { in: productIds } },
   })
 
-  const lines: CartLine[] = products.docs.map((p) => {
-    const doc = p as { id: number; price: number; category?: string; brand?: number | { id: number } }
-    return {
+  type ProductDoc = {
+    id: number
+    price: number
+    category?: string
+    brand?: number | { id: number }
+    variantPricingMode?: string | null
+    variants?: { id?: string | null; price?: number | null }[] | null
+  }
+  const byId = new Map<number, ProductDoc>(products.docs.map((p) => [(p as ProductDoc).id, p as ProductDoc]))
+
+  const lines: CartLine[] = []
+  for (const entry of requested.values()) {
+    const doc = byId.get(entry.productId)
+    if (!doc) continue
+
+    let price = Number(doc.price)
+    if (entry.variantId && doc.variantPricingMode === 'per-variant') {
+      const variant = (doc.variants || []).find((v) => String(v?.id) === entry.variantId)
+      // In same-price mode a variant row legitimately has no price of its own
+      // and the product's is authoritative — the same rule the checkout applies.
+      if (variant && variant.price !== null && variant.price !== undefined) price = Number(variant.price)
+    }
+
+    lines.push({
       brandId: typeof doc.brand === 'object' && doc.brand ? doc.brand.id : (doc.brand ?? null),
       categoryValue: doc.category ?? null,
-      price: Number(doc.price),
+      price,
       productId: doc.id,
-      quantity: requested.get(doc.id) || 0,
-    }
-  })
+      quantity: entry.qty,
+    })
+  }
 
   if (lines.length === 0) {
     return Response.json({ error: 'Produits introuvables.', ok: false }, { status: 400 })

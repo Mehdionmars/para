@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { userHasRole } from '../../../../access/roles'
+import { notifyStockChange } from '../../../../lib/notifications/stock'
 import { withApiLog } from '../../../../lib/withApiLog'
 
 export const maxDuration = 30
@@ -78,7 +79,7 @@ async function handlePOST(request: Request) {
     }
 
     const productRes = await client.query(
-      'UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2 RETURNING id, name, stock',
+      'UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2 RETURNING id, name, stock, low_stock_threshold',
       [quantity, productId],
     )
     const productRow = productRes.rows[0]
@@ -123,6 +124,20 @@ async function handlePOST(request: Request) {
     }
 
     await client.query('COMMIT')
+
+    // After COMMIT: the alert describes a change that has actually happened,
+    // and a failure here can no longer roll back the restock.
+    await notifyStockChange({
+      change: {
+        lowStockThreshold: Number(productRow.low_stock_threshold) || 0,
+        newStock,
+        occurrenceId: movementRes.rows[0].id,
+        previousStock,
+        productId,
+        productName: String(productRow.name),
+      },
+      payload,
+    })
 
     return Response.json({
       movementId: movementRes.rows[0].id,

@@ -266,6 +266,10 @@ export interface FolderInterface {
 export interface Brand {
   id: number;
   name: string;
+  /**
+   * Logo officiel de la marque, de préférence en PNG ou SVG sur fond transparent. Sans logo, le storefront affiche un monogramme composé à partir du nom — la marque reste présentable, elle n'est simplement pas signée.
+   */
+  logo?: (number | null) | Media;
   slug?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -540,6 +544,19 @@ export interface Order {
     name: string;
     price: number;
     quantity: number;
+    /**
+     * Identifiant de la ligne de variante au moment de la commande.
+     */
+    variantId?: string | null;
+    /**
+     * Ex. « 100 ml ».
+     */
+    variantLabel?: string | null;
+    /**
+     * La dimension de la variante — ex. « Contenance ».
+     */
+    variantType?: string | null;
+    sku?: string | null;
     id?: string | null;
   }[];
   subtotal: number;
@@ -809,6 +826,15 @@ export interface OrderStatusHistory {
 export interface Notification {
   id: number;
   order?: (number | null) | Order;
+  product?: (number | null) | Product;
+  /**
+   * Qui reçoit cette notification. « staff » = boîte partagée de l’équipe (sans destinataire nominatif).
+   */
+  recipientType?: ('staff' | 'customer' | 'supplier') | null;
+  /**
+   * Adresse ou identifiant du destinataire. Vide pour la boîte partagée de l’équipe.
+   */
+  recipientRef?: string | null;
   customerEmail?: string | null;
   type:
     | 'ORDER_CREATED'
@@ -818,7 +844,10 @@ export interface Notification {
     | 'ORDER_DELIVERED'
     | 'ORDER_CANCELLED'
     | 'ORDER_RETURNED'
-    | 'ORDER_REFUNDED';
+    | 'ORDER_REFUNDED'
+    | 'LOW_STOCK'
+    | 'OUT_OF_STOCK'
+    | 'BACK_IN_STOCK';
   channel: 'email' | 'whatsapp' | 'push' | 'internal';
   /**
    * « pending » signifie composée mais non délivrée — typiquement aucun provider configuré pour ce canal.
@@ -840,6 +869,15 @@ export interface Notification {
    * Renseignée quand la notification est marquée comme lue.
    */
   readAt?: string | null;
+  /**
+   * Nombre de tentatives de livraison (3 maximum).
+   */
+  attempts?: number | null;
+  lastAttemptAt?: string | null;
+  /**
+   * Clé d'idempotence de l'occurrence. Unique en base — c'est elle qui empêche un doublon.
+   */
+  dedupeKey?: string | null;
   error?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1243,6 +1281,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface BrandsSelect<T extends boolean = true> {
   name?: T;
+  logo?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1394,6 +1433,10 @@ export interface OrdersSelect<T extends boolean = true> {
         name?: T;
         price?: T;
         quantity?: T;
+        variantId?: T;
+        variantLabel?: T;
+        variantType?: T;
+        sku?: T;
         id?: T;
       };
   subtotal?: T;
@@ -1547,6 +1590,9 @@ export interface OrderStatusHistorySelect<T extends boolean = true> {
  */
 export interface NotificationsSelect<T extends boolean = true> {
   order?: T;
+  product?: T;
+  recipientType?: T;
+  recipientRef?: T;
   customerEmail?: T;
   type?: T;
   channel?: T;
@@ -1556,6 +1602,9 @@ export interface NotificationsSelect<T extends boolean = true> {
   metadata?: T;
   sentAt?: T;
   readAt?: T;
+  attempts?: T;
+  lastAttemptAt?: T;
+  dedupeKey?: T;
   error?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2430,6 +2479,93 @@ export interface SiteChrome {
      */
     mobileMessage?: string | null;
   };
+  /**
+   * Couleurs de la top bar. Tout champ laissé vide garde exactement le rendu actuel — rien n'est écrit tant qu'une couleur n'a pas été choisie.
+   */
+  topBarAppearance?: {
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-topbar-bg.
+     */
+    backgroundColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-topbar-text.
+     */
+    textColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-topbar-link.
+     */
+    linkColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-topbar-hover.
+     */
+    hoverColor?: string | null;
+    /**
+     * Opacité du bandeau, en pourcentage. Vide = 100 %.
+     */
+    opacity?: number | null;
+  };
+  /**
+   * Couleurs de l'en-tête. Tout champ laissé vide garde exactement le rendu actuel.
+   */
+  headerAppearance?: {
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-header-bg.
+     */
+    backgroundColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-header-text.
+     */
+    textColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-header-link.
+     */
+    linkColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-header-hover.
+     */
+    hoverColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-header-icon.
+     */
+    iconColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-header-border.
+     */
+    borderColor?: string | null;
+  };
+  /**
+   * Couleurs du pied de page. Tout champ laissé vide garde exactement le rendu actuel.
+   */
+  footerAppearance?: {
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-footer-bg.
+     */
+    backgroundColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-footer-text.
+     */
+    textColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-footer-heading.
+     */
+    headingColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-footer-link.
+     */
+    linkColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-footer-hover.
+     */
+    hoverColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-footer-icon.
+     */
+    iconColor?: string | null;
+    /**
+     * Laisser vide pour conserver la couleur actuelle du storefront. Surcharge --chrome-footer-border.
+     */
+    borderColor?: string | null;
+  };
   logo?: {
     /**
      * Leave empty to keep the default logo mark.
@@ -3179,6 +3315,36 @@ export interface SiteChromeSelect<T extends boolean = true> {
             };
         marqueeSpeedSec?: T;
         mobileMessage?: T;
+      };
+  topBarAppearance?:
+    | T
+    | {
+        backgroundColor?: T;
+        textColor?: T;
+        linkColor?: T;
+        hoverColor?: T;
+        opacity?: T;
+      };
+  headerAppearance?:
+    | T
+    | {
+        backgroundColor?: T;
+        textColor?: T;
+        linkColor?: T;
+        hoverColor?: T;
+        iconColor?: T;
+        borderColor?: T;
+      };
+  footerAppearance?:
+    | T
+    | {
+        backgroundColor?: T;
+        textColor?: T;
+        headingColor?: T;
+        linkColor?: T;
+        hoverColor?: T;
+        iconColor?: T;
+        borderColor?: T;
       };
   logo?:
     | T

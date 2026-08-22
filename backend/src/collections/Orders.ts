@@ -3,6 +3,7 @@ import { APIError, type CollectionConfig } from 'payload'
 import { adminOrManager, canEditOrders, isStaff, staffOnlyInAdmin } from '../access/roles'
 import { runSql, sql } from '../lib/db/exec'
 import { notifyOrderEvent } from '../lib/notifications/service'
+import { notifyStockChange, type StockChange } from '../lib/notifications/stock'
 import { STATUS_EVENT } from '../lib/notifications/types'
 import {
   canTransition,
@@ -145,6 +146,7 @@ export const Orders: CollectionConfig = {
         const items = (doc?.items ?? []) as { product?: number | { id: number } | null; quantity?: number; name?: string }[]
         if (items.length === 0) return
 
+        const restocked: StockChange[] = []
         const pool = req.payload.db.pool
         const client = await pool.connect()
         try {
@@ -155,7 +157,7 @@ export const Orders: CollectionConfig = {
             if (!productId || !Number.isInteger(quantity) || quantity <= 0) continue
 
             const restored = await client.query(
-              'UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2 RETURNING stock',
+              'UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2 RETURNING name, stock, low_stock_threshold',
               [quantity, productId],
             )
             // A product deleted since the order was placed has nothing to
@@ -163,6 +165,16 @@ export const Orders: CollectionConfig = {
             if (restored.rowCount === 0) continue
 
             const newStock = Number(restored.rows[0].stock)
+            // Returning units can take a product back above zero — that is a
+            // BACK_IN_STOCK, and the shop wants to know it can sell again.
+            restocked.push({
+              lowStockThreshold: Number(restored.rows[0].low_stock_threshold) || 0,
+              newStock,
+              occurrenceId: `order-restore-${doc.id}`,
+              previousStock: newStock - quantity,
+              productId: Number(productId),
+              productName: String(restored.rows[0].name),
+            })
             await client.query(
               `INSERT INTO stock_movements
                  (product_id, previous_stock, new_stock, delta, source, reason, updated_at, created_at)
@@ -176,6 +188,11 @@ export const Orders: CollectionConfig = {
           req.payload.logger.error({ err }, `Restauration de stock échouée pour la commande ${doc?.orderNumber}`)
         } finally {
           client.release()
+        }
+
+        // After the stock transaction closed, and never able to undo it.
+        for (const change of restocked) {
+          await notifyStockChange({ change, payload: req.payload }).catch(() => {})
         }
       },
     ],
@@ -209,6 +226,30 @@ export const Orders: CollectionConfig = {
         { name: 'name', type: 'text', required: true },
         { name: 'price', type: 'number', min: 0, required: true },
         { name: 'quantity', type: 'number', min: 1, required: true },
+        // Which variant was bought, snapshotted like the name and the price
+        // and for the same reason: the product's variant rows can be renamed,
+        // repriced or deleted after the sale, and the order has to keep
+        // saying what was actually shipped. Null on a product with no
+        // variants, and on every order placed before this existed.
+        {
+          name: 'variantId',
+          type: 'text',
+          admin: { description: "Identifiant de la ligne de variante au moment de la commande." },
+          label: 'ID variante',
+        },
+        {
+          name: 'variantLabel',
+          type: 'text',
+          admin: { description: 'Ex. « 100 ml ».' },
+          label: 'Variante',
+        },
+        {
+          name: 'variantType',
+          type: 'text',
+          admin: { description: 'La dimension de la variante — ex. « Contenance ».' },
+          label: 'Type de variante',
+        },
+        { name: 'sku', type: 'text', label: 'SKU' },
       ],
       required: true,
     },

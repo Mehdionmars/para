@@ -9,19 +9,43 @@ export const NOTIFICATION_EVENTS = [
   'ORDER_CANCELLED',
   'ORDER_RETURNED',
   'ORDER_REFUNDED',
+  // Stock alerts. Emitted on threshold *crossings* — see lib/notifications/stock.ts.
+  'LOW_STOCK',
+  'OUT_OF_STOCK',
+  'BACK_IN_STOCK',
 ] as const
 
 export type NotificationEvent = (typeof NOTIFICATION_EVENTS)[number]
 
+export const STOCK_EVENTS = ['LOW_STOCK', 'OUT_OF_STOCK', 'BACK_IN_STOCK'] as const
+export type StockNotificationEvent = (typeof STOCK_EVENTS)[number]
+
+/** Order-lifecycle events. Stock alerts carry their own copy (they describe a
+ * product, not an order) and never go through the order templates. */
+export type OrderNotificationEvent = Exclude<NotificationEvent, StockNotificationEvent>
+
 export const NOTIFICATION_CHANNELS = ['email', 'whatsapp', 'push', 'internal'] as const
 export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number]
+
+export const RECIPIENT_TYPES = ['staff', 'customer', 'supplier'] as const
+export type RecipientType = (typeof RECIPIENT_TYPES)[number]
+
+/**
+ * Who a notification is for.
+ *
+ * Polymorphic rather than a user relationship: there are no customer
+ * accounts and no vendor role, and a supplier is an external contact. `ref`
+ * is the address or identifier to reach them — null for `staff`, whose
+ * in-app inbox is shared and has no individual addressee.
+ */
+export type Recipient = { type: RecipientType; ref: string | null }
 
 export const NOTIFICATION_STATUSES = ['pending', 'sent', 'failed', 'read'] as const
 export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number]
 
 /** Which event a status change announces. Statuses with no customer-facing
  * meaning simply map to nothing and produce no notification. */
-export const STATUS_EVENT: Partial<Record<OrderStatus, NotificationEvent>> = {
+export const STATUS_EVENT: Partial<Record<OrderStatus, OrderNotificationEvent>> = {
   cancelled: 'ORDER_CANCELLED',
   confirmed: 'ORDER_CONFIRMED',
   delivered: 'ORDER_DELIVERED',
@@ -42,7 +66,7 @@ export type NotificationContext = {
   total: number
   itemCount: number
   status: OrderStatus
-  event: NotificationEvent
+  event: OrderNotificationEvent
 }
 
 export type DeliveryResult =
@@ -64,9 +88,15 @@ export type NotificationProvider = {
 export type EmailPayload = {
   to: string
   subject: string
+  /** Identifier a template-based provider maps to its own stored template. */
   template: string
   data: Record<string, unknown>
+  /** Plain-text alternative. Always present: some clients show it, and spam
+   * filters weigh its absence. */
   text: string
+  /** Rendered HTML body. Absent for messages with no customer-facing design
+   * (staff stock alerts), which then go out as text only. */
+  html?: string
 }
 
 export type WhatsAppPayload = {

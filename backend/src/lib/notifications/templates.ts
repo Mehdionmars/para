@@ -1,4 +1,4 @@
-import type { NotificationContext, NotificationEvent } from './types'
+import type { NotificationContext, OrderNotificationEvent } from './types'
 
 /**
  * Message bodies, one per event, shared by every channel.
@@ -30,7 +30,7 @@ type Rendered = {
 export function renderNotification(ctx: NotificationContext): Rendered {
   const items = `${ctx.itemCount} article${ctx.itemCount > 1 ? 's' : ''}`
 
-  const byEvent: Record<NotificationEvent, Rendered> = {
+  const byEvent: Record<OrderNotificationEvent, Rendered> = {
     ORDER_CANCELLED: {
       emailTemplate: 'order-cancelled',
       subject: `Commande ${ctx.orderNumber} annulée`,

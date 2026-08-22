@@ -1,6 +1,42 @@
-import type { GlobalConfig } from 'payload'
+import type { Field, GlobalConfig } from 'payload'
 
 import { canEditContent } from '../access/roles'
+import { revalidateStorefront } from '../lib/revalidateStorefront'
+
+// Same rule the Theme global applies: every colour here is rendered into a
+// raw inline <style> block on the storefront, so a malformed value is the one
+// way out of that tag. Hex only, validated server-side, never merely hinted.
+// The four lengths CSS actually accepts — `{3,8}` would also admit "#12345",
+// which no browser renders.
+const HEX_COLOR_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
+
+/**
+ * One optional colour override for a chrome surface.
+ *
+ * Deliberately **no defaultValue**. An unset field must stay unset: the
+ * storefront only emits a CSS variable for a colour that was actually chosen,
+ * and every component keeps its current value as the `var(..., fallback)`.
+ * Baking today's colours in as defaults would write them into the database on
+ * the next save, and from then on the storefront's palette would be pinned to
+ * whatever it happened to be on the day this shipped rather than following
+ * the design.
+ */
+const chromeColor = (name: string, label: string, cssVar: string): Field => ({
+  name,
+  type: 'text',
+  admin: {
+    description: `Laisser vide pour conserver la couleur actuelle du storefront. Surcharge ${cssVar}.`,
+  },
+  label,
+  validate: (value: unknown) => {
+    // Empty is the normal, meaningful state here — it means "not configured".
+    if (value === undefined || value === null || value === '') return true
+    if (typeof value !== 'string' || !HEX_COLOR_RE.test(value)) {
+      return 'Doit être une couleur hexadécimale valide, ex. #5E4074'
+    }
+    return true
+  },
+})
 
 // The 4 header action slots are fixed, not user-addable/removable — "Favoris"
 // and "Panier" are wired to real cart/favorites behavior (badge counts,
@@ -21,6 +57,16 @@ export const SiteChrome: GlobalConfig = {
   },
   admin: {
     description: 'Top bar, header and footer — shown on every page. Edited from the Storefront Builder\'s "Global" tab (/dashboard/storefront).',
+  },
+  hooks: {
+    // Same loop Navigation already closes: saving a colour purges the
+    // storefront's cached chrome so it is live without a rebuild. Failures
+    // are logged, never thrown — see revalidateStorefront.
+    afterChange: [
+      async ({ req }) => {
+        await revalidateStorefront(req.payload, ['site-chrome'])
+      },
+    ],
   },
   versions: {
     drafts: {
@@ -67,6 +113,63 @@ export const SiteChrome: GlobalConfig = {
           defaultValue: 'Livraison offerte dès 399 MAD',
         },
       ],
+    },
+    {
+      name: 'topBarAppearance',
+      type: 'group',
+      admin: {
+        description:
+          'Couleurs de la top bar. Tout champ laissé vide garde exactement le rendu actuel — rien n\'est écrit tant qu\'une couleur n\'a pas été choisie.',
+      },
+      fields: [
+        chromeColor('backgroundColor', 'Couleur de fond', '--chrome-topbar-bg'),
+        chromeColor('textColor', 'Couleur du texte', '--chrome-topbar-text'),
+        chromeColor('linkColor', 'Couleur des liens', '--chrome-topbar-link'),
+        chromeColor('hoverColor', 'Couleur au survol', '--chrome-topbar-hover'),
+        {
+          name: 'opacity',
+          type: 'number',
+          admin: { description: 'Opacité du bandeau, en pourcentage. Vide = 100 %.', step: 1 },
+          label: 'Opacité (%)',
+          max: 100,
+          min: 0,
+        },
+      ],
+      label: 'Apparence de la top bar',
+    },
+    {
+      name: 'headerAppearance',
+      type: 'group',
+      admin: {
+        description:
+          'Couleurs de l\'en-tête. Tout champ laissé vide garde exactement le rendu actuel.',
+      },
+      fields: [
+        chromeColor('backgroundColor', 'Fond', '--chrome-header-bg'),
+        chromeColor('textColor', 'Texte', '--chrome-header-text'),
+        chromeColor('linkColor', 'Liens', '--chrome-header-link'),
+        chromeColor('hoverColor', 'Survol', '--chrome-header-hover'),
+        chromeColor('iconColor', 'Icônes', '--chrome-header-icon'),
+        chromeColor('borderColor', 'Bordure', '--chrome-header-border'),
+      ],
+      label: 'Apparence de l\'en-tête',
+    },
+    {
+      name: 'footerAppearance',
+      type: 'group',
+      admin: {
+        description: 'Couleurs du pied de page. Tout champ laissé vide garde exactement le rendu actuel.',
+      },
+      fields: [
+        chromeColor('backgroundColor', 'Fond', '--chrome-footer-bg'),
+        chromeColor('textColor', 'Texte', '--chrome-footer-text'),
+        chromeColor('headingColor', 'Titres', '--chrome-footer-heading'),
+        chromeColor('linkColor', 'Liens', '--chrome-footer-link'),
+        chromeColor('hoverColor', 'Survol', '--chrome-footer-hover'),
+        chromeColor('iconColor', 'Icônes', '--chrome-footer-icon'),
+        chromeColor('borderColor', 'Bordure', '--chrome-footer-border'),
+      ],
+      label: 'Apparence du pied de page',
     },
     {
       name: 'logo',

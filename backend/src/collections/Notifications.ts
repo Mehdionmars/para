@@ -42,7 +42,44 @@ export const Notifications: CollectionConfig = {
           relationTo: 'orders',
         },
         {
+          name: 'product',
+          type: 'relationship',
+          admin: { readOnly: true },
+          index: true,
+          label: 'Produit',
+          relationTo: 'products',
+        },
+        {
+          name: 'recipientType',
+          type: 'select',
+          admin: {
+            description:
+              'Qui reçoit cette notification. « staff » = boîte partagée de l’équipe (sans destinataire nominatif).',
+            readOnly: true,
+          },
+          defaultValue: 'staff',
+          index: true,
+          label: 'Destinataire',
+          options: [
+            { label: 'Équipe', value: 'staff' },
+            { label: 'Client', value: 'customer' },
+            { label: 'Fournisseur', value: 'supplier' },
+          ],
+        },
+        {
+          name: 'recipientRef',
+          type: 'text',
+          admin: {
+            description: 'Adresse ou identifiant du destinataire. Vide pour la boîte partagée de l’équipe.',
+            readOnly: true,
+          },
+          index: true,
+          label: 'Adresse du destinataire',
+        },
+        {
           name: 'customerEmail',
+          // Legacy: kept so nothing reading it breaks. recipientRef is now
+          // the source of truth for who a notification is addressed to.
           type: 'text',
           // Email rather than a relationship: there is no customer collection
           // yet (accounts aren't built), and the order itself is keyed by
@@ -121,6 +158,30 @@ export const Notifications: CollectionConfig = {
           label: 'Lue le',
         },
       ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'attempts',
+          type: 'number',
+          admin: { description: 'Nombre de tentatives de livraison (3 maximum).', readOnly: true },
+          defaultValue: 0,
+          label: 'Tentatives',
+          min: 0,
+        },
+        { name: 'lastAttemptAt', type: 'date', admin: { readOnly: true }, label: 'Dernière tentative' },
+      ],
+    },
+    {
+      name: 'dedupeKey',
+      type: 'text',
+      admin: {
+        description: "Clé d'idempotence de l'occurrence. Unique en base — c'est elle qui empêche un doublon.",
+        readOnly: true,
+      },
+      index: true,
+      label: 'Clé de déduplication',
     },
     {
       name: 'error',

@@ -1,3 +1,4 @@
+import { resendProvider } from './providers/resend'
 import type {
   DeliveryResult,
   EmailNotificationProvider,
@@ -38,7 +39,7 @@ const env = (key: string) => process.env[key]?.trim() || ''
  *   EMAIL_API_KEY    bearer token
  *   EMAIL_FROM       e.g. "Para d'Hiver <commandes@paradhiver.ma>"
  */
-export const emailProvider: EmailNotificationProvider = {
+const genericHttpProvider: EmailNotificationProvider = {
   channel: 'email',
 
   disabledReason() {
@@ -80,6 +81,35 @@ export const emailProvider: EmailNotificationProvider = {
       return { error: err instanceof Error ? err.message : 'Erreur inconnue', ok: false }
     }
   },
+}
+
+/**
+ * The email provider actually used.
+ *
+ * Resend wins when its key is present, because it is the real transactional
+ * sender; the generic HTTP provider stays as the escape hatch for any other
+ * vendor. When neither is configured the generic one reports itself disabled,
+ * which keeps the "composed but undeliverable" behaviour the rest of the
+ * system already relies on — nothing is ever recorded as sent.
+ *
+ * Resolved per call rather than at module load so setting the env var takes
+ * effect on the next restart of the process, not the next rebuild of the
+ * image, and so tests can exercise both paths.
+ */
+export const emailProvider: EmailNotificationProvider = {
+  channel: 'email',
+
+  disabledReason() {
+    if (this.isConfigured()) return ''
+    // Names both routes: an operator reading this in the delivery log needs to
+    // know what to set, not merely that something is missing.
+    return `Email non configuré. Renseignez RESEND_API_KEY + EMAIL_FROM (recommandé), ou EMAIL_API_URL + EMAIL_API_KEY + EMAIL_FROM pour un autre fournisseur.`
+  },
+
+  isConfigured: () => resendProvider.isConfigured() || genericHttpProvider.isConfigured(),
+
+  send: (payload) =>
+    resendProvider.isConfigured() ? resendProvider.send(payload) : genericHttpProvider.send(payload),
 }
 
 // ------------------------------------------------------------- whatsapp

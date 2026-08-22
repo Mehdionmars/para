@@ -4,6 +4,7 @@ import type { PoolClient } from 'pg'
 
 import { userHasRole } from '../../../../access/roles'
 import { CATEGORY_OPTIONS } from '../../../../collections/Products'
+import { notifyStockChange, type StockChange } from '../../../../lib/notifications/stock'
 import { withApiLog } from '../../../../lib/withApiLog'
 
 export const maxDuration = 60
@@ -86,6 +87,9 @@ async function handlePOST(request: Request) {
   const invalid = validateOperation(operation)
   if (invalid) return Response.json({ error: invalid }, { status: 400 })
 
+  // One id for the whole batch, so a replay of this request is recognised.
+  const batchId = `${Date.now()}-${ids[0]}-${ids.length}`
+
   const client = await payload.db.pool.connect()
   try {
     await client.query('BEGIN')
@@ -95,7 +99,8 @@ async function handlePOST(request: Request) {
     // deadlocking against each other.
     const sorted = [...ids].sort((a, b) => a - b)
     const locked = await client.query(
-      `SELECT id, name, price, old_price, stock, category, brand_id, is_published, discontinued, featured, updated_at
+      `SELECT id, name, price, old_price, stock, category, brand_id, is_published, discontinued, featured,
+              low_stock_threshold, updated_at
          FROM products WHERE id = ANY($1::int[]) ORDER BY id FOR UPDATE`,
       [sorted],
     )
@@ -124,12 +129,19 @@ async function handlePOST(request: Request) {
     }
 
     const results: RowResult[] = []
+    // Collected inside the transaction, emitted after it commits: an alert
+    // must describe a change that actually landed.
+    const stockChanges: StockChange[] = []
     for (const row of locked.rows) {
-      const applied = await applyOperation({ client, operation, row, userId: user.id })
+      const applied = await applyOperation({ batchId, client, operation, row, stockChanges, userId: user.id })
       if (applied) results.push(applied)
     }
 
     await client.query('COMMIT')
+
+    for (const change of stockChanges) {
+      await notifyStockChange({ change, payload })
+    }
 
     return Response.json({
       // Selections can outlive the products in them (another operator deleted
@@ -203,20 +215,25 @@ type ProductRow = {
   is_published: boolean
   discontinued: boolean
   featured: boolean
+  low_stock_threshold: string | number | null
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100
 
 async function applyOperation({
   client,
+  batchId,
   operation,
   row,
+  stockChanges,
   userId,
 }: {
   client: PoolClient
   operation: Operation
   row: ProductRow
   userId: number
+  stockChanges: StockChange[]
+  batchId: string
 }): Promise<RowResult | null> {
   switch (operation.type) {
     case 'stock': {
@@ -243,6 +260,17 @@ async function applyOperation({
          VALUES ($1, $2, $3, $4, 'adjustment', $5, $6, now(), now())`,
         [row.id, before, after, after - before, operation.reason?.trim() || 'Modification groupée', userId],
       )
+
+      stockChanges.push({
+        lowStockThreshold: Number(row.low_stock_threshold) || 0,
+        newStock: after,
+        // The whole batch is one occurrence per product: a retried request
+        // must not alert twice for the same edit.
+        occurrenceId: `bulk-${batchId}`,
+        previousStock: before,
+        productId: row.id,
+        productName: row.name,
+      })
 
       return { after, before, id: row.id, name: row.name }
     }

@@ -3,13 +3,15 @@ import type { Payload, PayloadRequest } from 'payload'
 import { runSql, sql } from '../db/exec'
 import type { OrderStatus } from '../orderStatus'
 import { emailProvider, pushProvider, whatsappProvider } from './providers'
+import { renderEmailHtml } from './emailTemplates'
 import { renderNotification, templateVariables } from './templates'
 import type {
   DeliveryResult,
   NotificationChannel,
   NotificationContext,
-  NotificationEvent,
   NotificationStatus,
+  OrderNotificationEvent,
+  Recipient,
 } from './types'
 
 /**
@@ -49,7 +51,7 @@ type NotifyArgs = {
     status?: string | null
     items?: { quantity?: number | null }[] | null
   }
-  event: NotificationEvent
+  event: OrderNotificationEvent
   /** Which channels to attempt. Defaults to every channel; the unconfigured
    * ones record themselves as pending and cost nothing. */
   channels?: NotificationChannel[]
@@ -90,6 +92,18 @@ export async function notifyOrderEvent({
   const rendered = renderNotification(ctx)
   const outcomes: NotifyOutcome[] = []
 
+  /**
+   * The recipient differs *per channel* for an order event, which is exactly
+   * the conflation the old model could not express: the in-app row is read by
+   * the shop's team, while the email and WhatsApp go to the customer. Writing
+   * one recipient for all four rows tagged the staff inbox with the
+   * customer's address.
+   */
+  const recipientFor = (channel: NotificationChannel): Recipient =>
+    channel === 'internal'
+      ? { ref: null, type: 'staff' }
+      : { ref: (channel === 'whatsapp' ? ctx.customerPhone : ctx.customerEmail) || null, type: 'customer' }
+
   for (const channel of channels) {
     // A channel with nowhere to deliver is not an error and not a failure —
     // it simply does not apply to this customer.
@@ -101,6 +115,7 @@ export async function notifyOrderEvent({
       ctx,
       message: rendered.text,
       payload,
+      recipient: recipientFor(channel),
       target,
       title: rendered.title,
     })
@@ -122,6 +137,9 @@ export async function notifyOrderEvent({
     if (channel === 'email') {
       result = await emailProvider.send({
         data: templateVariables(ctx),
+        // Null for an event with no customer-facing design; the provider then
+        // sends text only rather than an empty shell.
+        html: renderEmailHtml(ctx) ?? undefined,
         subject: rendered.subject,
         template: rendered.emailTemplate,
         text: rendered.text,
@@ -174,6 +192,7 @@ async function claimNotification({
   ctx,
   message,
   payload,
+  recipient,
   target,
   title,
 }: {
@@ -181,6 +200,7 @@ async function claimNotification({
   ctx: NotificationContext
   message: string
   payload: Payload
+  recipient: Recipient
   target: SqlTarget
   title: string
 }): Promise<number | null> {
@@ -190,8 +210,11 @@ async function claimNotification({
     const inserted = await runSql(
       target,
       sql`INSERT INTO notifications
-            (order_id, customer_email, type, channel, status, title, message, metadata, updated_at, created_at)
-          VALUES (${ctx.orderId}, ${ctx.customerEmail}, ${ctx.event}::"enum_notifications_type",
+            (order_id, customer_email, recipient_type, recipient_ref, type, channel, status,
+             title, message, metadata, updated_at, created_at)
+          VALUES (${ctx.orderId}, ${ctx.customerEmail},
+                  ${recipient.type}::"enum_notifications_recipient_type", ${recipient.ref},
+                  ${ctx.event}::"enum_notifications_type",
                   ${channel}::"enum_notifications_channel", 'pending', ${title}, ${message},
                   ${metadata}::jsonb, now(), now())
           ON CONFLICT (order_id, type, channel) DO NOTHING
