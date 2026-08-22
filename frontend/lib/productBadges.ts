@@ -1,12 +1,12 @@
 /**
- * Product badge presets and resolution.
+ * Product badge presets and resolution — typed surface for app code.
  *
- * Mirrors backend/src/collections/Products.ts's BADGE_TYPE_PRESETS. Kept as
- * a mirror rather than an import because the storefront never imports from
- * the Payload project — same reason BADGE_TYPE_DEFAULT_LABEL was already
- * duplicated in lib/storefront/products.ts before this file existed.
- * Adding a type means editing both tables.
+ * The rules themselves live in ./productBadges.core.mjs, which is plain ESM so
+ * that `scripts/sync-cms.mjs` (bare Node, outside the Next build) can import
+ * the same code instead of keeping its own copy. This file adds the TypeScript
+ * types and re-exports; it deliberately holds no logic of its own.
  */
+import * as core from "./productBadges.core.mjs";
 
 export type BadgeType =
   | "nouveau"
@@ -22,22 +22,6 @@ export type BadgeType =
   | "custom";
 
 export type BadgePreset = { label: string; bgColor: string; textColor: string; priority: number };
-
-/** Priority 1 belongs to the automatic discount badge — a real markdown
- * always outranks a manually configured pill. */
-export const BADGE_TYPE_PRESETS: Record<BadgeType, BadgePreset> = {
-  nouveau: { label: "Nouveauté", bgColor: "#6D28D9", textColor: "#FFFFFF", priority: 2 },
-  bestseller: { label: "Best-seller", bgColor: "#111827", textColor: "#FFFFFF", priority: 3 },
-  exclusivite: { label: "Exclu web", bgColor: "#008AA5", textColor: "#FFFFFF", priority: 4 },
-  routine: { label: "Routine", bgColor: "#F7EEE5", textColor: "#373020", priority: 5 },
-  coupdecoeur: { label: "Coup de cœur", bgColor: "#F7EEE5", textColor: "#6D28D9", priority: 6 },
-  offrespeciale: { label: "Offre spéciale", bgColor: "#6D28D9", textColor: "#FFFFFF", priority: 7 },
-  solde: { label: "Solde", bgColor: "#DC2626", textColor: "#FFFFFF", priority: 7 },
-  promo: { label: "Promo", bgColor: "#DC2626", textColor: "#FFFFFF", priority: 7 },
-  top: { label: "Top", bgColor: "#111827", textColor: "#FFFFFF", priority: 8 },
-  editionlimitee: { label: "Édition limitée", bgColor: "#373020", textColor: "#FFFFFF", priority: 8 },
-  custom: { label: "", bgColor: "#5E4074", textColor: "#FFFFFF", priority: 8 },
-};
 
 /** A badge as it reaches the UI: already resolved, already sorted. */
 export type ResolvedBadge = {
@@ -58,7 +42,23 @@ export type RawBadge = {
   priority?: number | null;
 };
 
-export const MAX_BADGES = 3;
+/** Shape the full-document resolver needs — the CMS row plus its price signals. */
+export type BadgeSourceDoc = {
+  badges?: RawBadge[] | null;
+  price: number;
+  oldPrice?: number | null;
+  featured?: boolean | null;
+  createdAt?: string | null;
+};
+
+/** Priority 1 belongs to the automatic discount badge — a real markdown
+ * always outranks a manually configured pill. */
+export const BADGE_TYPE_PRESETS: Record<BadgeType, BadgePreset> = core.BADGE_TYPE_PRESETS;
+
+export const MAX_BADGES: number = core.MAX_BADGES;
+
+/** How long after `createdAt` a product still counts as "Nouveau". */
+export const NEW_WINDOW_MS: number = core.NEW_WINDOW_MS;
 
 /**
  * Percentage off, or null when there is no genuine markdown.
@@ -66,18 +66,12 @@ export const MAX_BADGES = 3;
  * Guards `oldPrice <= price` as well as null: a "discount" that isn't one
  * would be a false claim on a pharmacy storefront, not just a cosmetic bug.
  */
-export function discountPercentage(price: number, oldPrice?: number | null): number | null {
-  if (!oldPrice || oldPrice <= price || price < 0) return null;
-  const pct = Math.round(((oldPrice - price) / oldPrice) * 100);
-  return pct > 0 ? pct : null;
-}
+export const discountPercentage: (price: number, oldPrice?: number | null) => number | null =
+  core.discountPercentage;
 
 /** The automatic markdown pill, or null. Always priority 1. */
-export function discountBadge(price: number, oldPrice?: number | null): ResolvedBadge | null {
-  const pct = discountPercentage(price, oldPrice);
-  if (pct === null) return null;
-  return { text: `−${pct}%`, bgColor: "var(--pdh-sale)", textColor: "#FFFFFF", priority: 1 };
-}
+export const discountBadge: (price: number, oldPrice?: number | null) => ResolvedBadge | null =
+  core.discountBadge;
 
 /**
  * Turns a product's configured badges plus its pricing into the final,
@@ -88,32 +82,26 @@ export function discountBadge(price: number, oldPrice?: number | null): Resolved
  * a coloured pill with no words carries no information, which is also the
  * accessibility rule here).
  */
-export function resolveProductBadges(
+export const resolveProductBadges: (
   badges: RawBadge[] | null | undefined,
   price: number,
   oldPrice?: number | null,
-  limit: number = MAX_BADGES,
-): ResolvedBadge[] {
-  const configured: ResolvedBadge[] = (badges || [])
-    .filter((b) => b.enabled !== false)
-    .map((b) => {
-      const preset = BADGE_TYPE_PRESETS[(b.type || "custom") as BadgeType] ?? BADGE_TYPE_PRESETS.custom;
-      return {
-        text: (b.text?.trim() || preset.label || "").trim(),
-        bgColor: b.bgColor || preset.bgColor,
-        textColor: b.textColor || preset.textColor,
-        priority: b.priority ?? preset.priority,
-      };
-    })
-    .filter((b) => b.text);
+  limit?: number,
+) => ResolvedBadge[] = core.resolveProductBadges;
 
-  const auto = discountBadge(price, oldPrice);
-  const all = auto ? [auto, ...configured] : configured;
+/**
+ * The one badge derived from signals (featured / recency) rather than from the
+ * editor's rows. Empty colours mean "use the theme default".
+ */
+export const computeAutoBadge: (doc: {
+  featured?: boolean | null;
+  createdAt?: string | null;
+}) => ResolvedBadge | null = core.computeAutoBadge;
 
-  // Stable sort: equal priorities keep the editor's own row order.
-  return all
-    .map((b, i) => ({ b, i }))
-    .sort((x, y) => x.b.priority - y.b.priority || x.i - y.i)
-    .map(({ b }) => b)
-    .slice(0, limit);
-}
+/**
+ * Full resolution for a CMS document: configured badges plus any genuine
+ * markdown, falling back to a single signal-derived badge only when those
+ * produce nothing. Used by both the live storefront path and `sync-cms`.
+ */
+export const resolveBadgesForDoc: (doc: BadgeSourceDoc, limit?: number) => ResolvedBadge[] =
+  core.resolveBadgesForDoc;
