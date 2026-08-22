@@ -240,3 +240,50 @@ describe("a full session", () => {
     expect(toCheckoutLines(lines).map((l) => l.variantId)).toEqual(["v50", "v100", null]);
   });
 });
+
+describe("quantity is always a whole number of at least one", () => {
+  // No current caller can produce these — the stepper only ever emits
+  // integers — so these pin the contract rather than reproduce a live bug.
+  // Without the Number.isFinite guard, Math.max(1, Math.floor(NaN)) is NaN
+  // and the line total renders as "NaN MAD".
+  it("never lets a non-finite quantity through addLine", () => {
+    expect(addLine([], CREAM_50, Number.NaN)[0].qty).toBe(1);
+    expect(addLine([], CREAM_50, Number.POSITIVE_INFINITY)[0].qty).toBe(1);
+  });
+
+  it("never lets a non-finite quantity through setQty", () => {
+    const lines = addLine([], CREAM_50, 2);
+    expect(setQty(lines, lines[0].key, Number.NaN)[0].qty).toBe(1);
+    expect(setQty(lines, lines[0].key, Number.POSITIVE_INFINITY)[0].qty).toBe(1);
+  });
+
+  it("keeps the subtotal a real number even then", () => {
+    const lines = addLine([], CREAM_50, Number.NaN);
+    expect(Number.isFinite(linesSubtotal(lines))).toBe(true);
+    expect(linesSubtotal(lines)).toBe(242);
+  });
+
+  it("still floors a fractional quantity rather than rounding it up", () => {
+    expect(addLine([], CREAM_50, 2.9)[0].qty).toBe(2);
+  });
+});
+
+describe("a tampered localStorage price", () => {
+  const noLookup = (): CartLineInput | null => null;
+
+  it("drops a line whose stored price is negative or not a real number", () => {
+    // A negative price would render a negative line total and a subtotal
+    // smaller than what is owed. The server never sees these amounts (see
+    // toCheckoutLines), so this is display integrity, not a payment hole.
+    for (const price of [-50, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(parseStoredLines([{ ...CREAM_50, key: cartLineKey(541, "v50"), price, qty: 1 }], noLookup)).toEqual([]);
+    }
+  });
+
+  it("still accepts a legitimate zero-price line", () => {
+    // A free gift line is real; only negatives and non-numbers are refused.
+    const restored = parseStoredLines([{ ...CREAM_50, key: cartLineKey(541, "v50"), price: 0, qty: 1 }], noLookup);
+    expect(restored).toHaveLength(1);
+    expect(restored[0].price).toBe(0);
+  });
+});

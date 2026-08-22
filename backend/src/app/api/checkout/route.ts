@@ -339,40 +339,46 @@ async function handlePOST(request: Request) {
   let appliedCouponId: number | null = null
   let appliedCouponCode: string | null = null
 
-  if (body.couponCode?.trim()) {
-    const evaluated = await evaluateCoupon({
-      code: body.couponCode,
-      customerEmail: email,
-      lines: resolved.map((l) => ({
-        brandId: l.brandId,
-        categoryValue: l.categoryValue,
-        price: l.price,
-        productId: l.productId,
-        quantity: l.quantity,
-      })),
-      payload,
-    })
-
-    if (evaluated.ok) {
-      discount = evaluated.discount
-      appliedCouponId = evaluated.couponId
-      appliedCouponCode = evaluated.code
-    }
-    // An invalid coupon does NOT fail the order: the stock is already
-    // committed above, and dropping a valid purchase over a lapsed promo
-    // code would be a worse outcome than charging full price. The response
-    // reports it so the cart can tell the customer what happened.
-  }
-
-  const shippingResult = await resolveShipping({
-    city: body.city,
-    payload,
-    subtotalAfterDiscount: subtotal - discount,
-  })
-  const shipping = shippingResult.cost
-  const total = Math.max(0, subtotal - discount) + shipping
-
+  // Everything from here runs inside the compensating try: the stock was
+  // committed above, so a database failure while *pricing* the order has to
+  // give it back for the same reason a failure while saving it does. Pricing
+  // used to sit outside this block, where a dropped connection in
+  // evaluateCoupon or resolveShipping left the stock decremented and no order
+  // behind it.
   try {
+    if (body.couponCode?.trim()) {
+      const evaluated = await evaluateCoupon({
+        code: body.couponCode,
+        customerEmail: email,
+        lines: resolved.map((l) => ({
+          brandId: l.brandId,
+          categoryValue: l.categoryValue,
+          price: l.price,
+          productId: l.productId,
+          quantity: l.quantity,
+        })),
+        payload,
+      })
+
+      if (evaluated.ok) {
+        discount = evaluated.discount
+        appliedCouponId = evaluated.couponId
+        appliedCouponCode = evaluated.code
+      }
+      // An invalid coupon does NOT fail the order: the stock is already
+      // committed above, and dropping a valid purchase over a lapsed promo
+      // code would be a worse outcome than charging full price. The response
+      // reports it so the cart can tell the customer what happened.
+    }
+
+    const shippingResult = await resolveShipping({
+      city: body.city,
+      payload,
+      subtotalAfterDiscount: subtotal - discount,
+    })
+    const shipping = shippingResult.cost
+    const total = Math.max(0, subtotal - discount) + shipping
+
     const order = await payload.create({
       collection: 'orders',
       data: {
