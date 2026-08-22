@@ -47,7 +47,13 @@ function CopyButton({ label, value }: { label: string; value: string }) {
         fontSize: 12,
         fontWeight: 600,
         gap: 6,
-        padding: "8px 14px",
+        // 44px de haut minimum : ce sont les deux commandes qui comptent de
+        // cette carte, et elles étaient à 36px — mesuré dans le navigateur à
+        // 375, 390 et 430px. En dessous de 44 la cible est trop petite pour un
+        // pouce, et rater le bouton ici veut dire recopier un IBAN à la main.
+        justifyContent: "center",
+        minHeight: 44,
+        padding: "12px 16px",
         whiteSpace: "nowrap",
       }}
     >

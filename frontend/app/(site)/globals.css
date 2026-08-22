@@ -621,7 +621,13 @@ button {
 .logo-mark {
   display: block;
 }
-@media (max-width: 400px) {
+/* Le seuil couvre tous les téléphones en portrait, pas seulement les plus
+   étroits. À 400px il laissait réapparaître le mot-logo entre 401 et 430px —
+   la plage des iPhone Plus (414) et Pro Max (430) — où hamburger + marque +
+   mot-logo + recherche + panier ne tiennent plus sur une ligne : le header
+   passait de 69px à 129px avec l'icône panier seule sur une deuxième ligne
+   (mesuré dans le navigateur à 430px). */
+@media (max-width: 480px) {
   .logo-wordmark {
     display: none;
   }
