@@ -20,6 +20,7 @@ import * as migration_20260822_190000_brand_logo from './20260822_190000_brand_l
 import * as migration_20260823_090000_order_item_variant from './20260823_090000_order_item_variant';
 import * as migration_20260823_100000_variant_pricing_backfill from './20260823_100000_variant_pricing_backfill';
 import * as migration_20260823_120000_chrome_appearance from './20260823_120000_chrome_appearance';
+import * as migration_20260823_140000_integrity_constraints from './20260823_140000_integrity_constraints';
 
 export const migrations = [
   {
@@ -131,5 +132,10 @@ export const migrations = [
     up: migration_20260823_120000_chrome_appearance.up,
     down: migration_20260823_120000_chrome_appearance.down,
     name: '20260823_120000_chrome_appearance'
+  },
+  {
+    up: migration_20260823_140000_integrity_constraints.up,
+    down: migration_20260823_140000_integrity_constraints.down,
+    name: '20260823_140000_integrity_constraints'
   },
 ];
