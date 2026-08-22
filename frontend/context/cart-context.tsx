@@ -15,6 +15,7 @@ import {
   setQty,
   toCheckoutLines,
 } from "@/lib/cart/lines";
+import { cartTotals } from "@/lib/cart/totals";
 
 // Bumped from "pdh-cart": the stored shape changed from { id, qty } to a
 // full line snapshot. The old key is read once, migrated and then left
@@ -150,15 +151,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     // From the line snapshots, not from today's catalogue: the amount a
-    // shopper is asked to confirm is the one they were shown.
-    const subtotal = linesSubtotal(lines);
+    // shopper is asked to confirm is the one they were shown. The arithmetic
+    // itself lives in lib/cart/totals.ts so it can be tested without
+    // rendering a provider.
     const count = linesCount(lines);
-    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0 ? 0 : 30;
-    const freeShippingProgress = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
-    const freeShippingMessage =
-      subtotal >= FREE_SHIPPING_THRESHOLD
-        ? "Livraison offerte débloquée ✦"
-        : `Plus que ${money(FREE_SHIPPING_THRESHOLD - subtotal)} pour la livraison offerte`;
+    const { freeShippingProgress, freeShippingRemaining, qualifiesForFreeShipping, shipping, subtotal, total } =
+      cartTotals(linesSubtotal(lines), FREE_SHIPPING_THRESHOLD);
+    const freeShippingMessage = qualifiesForFreeShipping
+      ? "Livraison offerte débloquée ✦"
+      : `Plus que ${money(freeShippingRemaining)} pour la livraison offerte`;
 
     return {
       add,
@@ -179,7 +180,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       remove,
       shipping,
       subtotal,
-      total: subtotal + shipping,
+      total,
     };
   }, [lines, isOpen, add, addProduct, increment, decrement, remove, clear]);
 
