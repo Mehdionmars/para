@@ -34,7 +34,14 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/para_dhiver
+      # Falls back to the bootstrap superuser so an unconfigured checkout keeps
+      # working. To adopt the least-privilege role, run
+      # backend/db/security/001-app-role.sql and then set DATABASE_URI in a
+      # .env next to this file:
+      #   DATABASE_URI=postgresql://para_app:<password>@postgres:5432/para_dhiver
+      # See backend/db/security/README.md for the rollout order — flipping this
+      # before the role exists takes the backend down.
+      DATABASE_URI: ${DATABASE_URI:-postgresql://postgres:postgres@postgres:5432/para_dhiver}
       FRONTEND_URL: http://localhost:3000
       # Container-to-container address for the cache purge. FRONTEND_URL stays
       # the browser-facing origin (it backs CORS/CSRF), and inside this
