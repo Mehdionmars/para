@@ -13,6 +13,7 @@
 import { writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { resolveBadgesForDoc } from '../lib/productBadges.core.mjs'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const dataDir = path.resolve(dirname, '../data')
@@ -68,66 +69,14 @@ function writeGenerated(filename, content) {
   console.log(`  wrote data/${filename}`)
 }
 
-// Mirrors backend/src/collections/Products.ts's BADGE_TYPE_DEFAULT_LABEL —
-// shown when a configured badge's own `text` is left empty.
-// Mirrors lib/productBadges.ts's BADGE_TYPE_PRESETS (itself a mirror of the
-// backend's). This script is plain .mjs run outside the Next build, so it
-// can't import the TS module — adding a badge type means editing all three.
-const BADGE_TYPE_PRESETS = {
-  nouveau: { label: 'Nouveauté', bgColor: '#6D28D9', textColor: '#FFFFFF', priority: 2 },
-  bestseller: { label: 'Best-seller', bgColor: '#111827', textColor: '#FFFFFF', priority: 3 },
-  exclusivite: { label: 'Exclu web', bgColor: '#008AA5', textColor: '#FFFFFF', priority: 4 },
-  routine: { label: 'Routine', bgColor: '#F7EEE5', textColor: '#373020', priority: 5 },
-  coupdecoeur: { label: 'Coup de cœur', bgColor: '#F7EEE5', textColor: '#6D28D9', priority: 6 },
-  offrespeciale: { label: 'Offre spéciale', bgColor: '#6D28D9', textColor: '#FFFFFF', priority: 7 },
-  solde: { label: 'Solde', bgColor: '#DC2626', textColor: '#FFFFFF', priority: 7 },
-  promo: { label: 'Promo', bgColor: '#DC2626', textColor: '#FFFFFF', priority: 7 },
-  top: { label: 'Top', bgColor: '#111827', textColor: '#FFFFFF', priority: 8 },
-  editionlimitee: { label: 'Édition limitée', bgColor: '#373020', textColor: '#FFFFFF', priority: 8 },
-  custom: { label: '', bgColor: '#5E4074', textColor: '#FFFFFF', priority: 8 },
-}
-
-const NEW_WINDOW_MS = 30 * 24 * 60 * 60 * 1000
-
-/** Mirrors lib/storefront/products.ts's resolveBadges()/computeAutoBadge() —
- * an editor's explicit badges win; only when none resolve to real text does
- * a single badge get computed from real signals (discount/featured/recency). */
-function resolveBadges(p) {
-  const configured = (p.badges || [])
-    .filter((b) => b.enabled !== false)
-    .map((b) => {
-      const preset = BADGE_TYPE_PRESETS[b.type || 'custom'] || BADGE_TYPE_PRESETS.custom
-      return {
-        text: (b.text?.trim() || preset.label || '').trim(),
-        bgColor: b.bgColor || preset.bgColor,
-        textColor: b.textColor || preset.textColor,
-        priority: b.priority ?? preset.priority,
-      }
-    })
-    .filter((b) => b.text)
-
-  // A genuine markdown always leads, and coexists with configured badges
-  // instead of replacing them.
-  const all = [...configured]
-  if (p.oldPrice && p.oldPrice > p.price) {
-    const pct = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100)
-    if (pct > 0) all.unshift({ text: `−${pct}%`, bgColor: 'var(--pdh-sale)', textColor: '#FFFFFF', priority: 1 })
-  }
-
-  if (all.length) {
-    return all
-      .map((b, i) => ({ b, i }))
-      .sort((x, y) => x.b.priority - y.b.priority || x.i - y.i)
-      .map(({ b }) => b)
-      .slice(0, 3)
-  }
-
-  // Signal-derived fallback, only when the editor configured nothing.
-  if (p.featured) return [{ text: 'Top', bgColor: '', textColor: '', priority: 8 }]
-  if (Date.now() - new Date(p.createdAt).getTime() < NEW_WINDOW_MS)
-    return [{ text: 'Nouveau', bgColor: '', textColor: '', priority: 2 }]
-  return []
-}
+/** An editor's explicit badges win; only when none resolve to real text does
+ * a single badge get computed from real signals (discount/featured/recency).
+ *
+ * The rule and the presets table are imported, not copied: the same module
+ * backs lib/productBadges.ts and the live path in lib/storefront/products.ts,
+ * so the snapshot this script writes cannot disagree with what a live page
+ * renders. It is plain ESM precisely so this bare-Node script can load it. */
+const resolveBadges = (p) => resolveBadgesForDoc(p)
 
 async function syncProducts(brandsById, mediaByAlt) {
   const products = await fetchAllDocs('products')

@@ -4,14 +4,15 @@
 // the CMS shows up here on the next page load, no re-sync needed.
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { stockStatus } from "@/lib/dashboard/products-types";
-import { BADGE_TYPE_PRESETS, resolveProductBadges } from "@/lib/productBadges";
+import { resolveBadgesForDoc, type ResolvedBadge } from "@/lib/productBadges";
 import type { Category, Product } from "@/data/products";
 import type { RailDef } from "@/data/home";
 import type { StockState } from "./catalogue";
 
 export type LiveProduct = Product & { image: string };
 
-export type ResolvedBadge = { text: string; bgColor: string; textColor: string; priority: number };
+/** Re-exported so existing importers keep working; defined once in lib/productBadges. */
+export type { ResolvedBadge };
 
 export type PayloadMediaRef = { url?: string } | number | null | undefined;
 export type PayloadBrandRef = { id?: number; name?: string } | number | null | undefined;
@@ -77,10 +78,9 @@ export type PayloadProductDetailDoc = PayloadProductDoc & {
   discontinued?: boolean | null;
 };
 
-const NEW_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
-
-// Badge labels/colours/priorities now live in lib/productBadges.ts, shared
-// with the ProductBadges component — this file used to keep its own copy.
+// Badge labels/colours/priorities and the whole resolution rule now live in
+// lib/productBadges.core.mjs, shared with the ProductBadges component and with
+// scripts/sync-cms.mjs — this file used to keep its own copy of both.
 
 export function resolveMediaUrl(media: PayloadMediaRef): string {
   if (media && typeof media === "object" && media.url) {
@@ -94,37 +94,16 @@ export function resolveBrandName(brand: PayloadBrandRef): string {
 }
 
 /**
- * A badge derived from real signals when the editor configured none.
- *
- * The discount case is handled upstream by resolveProductBadges (it must
- * coexist with configured badges, not replace them), so this only covers
- * "featured" and "recently added". Empty bgColor/textColor means "use the
- * theme's default badge colors", resolved at render time from the
- * --pdh-badge-* vars so a theme change applies without a re-sync.
- */
-function computeAutoBadge(doc: PayloadProductDoc): Omit<ResolvedBadge, "priority"> | null {
-  if (doc.featured) return { text: "Top", bgColor: "", textColor: "" };
-  if (Date.now() - new Date(doc.createdAt).getTime() < NEW_WINDOW_MS) return { text: "Nouveau", bgColor: "", textColor: "" };
-  return null;
-}
-
-/** An editor's explicitly configured badges win; only when none are enabled
+ * An editor's explicitly configured badges win; only when none are enabled
  * (or none resolve to real text) does a single badge get computed from real
- * signals — a genuine discount, "featured", or recency — never random. */
+ * signals — a genuine discount, "featured", or recency — never random.
+ *
+ * The rule itself is shared with the snapshot generator (see
+ * lib/productBadges.core.mjs) so a product cannot wear one badge set on a
+ * live page and a different one in data/products.ts.
+ */
 export function resolveBadges(doc: PayloadProductDoc): ResolvedBadge[] {
-  const oldPrice = doc.oldPrice ?? null;
-
-  // The editor's badges plus the automatic discount pill, merged and
-  // ordered by priority (discount is always 1, so a real markdown leads).
-  const resolved = resolveProductBadges(doc.badges || [], doc.price, oldPrice);
-  if (resolved.length > 0) return resolved;
-
-  // Nothing configured and no markdown: fall back to a single signal-derived
-  // badge (featured / recently added). Deliberately only when the editor
-  // configured nothing — otherwise every new product would wear an extra
-  // "Nouveau" on top of the badges someone actually chose.
-  const auto = computeAutoBadge(doc);
-  return auto ? [{ ...auto, priority: BADGE_TYPE_PRESETS.nouveau.priority }] : [];
+  return resolveBadgesForDoc(doc);
 }
 
 function toLiveProduct(doc: PayloadProductDoc): LiveProduct {
