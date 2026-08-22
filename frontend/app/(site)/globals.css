@@ -646,11 +646,17 @@ button {
   }
 }
 
-/* Compact single-row mobile header (~60-68px): below 768px the full search
-   input and the "Magasin et services"/"Contact"/favoris links move out of
-   the row entirely (search becomes an icon that opens an overlay; the other
-   three move into the hamburger drawer's footer) so hamburger, logo, and
-   cart fit on one line without wrapping to a second row. */
+/* En dessous de 768px : la première ligne reste hamburger + logo + panier, et
+   la recherche passe sur une deuxième ligne pleine largeur. Les liens
+   "Magasin et services"/"Contact"/favoris quittent la barre pour le pied du
+   tiroir de navigation.
+
+   La recherche était auparavant réduite à une icône ouvrant une surcouche, ce
+   qui gardait le header sur une seule ligne. Sur une boutique, la recherche
+   est la première fonction : une barre visible en permanence évite un appui
+   avant de pouvoir taper, et c'est ce que montrent les maquettes mobiles de
+   référence. La deuxième ligne est donc voulue, à la différence d'un
+   débordement accidentel — l'icône devient redondante et disparaît. */
 .header-search-icon-btn {
   display: none;
   width: 44px;
@@ -658,19 +664,29 @@ button {
   flex: none;
 }
 @media (max-width: 767px) {
-  /* !important needed: these elements also carry an inline `style` (flex
-     layout tuning that has nothing to do with this breakpoint), and inline
-     styles otherwise win over any class rule regardless of media query. */
+  /* !important nécessaire : ces éléments portent aussi un `style` en ligne
+     (réglages flex sans rapport avec ce point de rupture), et un style en
+     ligne l'emporte sinon sur n'importe quelle règle de classe, media query
+     comprise. */
   .header-row {
     padding-top: 12px !important;
     padding-bottom: 12px !important;
   }
-  .header-search-form,
   .header-secondary-link {
     display: none !important;
   }
-  .header-search-icon-btn {
+  .header-search-form {
     display: flex !important;
+    /* `1 1 100%` force le retour à la ligne dans le header en flex-wrap ;
+       `min-width: 0` annule le `minWidth: 220` en ligne, qui empêcherait le
+       champ de se réduire sous 220px et ferait déborder à 320px. */
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    /* Après le panier, donc sur la ligne du dessous. */
+    order: 10;
+  }
+  .header-search-icon-btn {
+    display: none !important;
   }
 }
 
