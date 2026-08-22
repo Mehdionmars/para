@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 
 import { notifyOrderEvent } from '../../../lib/notifications/service'
 import { notifyStockChange } from '../../../lib/notifications/stock'
+import { STOCK_DECREMENT_SQL, STOCK_RESTORE_SQL } from '../../../lib/inventorySql'
 import { evaluateCoupon, resolveShipping } from '../../../lib/pricing'
 import { withApiLog } from '../../../lib/withApiLog'
 
@@ -297,10 +298,7 @@ async function handlePOST(request: Request) {
         subtotal += price * qty
       }
 
-      const decremented = await client.query(
-        'UPDATE products SET stock = stock - $1, updated_at = now() WHERE id = $2 AND stock >= $1 RETURNING stock',
-        [productQty, id],
-      )
+      const decremented = await client.query(STOCK_DECREMENT_SQL, [productQty, id])
       if (decremented.rowCount === 0) {
         // Belt-and-braces: the FOR UPDATE above should make this unreachable,
         // but if it ever matches zero the order must not proceed.
@@ -528,10 +526,7 @@ async function handlePOST(request: Request) {
     try {
       await compensation.query('BEGIN')
       for (const m of movements) {
-        await compensation.query('UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2', [
-          m.quantity,
-          m.productId,
-        ])
+        await compensation.query(STOCK_RESTORE_SQL, [m.quantity, m.productId])
       }
       await compensation.query('COMMIT')
     } catch {
