@@ -5,6 +5,7 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ShippingOption } from "@/app/api/shipping-rules/route";
+import { BankTransferDetails } from "@/components/cart/BankTransferDetails";
 import { CheckoutField } from "@/components/cart/CheckoutField";
 import { CouponField, type AppliedCoupon } from "@/components/cart/CouponField";
 import { PaymentBadges } from "@/components/layout/PaymentBadges";
@@ -27,6 +28,8 @@ export function CartView() {
   const [couponState, setCouponState] = useState<(AppliedCoupon & { linesKey: string }) | null>(null);
   const [shippingRules, setShippingRules] = useState<ShippingOption[]>([]);
   const [orderNumber, setOrderNumber] = useState("");
+  /** "cod" = paiement à la livraison (le seul mode jusqu'ici), "transfer" = virement. */
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "transfer">("cod");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   // Per-field messages, so an error names the field it belongs to instead of
@@ -121,6 +124,9 @@ export function CartView() {
           // database and ignores anything an amount-shaped field might carry.
           lines: cart.checkoutLines(),
           name,
+          // Le serveur revalide ce champ : il décide du libellé enregistré sur
+          // la commande, il ne recopie pas une chaîne venue du client.
+          paymentMethod,
           phone,
         }),
         headers: { "Content-Type": "application/json" },
@@ -183,6 +189,13 @@ export function CartView() {
             Votre commande <strong>{orderNumber}</strong> a bien été enregistrée. Nous vous contactons rapidement au{" "}
             {phone || email} pour confirmer la livraison.
           </p>
+          {paymentMethod === "transfer" && orderNumber && (
+            // C'est ici, et pas au checkout, que la référence existe : le
+            // numéro de commande est attribué par le serveur à la création.
+            <div style={{ margin: "18px auto 0", maxWidth: 460, textAlign: "left" }}>
+              <BankTransferDetails reference={orderNumber} />
+            </div>
+          )}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginTop: 18 }}>
             <Link
               href="/catalogue"
@@ -515,6 +528,59 @@ export function CartView() {
                   required
                 />
 
+                <fieldset style={{ border: 0, margin: "8px 0 0", padding: 0 }}>
+                  <legend
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      letterSpacing: ".1em",
+                      marginBottom: 8,
+                      padding: 0,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Mode de paiement
+                  </legend>
+
+                  {(
+                    [
+                      { hint: "Vous payez au livreur à la réception.", id: "cod", label: "Paiement à la livraison" },
+                      { hint: "Coordonnées bancaires affichées ci-dessous.", id: "transfer", label: "Virement bancaire" },
+                    ] as const
+                  ).map((option) => (
+                    <label
+                      key={option.id}
+                      style={{
+                        alignItems: "flex-start",
+                        background: paymentMethod === option.id ? "var(--pdh-sand)" : "transparent",
+                        border:
+                          paymentMethod === option.id ? "1px solid var(--pdh-plum)" : "1px solid rgba(94,64,116,.18)",
+                        borderRadius: 12,
+                        cursor: "pointer",
+                        display: "flex",
+                        gap: 10,
+                        marginBottom: 8,
+                        padding: 12,
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value={option.id}
+                        checked={paymentMethod === option.id}
+                        onChange={() => setPaymentMethod(option.id)}
+                        style={{ accentColor: "var(--pdh-plum)", marginTop: 2 }}
+                      />
+                      <span>
+                        <span style={{ display: "block", fontSize: 13.5, fontWeight: 500 }}>{option.label}</span>
+                        <span style={{ display: "block", fontSize: 12, opacity: 0.65, marginTop: 2 }}>{option.hint}</span>
+                      </span>
+                    </label>
+                  ))}
+
+                  {paymentMethod === "transfer" && <BankTransferDetails />}
+                </fieldset>
+
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, opacity: 0.7, marginTop: 4 }}>
                   <span>Sous-total</span>
                   <span>{cart.money(cart.subtotal)}</span>
@@ -539,7 +605,9 @@ export function CartView() {
                     borderTop: "1px solid rgba(94,64,116,.12)",
                   }}
                 >
-                  <span style={{ fontSize: 12.5, opacity: 0.7 }}>Total à payer à la livraison</span>
+                  <span style={{ fontSize: 12.5, opacity: 0.7 }}>
+                    {paymentMethod === "transfer" ? "Total à virer" : "Total à payer à la livraison"}
+                  </span>
                   <span style={{ fontFamily: "var(--font-jost)", fontSize: 20, color: "var(--pdh-plum)" }}>
                     {cart.money(total)}
                   </span>

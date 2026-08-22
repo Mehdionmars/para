@@ -55,7 +55,7 @@ function makeEnv(opts: {
   orderCreateFails?: boolean
 }) {
   const queries: Query[] = []
-  const created: { collection: string }[] = []
+  const created: { collection: string; data?: Record<string, unknown> }[] = []
   const loggedErrors: unknown[] = []
   let clientSeq = 0
 
@@ -106,8 +106,8 @@ function makeEnv(opts: {
   }
 
   h.payload = {
-    create: async ({ collection }: { collection: string }) => {
-      created.push({ collection })
+    create: async ({ collection, data }: { collection: string; data?: Record<string, unknown> }) => {
+      created.push({ collection, data })
       if (collection === 'orders' && opts.orderCreateFails) throw new Error('order insert failed')
       return { id: 4242 }
     },
@@ -141,7 +141,7 @@ const restores = (queries: Query[]) =>
 const decrements = (queries: Query[]) =>
   queries.filter((q) => /UPDATE products SET stock = stock - /.test(q.sql))
 
-const ordersCreated = (created: { collection: string }[]) => created.filter((c) => c.collection === 'orders')
+const ordersCreated = (created: { collection: string; data?: Record<string, unknown> }[]) => created.filter((c) => c.collection === 'orders')
 
 beforeEach(() => {
   h.evaluateCoupon = vi.fn(async () => ({ code: 'X', couponId: 1, discount: 0, eligibleSubtotal: 0, ok: true }))
@@ -287,6 +287,40 @@ describe('two checkouts failing at the same time', () => {
     expect(given).toHaveLength(2)
     expect(given.map((r) => r.quantity).sort()).toEqual([2, 5])
     expect(given.every((r) => r.productId === 7)).toBe(true)
+  })
+})
+
+describe('the payment method recorded on the order', () => {
+  const orderData = async (body: Record<string, unknown>) => {
+    const env = makeEnv({ products: { 7: { name: 'Crème', price: 100, stock: 10 } } })
+    await post({ ...order([{ id: 7, qty: 1 }]), ...body })
+    return ordersCreated(env.created)[0]?.data as Record<string, unknown> | undefined
+  }
+
+  it('records the bank transfer when the shopper picked it', async () => {
+    expect((await orderData({ paymentMethod: 'transfer' }))?.paymentMethod).toBe('Virement bancaire')
+  })
+
+  it('records cash on delivery, and defaults to it when nothing is sent', async () => {
+    expect((await orderData({ paymentMethod: 'cod' }))?.paymentMethod).toBe('À la livraison')
+    expect((await orderData({}))?.paymentMethod).toBe('À la livraison')
+  })
+
+  it('never writes a label the client supplied', async () => {
+    // Le corps de requête porte une clé, pas un texte. Recopier la chaîne
+    // laisserait n'importe qui inscrire ce qu'il veut sur une ligne que le
+    // back-office affiche et qu'une facture imprime — et la commande est déjà
+    // payée d'un stock engagé, donc elle ne doit pas non plus échouer.
+    for (const hostile of ['Payé', 'Gratuit', '<script>alert(1)</script>', 'transfer ', 'TRANSFER', '']) {
+      const data = await orderData({ paymentMethod: hostile })
+      expect(data?.paymentMethod).toBe('À la livraison')
+    }
+  })
+
+  it('rejects an object or array where a key was expected', async () => {
+    for (const hostile of [{ toString: 'x' }, ['transfer'], 42, null]) {
+      expect((await orderData({ paymentMethod: hostile }))?.paymentMethod).toBe('À la livraison')
+    }
   })
 })
 

@@ -32,7 +32,38 @@ type CheckoutBody = {
    * percentage and fixed coupons produces order-dependent totals and is a
    * standing source of margin leaks. */
   couponCode?: string
+  /** Clé d'un mode connu, jamais le libellé lui-même — voir PAYMENT_METHODS. */
+  paymentMethod?: string
   lines?: CheckoutLine[]
+}
+
+/**
+ * Les modes de paiement acceptés, et le libellé écrit sur la commande.
+ *
+ * Le client envoie une clé, pas un texte : recopier une chaîne du corps de
+ * requête dans la commande laisserait n'importe qui inscrire ce qu'il veut sur
+ * une ligne que le back-office lit et qu'une facture imprime. Une clé inconnue
+ * retombe sur le paiement à la livraison plutôt que de faire échouer une
+ * commande dont le stock est déjà engagé.
+ */
+const PAYMENT_METHODS = {
+  cod: 'À la livraison',
+  transfer: 'Virement bancaire',
+} as const
+
+const DEFAULT_PAYMENT_METHOD: keyof typeof PAYMENT_METHODS = 'cod'
+
+/**
+ * Traduit la clé reçue en libellé, ou retombe sur le mode par défaut.
+ *
+ * Le test `typeof === 'string'` n'est pas décoratif : indexer un objet avec un
+ * tableau coerce l'index en chaîne, donc `["transfer"]` envoyé en JSON aurait
+ * résolu vers « Virement bancaire » sans jamais être une clé valide. Rien
+ * d'autre qu'une chaîne exactement égale à une clé connue ne passe.
+ */
+function resolvePaymentMethod(value: unknown): string {
+  const key = typeof value === 'string' && Object.hasOwn(PAYMENT_METHODS, value) ? value : DEFAULT_PAYMENT_METHOD
+  return PAYMENT_METHODS[key as keyof typeof PAYMENT_METHODS]
 }
 
 type ResolvedLine = {
@@ -399,7 +430,7 @@ async function handlePOST(request: Request) {
         coupon: appliedCouponId ?? undefined,
         couponCode: appliedCouponCode ?? undefined,
         discount,
-        paymentMethod: 'À la livraison',
+        paymentMethod: resolvePaymentMethod(body.paymentMethod),
         // Both carry a defaultValue in the collection but are `required`, so
         // the generated input type still expects them.
         paymentStatus: 'pending',
