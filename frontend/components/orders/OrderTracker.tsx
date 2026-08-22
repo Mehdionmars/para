@@ -1,9 +1,10 @@
 "use client";
 
 import { Loader2, PackageSearch } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/dashboard/orders-types";
+import { clearTracking, readTracking, saveTracking } from "@/lib/orders/trackingMemory";
 
 type TrackedOrder = {
   orderNumber: string;
@@ -26,6 +27,27 @@ export function OrderTracker() {
   const [order, setOrder] = useState<TrackedOrder | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  /** Vrai dès qu'une consultation retenue a été réinjectée dans les champs. */
+  const [remembered, setRemembered] = useState(false);
+
+  useEffect(() => {
+    // Après le montage, jamais pendant le rendu : le serveur n'a pas accès au
+    // stockage du navigateur, et pré-remplir au premier rendu ferait diverger
+    // l'hydratation. Le formulaire s'affiche donc vide puis se remplit.
+    const saved = readTracking();
+    if (!saved) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOrderNumber(saved.orderNumber);
+    setEmail(saved.email);
+    setRemembered(true);
+  }, []);
+
+  function forget() {
+    clearTracking();
+    setOrderNumber("");
+    setEmail("");
+    setRemembered(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +67,11 @@ export function OrderTracker() {
         return;
       }
       setOrder(data);
+      // Uniquement ici : seule une consultation acceptée par le serveur est
+      // retenue. Un numéro ou un email refusé sort par la branche ci-dessus et
+      // laisse intacte la mémoire précédente — sinon une faute de frappe
+      // effacerait ce que le client avait de bon.
+      setRemembered(saveTracking({ email, orderNumber }));
     } catch {
       setError("Impossible de contacter le service. Réessayez.");
     } finally {
@@ -119,6 +146,33 @@ export function OrderTracker() {
           {loading && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
           Suivre ma commande
         </button>
+
+        {remembered && (
+          // Une machine partagée est le cas courant ici : il faut pouvoir
+          // retirer ses informations sans aller fouiller dans les réglages du
+          // navigateur.
+          <p style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+            <span style={{ fontSize: 12.5, opacity: 0.65 }}>
+              Vos informations sont conservées sur cet appareil pour la prochaine fois.
+            </span>
+            <button
+              type="button"
+              onClick={forget}
+              className="link-hover"
+              style={{
+                background: "none",
+                border: 0,
+                color: "inherit",
+                cursor: "pointer",
+                fontSize: 12.5,
+                padding: 0,
+                textDecoration: "underline",
+              }}
+            >
+              Oublier
+            </button>
+          </p>
+        )}
 
         {error && (
           <p role="alert" style={{ marginTop: 12, fontSize: 13, color: "#9A3B3B" }}>

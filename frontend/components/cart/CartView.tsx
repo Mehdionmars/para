@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import type { ShippingOption } from "@/app/api/shipping-rules/route";
 import { BankTransferDetails } from "@/components/cart/BankTransferDetails";
 import { CheckoutField } from "@/components/cart/CheckoutField";
+import { saveTracking } from "@/lib/orders/trackingMemory";
 import { CouponField, type AppliedCoupon } from "@/components/cart/CouponField";
 import { PaymentBadges } from "@/components/layout/PaymentBadges";
 import { useCart } from "@/context/cart-context";
@@ -135,6 +136,10 @@ export function CartView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Impossible de créer la commande.");
       setOrderNumber(data.orderNumber);
+      // Le numéro vient du serveur, jamais d'un tirage côté client : c'est lui
+      // que /suivi-commande interrogera. Retenu ici pour que le client n'ait
+      // pas à le recopier depuis son email à la première consultation.
+      saveTracking({ email, orderNumber: data.orderNumber });
       cart.clear();
       setStep("success");
     } catch (err) {
