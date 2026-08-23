@@ -9,6 +9,7 @@ import { GiftSetsCarousel } from "@/components/home/GiftSetsCarousel";
 import { ImageCarousel } from "@/components/home/ImageCarousel";
 import { InstagramGrid } from "@/components/home/InstagramGrid";
 import { MarketingBanner } from "@/components/home/MarketingBanner";
+import { MobileCategoryRail } from "@/components/home/MobileCategoryRail";
 import { Newsletter } from "@/components/home/Newsletter";
 import { PromotionsGrid } from "@/components/home/PromotionsGrid";
 import { RailSection } from "@/components/home/RailSection";
@@ -159,6 +160,12 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Rendu avant la boucle plutôt qu'ajouté aux sections ordonnables :
+          l'ordre des sections est piloté par le Storefront Builder, et le rail
+          n'a de sens qu'en toute première position, collé sous l'en-tête. Il
+          reste ainsi hors du champ du CMS, qui n'a rien à en connaître. Le
+          composant ne s'affiche qu'en dessous de 768px. */}
+      <MobileCategoryRail />
       {order
         .filter((s) => s.visible && (s.key !== "marketingBanner" || activeBanner))
         .map((s) => (

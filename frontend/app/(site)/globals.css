@@ -1885,3 +1885,78 @@ button {
     opacity: 1;
   }
 }
+
+/* Rail de rayons, en haut de l'accueil mobile.
+   Masqué au-dessus de 768px : le méga-menu de l'en-tête et le carrousel
+   d'univers de /catalogue couvrent déjà ce besoin sur grand écran. */
+.mobile-category-rail {
+  display: none;
+}
+@media (max-width: 767px) {
+  .mobile-category-rail {
+    display: block;
+    border-bottom: 1px solid rgba(94, 64, 116, 0.1);
+    padding: 14px 0 12px;
+  }
+  .mobile-category-rail__track {
+    display: flex;
+    gap: 18px;
+    list-style: none;
+    margin: 0;
+    /* Le premier et le dernier rayon s'alignent sur la marge de la page, mais
+       le défilement va bien de bord à bord. */
+    padding: 0 clamp(14px, 3.4vw, 32px);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobile-category-rail__track::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-category-rail__item {
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .mobile-category-rail__link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    /* 72px de large : le disque en fait 68, le libellé peut donc passer sur
+       deux lignes sans élargir la colonne ni décaler ses voisines. */
+    width: 72px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .mobile-category-rail__disc {
+    position: relative;
+    display: block;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--pdh-sand, #f7eee5);
+    flex: none;
+  }
+  .mobile-category-rail__initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-jost), sans-serif;
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--pdh-plum, #5e4074);
+  }
+  .mobile-category-rail__label {
+    font-size: 11.5px;
+    line-height: 1.25;
+    text-align: center;
+    /* Deux lignes au plus : « Compléments alimentaires » ne doit pas creuser
+       un trou sous tous les autres rayons. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
