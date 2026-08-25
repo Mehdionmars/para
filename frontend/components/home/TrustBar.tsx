@@ -8,6 +8,7 @@ export function TrustBar({ badges }: { badges?: TrustBadge[] } = {}) {
   return (
     <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "0 clamp(14px,3.4vw,32px) clamp(28px,3.6vw,48px)" }}>
       <div
+        className="trust-bar"
         role="list"
         style={{
           border: "1px solid rgba(94,64,116,.1)",
@@ -20,7 +21,7 @@ export function TrustBar({ badges }: { badges?: TrustBadge[] } = {}) {
         }}
       >
         {items.map((badge) => (
-          <div key={badge.title} role="listitem" style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
+          <div className="trust-badge" key={badge.title} role="listitem" style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
             <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(94,64,116,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
               <badge.icon aria-hidden="true" size={16} strokeWidth={1.6} />
             </div>

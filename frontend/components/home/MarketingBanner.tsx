@@ -1,8 +1,17 @@
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { MARKETING_BANNERS } from "@/data/home";
+import {
+  type CardLayoutOptions,
+  framingToObjectPosition,
+  toCtaAlign,
+} from "@/lib/storefront/cardLayout";
 
-export type MarketingBannerData = (typeof MARKETING_BANNERS)[number];
+// data/home.ts is generated from the CMS and must not be hand-edited, so the
+// two layout options are declared here as optional additions to the
+// generated shape. Optional means a banner from either source — the live CMS
+// or the snapshot — still satisfies this type with nothing to change.
+export type MarketingBannerData = (typeof MARKETING_BANNERS)[number] & CardLayoutOptions;
 
 /** Full-width seasonal/campaign banner between the hero and the product
  * rails — one CMS entry per campaign (été, Black Friday, Noël...); the
@@ -19,49 +28,57 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
   // text is drawn over it.
   const wholeTileLabel = imageOnly ? banner.ctaLabel || banner.title || banner.eyebrow || "Découvrir la sélection" : undefined;
   const altText = banner.title || banner.eyebrow || "Bannière promotionnelle";
+  // Both default to the value that reproduces what this banner already
+  // rendered, so a campaign saved before these controls existed is
+  // untouched: the button on the left, the photograph centred in its crop.
+  const ctaAlign = toCtaAlign(banner.ctaAlign);
+  const objectPosition = framingToObjectPosition(banner.imageFraming);
 
   return (
     <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
       {imageOnly ? (
         <Link href={href} aria-label={wholeTileLabel} className="marketing-banner" style={{ display: "block" }}>
-          <BannerImage banner={banner} alt={altText} />
+          <BannerImage banner={banner} alt={altText} objectPosition={objectPosition} />
           {banner.badgeLabel && <BannerBadge label={banner.badgeLabel} />}
         </Link>
       ) : (
         <div className="marketing-banner" style={{ display: "flex", alignItems: "flex-end" }}>
-          <BannerImage banner={banner} alt="" />
+          <BannerImage banner={banner} alt="" objectPosition={objectPosition} />
           <div
             aria-hidden="true"
             style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg,rgba(30,20,14,.6) 0%,rgba(30,20,14,.15) 45%,transparent 70%)" }}
           />
           {banner.badgeLabel && <BannerBadge label={banner.badgeLabel} />}
 
-          <div style={{ position: "relative", zIndex: 2, padding: "clamp(24px,3.6vw,48px)", maxWidth: 560, color: "#fff" }}>
+          <div className="overlay-card-content" style={{ position: "relative", zIndex: 2, padding: "clamp(24px,3.6vw,48px)", maxWidth: 560, color: "#fff" }}>
             {banner.eyebrow && (
-              <div style={{ fontFamily: "var(--font-raleway)", fontSize: 11, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.9, marginBottom: 10 }}>
+              <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-raleway)", fontSize: 11, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.9, marginBottom: 10 }}>
                 {banner.eyebrow}
               </div>
             )}
             {banner.title && (
               <h2
+                className="overlay-card-title"
                 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,4vw,44px)", lineHeight: 1.08, margin: "0 0 14px", letterSpacing: "-.01em" }}
               >
                 {banner.title}
               </h2>
             )}
             {banner.description && (
-              <p className="marketing-banner-description" style={{ fontSize: 14.5, lineHeight: 1.7, opacity: 0.92, margin: "0 0 22px", maxWidth: 460 }}>
+              <p className="overlay-card-text" style={{ fontSize: 14.5, lineHeight: 1.7, opacity: 0.92, margin: "0 0 22px", maxWidth: 460 }}>
                 {banner.description}
               </p>
             )}
             {banner.ctaLabel && (
-              <Link
-                href={href}
-                className="btn-plum"
-                style={{ display: "inline-block", padding: "14px 30px", borderRadius: 999, fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase" }}
-              >
-                {banner.ctaLabel}
-              </Link>
+              <div className="overlay-card-actions" data-cta-align={ctaAlign}>
+                <Link
+                  href={href}
+                  className="btn-plum overlay-card-cta"
+                  style={{ display: "inline-block", padding: "14px 30px", borderRadius: 999, fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase" }}
+                >
+                  {banner.ctaLabel}
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -70,7 +87,15 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
   );
 }
 
-function BannerImage({ banner, alt }: { banner: MarketingBannerData; alt: string }) {
+function BannerImage({
+  banner,
+  alt,
+  objectPosition,
+}: {
+  banner: MarketingBannerData;
+  alt: string;
+  objectPosition: string;
+}) {
   // No `priority`: unlike the hero carousel (always the first, guaranteed
   // above-the-fold element), this section's position is CMS-configurable —
   // marking both the desktop and mobile variant priority would preload one
@@ -85,9 +110,19 @@ function BannerImage({ banner, alt }: { banner: MarketingBannerData; alt: string
         fill
         sizes="(max-width: 767px) 100vw, 1280px"
         className={banner.imgMobile ? "hero-desktop-img" : undefined}
-        style={{ objectFit: "cover" }}
+        style={{ objectFit: "cover", objectPosition }}
       />
-      {banner.imgMobile && <CloudinaryImage preset="marketing" src={banner.imgMobile} alt={alt} fill sizes="100vw" className="hero-mobile-img" style={{ objectFit: "cover" }} />}
+      {banner.imgMobile && (
+        <CloudinaryImage
+          preset="marketing"
+          src={banner.imgMobile}
+          alt={alt}
+          fill
+          sizes="100vw"
+          className="hero-mobile-img"
+          style={{ objectFit: "cover", objectPosition }}
+        />
+      )}
     </>
   );
 }

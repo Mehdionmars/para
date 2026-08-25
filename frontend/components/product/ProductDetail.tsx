@@ -29,6 +29,7 @@ export function ProductDetail({ product }: { product: LiveProductDetail }) {
 
   return (
     <div
+      className="pdp-layout"
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,340px),1fr))",

@@ -1,3 +1,9 @@
+import {
+  type CardCtaAlign,
+  type CardImageFraming,
+  toCtaAlign,
+  toImageFraming,
+} from "@/lib/storefront/cardLayout";
 import { CMS_URL } from "./constants";
 
 /** Mirrors backend/src/globals/Home.ts's SECTION_KEYS/SECTION_LABELS — kept
@@ -190,6 +196,11 @@ export type Rail = {
   ctaUrl: string;
   badgeStyle: string;
   editorialImage: ImageRef;
+  editorialEyebrow: string;
+  editorialTitle: string;
+  editorialDescription: string;
+  editorialCtaLabel: string;
+  editorialCtaUrl: string;
 };
 export type BrandFeaturedItem = { brand: { id?: number; name: string }; phrase: string; image: ImageRef; ctaLabel: string };
 export type DermoCornerCopy = {
@@ -237,6 +248,8 @@ export type MarketingBanner = {
   description: string;
   ctaLabel: string;
   ctaUrl: string;
+  ctaAlign: CardCtaAlign;
+  imageFraming: CardImageFraming;
   badgeLabel: string;
   active: boolean;
   startDate: string;
@@ -341,6 +354,8 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       description: b.description || "",
       ctaLabel: b.ctaLabel || "",
       ctaUrl: b.ctaUrl || "/catalogue",
+      ctaAlign: toCtaAlign(b.ctaAlign),
+      imageFraming: toImageFraming(b.imageFraming),
       badgeLabel: b.badgeLabel || "",
       active: b.active !== false,
       startDate: b.startDate || "",
@@ -363,6 +378,11 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       ctaUrl: r.ctaUrl || "/catalogue",
       badgeStyle: r.badgeStyle || "none",
       editorialImage: mediaRef(r.editorialImage),
+      editorialEyebrow: r.editorialEyebrow || "",
+      editorialTitle: r.editorialTitle || "",
+      editorialDescription: r.editorialDescription || "",
+      editorialCtaLabel: r.editorialCtaLabel || "",
+      editorialCtaUrl: r.editorialCtaUrl || "",
     })),
     brandsFeatured: (home.brandsFeatured || []).map((b: any) => ({
       brand: relRef(b.brand),
@@ -500,6 +520,8 @@ export function mapDraftToPayload(draft: HomeDraft): Record<string, unknown> {
       description: b.description,
       ctaLabel: b.ctaLabel,
       ctaUrl: b.ctaUrl,
+      ctaAlign: b.ctaAlign,
+      imageFraming: b.imageFraming,
       badgeLabel: b.badgeLabel,
       active: b.active,
       startDate: b.startDate || null,
@@ -522,6 +544,11 @@ export function mapDraftToPayload(draft: HomeDraft): Record<string, unknown> {
       ctaUrl: r.ctaUrl,
       badgeStyle: r.badgeStyle,
       editorialImage: img(r.editorialImage),
+      editorialEyebrow: r.editorialEyebrow,
+      editorialTitle: r.editorialTitle,
+      editorialDescription: r.editorialDescription,
+      editorialCtaLabel: r.editorialCtaLabel,
+      editorialCtaUrl: r.editorialCtaUrl,
     })),
     brandsFeatured: draft.brandsFeatured.map((b) => ({
       brand: b.brand.id || null,

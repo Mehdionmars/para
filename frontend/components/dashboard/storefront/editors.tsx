@@ -6,6 +6,12 @@ import { ImagePicker } from "@/components/dashboard/storefront/ImagePicker";
 import { LinkPicker } from "@/components/dashboard/storefront/LinkPicker";
 import { ProductPicker } from "@/components/dashboard/storefront/ProductPicker";
 import {
+  CARD_CTA_ALIGN_OPTIONS,
+  CARD_IMAGE_FRAMING_OPTIONS,
+  toCtaAlign,
+  toImageFraming,
+} from "@/lib/storefront/cardLayout";
+import {
   CATEGORY_OPTIONS,
   COFFRETS_LAYOUTS,
   RAIL_BADGE_STYLES,
@@ -133,6 +139,8 @@ export function MarketingBannersEditor({ value, onChange }: { value: MarketingBa
           description: "",
           ctaLabel: "",
           ctaUrl: "/catalogue",
+          ctaAlign: "left",
+          imageFraming: "center",
           badgeLabel: "",
           active: true,
           startDate: "",
@@ -164,6 +172,22 @@ export function MarketingBannersEditor({ value, onChange }: { value: MarketingBa
             )}
             <TextField label="Texte du bouton" value={b.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
             <TextField label="Lien du bouton" value={b.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} placeholder="/catalogue" />
+            <div className="grid grid-cols-2 gap-3">
+              {b.imageMode !== "imageOnly" && (
+                <SelectField
+                  label="Position du bouton"
+                  value={b.ctaAlign}
+                  onChange={(ctaAlign) => update({ ctaAlign: toCtaAlign(ctaAlign) })}
+                  options={CARD_CTA_ALIGN_OPTIONS}
+                />
+              )}
+              <SelectField
+                label="Cadrage de l'image"
+                value={b.imageFraming}
+                onChange={(imageFraming) => update({ imageFraming: toImageFraming(imageFraming) })}
+                options={CARD_IMAGE_FRAMING_OPTIONS}
+              />
+            </div>
             <TextField label="Badge promotionnel (optionnel)" value={b.badgeLabel} onChange={(badgeLabel) => update({ badgeLabel })} placeholder="JUSQU'À -30%" />
             <div className="grid grid-cols-2 gap-3">
               <DateField label="Affichage à partir du" value={b.startDate} onChange={(startDate) => update({ startDate })} />
@@ -261,11 +285,52 @@ function RailFields({
         options={RAIL_BADGE_STYLES}
       />
       <ImagePicker
-        label="Image éditoriale (optionnelle — bloc conseil affiché après ce rail)"
+        label="Image éditoriale (optionnelle — affiche un bloc conseil au-dessus de ce rail)"
         imageId={r.editorialImage.id}
         imageUrl={r.editorialImage.url}
         onChange={(id, url) => update({ editorialImage: { id, url } })}
       />
+
+      {/* Only meaningful once there is a block to write in, and hidden
+          otherwise so a rail without one is not five empty boxes longer.
+          Each placeholder is the text that renders when the field is left
+          blank, so an editor can see what they are replacing. */}
+      {!!r.editorialImage.url && (
+        <>
+          <TextField
+            label="Bloc conseil — surtitre"
+            value={r.editorialEyebrow}
+            onChange={(editorialEyebrow) => update({ editorialEyebrow })}
+            placeholder="Expertise pharmaceutique"
+          />
+          <TextField
+            label="Bloc conseil — titre"
+            value={r.editorialTitle}
+            onChange={(editorialTitle) => update({ editorialTitle })}
+            placeholder="Des conseils pensés pour votre peau"
+          />
+          <TextAreaField
+            label="Bloc conseil — description"
+            value={r.editorialDescription}
+            onChange={(editorialDescription) => update({ editorialDescription })}
+            placeholder="Nos pharmaciens vous accompagnent pour choisir les soins adaptés à vos besoins…"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <TextField
+              label="Bloc conseil — bouton"
+              value={r.editorialCtaLabel}
+              onChange={(editorialCtaLabel) => update({ editorialCtaLabel })}
+              placeholder="Découvrir nos conseils"
+            />
+            <TextField
+              label="Bloc conseil — lien"
+              value={r.editorialCtaUrl}
+              onChange={(editorialCtaUrl) => update({ editorialCtaUrl })}
+              placeholder="/catalogue"
+            />
+          </div>
+        </>
+      )}
     </FieldGroup>
   );
 }
@@ -303,6 +368,11 @@ export function newRail(): Rail {
     ctaUrl: "/catalogue",
     badgeStyle: "none",
     editorialImage: { url: "" },
+    editorialEyebrow: "",
+    editorialTitle: "",
+    editorialDescription: "",
+    editorialCtaLabel: "",
+    editorialCtaUrl: "",
   };
 }
 

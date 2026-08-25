@@ -105,6 +105,10 @@ const colorField = (name: string, defaultValue: string) =>
 
 // Shared by marketingBanners' eyebrow/title/description fields — hidden
 // when the campaign's image already has its own text baked in.
+// The editorial copy fields only mean anything once the rail has an image to
+// put them on, so they stay hidden until one is chosen.
+const showWhenEditorialImage = (_: unknown, siblingData: { editorialImage?: unknown }) => !!siblingData?.editorialImage
+
 const showWhenOverlayImage = (_: unknown, siblingData: { imageMode?: string }) => siblingData?.imageMode !== 'imageOnly'
 
 export const Home: GlobalConfig = {
@@ -225,6 +229,53 @@ export const Home: GlobalConfig = {
         { name: 'description', type: 'textarea', admin: { condition: showWhenOverlayImage } },
         { name: 'ctaLabel', type: 'text' },
         { name: 'ctaUrl', type: 'text', defaultValue: '/catalogue' },
+        // Where the button sits along the bottom edge, and which part of the
+        // photograph survives the crop. Both are layout choices about one
+        // specific image, which is why they live beside it rather than in the
+        // theme: a campaign shot with its product on the left needs the button
+        // on the right, and the next campaign will need the opposite. Both
+        // default to what the banner already rendered, so existing campaigns
+        // are unchanged until someone edits them.
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'ctaAlign',
+              type: 'select',
+              admin: {
+                condition: showWhenOverlayImage,
+                description:
+                  'Position du bouton le long du bas de la banniere. A deplacer quand le sujet de la photo (visage, produit, logo) occupe ce coin.',
+              },
+              defaultValue: 'left',
+              options: [
+                { label: 'A gauche', value: 'left' },
+                { label: 'Au centre', value: 'center' },
+                { label: 'A droite', value: 'right' },
+              ],
+            },
+            {
+              name: 'imageFraming',
+              type: 'select',
+              admin: {
+                description:
+                  'Partie de la photo conservee lors du recadrage (bandeau large sur ordinateur, format haut sur mobile). Centre = comportement par defaut.',
+              },
+              defaultValue: 'center',
+              options: [
+                { label: 'Centre', value: 'center' },
+                { label: 'Haut', value: 'top' },
+                { label: 'Bas', value: 'bottom' },
+                { label: 'Gauche', value: 'left' },
+                { label: 'Droite', value: 'right' },
+                { label: 'Haut gauche', value: 'top-left' },
+                { label: 'Haut droite', value: 'top-right' },
+                { label: 'Bas gauche', value: 'bottom-left' },
+                { label: 'Bas droite', value: 'bottom-right' },
+              ],
+            },
+          ],
+        },
         { name: 'badgeLabel', type: 'text', admin: { description: 'Optional small promo pill, e.g. "JUSQU\'À -30%". Leave empty to omit.' } },
         { name: 'active', type: 'checkbox', defaultValue: true },
         {
@@ -354,6 +405,51 @@ export const Home: GlobalConfig = {
           type: 'upload',
           relationTo: 'media',
           admin: { description: 'Legacy single-brand spotlight support — superseded by the "Marques à l\'honneur" section below for new content.' },
+        },
+        // The block above used to render one paragraph hard-coded in the
+        // component, so two rails carrying an image printed the identical
+        // text twice on the same page and neither could be changed without a
+        // deploy. Each rail now carries its own copy. Every field falls back
+        // to the old hard-coded string when left empty, so existing content
+        // renders exactly as it did until someone edits it.
+        {
+          name: 'editorialEyebrow',
+          type: 'text',
+          admin: {
+            condition: showWhenEditorialImage,
+            description: 'Surtitre du bloc editorial. Vide = "Expertise pharmaceutique".',
+          },
+        },
+        {
+          name: 'editorialTitle',
+          type: 'text',
+          admin: {
+            condition: showWhenEditorialImage,
+            description: 'Titre du bloc editorial. Vide = "Des conseils penses pour votre peau".',
+          },
+        },
+        {
+          name: 'editorialDescription',
+          type: 'textarea',
+          admin: {
+            condition: showWhenEditorialImage,
+            description: 'Paragraphe du bloc editorial. Vide = le texte historique sur les pharmaciens.',
+          },
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'editorialCtaLabel',
+              type: 'text',
+              admin: { condition: showWhenEditorialImage, description: 'Vide = "Decouvrir nos conseils".' },
+            },
+            {
+              name: 'editorialCtaUrl',
+              type: 'text',
+              admin: { condition: showWhenEditorialImage, description: 'Vide = /catalogue.' },
+            },
+          ],
         },
         {
           name: 'brandFeature',

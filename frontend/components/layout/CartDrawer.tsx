@@ -166,6 +166,7 @@ export function CartDrawer() {
                             type="button"
                             onClick={() => cart.decrement(line.key)}
                             aria-label={`Retirer un ${line.name}`}
+                            className="qty-step-btn"
                             style={{ cursor: "pointer", color: "var(--pdh-plum)", display: "flex" }}
                           >
                             <Minus aria-hidden="true" size={13} />
@@ -175,6 +176,7 @@ export function CartDrawer() {
                             type="button"
                             onClick={() => cart.increment(line.key)}
                             aria-label={`Ajouter un ${line.name}`}
+                            className="qty-step-btn"
                             style={{ cursor: "pointer", color: "var(--pdh-plum)", display: "flex" }}
                           >
                             <Plus aria-hidden="true" size={13} />

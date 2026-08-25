@@ -62,6 +62,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
 
   return (
     <section
+      className="home-hero"
       aria-roledescription="carousel"
       aria-label="Mises en avant"
       style={{
@@ -149,6 +150,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
               />
             )}
             <div
+              className="home-hero-copy-wrap"
               style={{
                 position: "relative",
                 width: "100%",
@@ -158,6 +160,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
               }}
             >
               <div
+                className="home-hero-copy"
                 style={{
                   background: "#fff",
                   borderRadius: "clamp(10px,1vw,14px)",
@@ -199,7 +202,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                   {slide.title}
                 </h2>
                 <p style={{ fontSize: 13.5, lineHeight: 1.7, opacity: 0.7, margin: "12px 0 22px" }}>{slide.sub}</p>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div className="home-hero-actions" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   <Link
                     href={slide.ctaUrl || "/catalogue"}
                     tabIndex={isActive ? 0 : -1}
@@ -295,28 +298,6 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
       >
         <ChevronRight aria-hidden="true" size={18} />
       </button>
-
-      <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 20, display: "flex", gap: 9, zIndex: 3 }}>
-        {heroSlides.map((slide, i) => (
-          <button
-            key={slide.title}
-            type="button"
-            onClick={() => goTo(i)}
-            aria-label={`Aller à la diapositive ${i + 1}`}
-            aria-current={i === active}
-            className="hero-dot-btn"
-            style={{
-              height: 3,
-              width: i === active ? 40 : 16,
-              borderRadius: 999,
-              background: i === active ? "var(--pdh-cream)" : "rgba(247,238,229,.4)",
-              cursor: "pointer",
-              transition: "all .4s",
-              boxShadow: "0 0 6px rgba(30,24,14,.35)",
-            }}
-          />
-        ))}
-      </div>
 
       <SnowParticles density={36} opacity={0.8} />
     </section>

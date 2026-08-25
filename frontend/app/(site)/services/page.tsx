@@ -119,7 +119,7 @@ export default function ServicesPage() {
                 <a
                   href={`tel:${store.phone.replace(/\s+/g, "")}`}
                   className="link-hover"
-                  style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5, color: "var(--pdh-ink)" }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 13.5, color: "var(--pdh-ink)", alignSelf: "flex-start", maxWidth: "100%" }}
                 >
                   <Phone aria-hidden="true" size={17} strokeWidth={1.6} style={{ color: "var(--pdh-plum)", flex: "none" }} />
                   {store.phone}
@@ -130,7 +130,7 @@ export default function ServicesPage() {
                 <a
                   href={`mailto:${store.email}`}
                   className="link-hover"
-                  style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5, color: "var(--pdh-ink)" }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: 13.5, color: "var(--pdh-ink)", alignSelf: "flex-start", maxWidth: "100%" }}
                 >
                   <Mail aria-hidden="true" size={17} strokeWidth={1.6} style={{ color: "var(--pdh-plum)", flex: "none" }} />
                   {store.email}

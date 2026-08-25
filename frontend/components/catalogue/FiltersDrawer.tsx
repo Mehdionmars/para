@@ -32,6 +32,7 @@ export function FiltersDrawer({
   // header's backdrop-filter.
   return createPortal(
     <div
+      className="mobile-bottom-sheet"
       role="dialog"
       aria-modal="true"
       aria-label="Filtrer les produits"
@@ -45,20 +46,20 @@ export function FiltersDrawer({
         animation: "rise .3s cubic-bezier(.22,1,.36,1) both",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid rgba(94,64,116,.12)" }}>
+      <div className="mobile-sheet-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid rgba(94,64,116,.12)" }}>
         <span style={{ fontFamily: "var(--font-jost)", fontSize: 18, fontWeight: 500, color: "var(--pdh-ink)" }}>Filtrer</span>
         <button type="button" onClick={onClose} aria-label="Fermer les filtres" className="icon-btn" style={{ color: "var(--pdh-plum)" }}>
           <X aria-hidden="true" size={22} />
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "4px 20px 24px" }}>
+      <div className="mobile-sheet-scroll" style={{ flex: 1, overflowY: "auto", padding: "4px 20px 24px" }}>
         <div style={{ position: "static" }}>
           <Filters {...filtersProps} />
         </div>
       </div>
 
-      <div style={{ padding: 16, borderTop: "1px solid rgba(94,64,116,.12)" }}>
+      <div className="mobile-sheet-action" style={{ padding: 16, borderTop: "1px solid rgba(94,64,116,.12)" }}>
         <button
           type="button"
           onClick={onClose}

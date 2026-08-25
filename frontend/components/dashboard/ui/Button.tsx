@@ -2,7 +2,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { forwardRef } from "react";
 import { cn } from "@/lib/dashboard/cn";
 
-const buttonVariants = cva(
+/* Exported so a real link can wear the button's clothes without a <button>
+   nested inside an <a>: that nesting is invalid HTML and leaves two focus
+   stops on one control. Callers that navigate use <Link className={
+   buttonVariants(...)}> instead. */
+export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
   {
     defaultVariants: { size: "default", variant: "default" },

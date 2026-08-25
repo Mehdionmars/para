@@ -8,8 +8,14 @@ import { ProductCard } from "@/components/ProductCard";
 import { Rail, type RailHandle } from "@/components/Rail";
 import type { RailDef } from "@/data/home";
 import type { LiveProduct } from "@/lib/storefront/products";
+import { type RailEditorial, resolveRailEditorial } from "@/lib/storefront/railEditorial";
 
-function EditorialBlock({ editorial }: { editorial: NonNullable<RailDef["editorial"]> }) {
+function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
+  // Every string here used to be written into the JSX below, which is why
+  // two rails with an image printed the same paragraph twice. The rail
+  // supplies them now; blanks fall back to what the JSX used to say.
+  const copy = resolveRailEditorial(editorial);
+
   return (
     <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
       <div
@@ -25,21 +31,26 @@ function EditorialBlock({ editorial }: { editorial: NonNullable<RailDef["editori
         }}
       >
         <div style={{ aspectRatio: "1/1", borderRadius: 22, position: "relative", overflow: "hidden" }}>
-          <CloudinaryImage preset="editorial" src={editorial.image} alt="Rituel Para d'Hiver" fill sizes="480px" style={{ objectFit: "cover" }} />
+          {/* The alt describes this rail's own block rather than a generic
+              "Rituel Para d'Hiver", now that each one can say something
+              different. */}
+          <CloudinaryImage preset="editorial" src={copy.image} alt={copy.title} fill sizes="480px" style={{ objectFit: "cover" }} />
         </div>
         <div>
-          <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
-            Expertise pharmaceutique
+          <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+            {copy.eyebrow}
           </div>
-          <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.05, margin: "12px 0 14px", letterSpacing: "-.02em" }}>
-            Des conseils pensés pour votre peau
+          <h2 className="overlay-card-title" style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.05, margin: "12px 0 14px", letterSpacing: "-.02em" }}>
+            {copy.title}
           </h2>
           <p style={{ fontSize: 14.5, lineHeight: 1.8, opacity: 0.72, margin: "0 0 24px", maxWidth: 820 }}>
-            Nos pharmaciens vous accompagnent pour choisir les soins adaptés à vos besoins : type de peau, sensibilité, saison et budget.
+            {copy.description}
           </p>
-          <Link href="/catalogue" className="btn-plum" style={{ display: "inline-block", padding: "14px 30px", borderRadius: 999, fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase" }}>
-            Découvrir nos conseils
-          </Link>
+          <div className="overlay-card-actions">
+            <Link href={copy.ctaUrl} className="btn-plum overlay-card-cta" style={{ display: "inline-block", padding: "14px 30px", borderRadius: 999, fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase" }}>
+              {copy.ctaLabel}
+            </Link>
+          </div>
         </div>
       </div>
     </section>
@@ -61,8 +72,8 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
 
   return (
     <>
-      <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
+      <section className="mobile-rail-section" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
+        <div className="mobile-section-head" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
@@ -91,7 +102,7 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
             </h2>
             <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, maxWidth: 760 }}>{rail.subtitle}</div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="mobile-rail-actions" style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <Link
               href={rail.ctaUrl || "/catalogue"}
               className="link-hover"

@@ -60,7 +60,8 @@ export function CartView() {
     const first = document.querySelector<HTMLElement>('[aria-invalid="true"]');
     first?.focus();
     first?.scrollIntoView({ behavior: "smooth", block: "center" });
-    setFocusErrors(false);
+    const done = window.setTimeout(() => setFocusErrors(false), 0);
+    return () => window.clearTimeout(done);
   }, [focusErrors, fieldErrors]);
 
   const linesKey = cart.lines.map((l) => `${l.key}x${l.qty}`).join(",");
@@ -139,7 +140,7 @@ export function CartView() {
   }
 
   return (
-    <div style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
+    <div className="cart-mobile-page" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
       <nav aria-label="Fil d'Ariane" style={{ fontSize: 13, letterSpacing: ".02em", marginBottom: 16 }}>
         <Link href="/" className="link-hover" style={{ color: "inherit", opacity: 0.55 }}>
           Accueil
@@ -240,7 +241,7 @@ export function CartView() {
           </Link>
         </div>
       ) : (
-        <div style={{ display: "flex", gap: "clamp(20px,3vw,40px)", alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div className="cart-mobile-layout" style={{ display: "flex", gap: "clamp(20px,3vw,40px)", alignItems: "flex-start", flexWrap: "wrap" }}>
           <div style={{ flex: "999 1 420px", minWidth: 0 }}>
             <div style={{ padding: "16px 20px", background: "var(--pdh-sand)", borderRadius: 16, marginBottom: 18 }}>
               <div style={{ fontSize: 12.5, marginBottom: 8 }}>{cart.freeShippingMessage}</div>
@@ -256,7 +257,7 @@ export function CartView() {
               </div>
             </div>
 
-            <ul style={{ listStyle: "none", margin: 0, padding: 0, border: "1px solid rgba(94,64,116,.12)", borderRadius: 18, overflow: "hidden" }}>
+            <ul className="cart-line-list" style={{ listStyle: "none", margin: 0, padding: 0, border: "1px solid rgba(94,64,116,.12)", borderRadius: 18, overflow: "hidden" }}>
               {cart.lines.map((line, i) => {
                 // Everything below is the line's own snapshot, taken when it
                 // was added. Reading it back out of the catalogue is what let
@@ -264,6 +265,7 @@ export function CartView() {
                 // made it impossible to say which option had been chosen.
                 return (
                   <li
+                    className="cart-line-item"
                     key={line.key}
                     style={{
                       display: "flex",
@@ -273,6 +275,7 @@ export function CartView() {
                     }}
                   >
                     <Link
+                      className="cart-line-image"
                       href={routes.product(line.slug)}
                       style={{ position: "relative", overflow: "hidden", width: 92, height: 100, borderRadius: 14, background: "#fff", flex: "none" }}
                     >
@@ -284,7 +287,7 @@ export function CartView() {
                       </div>
                       <Link
                         href={routes.product(line.slug)}
-                        style={{ display: "block", fontSize: 14.5, fontWeight: 500, marginTop: 4, lineHeight: 1.4, color: "inherit" }}
+                        style={{ display: "block", width: "fit-content", maxWidth: "100%", fontSize: 14.5, fontWeight: 500, marginTop: 4, lineHeight: 1.4, color: "inherit" }}
                       >
                         {line.name}
                       </Link>
@@ -298,7 +301,7 @@ export function CartView() {
                       <div style={{ color: "#6a7178", fontSize: 11.5, marginTop: 4 }}>
                         {cart.money(line.price)} l&apos;unité
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, flexWrap: "wrap", gap: 12 }}>
+                      <div className="cart-line-actions" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, flexWrap: "wrap", gap: 12 }}>
                         <div
                           style={{
                             display: "flex",
@@ -313,6 +316,7 @@ export function CartView() {
                             type="button"
                             onClick={() => cart.decrement(line.key)}
                             aria-label={`Retirer un ${line.name}`}
+                            className="qty-step-btn"
                             style={{ cursor: "pointer", color: "var(--pdh-plum)", display: "flex" }}
                           >
                             <Minus aria-hidden="true" size={14} />
@@ -322,6 +326,7 @@ export function CartView() {
                             type="button"
                             onClick={() => cart.increment(line.key)}
                             aria-label={`Ajouter un ${line.name}`}
+                            className="qty-step-btn"
                             style={{ cursor: "pointer", color: "var(--pdh-plum)", display: "flex" }}
                           >
                             <Plus aria-hidden="true" size={14} />
@@ -356,6 +361,7 @@ export function CartView() {
           </div>
 
           <div
+            className="cart-summary-panel"
             style={{
               flex: "1 1 300px",
               minWidth: 280,

@@ -308,13 +308,20 @@ button {
   position: absolute;
   inset: -7px;
 }
-.hero-dot-btn {
+
+/* The quantity steppers on the cart page and in the cart drawer are 13-14px
+   glyphs inside a pill whose width is part of the line's rhythm. Growing the
+   buttons themselves would widen that pill at every breakpoint, so the target
+   grows through the same invisible ::before the buttons above use. The bleed
+   is capped at half the pill's inner gap, so the minus and plus targets never
+   overlap each other: 44px tall, ~38px wide, from a 14px icon.  */
+.qty-step-btn {
   position: relative;
 }
-.hero-dot-btn::before {
+.qty-step-btn::before {
   content: "";
   position: absolute;
-  inset: -21px -14px;
+  inset: -15px -12px;
 }
 
 .circle-btn {
@@ -602,10 +609,17 @@ button {
 /* Mobile: static centered message instead of the scrolling ticker (a
    moving marquee in a 36px strip is hard to read on a phone). Desktop keeps
    the full rotating message list. */
+/* The ticker used to be swapped for one static line on phones, on the
+   theory that a moving strip is hard to read at that size. In practice that
+   hid five of the six messages from the audience that sees them most, and
+   the strip read as an empty dark band. The marquee now runs at every width;
+   the static fallback stays in the markup for the reduced-motion case below,
+   where an animation must not run at all. */
 .topbar-mobile-message {
   display: none;
 }
-@media (max-width: 767px) {
+
+@media (prefers-reduced-motion: reduce) {
   .topbar-marquee {
     display: none !important;
   }
@@ -713,20 +727,31 @@ button {
   transform: scale(1.08);
   box-shadow: 0 14px 26px -10px rgba(55, 48, 32, 0.4);
 }
-/* True phone widths only (this project has no mobile bottom nav to dodge —
-   767px matches the tablet boundary used elsewhere in this audit). Tablets
-   get the desktop offsets: more corner clearance reduces how often the
-   fixed button's footprint happens to land on a product grid's edge. */
+/* True phone widths only; tablets get the desktop offsets, where more corner
+   clearance reduces how often the fixed button's footprint lands on a product
+   grid's edge.
+
+   These sat at 80px, which is the clearance you give a mobile bottom nav —
+   and this project does not have one. The result was a button floating a
+   thumb's width up the page with nothing under it, reading as misplaced
+   rather than docked. They dock to the bottom corner instead, clearing the
+   home indicator on the phones that have one via the safe-area inset. The
+   one case that genuinely needs the old lift, the product page's sticky
+   "Ajouter au panier" bar, keeps it in the rule below. */
 @media (max-width: 767px) {
   .fab-whatsapp {
-    bottom: 80px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     right: 16px;
     width: 52px;
     height: 52px;
   }
+  /* Opposite corner from WhatsApp rather than shoulder to shoulder with it:
+     two circles 20px apart in one corner read as a single control cluster
+     and the thumb that reaches for one keeps catching the other. */
   .fab-back-to-top {
-    bottom: 80px;
-    right: 76px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    right: auto;
+    left: 16px;
     width: 44px;
     height: 44px;
   }
@@ -786,16 +811,153 @@ button {
     aspect-ratio: 21 / 9;
   }
 }
-/* At 4:3 on a narrow phone, a full 3-line description plus eyebrow/title/
-   button can run out of vertical room and overlap the button below it —
-   clamp to 2 lines there; desktop's much shorter box (21:9 but far wider)
-   already fits the full copy without clamping. */
+/* The description clamp that used to live here is now part of the shared
+   .overlay-card-text rule above, which every overlay card gets.
+
+   4:3 left the copy block covering 87% of the banner at 390px and
+   overflowing it outright at 320px. 4:5 is the ratio at which the trimmed
+   copy block lands around a third of the card and the photograph gets the
+   rest — which is the whole point of a campaign image. Desktop keeps 21:9,
+   untouched, from the min-width rule above. */
 @media (max-width: 767px) {
-  .marketing-banner-description {
+  .marketing-banner {
+    aspect-ratio: 4 / 5;
+  }
+
+  /* The CTA tiles are half the banner's importance and appear two at a
+     time, so they get a square rather than a portrait — tall enough to show
+     the photograph, short enough that a stacked pair is not a scroll. The
+     inline `height` prop these carry for desktop is released here. */
+  .overlay-card-tile {
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* ============================================================
+   Overlay cards — the shared mobile contract
+   ============================================================
+   Marketing banner, CTA tiles and the campaign tile all draw the same
+   thing: a photograph with an eyebrow / title / description / button laid
+   over it. On desktop each has room for that. On a phone they did not —
+   measured on the live page, the copy block covered 66-96% of its card,
+   and at 320px the marketing banner's block was 122% of the card, i.e. the
+   text physically overflowed the picture it was supposed to sit on. The
+   image, which is the reason the card exists, was invisible.
+
+   So the copy block is put on a diet below 768px and the card is given a
+   taller ratio, which together hand the photograph the majority of the
+   card back and leave the button sitting compactly at the bottom edge.
+
+   Everything here is inside `max-width: 767px` and nothing outside it was
+   touched, so desktop renders byte-for-byte what it rendered before.
+
+   !important is not decoration: these components carry inline styles (the
+   storefront is themed from the CMS at runtime), and a class cannot beat a
+   style attribute without it. The mobile blocks already in this file —
+   .cart-line-image, .cart-summary-panel — use the same lever. */
+
+.overlay-card-cta {
+  /* A button is as wide as its label at every breakpoint. Declared outside
+     the media query because it is a statement about what the control is,
+     not about the viewport. */
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* Where the button sits along the bottom edge. Default is flex-start, which
+   is exactly where every one of these buttons already sat, so an unset card
+   renders unchanged. The other two let an editor move the button clear of
+   whatever the photograph has in that corner — a face, a product, a logo. */
+.overlay-card-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+.overlay-card-actions[data-cta-align="center"] {
+  justify-content: center;
+}
+.overlay-card-actions[data-cta-align="right"] {
+  justify-content: flex-end;
+}
+
+@media (max-width: 767px) {
+  /* Anchored to the bottom edge and no longer allowed to grow up through
+     the picture. */
+  .overlay-card-content {
+    padding: 14px 16px 16px !important;
+    max-width: 100% !important;
+    width: 100%;
+  }
+
+  .overlay-card-eyebrow {
+    font-size: 9.5px !important;
+    letter-spacing: 0.2em !important;
+    margin-bottom: 5px !important;
+  }
+
+  .overlay-card-title {
+    font-size: 21px !important;
+    line-height: 1.14 !important;
+    margin: 0 0 7px !important;
+    max-width: none !important;
+  }
+
+  /* Two lines, then stop. A campaign description is a teaser on a phone;
+     the page it links to is where the full copy belongs. */
+  .overlay-card-text {
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+    margin: 0 0 12px !important;
+    max-width: none !important;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .overlay-card-cta {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 22px !important;
+    font-size: 10.5px !important;
+    /* Comfortably tappable without the padding that would make the button
+       wide enough to crowd the card again. */
+    min-height: 42px;
+  }
+
+  /* A horizontal scrim is right when the copy occupies one side of the card.
+     Once the copy block spans the full width at the bottom, the readable
+     gradient has to run bottom-up or the end of every line sits on bare
+     photograph. */
+  .overlay-card-scrim {
+    background: linear-gradient(
+      0deg,
+      rgba(47, 31, 61, 0.78) 0%,
+      rgba(47, 31, 61, 0.45) 34%,
+      transparent 62%
+    ) !important;
+  }
+}
+
+/* ---- Barre de confiance ----
+   Four badges across a desktop row read as four columns, so centring each
+   one inside its column is right there. Below ~600px the grid collapses to a
+   single column and that same centring turns the block into a stack of
+   items with a ragged left edge, each icon starting at a different x — the
+   badges stop looking like a list and start looking like loose text.
+
+   On phones they become a proper list: flush left, one under the other,
+   with the row's own padding tightened so the strip stays a strip rather
+   than a panel. Desktop keeps the centred columns unchanged. */
+@media (max-width: 599px) {
+  .trust-bar {
+    padding: 14px 16px !important;
+    gap: 12px !important;
+  }
+  .trust-badge {
+    justify-content: flex-start !important;
   }
 }
 
@@ -1861,5 +2023,398 @@ button {
   }
   .pdh-cta-inner {
     opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile storefront overhaul
+   ------------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  html {
+    scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px));
+  }
+
+  body {
+    overflow-x: hidden;
+    background: #fffdfb;
+  }
+
+  .mobile-page-pad,
+  .cart-mobile-page {
+    padding: 16px 14px calc(42px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .header-row {
+    gap: 8px !important;
+    min-height: calc(64px + env(safe-area-inset-top, 0px));
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px !important;
+  }
+
+  /* The logo was centred inside its own flex slot, but the slot is not the
+     header: one 44px hamburger on the left against a search button and a
+     cart on the right left it sitting 26px off true centre. Taking it out of
+     flow and pinning it to the header's own midpoint centres it against the
+     header rather than against whatever happens to flank it, so it stays
+     centred as utilities are added or hidden at other widths. */
+  .header-row {
+    position: relative;
+    justify-content: space-between !important;
+  }
+
+  .header-row > a[aria-label*="Accueil"] {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    flex: none !important;
+    min-width: 0;
+    justify-content: center;
+    /* Clear of the utilities either side even at 320px, where the two
+       groups occupy 44px and 88px. */
+    max-width: calc(100% - 200px);
+  }
+
+  /* Taking the logo out of flow left three in-flow children — hamburger,
+     search, cart — which space-between then spread evenly, parking the
+     search button dead centre underneath the logo. The auto margin collects
+     the free space ahead of it so search and cart travel to the right edge
+     as one group. It is set on the search button rather than the utilities
+     because the button is the first of that group when search is on, and
+     when it is off the remaining two children space-between correctly on
+     their own. */
+  .header-row > .header-search-icon-btn {
+    margin-left: auto;
+  }
+
+  .logo-mark {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .icon-btn,
+  .hero-nav-btn,
+  .circle-btn,
+  .fav-btn,
+  .pdp-thumb,
+  .pdh-cta,
+  .btn-plum,
+  .btn-outline-plum,
+  .quick-filter,
+  .seo-chip {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* 75vh with a 560px floor left nothing under it: measured against the
+     101px of topbar + header, the section below the hero showed 110px on a
+     390px phone and, on a 320x568 screen, the floor pushed the hero past the
+     bottom of the viewport so the next section showed nothing at all. A
+     visitor had no signal that the page continued.
+
+     58vh with a lower floor and ceiling keeps the hero the dominant thing on
+     first paint while letting the rail beneath it break the fold — roughly
+     250px of it on a common phone, which is enough to read its heading and
+     know to scroll. The copy card is 197px, so even at the 400px floor the
+     photograph keeps the larger share. */
+  .home-hero {
+    width: 100% !important;
+    height: 58vh !important;
+    min-height: 400px;
+    max-height: 560px;
+    margin-top: 0 !important;
+    border-radius: 0 0 18px 18px !important;
+  }
+
+  /* height:100% is what makes the align-items below do anything at all: the
+     slide is a flex row with align-items:center, so this wrap was only ever
+     as tall as its own content and got centred as a unit — its internal
+     flex-end had no free space to push against. Stretched to the slide, the
+     card finally lands on the bottom edge instead of floating mid-image.
+
+     The old 78px of bottom padding was clearance for the WhatsApp button
+     back when it sat at bottom:80px. That button is docked in the corner
+     now, so the padding is just a gap the card is held above; 20px is the
+     breathing room a rounded white card wants against the hero's edge. */
+  .home-hero-copy-wrap {
+    height: 100%;
+    align-items: flex-end !important;
+    justify-content: stretch !important;
+    padding: 0 14px 20px !important;
+  }
+
+  /* The copy card was taking 47% of the hero on a 390px phone — half the
+     photograph, for a badge, a headline, three lines of teaser and a button.
+     The type comes down a step and the description is capped at two lines,
+     which lands the card near a third of the hero and gives the image back
+     the top two thirds. Desktop keeps its own scale, untouched. */
+  .home-hero-copy {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 15px 16px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 46px -30px rgba(30, 24, 14, 0.65) !important;
+  }
+
+  /* The eyebrow pill: same shape, less bulk. */
+  .home-hero-copy > span:first-child {
+    font-size: 9.5px !important;
+    padding: 5px 11px !important;
+  }
+
+  .home-hero-copy h2 {
+    font-size: clamp(21px, 6.2vw, 27px) !important;
+    line-height: 1.08 !important;
+    margin-top: 11px !important;
+  }
+
+  /* Two lines is a teaser; the page behind the button is where the rest of
+     the sentence belongs. Without the cap a long CMS description quietly
+     grows the card back to half the hero. */
+  .home-hero-copy p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .home-hero-actions {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 8px !important;
+  }
+
+  /* A button is as wide as its label here too — the same rule the campaign
+     cards follow. min-height keeps it comfortably tappable without the
+     padding that full width was standing in for. */
+  .home-hero-actions > * {
+    width: fit-content;
+    min-height: 44px;
+    padding: 12px 24px !important;
+    font-size: 11px !important;
+  }
+
+  .hero-nav-btn {
+    display: none !important;
+  }
+
+  .mobile-rail-section {
+    padding: 26px 14px !important;
+  }
+
+  .mobile-section-head {
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .mobile-section-head h2 {
+    font-size: clamp(25px, 7.8vw, 34px) !important;
+    line-height: 1.08 !important;
+  }
+
+  .mobile-rail-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .mobile-rail-actions .circle-btn {
+    display: none;
+  }
+
+  .rail {
+    --rail-gap: 16px;
+    --rail-cols: var(--rail-cols-mobile, 1.35);
+    padding: 2px 2px 8px;
+    margin-inline: -2px;
+  }
+
+  .pdh-shot-wrap {
+    aspect-ratio: 4 / 5 !important;
+    margin-bottom: 10px;
+  }
+
+  .pdh-brand {
+    font-size: 9px;
+    margin-bottom: 5px;
+  }
+
+  .pdh-name {
+    font-size: 14px !important;
+  }
+
+  .pdh-price {
+    font-size: 21px !important;
+  }
+
+  .pdh-cta {
+    margin-top: 12px;
+    padding: 10px 0 0;
+    min-height: 46px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .catalogue-mobile-toolbar {
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    z-index: 30;
+    margin: 26px -14px 0 !important;
+    padding: 12px 14px !important;
+    background: rgba(255, 253, 251, 0.94);
+    backdrop-filter: blur(14px);
+  }
+
+  .catalogue-mobile-controls {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 10px !important;
+  }
+
+  .catalogue-mobile-controls button,
+  .catalogue-sort-control,
+  .catalogue-sort-control select {
+    width: 100%;
+  }
+
+  .catalogue-sort-control span {
+    display: none;
+  }
+
+  .catalogue-grid {
+    gap: 28px 14px;
+  }
+
+  .mobile-bottom-sheet {
+    justify-content: flex-end;
+    background: rgba(35, 25, 43, 0.36) !important;
+  }
+
+  .mobile-bottom-sheet::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .mobile-bottom-sheet > * {
+    position: relative;
+    background: #fff;
+  }
+
+  .mobile-sheet-head {
+    border-radius: 20px 20px 0 0;
+    padding-top: 14px !important;
+  }
+
+  .mobile-sheet-scroll {
+    max-height: min(70vh, 620px);
+    overscroll-behavior: contain;
+  }
+
+  .mobile-sheet-action {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .pdp-layout {
+    display: flex !important;
+    flex-direction: column;
+    gap: 18px !important;
+  }
+
+  .pdp-media {
+    height: min(58vh, 430px);
+    margin-inline: -14px;
+    width: calc(100% + 28px);
+    border-radius: 0 0 18px 18px;
+  }
+
+  .pdp-thumbs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 2px 0 8px;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+
+  .pdp-thumbs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pdp-thumb {
+    width: 64px;
+    scroll-snap-align: start;
+  }
+
+  .pdp-purchase-panel h1 {
+    font-size: clamp(28px, 8.2vw, 38px) !important;
+  }
+
+  .pdp-buy-row {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px !important;
+  }
+
+  .sticky-atc-bar {
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .cart-mobile-layout {
+    display: flex !important;
+    flex-direction: column;
+    gap: 18px !important;
+  }
+
+  .cart-line-list {
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    display: grid;
+    gap: 12px;
+  }
+
+  .cart-line-item {
+    display: grid !important;
+    grid-template-columns: 82px minmax(0, 1fr) 44px;
+    gap: 12px !important;
+    padding: 14px !important;
+    border: 1px solid rgba(94, 64, 116, 0.12) !important;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 18px 36px -32px rgba(55, 48, 32, 0.45);
+  }
+
+  .cart-line-image {
+    width: 82px !important;
+    height: 96px !important;
+    border-radius: 12px !important;
+  }
+
+  .cart-line-actions {
+    align-items: flex-end !important;
+  }
+
+  .cart-summary-panel {
+    width: 100%;
+    max-width: none !important;
+    min-width: 0 !important;
+    position: sticky !important;
+    bottom: 0;
+    top: auto !important;
+    z-index: 35;
+    margin: 0 -14px calc(-42px - env(safe-area-inset-bottom, 0px));
+    padding: 16px 14px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 18px 18px 0 0 !important;
+    box-shadow: 0 -18px 42px -30px rgba(55, 48, 32, 0.55);
+  }
+
+  .field-input,
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }

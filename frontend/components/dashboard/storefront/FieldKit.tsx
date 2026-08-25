@@ -24,11 +24,29 @@ export function TextField({
   );
 }
 
-export function TextAreaField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+export function TextAreaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  /** Optional, and the same idea as TextField's: where a blank field falls
+   *  back to a default, showing that default is how an editor knows what
+   *  they are replacing. */
+  placeholder?: string;
+}) {
   return (
     <label className="flex flex-col gap-1">
       <span className={labelCls}>{label}</span>
-      <textarea className={`${inputCls} min-h-16 resize-y`} value={value} onChange={(e) => onChange(e.target.value)} />
+      <textarea
+        className={`${inputCls} min-h-16 resize-y`}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </label>
   );
 }

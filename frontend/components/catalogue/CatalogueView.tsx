@@ -292,7 +292,7 @@ export function CatalogueView({
   }
 
   return (
-    <div style={{ margin: "0 auto", maxWidth: "min(1280px,100%)", padding: "clamp(18px,2.4vw,30px) clamp(14px,3.4vw,32px) clamp(44px,5vw,76px)" }}>
+    <div className="mobile-page-pad" style={{ margin: "0 auto", maxWidth: "min(1280px,100%)", padding: "clamp(18px,2.4vw,30px) clamp(14px,3.4vw,32px) clamp(44px,5vw,76px)" }}>
       <Breadcrumbs
         items={[{ label: "Accueil", href: routes.home() }, ...(breadcrumbExtra ? [breadcrumbExtra] : []), { label: pageTitle || "Catalogue" }]}
       />
@@ -314,6 +314,7 @@ export function CatalogueView({
       )}
 
       <div
+        className="catalogue-mobile-toolbar"
         ref={gridRef}
         style={{
           alignItems: "center",
@@ -332,7 +333,7 @@ export function CatalogueView({
           {initialQuery ? ` pour « ${initialQuery} »` : ""}
         </div>
 
-        <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 14 }}>
+        <div className="catalogue-mobile-controls" style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 14 }}>
           <button
             aria-pressed={filtersOpen}
             className="link-hover"
@@ -361,7 +362,7 @@ export function CatalogueView({
             <SlidersHorizontal aria-hidden="true" size={14} strokeWidth={1.7} />
             Filtrer
           </button>
-          <label style={{ alignItems: "center", display: "flex", fontSize: 12, gap: 8 }}>
+          <label className="catalogue-sort-control" style={{ alignItems: "center", display: "flex", fontSize: 12, gap: 8 }}>
             <span style={{ opacity: 0.55 }}>Trier par</span>
             <select
               onChange={(e) => {

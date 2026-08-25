@@ -70,7 +70,7 @@ export function NotificationsList({ notifications }: { notifications: Notificati
             </div>
 
             {isUnread && (
-              <span aria-label="Non lue" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-violet-600" />
+              <span role="img" aria-label="Non lue" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-violet-600" />
             )}
           </>
         );

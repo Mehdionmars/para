@@ -1,12 +1,12 @@
 "use client";
 
 import { ChevronDown, Heart, MapPin, MessageCircle, X } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { MEGA_MENU, NAV_ITEMS, type MegaMenuContent, type NavItem } from "@/data/nav";
 import { useFavorites } from "@/context/favorites-context";
-import { navItemClassName, navItemLinkProps, navItemStyle } from "@/lib/navStyle";
+import { navItemClassName, navItemStyle } from "@/lib/navStyle";
 import { NavItemLabel } from "./NavItemLabel";
 
 export function MobileNavDrawer({
@@ -20,6 +20,18 @@ export function MobileNavDrawer({
 }) {
   const [openItem, setOpenItem] = useState<string | null>(null);
   const favorites = useFavorites();
+  const router = useRouter();
+
+  function navigate(href: string) {
+    onClose();
+    router.push(href);
+  }
+
+  function onNavKeyDown(e: React.KeyboardEvent, href: string) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    navigate(href);
+  }
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -82,11 +94,11 @@ export function MobileNavDrawer({
             if (!columns || columns.length === 0) {
               return (
                 <li key={item.label} role="none" style={{ borderBottom: "1px solid rgba(94,64,116,.1)" }}>
-                  <Link
-                    href={item.href}
+                  <div
                     role="menuitem"
-                    onClick={onClose}
-                    {...navItemLinkProps(item)}
+                    tabIndex={0}
+                    onClick={() => navigate(item.href)}
+                    onKeyDown={(e) => onNavKeyDown(e, item.href)}
                     className={navItemClassName(item)}
                     style={{
                       display: "block",
@@ -99,7 +111,7 @@ export function MobileNavDrawer({
                     } as React.CSSProperties}
                   >
                     <NavItemLabel item={item} />
-                  </Link>
+                  </div>
                 </li>
               );
             }
@@ -147,15 +159,16 @@ export function MobileNavDrawer({
                                   so a link configured in Payload doesn't
                                   silently lose its colour or badge on phones
                                   — where most of this traffic is. */}
-                              <Link
-                                href={link.href}
+                              <div
                                 role="menuitem"
-                                onClick={onClose}
+                                tabIndex={0}
+                                onClick={() => navigate(link.href)}
+                                onKeyDown={(e) => onNavKeyDown(e, link.href)}
                                 className={navItemClassName(link)}
-                                style={{ fontSize: 13.5, ...navItemStyle(link) }}
+                                style={{ cursor: "pointer", fontSize: 13.5, minHeight: 44, display: "flex", alignItems: "center", ...navItemStyle(link) }}
                               >
                                 <NavItemLabel item={link} badgeScale={0.9} />
-                              </Link>
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -178,30 +191,36 @@ export function MobileNavDrawer({
           gap: 2,
         }}
       >
-        <Link
-          href="/services"
-          onClick={onClose}
+        <div
+          role="link"
+          tabIndex={0}
+          onClick={() => navigate("/services")}
+          onKeyDown={(e) => onNavKeyDown(e, "/services")}
           style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "#222222" }}
         >
           <MapPin aria-hidden="true" size={19} strokeWidth={1.6} />
           Magasin et services
-        </Link>
-        <Link
-          href="/contact"
-          onClick={onClose}
+        </div>
+        <div
+          role="link"
+          tabIndex={0}
+          onClick={() => navigate("/contact")}
+          onKeyDown={(e) => onNavKeyDown(e, "/contact")}
           style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "#222222" }}
         >
           <MessageCircle aria-hidden="true" size={19} strokeWidth={1.6} />
           Contact
-        </Link>
-        <Link
-          href="/favoris"
-          onClick={onClose}
+        </div>
+        <div
+          role="link"
+          tabIndex={0}
+          onClick={() => navigate("/favoris")}
+          onKeyDown={(e) => onNavKeyDown(e, "/favoris")}
           style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "#222222" }}
         >
           <Heart aria-hidden="true" size={19} strokeWidth={1.6} />
           Mes favoris {favorites.count > 0 ? `(${favorites.count})` : ""}
-        </Link>
+        </div>
       </div>
     </div>,
     document.body,

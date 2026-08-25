@@ -217,7 +217,14 @@ export function ImportView() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* role="button" is warranted here rather than decorative: the
+                dropzone really is the control that opens the file picker, and
+                without the role, tabIndex and key handler it was reachable by
+                pointer only. */}
             <div
+              role="button"
+              tabIndex={0}
+              aria-label="Choisir un fichier a importer"
               onDragOver={(e) => {
                 e.preventDefault();
                 setDragActive(true);
@@ -225,8 +232,13 @@ export function ImportView() {
               onDragLeave={() => setDragActive(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter" && e.key !== " ") return;
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }}
               className={cn(
-                "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-16 text-center transition-colors",
+                "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-16 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
                 dragActive ? "border-violet-400 bg-violet-50" : "border-gray-200 hover:border-gray-300",
               )}
             >

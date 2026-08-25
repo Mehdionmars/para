@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { CloudinaryImage, PRODUCT_PLACEHOLDER } from "@/components/CloudinaryImage";
 import { Badge } from "@/components/dashboard/ui/Badge";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
 import { Checkbox } from "@/components/dashboard/ui/Checkbox";
 import { MenuItem, MenuSeparator, Popover } from "@/components/dashboard/ui/Popover";
 import { Tooltip } from "@/components/dashboard/ui/Tooltip";
@@ -416,10 +416,12 @@ function RowActions({
     <div className={`flex items-center gap-0.5 ${compact ? "" : "justify-end"}`}>
       {canEdit && !compact && (
         <Tooltip label="Modifier">
-          <Link href={`/dashboard/products/${product.id}`} aria-label={`Modifier ${product.name}`}>
-            <Button variant="ghost" size="icon" tabIndex={-1}>
-              <Pencil className="h-4 w-4" aria-hidden="true" />
-            </Button>
+          <Link
+            href={`/dashboard/products/${product.id}`}
+            aria-label={`Modifier ${product.name}`}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
+          >
+            <Pencil className="h-4 w-4" aria-hidden="true" />
           </Link>
         </Tooltip>
       )}

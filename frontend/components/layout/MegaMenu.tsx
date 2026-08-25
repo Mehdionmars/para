@@ -46,6 +46,7 @@ function MegaColumnList({ links, showArrows }: { links: MegaLink[]; showArrows: 
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
           className="link-hover mega-link"
           style={{ fontSize: 12, color: "var(--pdh-teal)", marginTop: 10, textAlign: "left", cursor: "pointer" }}
         >

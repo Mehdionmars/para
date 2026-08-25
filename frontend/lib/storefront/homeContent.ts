@@ -5,6 +5,12 @@
 // references (campaign picks, dermo picks) are resolved live the same way
 // rails are, never from the static products snapshot.
 import {
+  type CardCtaAlign,
+  type CardImageFraming,
+  toCtaAlign,
+  toImageFraming,
+} from "@/lib/storefront/cardLayout";
+import {
   BadgeCheck,
   Gift,
   Headset,
@@ -36,6 +42,8 @@ type RawMarketingBanner = {
   description?: string;
   ctaLabel?: string;
   ctaUrl?: string;
+  ctaAlign?: string;
+  imageFraming?: string;
   badgeLabel?: string;
   active?: boolean;
   startDate?: string;
@@ -58,6 +66,11 @@ type RawRail = {
   ctaUrl?: string;
   badgeStyle?: string;
   editorialImage?: PayloadMediaRef;
+  editorialEyebrow?: string;
+  editorialTitle?: string;
+  editorialDescription?: string;
+  editorialCtaLabel?: string;
+  editorialCtaUrl?: string;
 };
 type RawBrandFeatured = { brand?: RelRef; phrase?: string; image?: PayloadMediaRef; ctaLabel?: string };
 type RawHeroSlide = {
@@ -147,6 +160,8 @@ export type LiveHomeContent = {
     description: string;
     ctaLabel: string;
     ctaUrl: string;
+    ctaAlign: CardCtaAlign;
+    imageFraming: CardImageFraming;
     badgeLabel: string;
     active: boolean;
     startDate: string;
@@ -243,7 +258,18 @@ export async function fetchLiveHomeContent(): Promise<LiveHomeContent> {
     ctaLabel: r.ctaLabel || "Voir tout",
     ctaUrl: r.ctaUrl || "/catalogue",
     badgeStyle: (r.badgeStyle || "none") as RailDef["badgeStyle"],
-    ...(r.editorialImage ? { editorial: { image: resolveMediaUrl(r.editorialImage) } } : {}),
+    ...(r.editorialImage
+      ? {
+          editorial: {
+            image: resolveMediaUrl(r.editorialImage),
+            eyebrow: r.editorialEyebrow || "",
+            title: r.editorialTitle || "",
+            description: r.editorialDescription || "",
+            ctaLabel: r.editorialCtaLabel || "",
+            ctaUrl: r.editorialCtaUrl || "",
+          },
+        }
+      : {}),
   }));
 
   const brandsFeatured: BrandFeatured[] = (home.brandsFeatured || [])
@@ -354,6 +380,11 @@ export async function fetchLiveHomeContent(): Promise<LiveHomeContent> {
       description: b.description || "",
       ctaLabel: b.ctaLabel || "",
       ctaUrl: b.ctaUrl || "/catalogue",
+      // Narrowed rather than passed through: these arrive as free strings
+      // from the CMS and both fall back to the layout the banner shipped
+      // with, so a stale or empty value can never break the card.
+      ctaAlign: toCtaAlign(b.ctaAlign),
+      imageFraming: toImageFraming(b.imageFraming),
       badgeLabel: b.badgeLabel || "",
       active: b.active !== false,
       startDate: b.startDate || "",

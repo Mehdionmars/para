@@ -1,6 +1,6 @@
 import { Package, PackageSearch, Plus } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
 
 /**
  * Skeleton mirroring the real row layout — same heights, same column widths,
@@ -78,11 +78,9 @@ export function ProductEmptyState({
           </Button>
         ) : (
           canCreate && (
-            <Link href="/dashboard/products/new">
-              <Button>
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                Ajouter un produit
-              </Button>
+            <Link href="/dashboard/products/new" className={buttonVariants()}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Ajouter un produit
             </Link>
           )
         )}

@@ -157,7 +157,7 @@ export function PurchasePanel({
 
   return (
     <>
-    <div>
+    <div className="pdp-purchase-panel">
       <div style={{ fontFamily: "var(--font-raleway)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
         {product.brand}
       </div>
@@ -300,7 +300,7 @@ export function PurchasePanel({
         )}
       </div>
 
-      <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 18 }}>
+      <div className="pdp-buy-row" style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 18 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 4, border: "1px solid rgba(94,64,116,.25)", borderRadius: 999, padding: "2px 4px" }}>
           <button
             type="button"
