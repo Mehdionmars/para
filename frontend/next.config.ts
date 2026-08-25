@@ -48,6 +48,4 @@ export default nextConfig;
 // must never run during `next build`: unconditional, it also fires there,
 // and the production Docker build has no workerd binary available, crashing
 // the build with an unrelated-looking ENOENT.
-if (process.env.NODE_ENV !== "production") {
-  import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
-}
+
