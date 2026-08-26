@@ -28,7 +28,7 @@ import {
   type SectionEntryKey,
   type SectionKey,
 } from "@/data/home";
-import { fetchLiveHomeContent } from "@/lib/storefront/homeContent";
+import { fetchLiveHomeContent, fetchPublishedHomeContent } from "@/lib/storefront/homeContent";
 import { fetchInstagramPosts } from "@/lib/storefront/instagram";
 import { fetchRailProducts } from "@/lib/storefront/products";
 
@@ -84,8 +84,15 @@ export default async function HomePage() {
   // section order/visibility, rail config, CTA banners and Instagram config
   // live from the unpublished draft instead of the synced snapshot — see
   // lib/storefront/homeContent.ts for exactly which fields this covers.
+  // Preview reads the unpublished draft, everyone else the published global.
+  // This used to be `: null` outside preview, which sent every visitor to the
+  // generated data/home.ts snapshot — so rails, bannières and coffrets edited
+  // in the Storefront Builder only ever reached the previewer. The snapshot
+  // stays the fallback below for when the CMS is unreachable.
   const isPreview = (await draftMode()).isEnabled;
-  const live = isPreview ? await fetchLiveHomeContent().catch(() => null) : null;
+  const live = isPreview
+    ? await fetchLiveHomeContent().catch(() => null)
+    : await fetchPublishedHomeContent().catch(() => null);
 
   const rails = live?.rails ?? RAILS;
   const brandsFeatured = live?.brandsFeatured ?? BRANDS_FEATURED;

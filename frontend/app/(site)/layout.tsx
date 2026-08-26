@@ -17,7 +17,8 @@ import {
   fetchLiveNavigation,
   fetchLiveSiteChrome,
   fetchLiveTheme,
-  fetchPublishedChromeAppearance,
+  fetchPublishedSiteChrome,
+  fetchPublishedTheme,
   fetchPublishedNavigation,
 } from "@/lib/storefront/siteChromeContent";
 import "./globals.css";
@@ -73,20 +74,18 @@ function safeNumber(value: number, fallback: number, min: number, max: number): 
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const isPreview = (await draftMode()).isEnabled;
-  // Preview reads the unpublished draft; everyone else reads the published
-  // navigation live, so an editor's colour/label/order change is visible
-  // without sync-cms or a redeploy. It is tag-cached, not per-request, so the
-  // CMS still isn't hit once per page view. The generated NAV_ITEMS snapshot
-  // remains the fallback if the CMS is unreachable.
+  // Preview reads the unpublished drafts; everyone else reads the published
+  // globals, so an editor's change is visible without sync-cms or a redeploy.
+  // Both are tag-cached, not per-request, so the CMS still isn't hit once per
+  // page view. The generated data/*.ts snapshots remain the fallback for when
+  // the CMS is unreachable — a CMS outage must never blank the header.
   const [chrome, theme, navigation] = isPreview
     ? await Promise.all([fetchLiveSiteChrome().catch(() => null), fetchLiveTheme().catch(() => null), fetchLiveNavigation().catch(() => null)])
-    : [null, null, await fetchPublishedNavigation().catch(() => null)];
-
-  // Outside preview the layout reads no site chrome at all, so the colours
-  // would have reached the previewer and nobody else. This fetches the one
-  // piece a visitor needs — cached by tag, purged on save — without changing
-  // where the rest of the chrome comes from.
-  const publishedAppearance = isPreview ? null : await fetchPublishedChromeAppearance().catch(() => null);
+    : await Promise.all([
+        fetchPublishedSiteChrome().catch(() => null),
+        fetchPublishedTheme().catch(() => null),
+        fetchPublishedNavigation().catch(() => null),
+      ]);
 
   const topBarConfig = chrome?.topBar ?? TOPBAR_CONFIG;
   const logo = chrome?.logo ?? LOGO;
@@ -107,7 +106,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   // one place a colour is concatenated into raw CSS, which is why it is also
   // the one place the hex gate is enforced. Empty when nothing is configured,
   // and then the chrome keeps every colour it has today.
-  const chromeCss = chromeAppearanceCss(chrome?.appearance ?? publishedAppearance);
+  const chromeCss = chromeAppearanceCss(chrome?.appearance ?? null);
   const rootStyle = chromeCss ? `${themeStyle}:root{${chromeCss}}` : themeStyle;
 
   return (

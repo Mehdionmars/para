@@ -1,14 +1,31 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
+import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
+import { useToast } from "@/context/toast-context";
 import { PRODUCTS } from "@/data/products";
 
 export function FavoritesView() {
   const favorites = useFavorites();
+  const cart = useCart();
+  const toast = useToast();
   const products = PRODUCTS.filter((p) => favorites.isFavorite(p.id));
+
+  // A wishlist is a shopping list: adding it item by item is the whole reason
+  // people abandon one. Availability is not filtered here because this view
+  // reads the static catalogue snapshot, which carries no live stock — the
+  // checkout re-reads both stock and price from the database anyway.
+  function handleAddAll() {
+    products.forEach((product) => cart.addProduct(product, 1));
+    toast.fire(
+      products.length === 1
+        ? "1 produit ajouté au panier"
+        : `${products.length} produits ajoutés au panier`,
+    );
+  }
 
   return (
     <div style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
@@ -19,15 +36,33 @@ export function FavoritesView() {
         <span style={{ opacity: 0.4 }}>/</span> <span style={{ fontWeight: 600 }}>Favoris</span>
       </nav>
 
-      <div style={{ maxWidth: 760, marginBottom: "clamp(24px,3vw,36px)" }}>
-        <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: 0 }}>
-          Mes favoris
-        </h1>
-        <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: 0.62, margin: "12px 0 0" }}>
-          {products.length === 0
-            ? "Les produits que vous mettez en favoris depuis le catalogue apparaissent ici."
-            : `${products.length} produit${products.length === 1 ? "" : "s"} enregistré${products.length === 1 ? "" : "s"}.`}
-        </p>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 16,
+          marginBottom: "clamp(24px,3vw,36px)",
+        }}
+      >
+        <div style={{ maxWidth: 760 }}>
+          <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: 0 }}>
+            Mes favoris
+          </h1>
+          <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: 0.62, margin: "12px 0 0" }}>
+            {products.length === 0
+              ? "Les produits que vous mettez en favoris depuis le catalogue apparaissent ici."
+              : `${products.length} produit${products.length === 1 ? "" : "s"} enregistré${products.length === 1 ? "" : "s"} sur cet appareil.`}
+          </p>
+        </div>
+
+        {products.length > 0 && (
+          <button type="button" onClick={handleAddAll} className="btn-plum wishlist-add-all">
+            <ShoppingBag aria-hidden="true" size={16} strokeWidth={1.7} />
+            Tout ajouter au panier
+          </button>
+        )}
       </div>
 
       {products.length === 0 ? (

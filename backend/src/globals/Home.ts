@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { canEditContent } from '../access/roles'
 import { CATEGORY_OPTIONS } from '../collections/Products'
+import { revalidateStorefront } from '../lib/revalidateStorefront'
 
 export const RAIL_PRODUCT_SOURCES = ['manual', 'latest', 'featured', 'bestSelling', 'category', 'brand', 'promotion'] as const
 export const RAIL_SORT_ORDERS = ['newest', 'price-asc', 'price-desc', 'name-asc', 'rating-desc'] as const
@@ -127,6 +128,15 @@ export const Home: GlobalConfig = {
     max: 20,
   },
   hooks: {
+    // Closes the same loop Navigation and SiteChrome already close: the
+    // storefront caches the published home by tag, so without this a save in
+    // the Storefront Builder sat behind the one-hour expiry. Failures are
+    // logged, never thrown — see revalidateStorefront.
+    afterChange: [
+      async ({ req }) => {
+        await revalidateStorefront(req.payload, ['home'])
+      },
+    ],
     // Existing saved documents never retroactively gain new SECTION_KEYS
     // entries in their `sections` array — a key added to the schema after a
     // site already has content would silently never render (and never show

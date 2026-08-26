@@ -34,9 +34,17 @@ export type LiveSiteChrome = {
   appearance: ChromeAppearance;
 };
 
-export async function fetchLiveSiteChrome(): Promise<LiveSiteChrome> {
-  const res = await fetch(`${CMS_URL}/api/globals/site-chrome?draft=true&depth=1`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`Failed to fetch draft site-chrome content (${res.status})`);
+/** Preview reads the unpublished draft; everyone else reads the published
+ * global (see fetchPublishedSiteChrome). Both map through this one function. */
+export const fetchLiveSiteChrome = () => fetchSiteChrome({ draft: true });
+
+export async function fetchSiteChrome({ draft }: { draft: boolean }): Promise<LiveSiteChrome> {
+  const res = draft
+    ? await fetch(`${CMS_URL}/api/globals/site-chrome?draft=true&depth=1`, { cache: "no-store" })
+    : await fetch(`${CMS_URL}/api/globals/site-chrome?depth=1`, {
+        next: { revalidate: 3600, tags: [SITE_CHROME_TAG] },
+      });
+  if (!res.ok) throw new Error(`Failed to fetch ${draft ? "draft " : ""}site-chrome content (${res.status})`);
   const chrome = await res.json();
   const rawTopBar = (chrome.topBar || {}) as RawTopBar;
 
@@ -158,10 +166,18 @@ function navPresentation(raw: RawNavLink): Pick<NavItem, "badge" | "appearance" 
   const anim = raw.animation;
   const animationOn = !!anim?.enabled && !!anim.type && anim.type !== "none";
 
-  // Free hex wins over the named palette; the palette entry "none" means the
-  // editor never picked one.
+  // What decides whether there is a badge is the *label*: `badgeLabel` is the
+  // pill, `badgeColor` only styles it. "none" is that select's defaultValue
+  // and means "no palette entry picked", not "no badge" — so a label typed in
+  // the builder without touching the colour used to save fine and then render
+  // nothing at all, silently. A label with no colour now falls back to the
+  // brand pill (--pdh-badge-* already defaults to plum), which is what the
+  // editor saw in the builder preview.
+  //
+  // Free hex still wins over the named palette when both are set.
   const customBadge = raw.badgeLabel && (raw.badgeBackgroundColor || raw.badgeTextColor);
   const paletteBadge = raw.badgeLabel && raw.badgeColor && raw.badgeColor !== "none";
+  const defaultBadge = raw.badgeLabel && !customBadge && !paletteBadge;
 
   return {
     animation: animationOn
@@ -192,7 +208,9 @@ function navPresentation(raw: RawNavLink): Pick<NavItem, "badge" | "appearance" 
         } as NavBadge)
       : paletteBadge
         ? ({ color: raw.badgeColor, label: raw.badgeLabel! } as NavBadge)
-        : undefined,
+        : defaultBadge
+          ? ({ color: "plum", label: raw.badgeLabel! } as NavBadge)
+          : undefined,
   };
 }
 
@@ -218,27 +236,22 @@ export type LiveNavigation = {
 export const SITE_CHROME_TAG = "site-chrome";
 
 /**
- * The *published* chrome appearance, for ordinary visitors.
+ * The *published* site chrome, for ordinary visitors.
  *
- * Only the colours. The rest of the chrome — messages, logo, footer columns —
- * still comes from the generated `data/siteChrome.ts` snapshot outside preview
- * mode, and deliberately so: changing where that content is sourced is a
- * different job with a different blast radius. What this fixes is narrower and
- * was outright broken: the layout fetched site chrome only in preview, so a
- * colour saved in the dashboard reached the previewer and nobody else.
+ * This used to fetch only the colours, and everything else on the header and
+ * footer — top-bar messages, logo, search placeholder, header actions, footer
+ * columns — came from the generated `data/siteChrome.ts` snapshot for anyone
+ * not in preview. So a merchant editing those in the Storefront Builder saw
+ * the change in preview and visitors kept the snapshot until the next
+ * `sync-cms` and redeploy. Now the whole global is read live, the same way
+ * navigation already was.
  *
  * Tagged rather than `no-store`: the response is cached and shared across
  * visitors — the CMS is not hit once per page view — and the tag is purged the
  * moment Site Chrome is saved (see the global's afterChange hook). The
  * one-hour window is only the fallback for a missed purge.
  */
-export async function fetchPublishedChromeAppearance(): Promise<ChromeAppearance> {
-  const res = await fetch(`${CMS_URL}/api/globals/site-chrome?depth=0`, {
-    next: { revalidate: 3600, tags: [SITE_CHROME_TAG] },
-  });
-  if (!res.ok) throw new Error(`Failed to fetch site chrome (${res.status})`);
-  return toChromeAppearance(await res.json());
-}
+export const fetchPublishedSiteChrome = () => fetchSiteChrome({ draft: false });
 
 /** Cache tag the CMS invalidates when the Navigation global is saved. */
 export const NAVIGATION_TAG = "navigation";
@@ -344,9 +357,21 @@ function mapCategoryStrip(raw: RawCategoryStrip | undefined): MobileCategoryStri
   };
 }
 
-export async function fetchLiveTheme(): Promise<Theme> {
-  const res = await fetch(`${CMS_URL}/api/globals/theme?draft=true&depth=0`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`Failed to fetch draft theme content (${res.status})`);
+/** Cache tag the CMS purges when the Theme global is saved. */
+export const THEME_TAG = "theme";
+
+/** Preview reads the unpublished draft; everyone else the published global.
+ * Outside preview the layout used to fall back to the generated data/theme.ts
+ * snapshot, so a palette chosen in the Builder's "Apparence" tab re-coloured
+ * the preview and nothing else. */
+export const fetchLiveTheme = () => fetchTheme({ draft: true });
+export const fetchPublishedTheme = () => fetchTheme({ draft: false });
+
+export async function fetchTheme({ draft }: { draft: boolean }): Promise<Theme> {
+  const res = draft
+    ? await fetch(`${CMS_URL}/api/globals/theme?draft=true&depth=0`, { cache: "no-store" })
+    : await fetch(`${CMS_URL}/api/globals/theme?depth=0`, { next: { revalidate: 3600, tags: [THEME_TAG] } });
+  if (!res.ok) throw new Error(`Failed to fetch ${draft ? "draft " : ""}theme content (${res.status})`);
   const theme = await res.json();
   return {
     preset: theme.preset || "parad-hiver",

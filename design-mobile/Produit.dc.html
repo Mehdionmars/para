@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: #373020; font-family: "Poppins", system-ui, sans-serif; }
+    a { color: #5e4074; text-decoration: none; }
+    a:hover { color: #3b2650; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    button { font: inherit; color: inherit; border: none; background: none; cursor: pointer; }
+    .kicker { font-family: "Raleway", sans-serif; font-size: 9.5px; font-weight: 600;
+              letter-spacing: .16em; text-transform: uppercase; color: #6f6a63; }
+    .pill { display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+            padding: 0 18px; border-radius: 999px; border: 1px solid rgba(94,64,116,.28);
+            background: #fff; color: #373020; font-size: 13px; font-weight: 500; white-space: nowrap; }
+    .pill[data-on="true"] { background: #5e4074; border-color: #5e4074; color: #fff; }
+    .pill[data-out="true"] { opacity: .38; text-decoration: line-through; }
+    .step { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; border: 1px solid rgba(94,64,116,.24); color: #5e4074; }
+    .acc { display: flex; align-items: center; justify-content: space-between; width: 100%;
+           min-height: 56px; font-family: "Jost", sans-serif; font-size: 15.5px; font-weight: 400;
+           color: #373020; border-top: 1px solid rgba(55,48,32,.1); text-align: left; }
+    .thumb { width: 56px; height: 56px; flex: none; border-radius: 4px; border: 1px solid rgba(55,48,32,.1);
+             background: #fff; padding: 4px; }
+    .thumb[data-on="true"] { border-color: #5e4074; }
+  </style>
+</helmet>
+
+<div style="width: 390px; background: #fff; position: relative; padding-bottom: 86px">
+
+  <header style="position: sticky; top: 0; z-index: 6; display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(255,255,255,.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(55,48,32,.08)">
+    <button aria-label="Retour" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-left: -10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#373020" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <span style="flex: 1"></span>
+    <button aria-label="Partager" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#373020" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+    </button>
+    <button aria-label="Favori" onClick="{{ toggleFav }}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-right: -10px">
+      <svg width="21" height="21" viewBox="0 0 24 24" stroke="#5e4074" stroke-width="1.6" fill="{{ favFill }}" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+    </button>
+  </header>
+
+  <div style="position: relative; background: #fff; padding: 6px 14px 0">
+    <div style="position: relative; aspect-ratio: 1/1; background: #fff">
+      <img src="{{ heroImg }}" alt="" style="width: 100%; height: 100%; object-fit: contain">
+      <span style="position: absolute; top: 0; left: 0; display: inline-flex; align-items: center; background: #ff514d; color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; border-radius: 999px; padding: 5px 11px">{{ offLabel }}</span>
+    </div>
+    <ul style="display: flex; gap: 8px; margin-top: 10px">
+      <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="3">
+        <li><button class="thumb" data-on="{{ t.on }}" onClick="{{ t.pick }}" aria-label="Vue produit"><img src="{{ t.img }}" alt="" style="width: 100%; height: 100%; object-fit: contain"></button></li>
+      </sc-for>
+    </ul>
+  </div>
+
+  <div style="padding: 20px 14px 0">
+    <div class="kicker">La Roche-Posay</div>
+    <h1 style="font-family: 'Jost', sans-serif; font-weight: 300; font-size: 25px; line-height: 1.24; color: #373020; margin: 8px 0 10px; text-wrap: pretty">
+      Anthelios UVMune 400 Fluide Solaire Invisible SPF50+
+    </h1>
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #6a7178; margin-bottom: 16px">
+      <span style="color: #008aa5; letter-spacing: .08em">★★★★★</span>
+      <span>(24 avis)</span>
+      <span style="opacity: .4">·</span>
+      <span>Réf. LRP-UVM400</span>
+    </div>
+
+    <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px">
+      <span style="font-family: 'Jost', sans-serif; font-weight: 400; font-size: 34px; letter-spacing: -.01em; line-height: 1; color: #5e4074">{{ price }}</span>
+      <span style="font-size: 14px; color: #6f6a63; text-decoration: line-through">{{ oldPrice }}</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: {{ stockColor }}; margin-bottom: 22px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+      {{ stockLabel }}
+    </div>
+
+    <div class="kicker" style="margin-bottom: 10px">Contenance</div>
+    <ul style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px">
+      <sc-for list="{{ variants }}" as="v" hint-placeholder-count="3">
+        <li><button class="pill" data-on="{{ v.on }}" data-out="{{ v.out }}" onClick="{{ v.pick }}">{{ v.label }}</button></li>
+      </sc-for>
+    </ul>
+
+    <div class="kicker" style="margin-bottom: 10px">Quantité</div>
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px">
+      <button class="step" onClick="{{ dec }}" aria-label="Retirer un">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+      </button>
+      <span style="font-family: 'Jost', sans-serif; font-size: 19px; min-width: 26px; text-align: center">{{ qty }}</span>
+      <button class="step" onClick="{{ inc }}" aria-label="Ajouter un">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <span style="margin-left: auto; font-size: 12.5px; color: #6a7178">Total <strong style="font-family: 'Jost', sans-serif; font-weight: 500; font-size: 16px; color: #5e4074">{{ lineTotal }}</strong></span>
+    </div>
+
+    <div style="display: flex; gap: 10px; padding: 14px; background: #f7eee5; border-radius: 4px; margin-bottom: 8px">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#008aa5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px"><path d="M1 3h13v13H1zM14 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/></svg>
+      <div style="font-size: 12.5px; line-height: 1.65; color: #4c5560">
+        <strong style="color: #373020">Livraison offerte dès 399 MAD</strong><br>
+        Casablanca sous 24 h · reste du Maroc 48–72 h
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 22px">
+    <sc-for list="{{ sections }}" as="s" hint-placeholder-count="3">
+      <div style="padding: 0 14px">
+        <button class="acc" onClick="{{ s.toggle }}">
+          <span>{{ s.title }}</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5e4074" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate({{ s.rot }}deg); transition: transform .22s ease"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <sc-if value="{{ s.open }}" hint-placeholder-val="{{ true }}">
+          <p style="font-size: 13.5px; line-height: 1.75; color: #4c5560; margin: 0 0 18px; white-space: pre-line">{{ s.body }}</p>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="border-top: 1px solid rgba(55,48,32,.1); margin-top: 8px; padding: 24px 0 30px">
+    <h2 style="font-family: 'Jost', sans-serif; font-weight: 300; font-size: 20px; color: #5e4074; margin: 0 0 16px; padding: 0 14px">Souvent achetés ensemble</h2>
+    <div style="display: flex; gap: 14px; overflow-x: auto; padding: 0 14px; scrollbar-width: none">
+      <sc-for list="{{ similar }}" as="p" hint-placeholder-count="3">
+        <article style="flex: none; width: 138px">
+          <div style="aspect-ratio: 1/1; margin-bottom: 12px"><img src="{{ p.img }}" alt="" style="width: 100%; height: 100%; object-fit: contain"></div>
+          <div class="kicker" style="margin-bottom: 6px">{{ p.brand }}</div>
+          <div style="font-family: 'Jost', sans-serif; font-weight: 300; font-size: 14px; line-height: 1.3; min-height: 36px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden">{{ p.name }}</div>
+          <div style="font-family: 'Jost', sans-serif; font-size: 19px; color: #5e4074; margin-top: 8px">{{ p.price }}</div>
+        </article>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position: sticky; bottom: 0; z-index: 8; display: flex; align-items: center; gap: 10px; padding: 12px 14px 14px; background: rgba(255,255,255,.97); backdrop-filter: blur(10px); border-top: 1px solid rgba(55,48,32,.1)">
+    <div style="flex: none">
+      <div style="font-size: 10.5px; color: #6a7178; letter-spacing: .04em">{{ qtyLabel }}</div>
+      <div style="font-family: 'Jost', sans-serif; font-weight: 500; font-size: 20px; color: #5e4074; line-height: 1.2">{{ lineTotal }}</div>
+    </div>
+    <button onClick="{{ addToCart }}" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; border-radius: 999px; background: {{ addBg }}; color: #fff; font-family: 'Raleway', sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase">
+      {{ addLabel }}
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    </button>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":390,"height":1560}}'>
+const VARIANTS = [
+  { id: '50', label: '50 ml', price: 115, old: 147, stock: 20 },
+  { id: '100', label: '100 ml', price: 189, old: 232, stock: 3 },
+  { id: '200', label: '200 ml', price: 310, old: null, stock: 0 },
+];
+
+const SECTIONS = [
+  { id: 'desc', title: 'Description', body: 'Fluide solaire très haute protection SPF50+ pour les peaux sensibles ou sujettes aux allergies solaires.\n\nSa texture invisible ne laisse aucun fini blanc et résiste à l eau et à la transpiration.\n\nTesté sous contrôle dermatologique.' },
+  { id: 'use', title: 'Conseils d utilisation', body: 'Appliquer généreusement sur le visage avant l exposition. Renouveler toutes les 2 heures et après chaque baignade.' },
+  { id: 'ing', title: 'Composition', body: 'Aqua, Homosalate, Ethylhexyl Salicylate, Glycerin, Butyl Methoxydibenzoylmethane, Mexoryl 400.' },
+];
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { variant: '50', qty: 1, fav: false, open: 'desc', shot: 0, added: false };
+  }
+
+  money(n) {
+    return n.toLocaleString('fr-FR') + ' MAD';
+  }
+
+  current() {
+    return VARIANTS.find((v) => v.id === this.state.variant) || VARIANTS[0];
+  }
+
+  renderVals() {
+    const v = this.current();
+    const shots = ['anthelios.jpg', 'capital-soleil.jpg', 'effaclar.jpg'];
+    const out = v.stock === 0;
+    const low = v.stock > 0 && v.stock <= 5;
+
+    return {
+      heroImg: shots[this.state.shot],
+      thumbs: shots.map((img, i) => ({
+        img: img,
+        on: this.state.shot === i ? 'true' : 'false',
+        pick: () => this.setState({ shot: i }),
+      })),
+
+      price: this.money(v.price),
+      oldPrice: v.old ? this.money(v.old) : '',
+      offLabel: v.old ? '-' + Math.round((1 - v.price / v.old) * 100) + '%' : '',
+
+      stockLabel: out ? 'Rupture de stock' : low ? 'Plus que ' + v.stock + ' en stock' : 'En stock, expédié sous 24 h',
+      stockColor: out ? '#ff514d' : low ? '#8a5a0f' : '#5fbe00',
+
+      variants: VARIANTS.map((x) => ({
+        label: x.label,
+        on: this.state.variant === x.id ? 'true' : 'false',
+        out: x.stock === 0 ? 'true' : 'false',
+        pick: () => this.setState({ variant: x.id, qty: 1, added: false }),
+      })),
+
+      qty: this.state.qty,
+      qtyLabel: this.state.qty > 1 ? this.state.qty + ' articles' : '1 article',
+      lineTotal: this.money(v.price * this.state.qty),
+      inc: () => this.setState({ qty: Math.min(this.state.qty + 1, Math.max(v.stock, 1)), added: false }),
+      dec: () => this.setState({ qty: Math.max(1, this.state.qty - 1), added: false }),
+
+      favFill: this.state.fav ? '#5e4074' : 'none',
+      toggleFav: () => this.setState({ fav: !this.state.fav }),
+
+      addLabel: out ? 'Indisponible' : this.state.added ? 'Ajouté au panier' : 'Ajouter au panier',
+      addBg: out ? '#b6b1aa' : this.state.added ? '#5fbe00' : '#5e4074',
+      addToCart: () => { if (!out) this.setState({ added: true }); },
+
+      sections: SECTIONS.map((s) => {
+        const isOpen = this.state.open === s.id;
+        return {
+          title: s.title,
+          body: s.body,
+          open: isOpen,
+          rot: isOpen ? 180 : 0,
+          toggle: () => this.setState({ open: isOpen ? '' : s.id }),
+        };
+      }),
+
+      similar: [
+        { brand: 'Vichy', name: 'Capital Soleil Crème SPF50+', price: this.money(76), img: 'capital-soleil.jpg' },
+        { brand: 'La Roche-Posay', name: 'Lipikar Huile Lavante AP+', price: this.money(152), img: 'lipikar.jpg' },
+        { brand: 'La Roche-Posay', name: 'Effaclar Gel Moussant', price: this.money(226), img: 'effaclar.jpg' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

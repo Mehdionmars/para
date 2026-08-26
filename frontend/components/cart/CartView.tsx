@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Minus, Plus, ShoppingBag, X } from "lucide-react";
+import { CheckCircle2, Copy, Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -63,6 +63,29 @@ export function CartView() {
     const done = window.setTimeout(() => setFocusErrors(false), 0);
     return () => window.clearTimeout(done);
   }, [focusErrors, fieldErrors]);
+
+  const [copiedOrderNumber, setCopiedOrderNumber] = useState(false);
+
+  // Clipboard access is refused outside a secure context and can be declined:
+  // the number stays on screen either way, so a failure needs no error state.
+  async function handleCopyOrderNumber() {
+    try {
+      await navigator.clipboard.writeText(orderNumber);
+      setCopiedOrderNumber(true);
+      window.setTimeout(() => setCopiedOrderNumber(false), 2000);
+    } catch {
+      /* left visible for the shopper to copy by hand */
+    }
+  }
+
+  // Pads the page for the fixed mobile total bar, the same way the product
+  // page does for its own (`sticky-atc-active`). Without it the bar sits over
+  // the last cart line and the footer links underneath it.
+  const showStickyTotal = step === "cart" && cart.lines.length > 0;
+  useEffect(() => {
+    document.body.classList.toggle("sticky-cart-active", showStickyTotal);
+    return () => document.body.classList.remove("sticky-cart-active");
+  }, [showStickyTotal]);
 
   const linesKey = cart.lines.map((l) => `${l.key}x${l.qty}`).join(",");
   // A coupon priced against an older cart is dropped: changing the lines can
@@ -181,9 +204,25 @@ export function CartView() {
             Merci, {name} !
           </div>
           <p style={{ fontSize: 13.5, opacity: 0.7, maxWidth: 420, margin: "0 auto 6px", lineHeight: 1.7 }}>
-            Votre commande <strong>{orderNumber}</strong> a bien été enregistrée. Nous vous contactons rapidement au{" "}
+            Votre commande a bien été enregistrée. Nous vous contactons rapidement au{" "}
             {phone || email} pour confirmer la livraison.
           </p>
+
+          {/* The order number is the one string the shopper has to keep — it is
+              what /suivi-commande asks for — and on a phone a run of text inside
+              a paragraph is fiddly to select. */}
+          <button
+            type="button"
+            onClick={handleCopyOrderNumber}
+            className="order-number-copy"
+            aria-label={`Copier le numéro de commande ${orderNumber}`}
+          >
+            <span>{orderNumber}</span>
+            {copiedOrderNumber ? <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} /> : <Copy aria-hidden="true" size={15} strokeWidth={1.8} />}
+          </button>
+          <div aria-live="polite" style={{ fontSize: 12, color: "var(--pdh-teal)", minHeight: 18, marginTop: 6 }}>
+            {copiedOrderNumber ? "Numéro copié" : ""}
+          </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginTop: 18 }}>
             <Link
               href="/catalogue"
@@ -374,12 +413,35 @@ export function CartView() {
               background: "#fff",
             }}
           >
+            {/* Two segments, not a numbered wizard: there are exactly two
+                screens before the confirmation, and saying so is what stops
+                "Passer la commande" reading like the button that charges you. */}
+            <ol className="cart-steps" aria-label="Étapes de la commande">
+              {(["cart", "form"] as const).map((s, i) => (
+                <li
+                  key={s}
+                  aria-current={step === s ? "step" : undefined}
+                  data-state={step === s ? "current" : i === 0 ? "done" : "todo"}
+                >
+                  <span className="cart-step-dot">{i + 1}</span>
+                  <span className="cart-step-label">{s === "cart" ? "Panier" : "Livraison"}</span>
+                </li>
+              ))}
+            </ol>
+
             <h2 style={{ fontFamily: "var(--font-jost)", fontSize: 18, fontWeight: 500, margin: "0 0 18px" }}>
               {step === "form" ? "Vos coordonnées" : "Récapitulatif"}
             </h2>
 
             {step === "cart" && (
               <>
+                {/* Split so the phone can pin the total and the CTA on their
+                    own. The whole panel used to be the sticky sheet, which put
+                    439px — coupon field, breakdown and payment badges
+                    included — over a 844px screen and buried the cart lines
+                    behind it. Everything below scrolls; only .cart-summary-action
+                    stays on screen. Desktop ignores both wrappers. */}
+                <div className="cart-summary-details">
                 <CouponField
                   applied={coupon}
                   city={city}
@@ -412,7 +474,11 @@ export function CartView() {
                   <span>Livraison{activeRule ? ` · ${activeRule.city}` : ""}</span>
                   <span>{shipping ? cart.money(shipping) : "Offerte"}</span>
                 </div>
+                </div>
+
+                <div className="cart-summary-action">
                 <div
+                  className="cart-summary-total"
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -445,7 +511,9 @@ export function CartView() {
                 >
                   Passer la commande
                 </button>
-                <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid rgba(94,64,116,.12)" }}>
+                </div>
+
+                <div className="cart-summary-reassurance" style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid rgba(94,64,116,.12)" }}>
                   <PaymentBadges />
                 </div>
               </>

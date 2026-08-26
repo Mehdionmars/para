@@ -714,7 +714,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, opacity 0.2s ease-out;
 }
 .fab-whatsapp {
   right: 24px;
@@ -727,6 +727,17 @@ button {
 .fab-whatsapp:hover {
   transform: scale(1.08);
   box-shadow: 0 16px 30px -8px rgba(37, 211, 102, 0.75);
+}
+
+/* Stepped aside over the footer, where it used to cover the link column.
+   `animation: none` is load-bearing: the entrance `rise` runs with
+   fill-mode `both`, so its final frame (opacity 1, transform none) keeps
+   winning over these declarations until the animation itself is cancelled. */
+.fab-whatsapp[data-hidden="true"] {
+  animation: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.9);
 }
 .fab-back-to-top {
   right: 88px;
@@ -1017,6 +1028,126 @@ button {
   .catalogue-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+/* Breadcrumb links are 11.5–13px text with no padding, so their touch area
+   is ~17px tall — under the 24px WCAG 2.5.8 minimum, let alone a thumb. The
+   hit area is grown with a pseudo-element rather than padding so the trail
+   keeps its exact position and line height; only the tappable box changes.
+   `^="Fil d"` matches every trail (the shared Breadcrumbs component and the
+   six pages that inline their own) without matching "Filtrer les ...". */
+nav[aria-label^="Fil d"] a {
+  position: relative;
+}
+
+nav[aria-label^="Fil d"] a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}
+
+.wishlist-add-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  flex: none;
+}
+
+@media (max-width: 767px) {
+  .wishlist-add-all {
+    width: 100%;
+  }
+}
+
+.order-number-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  margin-top: 14px;
+  padding: 0 18px;
+  border: 1px dashed rgba(94, 64, 116, 0.35);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--pdh-plum);
+  font-family: var(--font-jost);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.order-number-copy:hover {
+  border-color: var(--pdh-plum);
+  background: var(--pdh-sand);
+}
+
+/* Checkout progress, above the summary panel heading. Driven by CartView's
+   existing `step` state — no new state, and the confirmation screen is a
+   separate view so it is not one of the segments. */
+.cart-steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.cart-steps li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--pdh-muted);
+}
+
+.cart-steps li + li::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: rgba(94, 64, 116, 0.22);
+}
+
+.cart-step-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(94, 64, 116, 0.28);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cart-steps li[data-state="current"] {
+  color: var(--pdh-plum);
+  font-weight: 600;
+}
+
+.cart-steps li[data-state="current"] .cart-step-dot {
+  background: var(--pdh-plum);
+  border-color: var(--pdh-plum);
+  color: #fff;
+}
+
+.cart-steps li[data-state="done"] .cart-step-dot {
+  background: rgba(94, 64, 116, 0.12);
+  border-color: transparent;
+  color: var(--pdh-plum);
 }
 
 .field-input {
@@ -2441,18 +2572,58 @@ button {
     align-items: flex-end !important;
   }
 
+  /* The panel used to be the sticky sheet itself. That pinned all of it —
+     heading, coupon field, breakdown and payment badges, 439px — to the
+     bottom of an 844px screen, so the cart lines a shopper was trying to
+     check sat behind it. The panel now scrolls with the page and only
+     .cart-summary-action below stays on screen. */
   .cart-summary-panel {
     width: 100%;
     max-width: none !important;
     min-width: 0 !important;
-    position: sticky !important;
-    bottom: 0;
+    position: static !important;
     top: auto !important;
-    z-index: 35;
-    margin: 0 -14px calc(-42px - env(safe-area-inset-bottom, 0px));
-    padding: 16px 14px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
-    border-radius: 18px 18px 0 0 !important;
+    padding: 16px 14px !important;
+    border-radius: 18px !important;
+  }
+
+  /* Total + "Passer la commande": the two things worth keeping in reach.
+     Fixed rather than sticky, because sticky is trapped inside the summary
+     panel — and the panel sits below three cart lines, so the CTA would only
+     appear after ~1000px of scrolling. Same pattern (and z-index band) as the
+     product page's .sticky-atc-bar; body.sticky-cart-active pays the padding. */
+  .cart-summary-action {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 95;
+    margin: 0;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+    border-top: 1px solid rgba(94, 64, 116, 0.12);
+    border-radius: 18px 18px 0 0;
     box-shadow: 0 -18px 42px -30px rgba(55, 48, 32, 0.55);
+  }
+
+  body.sticky-cart-active {
+    padding-bottom: 136px;
+  }
+
+  /* Both bars are the same furniture; neither should sit under the FAB. */
+  body.sticky-cart-active .fab-whatsapp {
+    bottom: 148px;
+  }
+
+  body.sticky-cart-active .fab-back-to-top {
+    display: none;
+  }
+
+  /* The rule above the total is the sheet's own top border now. */
+  .cart-summary-total {
+    margin-bottom: 12px !important;
+    padding-top: 0 !important;
+    border-top: none !important;
   }
 
   .field-input,

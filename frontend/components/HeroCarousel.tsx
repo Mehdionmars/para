@@ -78,6 +78,12 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
     >
       {heroSlides.map((slide, i) => {
         const isActive = i === active;
+        // The home page had no <h1> at all — every heading on it, this hero
+        // included, was an <h2>. The first slide carries it rather than the
+        // active one: a heading that changes as the carousel rotates gives
+        // the page a different title every five seconds, and the crawler
+        // only ever sees the first frame anyway.
+        const Title = i === 0 ? "h1" : "h2";
         return (
           <div
             key={slide.title}
@@ -188,7 +194,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                 >
                   {slide.tag}
                 </span>
-                <h2
+                <Title
                   style={{
                     fontFamily: "var(--font-jost)",
                     fontWeight: 300,
@@ -200,7 +206,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                   }}
                 >
                   {slide.title}
-                </h2>
+                </Title>
                 <p style={{ fontSize: 13.5, lineHeight: 1.7, opacity: 0.7, margin: "12px 0 22px" }}>{slide.sub}</p>
                 <div className="home-hero-actions" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   <Link

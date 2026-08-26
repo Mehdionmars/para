@@ -361,7 +361,10 @@ export const Navigation: GlobalConfig = {
         {
           name: 'badgeColor',
           type: 'select',
-          admin: { description: 'Palette du thème. Pour une couleur libre, remplissez les deux champs hexadécimaux ci-dessous — ils ont priorité.' },
+          admin: {
+            description:
+              "Palette du thème. C'est le libellé ci-dessus qui crée le badge : laissé sur « none », le badge s'affiche quand même, aux couleurs de la marque. Pour une couleur libre, remplissez les deux champs hexadécimaux ci-dessous — ils ont priorité.",
+          },
           defaultValue: 'none',
           options: [...NAV_BADGE_COLORS],
         },

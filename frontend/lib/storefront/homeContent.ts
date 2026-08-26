@@ -239,9 +239,33 @@ export type LiveHomeContent = {
 
 const ctaTile = (t: RawCtaTile) => ({ eyebrow: t.eyebrow || "", title: t.title, bg: t.bg || "", img: resolveMediaUrl(t.image) });
 
-export async function fetchLiveHomeContent(): Promise<LiveHomeContent> {
-  const res = await fetch(`${CMS_URL}/api/globals/home?draft=true&depth=2`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`Failed to fetch draft home content (${res.status})`);
+/** Cache tag the CMS purges when the Home global is saved. */
+export const HOME_TAG = "home";
+
+/** Preview reads the unpublished draft; everyone else reads the published
+ * global. Both go through the same mapping below, so the two can never
+ * disagree about what a section means. */
+export const fetchLiveHomeContent = () => fetchHomeContent({ draft: true });
+export const fetchPublishedHomeContent = () => fetchHomeContent({ draft: false });
+
+/**
+ * The home content, from the CMS.
+ *
+ * The page used to pass `null` outside preview and fall back to the generated
+ * data/home.ts snapshot, so everything an editor changed in the Storefront
+ * Builder — rails, bannières, coffrets — reached the previewer and nobody
+ * else until the next `sync-cms` and redeploy.
+ *
+ * The published read is tagged rather than `no-store`: one cached copy is
+ * shared across visitors, so the CMS is not hit once per page view, and the
+ * tag is purged the moment Home is saved. The hour is only the fallback for a
+ * purge that never arrived.
+ */
+export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<LiveHomeContent> {
+  const res = draft
+    ? await fetch(`${CMS_URL}/api/globals/home?draft=true&depth=2`, { cache: "no-store" })
+    : await fetch(`${CMS_URL}/api/globals/home?depth=2`, { next: { revalidate: 3600, tags: [HOME_TAG] } });
+  if (!res.ok) throw new Error(`Failed to fetch ${draft ? "draft " : ""}home content (${res.status})`);
   const home = await res.json();
 
   const rails: RailDef[] = (home.rails || []).map((r: RawRail) => ({

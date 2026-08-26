@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: #373020; font-family: "Poppins", system-ui, sans-serif; }
+    a { color: #5e4074; text-decoration: none; }
+    a:hover { color: #3b2650; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    button { font: inherit; color: inherit; border: none; background: none; cursor: pointer; }
+    input { font: inherit; }
+    .kicker { font-family: "Raleway", sans-serif; font-size: 9.5px; font-weight: 600;
+              letter-spacing: .16em; text-transform: uppercase; color: #6f6a63; }
+    .chip { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px;
+            border-radius: 999px; background: rgba(55,48,32,.06); color: #373020;
+            font-family: "Raleway", sans-serif; font-size: 12.5px; font-weight: 500; }
+    .sugg { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 62px;
+            padding: 8px 18px; text-align: left; }
+    .sugg:hover { background: #faf7f2; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; background: #fff; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="flex: none; display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid rgba(55,48,32,.08)">
+    <div style="flex: 1; display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 15px; border-radius: 999px; background: rgba(55,48,32,.06)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6a7178" stroke-width="1.6" stroke-linecap="round" style="flex: none"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input value="{{ q }}" onInput="{{ setQ }}" placeholder="Rechercher un produit, une marque" style="flex: 1; min-width: 0; border: none; background: none; outline: none; font-size: 14px; color: #373020">
+      <sc-if value="{{ hasQ }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ clearQ }}" aria-label="Effacer" style="width: 26px; height: 26px; border-radius: 50%; background: rgba(55,48,32,.18); display: flex; align-items: center; justify-content: center; flex: none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </sc-if>
+    </div>
+    <button style="font-family: 'Raleway', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: #5e4074; min-height: 44px; padding: 0 4px; flex: none">Annuler</button>
+  </div>
+
+  <div style="flex: 1; overflow-y: auto">
+
+    <sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="padding: 20px 18px 10px">
+          <div class="kicker" style="margin-bottom: 12px">Recherches récentes</div>
+          <ul style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ recent }}" as="r" hint-placeholder-count="4">
+              <li><button class="chip" onClick="{{ r.pick }}">{{ r.label }}</button></li>
+            </sc-for>
+          </ul>
+        </div>
+        <div style="padding: 16px 18px 10px">
+          <div class="kicker" style="margin-bottom: 12px">Marques populaires</div>
+          <ul style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ brands }}" as="b" hint-placeholder-count="5">
+              <li><button class="chip" onClick="{{ b.pick }}">{{ b.label }}</button></li>
+            </sc-for>
+          </ul>
+        </div>
+        <div style="padding: 16px 0 10px">
+          <div class="kicker" style="padding: 0 18px; margin-bottom: 12px">Les plus recherchés</div>
+          <sc-for list="{{ trending }}" as="t" hint-placeholder-count="3">
+            <button class="sugg">
+              <div style="width: 46px; height: 46px; flex: none; background: #fff"><img src="{{ t.img }}" alt="" style="width: 100%; height: 100%; object-fit: contain"></div>
+              <div style="flex: 1; min-width: 0">
+                <div class="kicker" style="margin-bottom: 3px">{{ t.brand }}</div>
+                <div style="font-family: 'Jost', sans-serif; font-weight: 300; font-size: 14px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ t.name }}</div>
+              </div>
+              <div style="font-family: 'Jost', sans-serif; font-size: 16px; color: #5e4074; flex: none">{{ t.price }}</div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 10px 0 20px">
+        <div class="kicker" style="padding: 10px 18px 8px">{{ resultLabel }}</div>
+        <sc-for list="{{ results }}" as="r" hint-placeholder-count="3">
+          <button class="sugg">
+            <div style="width: 46px; height: 46px; flex: none; background: #fff"><img src="{{ r.img }}" alt="" style="width: 100%; height: 100%; object-fit: contain"></div>
+            <div style="flex: 1; min-width: 0">
+              <div class="kicker" style="margin-bottom: 3px">{{ r.brand }}</div>
+              <div style="font-family: 'Jost', sans-serif; font-weight: 300; font-size: 14px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.name }}</div>
+              <div style="font-size: 11.5px; color: #6a7178; margin-top: 2px">{{ r.size }}</div>
+            </div>
+            <div style="font-family: 'Jost', sans-serif; font-size: 16px; color: #5e4074; flex: none">{{ r.price }}</div>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 60px 32px; text-align: center">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#c9c3ba" stroke-width="1.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <h2 style="font-family: 'Jost', sans-serif; font-weight: 300; font-size: 19px; color: #5e4074; margin: 16px 0 8px">Aucun résultat</h2>
+        <p style="font-size: 13px; line-height: 1.7; color: #6a7178; margin: 0 0 20px">Nous n&#39;avons rien trouvé pour «&nbsp;{{ q }}&nbsp;». Essayez une marque ou un type de produit.</p>
+        <button style="min-height: 46px; padding: 0 22px; border-radius: 999px; border: 1px solid rgba(94,64,116,.3); color: #5e4074; font-family: 'Raleway', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase">Parcourir le catalogue</button>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const CATALOGUE = [
+  { brand: 'Vichy', name: 'Capital Soleil Crème Solaire SPF50+', price: 76, size: '50 ml', img: 'capital-soleil.jpg' },
+  { brand: 'La Roche-Posay', name: 'Anthelios UVMune 400 Fluide Solaire', price: 115, size: '50 ml', img: 'anthelios.jpg' },
+  { brand: 'La Roche-Posay', name: 'Effaclar Gel Moussant Purifiant', price: 226, size: '400 ml', img: 'effaclar.jpg' },
+  { brand: 'La Roche-Posay', name: 'Lipikar Huile Lavante AP+', price: 152, size: '400 ml', img: 'lipikar.jpg' },
+  { brand: 'Solgar', name: 'Oméga 3 Capsules', price: 270, size: '30 capsules', img: 'omega3.jpg' },
+  { brand: 'Saforelle', name: 'Soin Lavant Doux Apaisant', price: 38, size: '100 ml', img: 'saforelle.jpg' },
+  { brand: 'Parodontax', name: 'Dentifrice Complete Protection', price: 54, size: '75 ml', img: 'parodontax.jpg' },
+];
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { q: 'solaire' };
+  }
+
+  money(n) {
+    return n.toLocaleString('fr-FR') + ' MAD';
+  }
+
+  matches() {
+    const q = (this.state.q || '').trim().toLowerCase();
+    if (!q) return [];
+    return CATALOGUE.filter((p) => (p.brand + ' ' + p.name).toLowerCase().indexOf(q) !== -1);
+  }
+
+  row(p) {
+    return { brand: p.brand, name: p.name, size: p.size, img: p.img, price: this.money(p.price) };
+  }
+
+  renderVals() {
+    const q = (this.state.q || '').trim();
+    const results = this.matches();
+
+    return {
+      q: this.state.q,
+      hasQ: q.length > 0,
+      setQ: (e) => this.setState({ q: e.target.value }),
+      clearQ: () => this.setState({ q: '' }),
+
+      idle: q.length === 0,
+      hasResults: q.length > 0 && results.length > 0,
+      empty: q.length > 0 && results.length === 0,
+      resultLabel: results.length + (results.length > 1 ? ' résultats' : ' résultat'),
+      results: results.map((p) => this.row(p)),
+
+      recent: ['crème solaire', 'lipikar', 'vitamine d', 'shampooing'].map((label) => ({
+        label: label,
+        pick: () => this.setState({ q: label }),
+      })),
+      brands: ['Isdin', 'La Roche-Posay', 'Vichy', 'Solgar', 'Ecrinal'].map((label) => ({
+        label: label,
+        pick: () => this.setState({ q: label }),
+      })),
+      trending: [CATALOGUE[1], CATALOGUE[3], CATALOGUE[4]].map((p) => this.row(p)),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,7 +1,25 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 const PHONE = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
 const PREFILLED_MESSAGE = "Bonjour Para d'Hiver, j'ai besoin d'un conseil concernant un produit.";
 
 export function WhatsAppButton() {
+  // A fixed button sits over whatever happens to be at the bottom-right, and
+  // in the footer that is a column of links — the button covered them and ate
+  // the tap. It steps aside once the footer is on screen; there is a WhatsApp
+  // link in the footer itself, so nothing is lost.
+  const [overFooter, setOverFooter] = useState(false);
+
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setOverFooter(entry.isIntersecting), { threshold: 0 });
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
   // No number configured: don't render a dead/broken CTA.
   if (!PHONE) return null;
 
@@ -13,6 +31,9 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       className="fab-whatsapp"
+      data-hidden={overFooter ? "true" : "false"}
+      aria-hidden={overFooter}
+      tabIndex={overFooter ? -1 : undefined}
       aria-label="Contacter Para d'Hiver sur WhatsApp"
     >
       <svg aria-hidden="true" viewBox="0 0 32 32" width="28" height="28" fill="#fff">

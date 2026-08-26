@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { canEditContent } from '../access/roles'
+import { revalidateStorefront } from '../lib/revalidateStorefront'
 
 export const THEME_PRESETS = ['parad-hiver', 'minimal', 'botanical', 'soft-beauty', 'premium', 'ocean', 'custom'] as const
 
@@ -50,6 +51,16 @@ export const Theme: GlobalConfig = {
   },
   admin: {
     description: 'Site-wide color theme — picking a preset or a color here re-colors the whole storefront. Edited from the Storefront Builder\'s "Apparence" tab (/dashboard/storefront).',
+  },
+  hooks: {
+    // The palette is read live by the storefront layout and cached by tag, so
+    // a save has to purge it or the new colours wait out the hour. Failures
+    // are logged, never thrown — see revalidateStorefront.
+    afterChange: [
+      async ({ req }) => {
+        await revalidateStorefront(req.payload, ['theme'])
+      },
+    ],
   },
   versions: {
     drafts: {
