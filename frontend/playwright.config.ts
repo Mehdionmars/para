@@ -22,10 +22,38 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 10_000 },
   use: {
-    baseURL: process.env.E2E_BASE_URL || "http://localhost:3002",
     trace: "on-first-retry",
+    // Resolves both test hostnames to the dev server without a hosts-file
+    // entry, so the suite runs on a clean machine.
+    launchOptions: {
+      args: ["--host-resolver-rules=MAP paradhiver.test 127.0.0.1, MAP admin.paradhiver.test 127.0.0.1"],
+    },
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+
+  /**
+   * Two projects, because the app answers to two hostnames.
+   *
+   * proxy.ts routes by host: `localhost` and anything starting with `admin.`
+   * are the dashboard, everything else is the shop. A single baseURL cannot
+   * reach both — pointed at localhost the storefront specs all landed on
+   * /dashboard/login and failed for the wrong reason, which is what they were
+   * doing before this split.
+   */
+  projects: [
+    {
+      name: "storefront",
+      testIgnore: /dashboard\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], baseURL: process.env.E2E_BASE_URL || "http://paradhiver.test:3002" },
+    },
+    {
+      name: "dashboard",
+      testMatch: /dashboard\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.E2E_DASHBOARD_BASE_URL || "http://admin.paradhiver.test:3002",
+      },
+    },
+  ],
   webServer: {
     command: "npx next dev --port 3002",
     url: "http://localhost:3002",

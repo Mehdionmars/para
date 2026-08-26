@@ -1,7 +1,23 @@
 node_modules
 .next
+.open-next
+.wrangler
+.vercel
 .git
+
+# Every env file, not just the two that happen to exist locally — a stray
+# .env.production must never be copied into an image layer.
 .env
-.env.local
+.env.*
+
+# Test suites and their output: not part of the runtime image.
+tests
+coverage
+test-results
+playwright-report
+blob-report
+audit-shots
+
 tsconfig.tsbuildinfo
+*.log
 README.md

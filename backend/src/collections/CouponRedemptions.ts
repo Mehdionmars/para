@@ -16,9 +16,11 @@ export const CouponRedemptions: CollectionConfig = {
   slug: 'coupon-redemptions',
   access: {
     admin: staffOnlyInAdmin,
-    // Created server-side by the checkout route, which runs without an admin
-    // session; the route is the only caller.
-    create: () => true,
+    // Created server-side by the checkout route through the Local API
+    // (`payload.create`), which overrides access — so this can stay closed to
+    // REST/GraphQL. It was `() => true`, which made the ledger this file
+    // calls "the auditable record" publicly forgeable.
+    create: () => false,
     delete: adminOrManager,
     read: isStaff,
     // Immutable by design: a redemption is a historical fact. Correcting a

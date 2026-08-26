@@ -1,8 +1,30 @@
-// Server-only: live catalogue data for the /catalogue page, fetched directly
-// from Payload on every request — unlike the homepage rails, the catalogue
-// deliberately INCLUDES out-of-stock products (shown with a "Rupture de
-// stock" state) instead of hiding them, so shoppers can still find and
-// favorite something that's temporarily unavailable.
+// Server-only: live catalogue data for the /catalogue page.
+//
+// The catalogue deliberately INCLUDES out-of-stock products (shown with a
+// "Rupture de stock" state) instead of hiding them, so shoppers can still
+// find and favorite something that's temporarily unavailable.
+//
+// ## What changed, and why
+//
+// This module used to answer every query by calling `fetchVisibleDocs()`:
+// one request for **1000 products at depth=1 with `cache: "no-store"`**, on
+// every /catalogue and /marques hit, followed by filtering, sorting, faceting
+// and pagination in Node. Three things were wrong with that:
+//
+//   1. It was silently wrong above 1000 products. The limit truncated the
+//      set with no error, so the catalogue would simply stop showing part of
+//      itself — and the facet counts would quietly disagree with reality.
+//   2. Every page view transferred and parsed the entire sellable catalogue,
+//      then threw almost all of it away to render 24 cards.
+//   3. `no-store` meant none of it could be shared between visitors, so the
+//      cost was paid per request rather than per minute.
+//
+// Filtering, sorting and counting are what a database does. Postgres now does
+// all three, through the index added in migration 20260826_100000, and the
+// facet counts come from one cacheable aggregate endpoint.
+//
+// The exported shapes are unchanged — `CatalogueResult`, `CatalogueProduct`,
+// `CatalogueFacets`, `StorefrontBrand` — so no component was touched.
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { stockStatus } from "@/lib/dashboard/products-types";
 import { CATALOGUE_BRANDS, TAG_TO_CATEGORY } from "@/data/catalogue";
@@ -45,7 +67,16 @@ type CatalogueDoc = {
   lowStockThreshold: number;
 };
 
+/** Mirrors Products.access.read on the backend, which now appends the same
+ * clause for anonymous callers. Kept explicit here so the intent is readable
+ * at the call site rather than depending on a server-side default. */
 const VISIBLE = [{ isPublished: { equals: true } }, { discontinued: { not_equals: true } }];
+
+/** The backend caps `limit` at 100 for anonymous callers (publicQueryGuard),
+ * so a cumulative "load more" past 100 has to be assembled from pages rather
+ * than asked for in one shot. Below 100 — which is every ordinary session —
+ * this is exactly one request. */
+const MAX_PER_REQUEST = 100;
 
 export const CATALOGUE_CATEGORIES: Category[] = [
   "Visage",
@@ -58,24 +89,6 @@ export const CATALOGUE_CATEGORIES: Category[] = [
   "Compléments alimentaires",
   "Hygiène",
 ];
-
-async function fetchVisibleDocs(): Promise<CatalogueDoc[]> {
-  const params = new URLSearchParams();
-  params.set("where", JSON.stringify({ and: VISIBLE }));
-  params.set("limit", "1000");
-  params.set("depth", "1");
-  params.set("sort", "-createdAt");
-
-  let res: Response;
-  try {
-    res = await fetch(`${CMS_URL}/api/products?${params.toString()}`, { cache: "no-store" });
-  } catch {
-    return [];
-  }
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.docs || [];
-}
 
 function toCatalogueProduct(doc: CatalogueDoc): CatalogueProduct {
   const stock = doc.stock ?? 0;
@@ -139,113 +152,204 @@ export type StorefrontBrand = {
   slug: string;
 };
 
-/** Every real Brand doc that has a slug (a handful of legacy duplicate
- * records — see backend/src/scripts/backfillBrandSlugs.ts — don't, and are
- * skipped rather than linked to a page with 0 real products), with a real
- * count of currently-visible products. Used by /marques and to resolve
- * /marques/[slug]. */
-export async function fetchAllBrandsWithCounts(): Promise<StorefrontBrand[]> {
-  const [brandsRes, docs] = await Promise.all([
-    // depth=1 resolves the logo upload to its media doc; `select` keeps the
-    // response to the three fields this needs instead of every brand field.
-    fetch(`${CMS_URL}/api/brands?limit=500&sort=name&depth=1&select[name]=true&select[slug]=true&select[logo]=true`, {
-      cache: "no-store",
-    }).catch(() => null),
-    fetchVisibleDocs(),
-  ]);
-  if (!brandsRes || !brandsRes.ok) return [];
-  const brandsData = await brandsRes.json();
-  const brandDocs = (brandsData.docs || []) as {
-    id: number;
-    logo?: { url?: string } | null;
-    name: string;
-    slug?: string;
-  }[];
+type FacetsResponse = {
+  brands: { count: number; id: number; logo: string | null; name: string; slug: string }[];
+  categories: { count: number; value: string }[];
+  inStockCount: number;
+  totalCount: number;
+};
 
-  const countByBrandId = new Map<number, number>();
-  for (const doc of docs) {
-    const brandId = typeof doc.brand === "object" && doc.brand ? doc.brand.id : doc.brand;
-    if (typeof brandId !== "number") continue;
-    countByBrandId.set(brandId, (countByBrandId.get(brandId) || 0) + 1);
+const EMPTY_FACETS: FacetsResponse = { brands: [], categories: [], inStockCount: 0, totalCount: 0 };
+
+/**
+ * The counts behind the filter bar and the brand pages.
+ *
+ * These do not depend on the visitor's filters — the count next to "Solaire"
+ * says how many Solaire products exist, not how many survive the rest of the
+ * form — so the response is the same for everyone and is cached at the edge
+ * (`Cache-Control` is set on the backend route). `revalidate` here is the
+ * second layer, for Next's own data cache.
+ */
+async function fetchFacets(): Promise<FacetsResponse> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/catalogue/facets`, { next: { revalidate: 120 } });
+    if (!res.ok) return EMPTY_FACETS;
+    return (await res.json()) as FacetsResponse;
+  } catch {
+    // A missing facet bar degrades the page; it must not empty the grid.
+    return EMPTY_FACETS;
   }
-
-  return brandDocs
-    .filter((b) => Boolean(b.slug))
-    .map((b) => ({
-      id: b.id,
-      logo: b.logo?.url || null,
-      name: b.name,
-      productCount: countByBrandId.get(b.id) || 0,
-      slug: b.slug as string,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export async function fetchCatalogue(query: CatalogueQuery): Promise<CatalogueResult> {
-  const docs = await fetchVisibleDocs();
-  const all = docs.map(toCatalogueProduct);
+/** Payload's `sort`, from the UI's sort value. "pertinence" is rating then
+ * review count, the same two-key ordering the in-memory version applied. */
+function sortParam(sort: CatalogueQuery["sort"]): string {
+  switch (sort) {
+    case "price-asc":
+      return "price";
+    case "price-desc":
+      return "-price";
+    case "newest":
+      return "-createdAt";
+    default:
+      return "-rating,-reviews";
+  }
+}
 
-  const facets: CatalogueFacets = {
-    brands: CATALOGUE_BRANDS.map((name) => ({
-      count: all.filter((p) => p.brand.toLowerCase() === name.toLowerCase()).length,
-      name,
-    })).filter((b) => b.count > 0),
-    categories: CATALOGUE_CATEGORIES.map((value) => ({
-      count: all.filter((p) => p.cat === value).length,
-      value,
-    })),
-    inStockCount: all.filter((p) => p.stockState !== "out").length,
-    totalCount: all.length,
-  };
+/**
+ * Translates the UI's filter state into a Payload `where`.
+ *
+ * Every branch here replaces an `Array.prototype.filter` that used to run
+ * over the whole catalogue in Node. The one deliberate change in meaning is
+ * noted inline.
+ */
+function buildWhere(query: CatalogueQuery): Record<string, unknown> {
+  const and: Record<string, unknown>[] = [...VISIBLE];
 
-  const q = (query.q || "").trim().toLowerCase();
-  let list = all
-    .filter((p) => !query.maxPrice || p.price <= query.maxPrice)
-    .filter((p) => !query.categories?.length || query.categories.includes(p.cat))
-    .filter((p) => !query.brand || p.brand.toLowerCase() === query.brand.toLowerCase())
-    .filter((p) => !query.inStockOnly || p.stockState !== "out")
-    .filter((p) => !q || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+  if (query.maxPrice) and.push({ price: { less_than_equal: query.maxPrice } });
+  if (query.categories?.length) and.push({ category: { in: query.categories } });
+  if (query.brand) and.push({ "brand.name": { equals: query.brand } });
+  if (query.inStockOnly) and.push({ stock: { greater_than: 0 } });
+
+  if (query.q) {
+    // Same two fields the in-memory version searched: product name and brand
+    // name. `like` is case-insensitive on the Postgres adapter, which matches
+    // the old `.toLowerCase().includes()`.
+    and.push({ or: [{ name: { like: query.q } }, { "brand.name": { like: query.q } }] });
+  }
 
   if (query.tag) {
     const brandMatch = CATALOGUE_BRANDS.find((b) => b.toLowerCase() === query.tag!.toLowerCase());
     const mappedCategory = TAG_TO_CATEGORY[query.tag];
-    if (brandMatch) list = list.filter((p) => p.brand === brandMatch);
-    else if (mappedCategory) list = list.filter((p) => p.cat === mappedCategory);
+    if (brandMatch) and.push({ "brand.name": { equals: brandMatch } });
+    else if (mappedCategory) and.push({ category: { equals: mappedCategory } });
   }
 
   switch (query.quick) {
     case "−25% sélection soin":
-      list = list.filter((p) => !!p.old);
+      and.push({ oldPrice: { greater_than: 0 } });
       break;
     case "Nouveautés":
-      list = list.filter((p) => p.badges.some((b) => b.text === "Nouveau"));
+      // The in-memory version tested `badge.text === "Nouveau"`, which never
+      // matched anything: the `nouveau` preset renders as "Nouveauté", and a
+      // badge's `text` is empty unless an editor overrode it. Filtering on
+      // the badge *type* is what the pill has always meant, and is the one
+      // place this rewrite deliberately changes an outcome — from "always
+      // empty" to "the products actually flagged new".
+      and.push({ "badges.type": { equals: "nouveau" } });
       break;
     case "Meilleures ventes":
-      list = list.filter((p) => p.rating === 5);
+      and.push({ rating: { equals: 5 } });
       break;
     case "Solaire SPF 50+":
-      list = list.filter((p) => p.cat === "Solaire");
+      and.push({ category: { equals: "Solaire" } });
       break;
     default:
       break;
   }
 
-  switch (query.sort) {
-    case "price-asc":
-      list = list.slice().sort((a, b) => a.price - b.price);
-      break;
-    case "price-desc":
-      list = list.slice().sort((a, b) => b.price - a.price);
-      break;
-    case "newest":
-      break; // already newest-first from the fetch above
-    default:
-      list = list.slice().sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+  return { and };
+}
+
+/**
+ * One page of products, plus the true total.
+ *
+ * `totalDocs` comes from Postgres' own count over the same `where`, so the
+ * "N produits" label and the "Charger plus" button are correct at any
+ * catalogue size — the previous implementation could only ever count what it
+ * had already downloaded.
+ */
+async function fetchPage(
+  where: Record<string, unknown>,
+  sort: string,
+  limit: number,
+  page: number,
+): Promise<{ docs: CatalogueDoc[]; totalDocs: number }> {
+  const params = new URLSearchParams();
+  params.set("where", JSON.stringify(where));
+  params.set("limit", String(limit));
+  params.set("page", String(page));
+  params.set("depth", "1");
+  params.set("sort", sort);
+
+  try {
+    const res = await fetch(`${CMS_URL}/api/products?${params.toString()}`, {
+      // Short shared window rather than `no-store`: the same handful of filter
+      // combinations are requested constantly, and 30s is far too short to
+      // mislead anyone about availability. Price and stock are re-read from
+      // Postgres inside /api/checkout on every order, so a slightly stale card
+      // can never cause an oversell.
+      next: { revalidate: 30 },
+    });
+    if (!res.ok) return { docs: [], totalDocs: 0 };
+    const data = await res.json();
+    return { docs: (data.docs || []) as CatalogueDoc[], totalDocs: Number(data.totalDocs) || 0 };
+  } catch {
+    return { docs: [], totalDocs: 0 };
+  }
+}
+
+export async function fetchCatalogue(query: CatalogueQuery): Promise<CatalogueResult> {
+  const where = buildWhere(query);
+  const sort = sortParam(query.sort);
+  const wanted = query.limit || 24;
+
+  // Facets and the first page are independent, so they go out together
+  // instead of one after the other.
+  const [facetsData, firstPage] = await Promise.all([
+    fetchFacets(),
+    fetchPage(where, sort, Math.min(wanted, MAX_PER_REQUEST), 1),
+  ]);
+
+  const docs = [...firstPage.docs];
+
+  // "Charger plus" grows the requested limit by 24 each time, so past the
+  // fourth click it exceeds the backend's per-request cap. Fetch the extra
+  // pages rather than silently returning a short list.
+  for (let page = 2; docs.length < wanted && docs.length < firstPage.totalDocs; page += 1) {
+    const next = await fetchPage(where, sort, MAX_PER_REQUEST, page);
+    if (next.docs.length === 0) break;
+    docs.push(...next.docs);
   }
 
-  const total = list.length;
-  const limit = query.limit || 24;
-  const products = list.slice(0, limit);
+  const byCategory = new Map(facetsData.categories.map((c) => [c.value, c.count]));
+  const byBrandName = new Map(facetsData.brands.map((b) => [b.name.toLowerCase(), b.count]));
 
-  return { facets, products, total };
+  return {
+    facets: {
+      // Still the curated list from data/catalogue.ts rather than every brand
+      // in the database: the filter bar has always shown these ten, and the
+      // counts are simply now correct instead of derived from a truncated
+      // sample. /marques, which does want every brand, uses
+      // fetchAllBrandsWithCounts below.
+      brands: CATALOGUE_BRANDS.map((name) => ({ count: byBrandName.get(name.toLowerCase()) || 0, name })).filter(
+        (b) => b.count > 0,
+      ),
+      categories: CATALOGUE_CATEGORIES.map((value) => ({ count: byCategory.get(value) || 0, value })),
+      inStockCount: facetsData.inStockCount,
+      totalCount: facetsData.totalCount,
+    },
+    products: docs.slice(0, wanted).map(toCatalogueProduct),
+    total: firstPage.totalDocs,
+  };
+}
+
+/**
+ * Every brand that has a slug and at least one sellable product, with a real
+ * count. Used by /marques and to resolve /marques/[slug].
+ *
+ * This used to call `fetchVisibleDocs()` — the same 1000-product download —
+ * purely to count products per brand, on a page that renders logos and
+ * numbers. It is now the brand half of the facets aggregate, which the
+ * catalogue page has usually already warmed.
+ *
+ * Brands without a slug (a handful of legacy duplicate records — see
+ * backend/src/scripts/backfillBrandSlugs.ts) are excluded by the query, as
+ * they were here: they would link to a page with no products.
+ */
+export async function fetchAllBrandsWithCounts(): Promise<StorefrontBrand[]> {
+  const facets = await fetchFacets();
+  return facets.brands
+    .map((b) => ({ id: b.id, logo: b.logo, name: b.name, productCount: b.count, slug: b.slug }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

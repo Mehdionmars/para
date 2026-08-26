@@ -256,6 +256,88 @@ export const Navigation: GlobalConfig = {
       label: 'Aperçu',
     },
     {
+      /**
+       * The mobile quick-category strip.
+       *
+       * Lives in Navigation rather than SiteChrome for one decisive reason:
+       * outside preview the storefront layout does not read SiteChrome at all
+       * (logo, header actions and footer columns come from the generated
+       * data/siteChrome.ts snapshot, refreshed by `npm run sync-cms`), while
+       * Navigation *is* fetched live for every visitor and its cache tag is
+       * purged by the afterChange hook above. Putting the strip here is what
+       * makes "edit a category, see it on the shop" true without a rebuild.
+       *
+       * It is also simply what it is: navigation. The link fields are the
+       * exact same `linkTypeFields` the navbar and the mega menus use, so a
+       * chip resolves through resolveLiveNavHref like every other link and
+       * cannot drift into a second, parallel way of describing a destination.
+       *
+       * Deliberately NOT auto-filled from the Categories collection — the
+       * same decision this global already documents for `items`: adding a
+       * category must not silently change the shop's navigation.
+       */
+      // Named `catStrip`, not `mobileCategoryStrip`, purely for length.
+      // Postgres caps identifiers at 63 characters and Payload derives enum
+      // names from the whole path: the longer name produced
+      // `enum__navigation_v_version_mobile_category_strip_items_collection_route`
+      // at 71 characters and the config was refused at boot. `dbName` does not
+      // help — it renames array tables but not the enums derived from the
+      // field path — so the field itself is the short one and the `label`
+      // below carries the readable name for editors.
+      name: 'catStrip',
+      type: 'group',
+      admin: {
+        description:
+          "Bande de catégories horizontale affichée sous l'en-tête, sur mobile uniquement (masquée à partir de 768px, où ces liens sont déjà dans le menu principal).",
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: false,
+          label: 'Afficher la bande de catégories sur mobile',
+        },
+        {
+          name: 'showAllChip',
+          type: 'checkbox',
+          admin: {
+            condition: (_, siblingData) => siblingData?.enabled === true,
+            description: 'Ajoute une puce en tête de bande qui renvoie vers le catalogue complet.',
+          },
+          defaultValue: true,
+          label: 'Puce « Tout » en tête',
+        },
+        {
+          name: 'allChipLabel',
+          type: 'text',
+          admin: {
+            condition: (_, siblingData) => siblingData?.enabled === true && siblingData?.showAllChip === true,
+          },
+          defaultValue: 'Tout',
+          label: 'Libellé de la puce',
+        },
+        {
+          name: 'items',
+          type: 'array',
+          admin: {
+            condition: (_, siblingData) => siblingData?.enabled === true,
+            description: "Une puce par entrée, dans l'ordre d'affichage — glissez pour réordonner.",
+          },
+          // A strip is a glance, not a menu. Past roughly this many the
+          // shopper is swiping a second screen of chips to find anything,
+          // which is what the burger menu is already for.
+          maxRows: 10,
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'visible', type: 'checkbox', defaultValue: true, label: 'Afficher cette puce' },
+            ...linkTypeFields(NAV_LINK_TYPES),
+          ],
+          label: 'Puces',
+        },
+      ],
+      label: 'Bande de catégories (mobile)',
+    },
+    {
       name: 'items',
       type: 'array',
       admin: { description: 'Main navigation items, in display order — drag to reorder.' },

@@ -1,7 +1,7 @@
 import { APIError } from 'payload'
 import type { CollectionConfig, FieldAccess, PayloadRequest, Where } from 'payload'
 
-import { adminOrManager, canEditContent, hasRole, staffOnlyInAdmin } from '../access/roles'
+import { adminOrManager, canEditContent, hasRole, isStaff, staffOnlyInAdmin } from '../access/roles'
 import { slugField } from '../lib/slugField'
 
 export const CATEGORY_OPTIONS = [
@@ -75,6 +75,20 @@ const stockFieldUpdate: FieldAccess = ({ req }) => canEditContent({ req }) || ha
 const contentFieldAccess = { update: contentFieldUpdate }
 const stockFieldAccess = { update: stockFieldUpdate }
 
+/** Back-office-only numbers. `read: () => true` on the collection is what
+ * makes the storefront work without a session, but it also handed every
+ * visitor the internal barcode and the reserved-stock figure, neither of
+ * which any storefront view renders. `stock` itself stays public — the
+ * catalogue prints "Rupture de stock" from it. */
+const staffReadFieldAccess = { read: ({ req }: { req: PayloadRequest }) => isStaff({ req }) }
+
+/** What an anonymous caller is allowed to see. Mirrors the storefront's own
+ * `VISIBLE` filter (frontend/lib/storefront/catalogue.ts), so every query it
+ * already makes returns exactly the same rows. */
+const PUBLICLY_VISIBLE: Where = {
+  and: [{ isPublished: { equals: true } }, { discontinued: { not_equals: true } }],
+}
+
 type VariantRow = { sku?: string | null; barcode?: string | null }
 
 /** Variant SKU/barcode must be unique the same way the top-level product
@@ -122,7 +136,19 @@ export const Products: CollectionConfig = {
     admin: staffOnlyInAdmin,
     create: canEditContent,
     delete: adminOrManager,
-    read: () => true,
+    // Public, but only for what is actually on sale. Staff (and the Local
+    // API, which overrides access) still see everything — that is what the
+    // dashboard's draft/archived filters read.
+    //
+    // Without the Where clause, `GET /api/products` published the entire
+    // unreleased catalogue: products still being priced, seasonal ranges not
+    // yet launched, and every row an import had just created as a draft. The
+    // storefront already filtered on exactly these two fields, so nothing it
+    // fetches changes.
+    read: ({ req }) => {
+      if (isStaff({ req })) return true
+      return PUBLICLY_VISIBLE
+    },
     // Content editors and stockManager can both submit updates; field-level
     // `access.update` below is what actually limits stockManager to stock only.
     update: ({ req }) => canEditContent({ req }) || hasRole(req, 'stockManager'),
@@ -347,7 +373,7 @@ export const Products: CollectionConfig = {
             {
               name: 'barcode',
               type: 'text',
-              access: contentFieldAccess,
+              access: { ...contentFieldAccess, ...staffReadFieldAccess },
               admin: { description: 'EAN / barcode — business key used for POS lookup and Excel import.' },
               unique: true,
             },
@@ -366,7 +392,7 @@ export const Products: CollectionConfig = {
             {
               name: 'reservedStock',
               type: 'number',
-              access: stockFieldAccess,
+              access: { ...stockFieldAccess, ...staffReadFieldAccess },
               defaultValue: 0,
               min: 0,
             },

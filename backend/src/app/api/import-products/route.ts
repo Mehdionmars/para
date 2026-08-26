@@ -1,12 +1,19 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { userHasRole } from '../../../access/roles'
 import { IMPORT_FIELDS, type ColumnMapping, suggestColumnForField } from '../../../lib/importFields'
 import { normalizeProductRow, resolveBrandId } from '../../../lib/productImportHook'
 import { parseSpreadsheet } from '../../../lib/parseSpreadsheet'
 import { withApiLog } from '../../../lib/withApiLog'
 
 export const maxDuration = 60
+
+/** Same ceilings as /api/import/products/validate. An unbounded upload here
+ * is parsed entirely into memory by `xlsx`, so the limit is what keeps a
+ * single request from taking the process down. */
+const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024 // 15 MB
+const ALLOWED_EXTENSIONS = ['.csv', '.xlsx', '.xls']
 
 type PreviewRow = ReturnType<typeof normalizeProductRow> & {
   sheet: string
@@ -35,6 +42,15 @@ async function readRows(request: Request) {
     throw new Error('Aucun fichier reçu.')
   }
 
+  const filename = (file as File).name || ''
+  const ext = filename.slice(filename.lastIndexOf('.')).toLowerCase()
+  if (!ALLOWED_EXTENSIONS.includes(ext)) {
+    throw new Error('Type de fichier non pris en charge — utilisez .csv, .xlsx ou .xls.')
+  }
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error(`Fichier trop volumineux (${Math.round(file.size / 1024 / 1024)} Mo, limite 15 Mo).`)
+  }
+
   const buffer = Buffer.from(await file.arrayBuffer())
   const sheets = parseSpreadsheet(buffer)
   const usedSheets = selectedSheets ? sheets.filter((s) => selectedSheets.includes(s.name)) : sheets
@@ -54,7 +70,11 @@ async function readRows(request: Request) {
 async function handlePOST(request: Request) {
   const payload = await getPayload({ config: configPromise })
   const { user } = await payload.auth({ headers: request.headers })
-  if (!user) {
+  // A bare `if (!user)` used to be the whole gate here, so *any* signed-in
+  // account — including the `customer` role, which has no staff access
+  // anywhere else — could create and overwrite products in bulk. Same role
+  // set as /api/import/products/{validate,run}, which this route predates.
+  if (!user || !userHasRole(user, 'admin', 'manager', 'stockManager')) {
     return Response.json({ error: 'Non autorisé.' }, { status: 401 })
   }
 

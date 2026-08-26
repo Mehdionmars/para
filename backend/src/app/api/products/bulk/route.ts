@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import type { PoolClient } from 'pg'
 
 import { userHasRole } from '../../../../access/roles'
+import { serverError } from '../../../../lib/apiError'
 import { CATEGORY_OPTIONS } from '../../../../collections/Products'
 import { notifyStockChange, type StockChange } from '../../../../lib/notifications/stock'
 import { withApiLog } from '../../../../lib/withApiLog'
@@ -153,11 +154,7 @@ async function handlePOST(request: Request) {
     })
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {})
-    payload.logger.error({ err }, 'Opération bulk produits échouée')
-    return Response.json(
-      { error: err instanceof Error ? err.message : 'Erreur lors de l’opération.' },
-      { status: 500 },
-    )
+    return serverError({ context: 'Opération bulk produits échouée', err, payload })
   } finally {
     client.release()
   }

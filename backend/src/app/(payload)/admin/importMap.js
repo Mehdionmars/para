@@ -16,6 +16,7 @@ import { ExportSaveButton as ExportSaveButton_cdf7e044479f899a31f804427d568b36 }
 import { ImportPreview as ImportPreview_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportSaveButton as ImportSaveButton_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
+import { NavItemPreviewField as NavItemPreviewField_3471ade4b8370d50969a7b2b0ec1d844 } from '../../../components/NavItemPreviewField'
 import { AdminIcon as AdminIcon_48bd4f5ed20a278ca9298ebbc521db88 } from '../../../components/AdminLogo'
 import { AdminLogo as AdminLogo_48bd4f5ed20a278ca9298ebbc521db88 } from '../../../components/AdminLogo'
 import { ImportProductsNavLink as ImportProductsNavLink_dd7df59df4f7e8f48fd2cf2d049c6df6 } from '../../../components/ImportProductsNavLink'
@@ -45,6 +46,7 @@ export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ImportPreview": ImportPreview_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportSaveButton": ImportSaveButton_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
+  "/components/NavItemPreviewField#NavItemPreviewField": NavItemPreviewField_3471ade4b8370d50969a7b2b0ec1d844,
   "/components/AdminLogo#AdminIcon": AdminIcon_48bd4f5ed20a278ca9298ebbc521db88,
   "/components/AdminLogo#AdminLogo": AdminLogo_48bd4f5ed20a278ca9298ebbc521db88,
   "/components/ImportProductsNavLink#ImportProductsNavLink": ImportProductsNavLink_dd7df59df4f7e8f48fd2cf2d049c6df6,

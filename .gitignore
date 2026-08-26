@@ -1,0 +1,49 @@
+# Repository-wide ignores. backend/.gitignore and frontend/.gitignore keep the
+# rules specific to each app; this file covers the root and anything that would
+# otherwise be caught only by a developer's local .git/info/exclude.
+
+# ---- Secrets -------------------------------------------------------------
+# Real env files are never committed; the *.example templates are.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# ---- Dependencies / build artifacts --------------------------------------
+node_modules/
+.next/
+out/
+build/
+.open-next/
+.vercel/
+.wrangler/
+*.tsbuildinfo
+
+# ---- Test output ---------------------------------------------------------
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+audit-shots/
+
+# ---- Agent tooling -------------------------------------------------------
+# .claude/skills, .agents/skills and .impeccable/critique are checked-in
+# project assets and stay tracked. Worktrees are throwaway local checkouts —
+# full copies of the repo, including each one's own .env.
+.claude/worktrees/
+
+# ---- Logs / local databases ----------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.sqlite
+*.sqlite3
+*.db
+
+# ---- Editor / OS ---------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.pem

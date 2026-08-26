@@ -2,16 +2,37 @@ import { NextResponse } from "next/server";
 import { canEditContent } from "@/lib/dashboard/roles";
 import { getSessionUser, payloadFetch } from "@/lib/dashboard/payload";
 
+/** Mirrors backend/src/collections/Media.ts. Checked here as well as there so
+ * the browser gets a French message instead of Payload's 4xx, and so an
+ * oversized file is rejected before being streamed to the CMS. */
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
+const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"]);
+
 /** Proxies an image upload to Payload's Media collection (which stores it in
  * Cloudinary via the backend's storage adapter) and returns the created doc. */
 export async function POST(request: Request) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
+  // `getSessionUser()` alone used to be the gate, so any signed-in account —
+  // including `customer`, which has no other write anywhere — could add media.
+  // Uploading is a content edit, and is gated like one.
+  if (!user || !canEditContent(user)) return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
 
   const incoming = await request.formData();
   const file = incoming.get("file");
   if (!(file instanceof Blob)) {
     return NextResponse.json({ error: "Aucun fichier reçu." }, { status: 400 });
+  }
+  if (!ALLOWED_MIME.has(file.type)) {
+    return NextResponse.json(
+      { error: "Format non pris en charge — utilisez JPEG, PNG, WebP, AVIF ou GIF." },
+      { status: 415 },
+    );
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json(
+      { error: `Image trop volumineuse (${Math.round(file.size / 1024 / 1024)} Mo, limite 10 Mo).` },
+      { status: 413 },
+    );
   }
 
   const forward = new FormData();

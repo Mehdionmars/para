@@ -3,7 +3,14 @@ import { NextResponse } from "next/server";
 import { CMS_URL, SESSION_COOKIE } from "@/lib/dashboard/payload";
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
+  let body: { email?: string; password?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+  }
+
+  const { email, password } = body;
   if (!email || !password) {
     return NextResponse.json({ error: "Email et mot de passe requis." }, { status: 400 });
   }

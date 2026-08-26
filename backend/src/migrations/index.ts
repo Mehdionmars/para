@@ -20,6 +20,11 @@ import * as migration_20260822_190000_brand_logo from './20260822_190000_brand_l
 import * as migration_20260823_090000_order_item_variant from './20260823_090000_order_item_variant';
 import * as migration_20260823_100000_variant_pricing_backfill from './20260823_100000_variant_pricing_backfill';
 import * as migration_20260823_120000_chrome_appearance from './20260823_120000_chrome_appearance';
+import * as migration_20260826_100000_production_indexes from './20260826_100000_production_indexes';
+import * as migration_20260826_110000_order_number_sequence from './20260826_110000_order_number_sequence';
+import * as migration_20260826_120000_rate_limit_idempotency from './20260826_120000_rate_limit_idempotency';
+import * as migration_20260826_140000_mobile_category_strip from './20260826_140000_mobile_category_strip';
+import * as migration_20260826_150000_home_schema_drift from './20260826_150000_home_schema_drift';
 
 export const migrations = [
   {
@@ -131,5 +136,30 @@ export const migrations = [
     up: migration_20260823_120000_chrome_appearance.up,
     down: migration_20260823_120000_chrome_appearance.down,
     name: '20260823_120000_chrome_appearance'
+  },
+  {
+    up: migration_20260826_100000_production_indexes.up,
+    down: migration_20260826_100000_production_indexes.down,
+    name: '20260826_100000_production_indexes'
+  },
+  {
+    up: migration_20260826_110000_order_number_sequence.up,
+    down: migration_20260826_110000_order_number_sequence.down,
+    name: '20260826_110000_order_number_sequence'
+  },
+  {
+    up: migration_20260826_120000_rate_limit_idempotency.up,
+    down: migration_20260826_120000_rate_limit_idempotency.down,
+    name: '20260826_120000_rate_limit_idempotency'
+  },
+  {
+    up: migration_20260826_140000_mobile_category_strip.up,
+    down: migration_20260826_140000_mobile_category_strip.down,
+    name: '20260826_140000_mobile_category_strip'
+  },
+  {
+    up: migration_20260826_150000_home_schema_drift.up,
+    down: migration_20260826_150000_home_schema_drift.down,
+    name: '20260826_150000_home_schema_drift'
   },
 ];

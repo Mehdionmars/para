@@ -1861,6 +1861,16 @@ export interface Home {
         ctaLabel?: string | null;
         ctaUrl?: string | null;
         /**
+         * Position du bouton le long du bas de la banniere. A deplacer quand le sujet de la photo (visage, produit, logo) occupe ce coin.
+         */
+        ctaAlign?: ('left' | 'center' | 'right') | null;
+        /**
+         * Partie de la photo conservee lors du recadrage (bandeau large sur ordinateur, format haut sur mobile). Centre = comportement par defaut.
+         */
+        imageFraming?:
+          | ('center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right')
+          | null;
+        /**
          * Optional small promo pill, e.g. "JUSQU'À -30%". Leave empty to omit.
          */
         badgeLabel?: string | null;
@@ -1952,6 +1962,26 @@ export interface Home {
          * Legacy single-brand spotlight support — superseded by the "Marques à l'honneur" section below for new content.
          */
         editorialImage?: (number | null) | Media;
+        /**
+         * Surtitre du bloc editorial. Vide = "Expertise pharmaceutique".
+         */
+        editorialEyebrow?: string | null;
+        /**
+         * Titre du bloc editorial. Vide = "Des conseils penses pour votre peau".
+         */
+        editorialTitle?: string | null;
+        /**
+         * Paragraphe du bloc editorial. Vide = le texte historique sur les pharmaciens.
+         */
+        editorialDescription?: string | null;
+        /**
+         * Vide = "Decouvrir nos conseils".
+         */
+        editorialCtaLabel?: string | null;
+        /**
+         * Vide = /catalogue.
+         */
+        editorialCtaUrl?: string | null;
         /**
          * Deprecated: kept only so no historical data is lost. New brand spotlights belong in the "Marques à l'honneur" section (brandsFeatured) below, not here.
          */
@@ -2724,6 +2754,36 @@ export interface Theme {
 export interface Navigation {
   id: number;
   /**
+   * Bande de catégories horizontale affichée sous l'en-tête, sur mobile uniquement (masquée à partir de 768px, où ces liens sont déjà dans le menu principal).
+   */
+  catStrip?: {
+    enabled?: boolean | null;
+    /**
+     * Ajoute une puce en tête de bande qui renvoie vers le catalogue complet.
+     */
+    showAllChip?: boolean | null;
+    allChipLabel?: string | null;
+    /**
+     * Une puce par entrée, dans l'ordre d'affichage — glissez pour réordonner.
+     */
+    items?:
+      | {
+          label: string;
+          visible?: boolean | null;
+          type: 'category' | 'brand' | 'collection' | 'page' | 'custom';
+          category?: (number | null) | Category;
+          brand?: (number | null) | Brand;
+          collectionRoute?: ('/catalogue' | '/marques' | '/collections' | '/shop/soldes' | '/shop/nouveautes') | null;
+          pageRoute?: ('/' | '/services' | '/contact') | null;
+          /**
+           * e.g. /marques
+           */
+          customUrl?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
    * Main navigation items, in display order — drag to reorder.
    */
   items?:
@@ -2946,6 +3006,8 @@ export interface HomeSelect<T extends boolean = true> {
         description?: T;
         ctaLabel?: T;
         ctaUrl?: T;
+        ctaAlign?: T;
+        imageFraming?: T;
         badgeLabel?: T;
         active?: T;
         startDate?: T;
@@ -2978,6 +3040,11 @@ export interface HomeSelect<T extends boolean = true> {
         ctaUrl?: T;
         badgeStyle?: T;
         editorialImage?: T;
+        editorialEyebrow?: T;
+        editorialTitle?: T;
+        editorialDescription?: T;
+        editorialCtaLabel?: T;
+        editorialCtaUrl?: T;
         brandFeature?:
           | T
           | {
@@ -3428,6 +3495,26 @@ export interface ThemeSelect<T extends boolean = true> {
  * via the `definition` "navigation_select".
  */
 export interface NavigationSelect<T extends boolean = true> {
+  catStrip?:
+    | T
+    | {
+        enabled?: T;
+        showAllChip?: T;
+        allChipLabel?: T;
+        items?:
+          | T
+          | {
+              label?: T;
+              visible?: T;
+              type?: T;
+              category?: T;
+              brand?: T;
+              collectionRoute?: T;
+              pageRoute?: T;
+              customUrl?: T;
+              id?: T;
+            };
+      };
   items?:
     | T
     | {

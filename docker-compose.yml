@@ -59,7 +59,11 @@ services:
       CMS_URL: http://backend:3001
       PORT: '3000'
       # Shared secret for the CMS -> storefront cache purge (/api/revalidate).
-      REVALIDATE_SECRET: pdh-revalidate-d791fe064051b9ad4a8ed1d69db89074
+      # Taken from the host environment (or a .env beside this file), never
+      # committed — it must match REVALIDATE_SECRET in backend/.env. Left
+      # unset it stays empty, /api/revalidate answers 503 and the storefront
+      # caches expire on their own timer, which is the intended degradation.
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
     ports:
       - '3000:3000'
     depends_on:

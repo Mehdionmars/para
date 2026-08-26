@@ -53,3 +53,6 @@ next-env.d.ts
 !.dev.vars.example
 
 !.env.example
+
+# Captures d'audit visuel (tests/audit, tests/e2e) — jamais versionnées.
+audit-shots/

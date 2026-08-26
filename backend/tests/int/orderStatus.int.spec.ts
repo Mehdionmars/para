@@ -110,9 +110,15 @@ describe('Cycle de vie des commandes', () => {
       await payload.delete({ id, collection: 'orders', overrideAccess: true }).catch(() => {})
     }
     await payload.db.pool.query('UPDATE products SET stock = $1 WHERE id = $2', [baselineStock, productId])
-    await payload.db.pool.query(
-      "DELETE FROM stock_movements WHERE reason LIKE '%Test Lifecycle%' OR reason LIKE '%PDH-%'",
-    )
+    // Scoped to this suite's own product.
+    //
+    // This used to be `reason LIKE '%Test Lifecycle%' OR reason LIKE '%PDH-%'`
+    // — and every checkout writes `reason = 'Commande PDH-...'`, so the second
+    // clause matched every order-sourced stock movement in the database. Run
+    // on its own that is merely untidy; run in parallel with other suites it
+    // deletes their audit rows mid-test, and the failure surfaces in whichever
+    // suite happened to be asserting on them. It cost a long hunt to find.
+    await payload.db.pool.query('DELETE FROM stock_movements WHERE product_id = $1', [productId])
   })
 
   // ------------------------------------------------ transitions autorisées

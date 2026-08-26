@@ -635,7 +635,21 @@ button {
 .logo-mark {
   display: block;
 }
-@media (max-width: 400px) {
+/* Hidden for the whole mobile header, not only under 401px.
+ *
+ * Below 768px the logo is taken out of flow and pinned to the header's
+ * midpoint (see the .header-row rules further down), which is what centres it
+ * against the header rather than against whatever flanks it. Out of flow also
+ * means it no longer pushes the utilities aside — so from 401px up, where the
+ * wordmark reappeared, its 185px ran straight underneath the search button:
+ * at 414px the shop rendered "PARA D'HIVERQ", the Q being the magnifier
+ * sitting on top of the R.
+ *
+ * The 400px cut-off was the width at which the *mark alone* stopped fitting;
+ * the wordmark never fitted anywhere in this layout. The mark is the logo on
+ * a phone, and it is already a complete one. Desktop, where the logo is in
+ * flow and has room, is untouched. */
+@media (max-width: 767px) {
   .logo-wordmark {
     display: none;
   }
@@ -2068,8 +2082,15 @@ button {
     flex: none !important;
     min-width: 0;
     justify-content: center;
-    /* Clear of the utilities either side even at 320px, where the two
-       groups occupy 44px and 88px. */
+    /* The tap target is the logo, not the gap around it.
+       `max-width: calc(100% - 200px)` alone left the link *filling* that
+       allowance: 214px wide at 414px for a 42px mark, so most of the header's
+       centre was a live link to the home page with nothing visible in it.
+       `width: fit-content` sizes the link to the logo it contains and the
+       max-width goes back to being what it was named for — a ceiling that
+       keeps the mark clear of the utilities either side at 320px, where they
+       occupy 44px and 88px. */
+    width: fit-content;
     max-width: calc(100% - 200px);
   }
 
@@ -2085,9 +2106,18 @@ button {
     margin-left: auto;
   }
 
+  /* 38px was below the 44px minimum every other header control meets, so the
+     one target a shopper aims at without an icon to guide them was also the
+     smallest. The mark keeps its 38px of drawing; the link around it gets the
+     height, so nothing changes visually. */
   .logo-mark {
     width: 38px !important;
     height: 38px !important;
+  }
+
+  .header-row > a[aria-label*="Accueil"] {
+    min-height: 44px;
+    align-items: center;
   }
 
   .icon-btn,
@@ -2122,6 +2152,20 @@ button {
     max-height: 560px;
     margin-top: 0 !important;
     border-radius: 0 0 18px 18px !important;
+  }
+
+  /* The category strip costs the fold 61px.
+   *
+   * On a 320x568 screen the 400px floor above already left only ~6px of the
+   * rail beneath the hero showing once the strip was added — below the 40px
+   * the fold test requires, and below what a visitor reads as "there is more".
+   * The floor is what binds on a short screen (58vh of 568 is 329px), so it
+   * is the floor that gives the space back. Taller phones are unaffected:
+   * they are sized by the 58vh, not by this. */
+  @media (max-height: 700px) {
+    .home-hero {
+      min-height: 330px;
+    }
   }
 
   /* height:100% is what makes the align-items below do anything at all: the
@@ -2416,5 +2460,99 @@ button {
   select,
   textarea {
     font-size: 16px !important;
+  }
+}
+
+/* ============================================================
+   Mobile quick-category strip
+   ============================================================
+   Sits under the header on phones. Hidden from 768px up, where the same
+   destinations are already in the main navigation — the strip is a
+   small-screen shortcut, never a second nav to keep in sync.
+
+   Not sticky, deliberately: the header above it already occupies the top of
+   a short viewport, and a second sticky band would eat roughly a fifth of a
+   phone screen before any content. It scrolls away with the page. */
+.cat-strip {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .cat-strip {
+    display: block;
+    background: var(--pdh-cream);
+    border-bottom: 1px solid rgba(55, 48, 32, 0.08);
+  }
+
+  .cat-strip-scroller {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 14px;
+    list-style: none;
+    overflow-x: auto;
+    /* Momentum scrolling on iOS, and snapping so a swipe settles on a chip
+       rather than halfway through one. `proximity`, not `mandatory`: a
+       mandatory scroller fights a short flick near the end of the list and
+       can make the last chip feel unreachable. */
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scroll-padding-left: 14px;
+    /* The scrollbar is meaningless on a touch device and adds a grey line
+       under the chips on desktop-class browsers emulating mobile. */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Contains the horizontal scroll: a swipe that runs out of chips must not
+       chain up to the page and start a browser back-gesture. */
+    overscroll-behavior-x: contain;
+  }
+
+  .cat-strip-scroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cat-strip-item {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .cat-strip-chip {
+    display: inline-flex;
+    align-items: center;
+    /* The chip is the tap target and the chip is what looks tappable — its
+       own width, never the row's. 40px of height plus the strip's own 10px
+       of vertical padding puts the touch area comfortably past 44px without
+       a pill tall enough to look like a button bar. */
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: rgba(55, 48, 32, 0.06);
+    color: var(--pdh-ink);
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .cat-strip-chip:active {
+    background: rgba(55, 48, 32, 0.12);
+    transform: scale(0.96);
+  }
+
+  .cat-strip-chip:focus-visible {
+    outline: 2px solid var(--pdh-plum);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .cat-strip-chip {
+    transition: none;
+  }
+  .cat-strip-chip:active {
+    transform: none;
   }
 }

@@ -28,9 +28,41 @@ type LogEntry = {
   userEmail?: string
 }
 
+/**
+ * How much traffic is recorded.
+ *
+ * This plugin hooks `afterOperation` on *every* collection, so before
+ * sampling it wrote one `api-request-logs` INSERT for every Payload
+ * operation — including each product read the storefront performs. Every
+ * page view therefore became several extra writes, which doubles the
+ * database's write load precisely when read traffic peaks, and grows an
+ * unbounded table while doing it. The monitoring feature was the component
+ * most likely to fail first under the load it exists to measure.
+ *
+ * Errors and writes are kept in full: they are rare and they are what anyone
+ * actually reads. Successful reads are sampled — the hundredth identical
+ * `read products 200` adds nothing the first did not.
+ *
+ * Mirrors lib/withApiLog.ts, which samples the custom routes the same way and
+ * on the same environment variable.
+ */
+const SAMPLE_RATE = (() => {
+  const raw = Number(process.env.API_LOG_SAMPLE_RATE)
+  return Number.isFinite(raw) && raw >= 0 && raw <= 1 ? raw : 0.05
+})()
+
+const READ_OPERATIONS = new Set(['read', 'count', 'countVersions', 'readDistinct'])
+
+function shouldLog(entry: LogEntry): boolean {
+  if ((entry.statusCode ?? 200) >= 400) return true
+  if (!entry.operation || !READ_OPERATIONS.has(entry.operation)) return true
+  return Math.random() < SAMPLE_RATE
+}
+
 /** Fire-and-forget: a logging failure must never break the real request. */
 function logRequest(payload: Payload | undefined, entry: LogEntry): void {
   if (!payload) return
+  if (!shouldLog(entry)) return
   payload
     .create({ collection: 'api-request-logs', data: entry, disableTransaction: true, depth: 0, overrideAccess: true })
     .catch(() => undefined)

@@ -10,9 +10,10 @@ import { adminOrManager, isStaff, staffOnlyInAdmin } from '../access/roles'
  * lib/notifications/providers.ts) because it would mean adding `web-push`
  * before a single subscriber exists.
  *
- * `create` is open because a subscribing browser has no session — the same
- * reasoning as the public checkout. The endpoint URL is unique, which is
- * what stops a browser re-subscribing from piling up duplicate rows.
+ * `create` is closed to REST/GraphQL: /api/push/subscribe writes the row with
+ * a raw `INSERT ... ON CONFLICT (endpoint) DO UPDATE`, so it never goes
+ * through collection access at all. Leaving it open only ever offered a way
+ * to fill the table with rows the push sender would later try to contact.
  *
  * The keys stored here (`p256dh`, `auth`) are the browser's own public
  * encryption material, not credentials of ours; they are useless without the
@@ -22,7 +23,7 @@ export const PushSubscriptions: CollectionConfig = {
   slug: 'push-subscriptions',
   access: {
     admin: staffOnlyInAdmin,
-    create: () => true,
+    create: () => false,
     delete: adminOrManager,
     read: isStaff,
     update: () => false,

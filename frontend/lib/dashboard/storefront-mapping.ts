@@ -1170,7 +1170,31 @@ export type NavItemDraft = NavLinkDraft & {
   megaMenuColumns: NavMegaColumnDraft[];
   megaMenuPromo: NavPromoDraft;
 };
-export type NavigationDraft = { items: NavItemDraft[] };
+/** One chip of the mobile quick-category strip. `NavLinkDraft` rather than a
+ * bespoke shape: a chip points at a category, a brand or a route the same way
+ * every other navigation link does, so it shares the link mapper and the
+ * LinkPicker instead of growing a parallel way to describe a destination. */
+export type CategoryChipDraft = NavLinkDraft;
+
+export type CategoryStripDraft = {
+  enabled: boolean;
+  showAllChip: boolean;
+  allChipLabel: string;
+  items: CategoryChipDraft[];
+};
+
+export type NavigationDraft = { items: NavItemDraft[]; catStrip: CategoryStripDraft };
+
+export const EMPTY_CATEGORY_CHIP: CategoryChipDraft = {
+  brand: { name: "" },
+  category: { name: "" },
+  collectionRoute: "",
+  customUrl: "",
+  label: "Nouvelle catégorie",
+  pageRoute: "",
+  type: "category",
+  visible: true,
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapNavLinkDocToDraft(l: any): NavLinkDraft {
@@ -1213,6 +1237,13 @@ function mapNavLinkDraftToPayload(l: NavLinkDraft): Record<string, unknown> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapNavigationDocToDraft(nav: any): NavigationDraft {
   return {
+    catStrip: {
+      allChipLabel: nav.catStrip?.allChipLabel || "Tout",
+      enabled: nav.catStrip?.enabled === true,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      items: (nav.catStrip?.items || []).map((i: any) => mapNavLinkDocToDraft(i)),
+      showAllChip: nav.catStrip?.showAllChip !== false,
+    },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items: (nav.items || []).map((item: any) => ({
       ...mapNavLinkDocToDraft(item),
@@ -1240,6 +1271,20 @@ export function mapNavigationDocToDraft(nav: any): NavigationDraft {
 export function mapNavigationDraftToPayload(draft: NavigationDraft): Record<string, unknown> {
   const img = (i: ImageRef) => (i.id ? i.id : null);
   return {
+    catStrip: {
+      allChipLabel: draft.catStrip.allChipLabel,
+      enabled: draft.catStrip.enabled,
+      // The chips carry no badge or animation of their own — a strip is a row
+      // of plain shortcuts — so only the link half of the shared mapper is
+      // meaningful here. Writing the style passthrough too would store fields
+      // the Payload field group does not define.
+      items: draft.catStrip.items.map((chip) => {
+        const { label, visible, type, category, brand, collectionRoute, pageRoute, customUrl } =
+          mapNavLinkDraftToPayload(chip) as Record<string, unknown>;
+        return { brand, category, collectionRoute, customUrl, label, pageRoute, type, visible };
+      }),
+      showAllChip: draft.catStrip.showAllChip,
+    },
     items: draft.items.map((item) => ({
       ...mapNavLinkDraftToPayload(item),
       // The Builder *does* edit these two, so its values win over the

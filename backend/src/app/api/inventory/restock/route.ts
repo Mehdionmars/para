@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { userHasRole } from '../../../../access/roles'
+import { serverError } from '../../../../lib/apiError'
 import { notifyStockChange } from '../../../../lib/notifications/stock'
 import { withApiLog } from '../../../../lib/withApiLog'
 
@@ -147,10 +148,7 @@ async function handlePOST(request: Request) {
     })
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {})
-    return Response.json(
-      { error: err instanceof Error ? err.message : 'Erreur lors du réapprovisionnement.' },
-      { status: 500 },
-    )
+    return serverError({ context: 'Réapprovisionnement échoué', err, payload })
   } finally {
     client.release()
   }

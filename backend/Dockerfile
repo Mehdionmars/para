@@ -53,6 +53,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 
 EXPOSE 3001
+
+# Default only — the standalone server reads PORT at runtime, so a platform
+# that injects its own (Render does) overrides this. Without the default it
+# would fall back to Next's 3000 and disagree with EXPOSE above.
 ENV PORT=3001
 
+# HOSTNAME=0.0.0.0 is required: the standalone server otherwise binds
+# localhost inside the container and nothing outside it can connect.
 CMD HOSTNAME="0.0.0.0" node server.js

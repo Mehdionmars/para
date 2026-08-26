@@ -4,13 +4,21 @@ node_modules
 .vscode
 media
 public/media
+
+# Every env file, not just the two that happen to exist locally — a stray
+# .env.production must never be copied into an image layer.
+.env
+.env.*
+test.env
+
+# Test suites and their output: not part of the runtime image.
+tests
+coverage
+test-results
+playwright-report
+blob-report
+
+tsconfig.tsbuildinfo
 *.log
 npm-debug.log*
-.env
-.env.local
-test.env
-tsconfig.tsbuildinfo
-tests
-playwright-report
-test-results
 README.md

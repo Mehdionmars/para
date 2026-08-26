@@ -1,8 +1,15 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import {
+  claimIdempotencyKey,
+  inProgressResponse,
+  mismatchResponse,
+  type IdempotencyClaim,
+} from '../../../lib/idempotency'
 import { notifyOrderEvent } from '../../../lib/notifications/service'
 import { notifyStockChange } from '../../../lib/notifications/stock'
+import { serverError } from '../../../lib/apiError'
 import { evaluateCoupon, resolveShipping } from '../../../lib/pricing'
 import { withApiLog } from '../../../lib/withApiLog'
 
@@ -96,13 +103,35 @@ async function handlePOST(request: Request) {
     return Response.json({ error: 'Corps de requête invalide.' }, { status: 400 })
   }
 
+  // Claimed before anything is read or written. A double-clicked "Commander",
+  // or a retry after a dropped response, must not decrement stock twice and
+  // create two orders — and the transaction below cannot prevent that on its
+  // own, because both requests are individually valid. See lib/idempotency.ts.
+  const claim = await claimIdempotencyKey({
+    body,
+    endpoint: '/api/checkout',
+    key: request.headers.get('idempotency-key'),
+    payload,
+  })
+  if (claim.outcome === 'replay') return claim.response
+  if (claim.outcome === 'in_progress') return inProgressResponse()
+  if (claim.outcome === 'mismatch') return mismatchResponse()
+
+  // Every early return past this point has to release the claim, or a shopper
+  // who fixes their cart and retries with the same key is told their first
+  // attempt is still running — forever.
+  const fail = async (response: Response): Promise<Response> => {
+    if (claim.outcome === 'claimed') await claim.abandon()
+    return response
+  }
+
   const name = body.name?.trim()
   const email = body.email?.trim()
   if (!name || !email) {
-    return Response.json({ error: 'Nom et email requis.' }, { status: 400 })
+    return fail(Response.json({ error: 'Nom et email requis.' }, { status: 400 }))
   }
   if (!Array.isArray(body.lines) || body.lines.length === 0) {
-    return Response.json({ error: 'Panier vide.' }, { status: 400 })
+    return fail(Response.json({ error: 'Panier vide.' }, { status: 400 }))
   }
 
   // Merge duplicates before touching the database: the same product *and the
@@ -117,10 +146,10 @@ async function handlePOST(request: Request) {
     const rawVariant = line?.variantId
     const variantId = typeof rawVariant === 'string' && rawVariant.trim() ? rawVariant.trim() : null
     if (!Number.isInteger(id) || id <= 0) {
-      return Response.json({ error: 'Produit invalide dans le panier.' }, { status: 400 })
+      return fail(Response.json({ error: 'Produit invalide dans le panier.' }, { status: 400 }))
     }
     if (!Number.isInteger(qty) || qty <= 0) {
-      return Response.json({ error: 'Quantité invalide.' }, { status: 400 })
+      return fail(Response.json({ error: 'Quantité invalide.' }, { status: 400 }))
     }
     const key = lineKey(id, variantId)
     const existing = requested.get(key)
@@ -130,10 +159,10 @@ async function handlePOST(request: Request) {
 
   for (const entry of requested.values()) {
     if (entry.qty > MAX_QTY_PER_LINE) {
-      return Response.json(
+      return fail(Response.json(
         { error: `Quantité maximale de ${MAX_QTY_PER_LINE} par produit dépassée.`, productId: entry.productId },
         { status: 400 },
-      )
+      ))
     }
   }
 
@@ -149,6 +178,11 @@ async function handlePOST(request: Request) {
     name: string
     lowStockThreshold: number
   }[] = []
+  /** Variant decrements, tracked separately from `movements` because the
+   * compensating write below has to undo *both* counters the transaction
+   * touched. Restoring only the product's stock would leave the option short
+   * by the quantity of an order that was never actually placed. */
+  const variantDecrements: { variantId: string; productId: number; quantity: number }[] = []
   let subtotal = 0
 
   try {
@@ -180,14 +214,14 @@ async function handlePOST(request: Request) {
         // The previous implementation silently `continue`d past a missing
         // product, so a customer could be charged for a shorter order than
         // the one they submitted, with no error. Now the whole order fails.
-        return Response.json({ error: 'Un produit du panier est introuvable.', productId: id }, { status: 409 })
+        return fail(Response.json({ error: 'Un produit du panier est introuvable.', productId: id }, { status: 409 }))
       }
       if (!row.is_published || row.discontinued) {
         await client.query('ROLLBACK')
-        return Response.json(
+        return fail(Response.json(
           { error: `« ${row.name} » n'est plus disponible à la vente.`, productId: id },
           { status: 409 },
-        )
+        ))
       }
 
       const productPrice = Number(row.price)
@@ -206,7 +240,7 @@ async function handlePOST(request: Request) {
       const previousProductStock = Number(row.stock)
       if (previousProductStock < productQty) {
         await client.query('ROLLBACK')
-        return Response.json(
+        return fail(Response.json(
           {
             available: previousProductStock,
             error:
@@ -216,7 +250,7 @@ async function handlePOST(request: Request) {
             productId: id,
           },
           { status: 409 },
-        )
+        ))
       }
 
       for (const line of lines) {
@@ -237,16 +271,16 @@ async function handlePOST(request: Request) {
 
           if (!variant || variant.active === false) {
             await client.query('ROLLBACK')
-            return Response.json(
+            return fail(Response.json(
               { error: `L'option choisie pour « ${row.name} » n'est plus disponible.`, productId: id, variantId: line.variantId },
               { status: 409 },
-            )
+            ))
           }
 
           const previousVariantStock = Number(variant.stock)
           if (previousVariantStock < qty) {
             await client.query('ROLLBACK')
-            return Response.json(
+            return fail(Response.json(
               {
                 available: previousVariantStock,
                 error:
@@ -257,7 +291,7 @@ async function handlePOST(request: Request) {
                 variantId: line.variantId,
               },
               { status: 409 },
-            )
+            ))
           }
 
           const variantDecremented = await client.query(
@@ -266,11 +300,13 @@ async function handlePOST(request: Request) {
           )
           if (variantDecremented.rowCount === 0) {
             await client.query('ROLLBACK')
-            return Response.json(
+            return fail(Response.json(
               { error: 'Stock insuffisant.', productId: id, variantId: line.variantId },
               { status: 409 },
-            )
+            ))
           }
+
+          variantDecrements.push({ productId: id, quantity: qty, variantId: line.variantId })
 
           // In same-price mode the variant row legitimately carries no price
           // and the product's is authoritative — reading v.price there would
@@ -305,7 +341,7 @@ async function handlePOST(request: Request) {
         // Belt-and-braces: the FOR UPDATE above should make this unreachable,
         // but if it ever matches zero the order must not proceed.
         await client.query('ROLLBACK')
-        return Response.json({ error: 'Stock insuffisant.', productId: id }, { status: 409 })
+        return fail(Response.json({ error: 'Stock insuffisant.', productId: id }, { status: 409 }))
       }
 
       movements.push({
@@ -321,10 +357,7 @@ async function handlePOST(request: Request) {
     await client.query('COMMIT')
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {})
-    return Response.json(
-      { error: err instanceof Error ? err.message : 'Erreur lors de la validation du panier.' },
-      { status: 500 },
-    )
+    return fail(serverError({ context: 'Checkout: transaction de stock échouée', err, payload }))
   } finally {
     client.release()
   }
@@ -462,10 +495,19 @@ async function handlePOST(request: Request) {
       )
       .catch((err) => payload.logger.error({ err }, `Historique initial non écrit pour ${order.orderNumber}`))
 
-    // Notification failures must never fail a paid order: the stock is
-    // committed and the sale is real whether or not the email goes out.
-    await notifyOrderEvent({ event: 'ORDER_CREATED', order, payload }).catch((err) =>
-      payload.logger.error({ err }, `Notification ORDER_CREATED échouée pour ${order.orderNumber}`),
+    // Recorded now, delivered by /api/jobs/tick a moment later.
+    //
+    // This used to `await` the provider inside the shopper's request, which
+    // put a Resend round trip — and Resend's availability — on the critical
+    // path of every order. `defer` writes the same rows with the same
+    // (order, type, channel) uniqueness and returns immediately; the drain
+    // sends them. A crash between the two loses nothing, because the row is
+    // already committed in Postgres.
+    //
+    // Failures still must never fail a paid order: the stock is committed and
+    // the sale is real whether or not the email ever goes out.
+    await notifyOrderEvent({ defer: true, event: 'ORDER_CREATED', order, payload }).catch((err) =>
+      payload.logger.error({ err }, `Notification ORDER_CREATED non enregistrée pour ${order.orderNumber}`),
     )
 
     // Audit rows reference the order, so a movement can always be traced back
@@ -485,7 +527,17 @@ async function handlePOST(request: Request) {
             source: 'order',
           },
         })
-        .catch(() => {})
+        // Was `.catch(() => {})`. A swallowed failure here is the worst kind:
+        // the sale is real and the stock has moved, but the ledger that
+        // explains *why* it moved is silently missing — so the next stock
+        // audit finds a discrepancy with no trace of its cause. It still must
+        // not fail the order, so it is logged rather than thrown.
+        .catch((err) =>
+          payload.logger.error(
+            { err },
+            `Mouvement de stock non enregistré pour ${order.orderNumber} (produit ${m.productId}, -${m.quantity})`,
+          ),
+        )
     }
 
     // Stock alerts, after the order exists. A sale that empties a product is
@@ -504,7 +556,7 @@ async function handlePOST(request: Request) {
       })
     }
 
-    return Response.json({
+    const success = {
       couponApplied: appliedCouponCode,
       discount,
       orderNumber: order.orderNumber,
@@ -512,7 +564,13 @@ async function handlePOST(request: Request) {
       shippingLabel: shippingResult.label,
       subtotal,
       total,
-    })
+    }
+
+    // Recorded, not released: this is the response a retry of the same
+    // Idempotency-Key must be given back instead of placing a second order.
+    if (claim.outcome === 'claimed') await claim.finish(200, success)
+
+    return Response.json(success)
   } catch (err) {
     // Compensating write: the stock was already committed above, so an order
     // that fails to save must give it back rather than leave phantom
@@ -521,6 +579,12 @@ async function handlePOST(request: Request) {
     const compensation = await pool.connect()
     try {
       await compensation.query('BEGIN')
+      for (const v of variantDecrements) {
+        await compensation.query(
+          'UPDATE products_variants SET stock = stock + $1 WHERE id = $2 AND _parent_id = $3',
+          [v.quantity, v.variantId, v.productId],
+        )
+      }
       for (const m of movements) {
         await compensation.query('UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2', [
           m.quantity,
@@ -538,7 +602,7 @@ async function handlePOST(request: Request) {
       { err },
       'Checkout: création de commande échouée, stock restauré pour ' + movements.length + ' ligne(s)',
     )
-    return Response.json({ error: 'Impossible de créer la commande.' }, { status: 502 })
+    return fail(Response.json({ error: 'Impossible de créer la commande.' }, { status: 502 }))
   }
 }
 

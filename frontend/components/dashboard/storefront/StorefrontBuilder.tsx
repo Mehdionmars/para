@@ -39,7 +39,7 @@ import {
   newRail,
 } from "@/components/dashboard/storefront/editors";
 import { FooterColumnsEditor, HeaderEditor, ThemeEditor, TopBarEditor } from "@/components/dashboard/storefront/globalEditors";
-import { NavigationItemEditor } from "@/components/dashboard/storefront/NavigationEditors";
+import { CategoryStripEditor, NavigationItemEditor } from "@/components/dashboard/storefront/NavigationEditors";
 import { NavigationList } from "@/components/dashboard/storefront/NavigationList";
 import { SectionList } from "@/components/dashboard/storefront/SectionList";
 import { Button } from "@/components/dashboard/ui/Button";
@@ -515,7 +515,7 @@ export function StorefrontBuilder({
   });
 
   function handleAddNavItem() {
-    navigation.setDraft({ items: [...navigation.draft.items, emptyNavItem()] });
+    navigation.setDraft({ ...navigation.draft, items: [...navigation.draft.items, emptyNavItem()] });
     setNavSelectedIndex(navigation.draft.items.length);
   }
 
@@ -670,7 +670,7 @@ export function StorefrontBuilder({
           ) : activeTab === "navigation" ? (
             <NavigationList
               items={navigation.draft.items}
-              onChange={(items) => navigation.setDraft({ items })}
+              onChange={(items) => navigation.setDraft({ ...navigation.draft, items })}
               selectedIndex={navSelectedIndex}
               onSelect={setNavSelectedIndex}
               onAdd={handleAddNavItem}
@@ -710,20 +710,36 @@ export function StorefrontBuilder({
           {activeTab === "home" ? (
             <SectionEditor selectedKey={selectedKey} draft={draft} update={update} brands={brands} />
           ) : activeTab === "navigation" ? (
-            navigation.draft.items[navSelectedIndex] ? (
-              <NavigationItemEditor
-                value={navigation.draft.items[navSelectedIndex]}
-                onChange={(item) => {
-                  const items = [...navigation.draft.items];
-                  items[navSelectedIndex] = item;
-                  navigation.setDraft({ items });
-                }}
-                categories={categories}
-                brands={brands}
-              />
-            ) : (
-              <p className="p-4 text-sm text-gray-400">Sélectionnez un lien à gauche pour le modifier.</p>
-            )
+            // The strip is always visible in this panel rather than being a
+            // thirteenth entry in the list on the left: it is not one more
+            // navigation link, it is a separate surface that happens to be
+            // built from the same links, and hiding it behind a selection
+            // would leave editors hunting for where categories are set.
+            <div className="flex flex-col gap-6">
+              {navigation.draft.items[navSelectedIndex] ? (
+                <NavigationItemEditor
+                  value={navigation.draft.items[navSelectedIndex]}
+                  onChange={(item) => {
+                    const items = [...navigation.draft.items];
+                    items[navSelectedIndex] = item;
+                    navigation.setDraft({ ...navigation.draft, items });
+                  }}
+                  categories={categories}
+                  brands={brands}
+                />
+              ) : (
+                <p className="text-sm text-gray-400">Sélectionnez un lien à gauche pour le modifier.</p>
+              )}
+
+              <div className="border-t border-gray-200 pt-5">
+                <CategoryStripEditor
+                  value={navigation.draft.catStrip}
+                  onChange={(catStrip) => navigation.setDraft({ ...navigation.draft, catStrip })}
+                  categories={categories}
+                  brands={brands}
+                />
+              </div>
+            </div>
           ) : activeTab === "theme" ? (
             <ThemeEditor value={theme.draft} onChange={theme.setDraft} />
           ) : globalSelectedKey === "topBar" ? (

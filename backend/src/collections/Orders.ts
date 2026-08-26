@@ -1,8 +1,9 @@
-import { APIError, type CollectionConfig } from 'payload'
+import { APIError, type CollectionConfig, type PayloadRequest } from 'payload'
 
 import { adminOrManager, canEditOrders, isStaff, staffOnlyInAdmin } from '../access/roles'
 import { runSql, sql } from '../lib/db/exec'
 import { notifyOrderEvent } from '../lib/notifications/service'
+import { nextOrderNumberFromPayload } from '../lib/orderNumber'
 import { notifyStockChange, type StockChange } from '../lib/notifications/stock'
 import { STATUS_EVENT } from '../lib/notifications/types'
 import {
@@ -21,22 +22,30 @@ export { ORDER_STATUS_OPTIONS, STOCK_RELEASING_STATUSES }
 
 export const PAYMENT_STATUS_OPTIONS = ['pending', 'paid', 'failed', 'refunded'] as const
 
-const generateOrderNumber = () => {
-  const date = new Date()
-  const y = date.getFullYear().toString().slice(-2)
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase()
-  return `PDH-${y}${m}${d}-${rand}`
-}
+/**
+ * Draws from `order_number_seq` instead of four random characters — see
+ * lib/orderNumber.ts for why the random suffix was a real collision risk
+ * rather than a theoretical one.
+ *
+ * Only fires for orders created outside the checkout (the admin UI, a phone
+ * sale); /api/checkout draws its own number inside its transaction.
+ */
+const generateOrderNumber = async ({ req }: { req: PayloadRequest }) =>
+  nextOrderNumberFromPayload(req.payload)
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
   access: {
     admin: staffOnlyInAdmin,
-    // Orders are created by the public checkout (no admin session) but only
-    // readable/editable from the dashboard/admin — never listable by anyone else.
-    create: () => true,
+    // Was `() => true`, which let *anyone* craft an order with any total, any
+    // paymentStatus and any status, and without decrementing a single unit of
+    // stock — /api/checkout was simply the polite way in.
+    //
+    // Now the same staff who may edit an order may create one, which is what
+    // the back office needs for a phone or counter sale. The public checkout
+    // is unaffected: it writes through `payload.create`, the Local API, whose
+    // `overrideAccess` defaults to true.
+    create: canEditOrders,
     delete: adminOrManager,
     // All staff can read (editor/stockManager are read-only — enforced by
     // `update` below granting only admin/manager/sales).
@@ -143,7 +152,12 @@ export const Orders: CollectionConfig = {
         // silently inflate stock every time an operator touches the record.
         if (wasReleasing || !isReleasing) return
 
-        const items = (doc?.items ?? []) as { product?: number | { id: number } | null; quantity?: number; name?: string }[]
+        const items = (doc?.items ?? []) as {
+          product?: number | { id: number } | null
+          quantity?: number
+          name?: string
+          variantId?: string | null
+        }[]
         if (items.length === 0) return
 
         const restocked: StockChange[] = []
@@ -155,6 +169,24 @@ export const Orders: CollectionConfig = {
             const productId = typeof item.product === 'object' && item.product ? item.product.id : item.product
             const quantity = Number(item.quantity)
             if (!productId || !Number.isInteger(quantity) || quantity <= 0) continue
+
+            // The checkout decrements *two* counters for a variant line — the
+            // product's own stock and the variant row's — but this hook only
+            // ever credited the first one back. Cancelling an order for a
+            // variant therefore left `products_variants.stock` permanently
+            // short by the quantity sold, and no amount of re-cancelling or
+            // re-saving would recover it: the units simply disappeared from
+            // the option that was actually returned to the shelf.
+            //
+            // `_parent_id` is checked as well as the row id so a stale
+            // variantId from a since-edited product can never credit another
+            // product's option.
+            if (item.variantId) {
+              await client.query(
+                'UPDATE products_variants SET stock = stock + $1 WHERE id = $2 AND _parent_id = $3',
+                [quantity, item.variantId, productId],
+              )
+            }
 
             const restored = await client.query(
               'UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2 RETURNING name, stock, low_stock_threshold',

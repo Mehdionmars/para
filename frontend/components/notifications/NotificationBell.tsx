@@ -3,7 +3,7 @@
 import { Bell, Check, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { fetchBellData, markAllRead, markRead } from "@/app/dashboard/(app)/notifications/actions";
 import { Popover } from "@/components/dashboard/ui/Popover";
 import { NotificationIcon, RelativeTime } from "@/components/notifications/notification-icon";

@@ -123,7 +123,10 @@ test.describe("keyboard", () => {
     await page.goto("/");
 
     await page.getByRole("button", { name: "Ouvrir le menu" }).click();
-    const item = page.getByRole("link", { name: /Mes favoris/ });
+    // The drawer link reads "Voir mes favoris (0)" — the count is part of the
+    // accessible name, so an exact "Mes favoris" never matched it. Anchored on
+    // the stable half of the label rather than the count, which changes.
+    const item = page.getByRole("link", { name: /favoris/i }).first();
     await expect(item).toBeVisible();
 
     await item.focus();

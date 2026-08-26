@@ -4,6 +4,7 @@ import { Jost, Poppins, Raleway } from "next/font/google";
 import { StoreProvider } from "@/context/store-provider";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
+import { MobileCategoryStrip } from "@/components/layout/MobileCategoryStrip";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { Toast } from "@/components/layout/Toast";
@@ -11,7 +12,7 @@ import { FloatingActions } from "@/components/floating-actions/FloatingActions";
 import { FOOTER_COLUMNS, HEADER_ACTIONS, HEADER_SEARCH, LOGO, TOPBAR_CONFIG } from "@/data/siteChrome";
 import { chromeAppearanceCss } from "@/lib/chromeAppearance";
 import { THEME } from "@/data/theme";
-import { MEGA_MENU, NAV_ITEMS } from "@/data/nav";
+import { CATEGORY_STRIP, MEGA_MENU, NAV_ITEMS } from "@/data/nav";
 import {
   fetchLiveNavigation,
   fetchLiveSiteChrome,
@@ -94,6 +95,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const footerColumns = chrome?.footerColumns ?? FOOTER_COLUMNS;
   const navItems = navigation?.navItems ?? NAV_ITEMS;
   const megaMenu = navigation?.megaMenu ?? MEGA_MENU;
+  // Comes from the same live, tag-purged Navigation fetch as the menu above,
+  // so an editor's change reaches visitors without a rebuild. CATEGORY_STRIP
+  // is the disabled fallback used only when that fetch fails.
+  const categoryStrip = navigation?.categoryStrip ?? CATEGORY_STRIP;
   const t = theme ?? THEME;
 
   const themeStyle = `:root{--pdh-plum:${safeHex(t.colorPrimary, THEME.colorPrimary)};--pdh-teal:${safeHex(t.colorSecondary, THEME.colorSecondary)};--pdh-accent:${safeHex(t.colorAccent, THEME.colorAccent)};--pdh-sale:${safeHex(t.colorSale, THEME.colorSale)};--pdh-ink:${safeHex(t.colorTextPrimary, THEME.colorTextPrimary)};--pdh-muted:${safeHex(t.colorTextMuted, THEME.colorTextMuted)};--pdh-cream:${safeHex(t.colorBackgroundSecondary, THEME.colorBackgroundSecondary)};--pdh-btn-bg:${safeHex(t.buttonBg, THEME.buttonBg)};--pdh-btn-text:${safeHex(t.buttonText, THEME.buttonText)};--pdh-btn-hover-bg:${safeHex(t.buttonHoverBg, THEME.buttonHoverBg)};--pdh-btn-hover-text:${safeHex(t.buttonHoverText, THEME.buttonHoverText)};--pdh-btn-radius:${safeNumber(t.buttonRadius, THEME.buttonRadius, 0, 999)}px;--pdh-btn-weight:${safeNumber(t.buttonFontWeight, THEME.buttonFontWeight, 100, 900)};--pdh-btn-tracking:${safeNumber(t.buttonLetterSpacing, THEME.buttonLetterSpacing, 0, 1)}em;--pdh-badge-bg:${safeHex(t.badgeBg, THEME.badgeBg)};--pdh-badge-text:${safeHex(t.badgeText, THEME.badgeText)};--pdh-badge-font-size:${safeNumber(t.badgeFontSize, THEME.badgeFontSize, 8, 16)}px;--pdh-badge-weight:${safeNumber(t.badgeFontWeight, THEME.badgeFontWeight, 100, 900)};--pdh-badge-tracking:${safeNumber(t.badgeLetterSpacing, THEME.badgeLetterSpacing, 0, 1)}em;--pdh-badge-radius:${safeNumber(t.badgeRadius, THEME.badgeRadius, 0, 999)}px;--pdh-badge-padding-x:${safeNumber(t.badgePaddingX, THEME.badgePaddingX, 0, 30)}px;--pdh-badge-padding-y:${safeNumber(t.badgePaddingY, THEME.badgePaddingY, 0, 20)}px;--pdh-badge-gap:${safeNumber(t.badgeGap, THEME.badgeGap, 0, 20)}px;}`;
@@ -114,6 +119,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <StoreProvider>
           <TopBar config={topBarConfig} />
           <Header logo={logo} headerSearch={headerSearch} headerActions={headerActions} navItems={navItems} megaMenu={megaMenu} />
+          {/* Directly under the header and outside it: the header is sticky,
+              this scrolls away with the page. */}
+          <MobileCategoryStrip strip={categoryStrip} />
           <main>{children}</main>
           <Footer columns={footerColumns} />
           <CartDrawer />

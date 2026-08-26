@@ -59,6 +59,24 @@ type NotifyArgs = {
    * that request's transaction — see lib/db/exec.ts for why a separate
    * connection deadlocks against the very row being changed. */
   req?: PayloadRequest
+  /**
+   * Record what is owed, but do not contact any provider.
+   *
+   * The checkout used to `await` delivery inside the shopper's request, so
+   * every order paid for a round trip to Resend before the confirmation page
+   * could render — and a slow or unreachable provider stretched that into a
+   * timeout on the one request that must never feel unreliable.
+   *
+   * Deferring writes the same rows, with the same (order, type, channel)
+   * uniqueness, and leaves them `pending`. /api/jobs/tick delivers them a
+   * moment later. Nothing is lost if the process dies in between: the row is
+   * committed in Postgres, which is exactly why the outbox is a table and not
+   * a queue in memory.
+   *
+   * The `internal` channel is still completed inline — writing that row *is*
+   * the delivery, so deferring it would only delay the staff inbox.
+   */
+  defer?: boolean
 }
 
 export type NotifyOutcome = {
@@ -71,6 +89,7 @@ const ALL_CHANNELS: NotificationChannel[] = ['internal', 'email', 'whatsapp', 'p
 
 export async function notifyOrderEvent({
   channels = ALL_CHANNELS,
+  defer = false,
   event,
   order,
   payload,
@@ -130,6 +149,13 @@ export async function notifyOrderEvent({
     if (channel === 'internal') {
       await markNotification({ id: claim, payload, status: 'sent', target })
       outcomes.push({ channel, status: 'sent' })
+      continue
+    }
+
+    // Deferred: the row is committed and owed, and the drain will carry it.
+    // Left at `pending` with no error, which is the state the drain selects.
+    if (defer) {
+      outcomes.push({ channel, detail: 'differe', status: 'pending' })
       continue
     }
 

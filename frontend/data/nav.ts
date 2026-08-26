@@ -639,3 +639,26 @@ export const MEGA_MENU: Record<string, MegaMenuContent> = {
     "promo": null
   }
 };
+
+/**
+ * Fallback for the mobile quick-category strip.
+ *
+ * Disabled, and that is the point: this is what renders when the CMS cannot
+ * be reached, and a shop that loses its Payload connection should degrade to
+ * the layout it had before the strip existed rather than to a hardcoded set
+ * of categories that may no longer match the catalogue.
+ *
+ * The real content comes from the Navigation global (`catStrip`), edited in
+ * the Storefront Builder's "Navigation" tab.
+ */
+export const CATEGORY_STRIP: {
+  enabled: boolean;
+  showAllChip: boolean;
+  allChipLabel: string;
+  items: { label: string; href: string }[];
+} = {
+  allChipLabel: "Tout",
+  enabled: false,
+  items: [],
+  showAllChip: true,
+};

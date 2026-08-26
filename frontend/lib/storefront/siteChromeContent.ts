@@ -196,7 +196,23 @@ function navPresentation(raw: RawNavLink): Pick<NavItem, "badge" | "appearance" 
   };
 }
 
-export type LiveNavigation = { navItems: NavItem[]; megaMenu: Record<string, MegaMenuContent> };
+/** One chip in the mobile category strip. Deliberately just a label and a
+ * resolved href: the strip is a shortcut bar, not a second navigation system
+ * with its own styling model. */
+export type CategoryChip = { label: string; href: string };
+
+export type MobileCategoryStrip = {
+  enabled: boolean;
+  showAllChip: boolean;
+  allChipLabel: string;
+  items: CategoryChip[];
+};
+
+export type LiveNavigation = {
+  navItems: NavItem[];
+  megaMenu: Record<string, MegaMenuContent>;
+  categoryStrip: MobileCategoryStrip;
+};
 
 /** Cache tag the CMS invalidates when the Site Chrome global is saved. */
 export const SITE_CHROME_TAG = "site-chrome";
@@ -256,7 +272,7 @@ export async function fetchLiveNavigation(): Promise<LiveNavigation> {
 
 /** Shared by the draft and published fetchers so the two can never map the
  * same document differently. */
-function mapNavigation(nav: { items?: RawNavItem[] }): LiveNavigation {
+function mapNavigation(nav: { items?: RawNavItem[]; catStrip?: RawCategoryStrip }): LiveNavigation {
   const items = ((nav.items || []) as RawNavItem[]).filter((i) => i.visible !== false);
 
   const navItems: NavItem[] = items.map((item) => ({
@@ -291,7 +307,41 @@ function mapNavigation(nav: { items?: RawNavItem[] }): LiveNavigation {
     };
   }
 
-  return { navItems, megaMenu };
+  return { categoryStrip: mapCategoryStrip(nav.catStrip), megaMenu, navItems };
+}
+
+type RawCategoryStrip = {
+  enabled?: boolean;
+  showAllChip?: boolean;
+  allChipLabel?: string;
+  items?: (RawNavLink & { label: string; visible?: boolean })[];
+};
+
+/**
+ * The mobile quick-category strip.
+ *
+ * Chips resolve through the same `resolveLiveNavHref` as every navbar and
+ * mega-menu link, so a chip pointing at a category cannot drift into a
+ * different URL from the menu entry pointing at the same one.
+ *
+ * `enabled` is treated as opt-in (`=== true`) rather than opt-out: the strip
+ * is new UI, and a navigation document written before it existed has no such
+ * field. Defaulting to "on" would make it appear on the live shop the moment
+ * this deploys, which is not a decision a mapper gets to make.
+ */
+function mapCategoryStrip(raw: RawCategoryStrip | undefined): MobileCategoryStrip {
+  const items = (raw?.items || [])
+    .filter((item) => item.visible !== false && Boolean(item.label?.trim()))
+    .map((item) => ({ href: resolveLiveNavHref(item), label: item.label.trim() }));
+
+  return {
+    allChipLabel: raw?.allChipLabel?.trim() || "Tout",
+    // A strip with no chips is not a strip. Rendering an empty bar would
+    // leave a stray border under the header with nothing in it.
+    enabled: raw?.enabled === true && items.length > 0,
+    items,
+    showAllChip: raw?.showAllChip !== false,
+  };
 }
 
 export async function fetchLiveTheme(): Promise<Theme> {
