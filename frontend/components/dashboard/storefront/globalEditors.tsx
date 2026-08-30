@@ -49,7 +49,7 @@ const INHERITED: Record<"topBar" | "header" | "footer", InheritedColors> = {
     backgroundColor: CHROME_PREVIEW_DEFAULTS.header.bg,
     textColor: CHROME_PREVIEW_DEFAULTS.header.text,
     linkColor: CHROME_PREVIEW_DEFAULTS.header.link,
-    hoverColor: "#5E4074",
+    hoverColor: "var(--pdh-plum)",
     iconColor: CHROME_PREVIEW_DEFAULTS.header.icon,
     borderColor: CHROME_PREVIEW_DEFAULTS.header.border,
   },

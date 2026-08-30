@@ -50,6 +50,31 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   refunded: "Remboursée",
 };
 
+export type PaymentMethod = "cash_on_delivery" | "bank_transfer";
+
+/**
+ * Stored codes to French, in one place.
+ *
+ * The legacy keys are kept deliberately. Orders placed before the payment
+ * methods were made configurable stored the display string "À la livraison"
+ * directly, and the dashboard's earlier map was keyed "cod"/"cmi" — which
+ * matched none of them. A migration rewrote the column, but a label map that
+ * silently returns undefined is exactly the failure that hid the problem for
+ * 323 orders, so anything unrecognised falls back to the raw value rather
+ * than to a blank.
+ */
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  cash_on_delivery: "Paiement à la livraison",
+  bank_transfer: "Virement bancaire",
+  cod: "Paiement à la livraison",
+  cmi: "Carte bancaire (CMI)",
+};
+
+export function paymentMethodLabel(value: string | null | undefined): string {
+  if (!value) return "Mode de paiement non précisé";
+  return PAYMENT_METHOD_LABELS[value.toLowerCase()] || value;
+}
+
 /** The happy path, in order, for the customer-facing timeline. Terminal
  * states (cancelled/returned/refunded) are shown separately because they end
  * the journey rather than advancing it. */

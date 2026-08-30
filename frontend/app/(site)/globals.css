@@ -18,6 +18,53 @@
   --pdh-sale: #ff514d;
   --pdh-muted: #757d86;
 
+  /* ---- Contrast-guaranteed variants ----------------------------------
+     Fixed, like --pdh-plum-dark/teal-dark/sand above, and for the same
+     kind of reason: these two carry a promise the theme must not be able
+     to break.
+
+     --pdh-teal-text: the brand teal is a 10.5px uppercase label colour all
+     over this site, and at that size #008aa5 measures 4.06:1 on white and
+     3.79:1 on the sand band — both under the 4.5:1 AA floor for body text.
+     It is also the default `a` colour, so every inline link inherited it.
+     This is the same hue carried down to 5.4:1 on white / 5.1:1 on sand.
+     --pdh-teal stays exactly as it was for fills, borders and large type.
+
+     --pdh-sale-strong: white on #ff514d measures 3.21:1, and the promo
+     badge sets white at 9.5-12px. This is the surface to put white on;
+     --pdh-sale remains the brand red for everything else. */
+  --pdh-teal-text: #00758a;
+  --pdh-sale-strong: #d0342f;
+
+  /* ---- Semantic roles -------------------------------------------------
+     These four were scattered as literals across the components — the same
+     grey retyped seven times, the same red six — which is how a value drifts
+     and how a contrast failure hides. They are fixed, like the two above,
+     because each carries a promise the Theme Builder must not be able to
+     break.
+
+     Every one clears 4.5:1 on all three surfaces this storefront uses
+     (white, --pdh-sand, --pdh-cream), so a role can be used anywhere without
+     re-checking the ground it lands on.
+
+     --pdh-muted-text exists because --pdh-muted (#757d86) measures 4.17:1 on
+     white and 3.64:1 on cream — under AA. That is why components had quietly
+     been reaching for a darker grey of their own instead of the token. */
+  /* The brand primary. Asked for by name three times — the bundle upsell, the
+     payment selector, and now the product price — so it stops being a value
+     retyped per component and becomes the one place it is defined.
+
+     Fixed rather than theme-editable, like the contrast-guaranteed variants
+     above: white on it measures 7.10:1 and it carries a promise the Theme
+     Builder must not be able to break. Note it is NOT in the four-colour
+     brand book, which lists #5E4074 as the violet — that divergence is
+     deliberate and yours, not an accident of this file. */
+  --pdh-primary: #6d28d9;
+  --pdh-muted-text: #5f6772; /* 5.72 / 5.36 / 4.99 */
+  --pdh-error: #9a3b3b; /* 6.86 / 6.42 / 5.98 */
+  --pdh-success: #1f7a55; /* 5.29 / 4.95 / 4.61 — #1F8A5C was 4.33 */
+  --pdh-warning: #8a5a0f; /* 5.92 / 5.54 / 5.16 */
+
   /* --pdh-btn-* and --pdh-badge-* also come from that same inline style tag
      (backed by the Theme global's "Boutons"/"Badges produit" fields) — these
      root fallbacks match backend/src/globals/Theme.ts's defaultValues so
@@ -40,6 +87,46 @@
   --pdh-badge-padding-x: 11px;
   --pdh-badge-padding-y: 5px;
   --pdh-badge-gap: 6px;
+
+  /* ---- Spacing scale -------------------------------------------------
+     4-unit base. The palette above had tokens for colour, buttons and
+     badges but none for space, so every section hard-coded the same
+     clamp() string and the whole home page ended up on ONE interval —
+     96px between all 14 sections, top to bottom. These are the steps a
+     layout is allowed to use. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ---- Section rhythm ------------------------------------------------
+     Three intervals, not one. `--sec-y` is the old value unchanged, so
+     ordinary neighbours keep the spacing they already had; the cadence
+     comes from the two steps either side of it:
+
+       tight  — parts of ONE unit (a rail and its own editorial block)
+       normal — two peers inside the same movement
+       loose  — a movement boundary (see .home-movement below)
+
+     `--sec-y` is deliberately a variable rather than a literal so a
+     movement can retune the rhythm of everything inside it. */
+  --sec-pad-x: clamp(14px, 3.4vw, 32px);
+  --sec-y-tight: clamp(10px, 1.3vw, 16px);
+  --sec-y: clamp(28px, 3.6vw, 48px);
+  --sec-y-loose: clamp(44px, 5.4vw, 72px);
+
+  /* Surface a card paints itself when it sits on the page's own
+     background. A tinted movement band overrides this so cards keep
+     their separation instead of dissolving into the band. */
+  --surface-card: var(--pdh-cream);
+  --surface-panel: var(--pdh-sand);
 }
 
 * {
@@ -64,12 +151,31 @@ body {
   margin: 0;
   background: #fff;
   color: var(--pdh-ink);
-  font-family: var(--font-poppins), system-ui, sans-serif;
+  /* Cairo trails Poppins here as a safety net for stray Arabic in an
+     otherwise French page. The real switch is the locale rule below. */
+  font-family: var(--font-poppins), var(--font-cairo), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+/* The Arabic document leads with Cairo.
+
+   Ordering matters far more than it looks. `var(--font-poppins)` expands to
+   *two* names — "Poppins" and "Poppins Fallback" — and that second one is a
+   metric-adjusted local face built on a system font which, on most
+   platforms, already carries Arabic glyphs. Leaving Cairo behind it meant
+   the browser satisfied every Arabic character from the fallback and never
+   reached Cairo at all: measured, not assumed.
+
+   So the locale picks the primary face rather than letting per-glyph
+   fallback decide it. Selecting on [lang] and [dir] both, because either can
+   be set first depending on how the locale is eventually wired. */
+:root[lang="ar"] body,
+:root[dir="rtl"] body {
+  font-family: var(--font-cairo), var(--font-poppins), system-ui, sans-serif;
+}
+
 
 a {
-  color: var(--pdh-teal);
+  color: var(--pdh-teal-text);
   text-decoration: none;
 }
 a:hover {
@@ -717,7 +823,7 @@ button {
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, opacity 0.2s ease-out;
 }
 .fab-whatsapp {
-  right: 24px;
+  inset-inline-end: 24px;
   width: 56px;
   height: 56px;
   background: #25d366;
@@ -739,8 +845,14 @@ button {
   pointer-events: none;
   transform: translateY(12px) scale(0.9);
 }
+/* Bottom-left, opposite WhatsApp — which is what the phone breakpoint below
+   already did, and for the reason spelled out there: two circles sharing one
+   corner read as a single control cluster and the thumb (or cursor) reaching
+   for one keeps catching the other. This used to be `right: 88px`, i.e. 8px
+   from the WhatsApp bubble's edge. The two now sit at opposite ends of the
+   viewport at every width, so they cannot collide however narrow it gets. */
 .fab-back-to-top {
-  right: 88px;
+  inset-inline-start: 24px;
   width: 46px;
   height: 46px;
   background: #fff;
@@ -766,7 +878,7 @@ button {
 @media (max-width: 767px) {
   .fab-whatsapp {
     bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    right: 16px;
+    inset-inline-end: 16px;
     width: 52px;
     height: 52px;
   }
@@ -775,8 +887,8 @@ button {
      and the thumb that reaches for one keeps catching the other. */
   .fab-back-to-top {
     bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    right: auto;
-    left: 16px;
+    inset-inline-end: auto;
+    inset-inline-start: 16px;
     width: 44px;
     height: 44px;
   }
@@ -857,6 +969,41 @@ button {
     height: auto !important;
     aspect-ratio: 1 / 1;
   }
+}
+
+/* ============================================================
+   Scrims — the readable layer between a photograph and its copy
+   ============================================================
+   Five components each carried their own hand-tuned gradient, and the
+   two weakest did not survive measurement: over this brand's own
+   photography (pale sand, skin, cream packaging) the marketing banner's
+   44px title measured 2.36:1 and its eyebrow 3.05:1, and the CTA tiles
+   ran 2.82-3.78:1. All below the AA floor.
+
+   These two are tuned so white or cream copy clears 4.5:1 against the
+   lightest photograph in the library, and they stop at rgba(...,0)
+   rather than `transparent` — the keyword interpolates through
+   transparent BLACK, which greys the midpoint of a coloured gradient. */
+.scrim-bottom {
+  background: linear-gradient(
+    0deg,
+    rgba(28, 19, 13, 0.9) 0%,
+    rgba(28, 19, 13, 0.76) 24%,
+    rgba(28, 19, 13, 0.46) 48%,
+    rgba(28, 19, 13, 0.16) 68%,
+    rgba(28, 19, 13, 0) 84%
+  );
+}
+
+.scrim-side {
+  background: linear-gradient(
+    90deg,
+    rgba(40, 26, 52, 0.9) 0%,
+    rgba(40, 26, 52, 0.78) 26%,
+    rgba(40, 26, 52, 0.5) 48%,
+    rgba(40, 26, 52, 0.16) 66%,
+    rgba(40, 26, 52, 0) 80%
+  );
 }
 
 /* ============================================================
@@ -956,12 +1103,17 @@ button {
      Once the copy block spans the full width at the bottom, the readable
      gradient has to run bottom-up or the end of every line sits on bare
      photograph. */
+  /* Same tuning pass as .scrim-bottom: the copy cleared only 4.3-4.5:1
+     here, so the plateau is carried further up the card before it falls
+     away, and the stop is a transparent plum rather than the `transparent`
+     keyword. */
   .overlay-card-scrim {
     background: linear-gradient(
       0deg,
-      rgba(47, 31, 61, 0.78) 0%,
-      rgba(47, 31, 61, 0.45) 34%,
-      transparent 62%
+      rgba(40, 26, 52, 0.9) 0%,
+      rgba(40, 26, 52, 0.74) 30%,
+      rgba(40, 26, 52, 0.4) 52%,
+      rgba(40, 26, 52, 0) 74%
     ) !important;
   }
 }
@@ -1081,7 +1233,7 @@ nav[aria-label^="Fil d"] a::after {
   border-radius: 999px;
   background: #fff;
   color: var(--pdh-plum);
-  font-family: var(--font-jost);
+  font-family: var(--font-alta);
   font-size: 18px;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -1417,6 +1569,10 @@ nav[aria-label^="Fil d"] a::after {
   background: var(--pdh-sand);
   border: 1px solid rgba(94, 64, 116, 0.12);
   scroll-snap-align: center;
+  /* Width, and it has to be: this card is a horizontal accordion whose
+     neighbours must yield the space it takes. A transform would scale the
+     photograph and the type inside it rather than re-proportion the row, and
+     nothing composited can move a sibling. Bounded to one row of cards. */
   transition: width 0.55s cubic-bezier(0.22, 0.68, 0.24, 1);
 }
 
@@ -1445,7 +1601,7 @@ nav[aria-label^="Fil d"] a::after {
 
 .univers-name {
   display: block;
-  font-family: var(--font-jost);
+  font-family: var(--font-alta);
   font-weight: 300;
   font-size: clamp(16px, 1.7vw, 22px);
   line-height: 1.2;
@@ -1453,17 +1609,28 @@ nav[aria-label^="Fil d"] a::after {
 
 /* Collapsed cards keep only their name. The detail is faded and height-capped
    rather than removed so the text never reflows mid-transition. */
+/* Animated on grid-template-rows rather than max-height.
+   max-height needed a number nobody could derive — 96px here, 120px on the
+   ritual cards — and that number is a guess about CMS copy: too small and a
+   longer description is silently clipped by the overflow, too large and the
+   easing spends its first frames travelling through empty space, so the
+   reveal reads as laggy. 0fr to 1fr resolves to the content's own height,
+   whatever the editor writes. */
 .univers-detail {
-  display: block;
-  overflow: hidden;
+  display: grid;
+  grid-template-rows: 0fr;
   margin-top: 6px;
   opacity: 0;
-  max-height: 0;
-  transition: opacity 0.4s ease, max-height 0.55s cubic-bezier(0.22, 0.68, 0.24, 1);
+  transition: opacity 0.4s ease, grid-template-rows 0.55s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+/* min-height:0 is what actually lets a grid item shrink below its content. */
+.univers-detail > * {
+  overflow: hidden;
+  min-height: 0;
 }
 .univers-card[data-active="true"] .univers-detail {
   opacity: 1;
-  max-height: 96px;
+  grid-template-rows: 1fr;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1754,7 +1921,7 @@ nav[aria-label^="Fil d"] a::after {
 
 .rituel-name {
   display: block;
-  font-family: var(--font-jost);
+  font-family: var(--font-alta);
   font-weight: 300;
   font-size: clamp(17px, 1.8vw, 24px);
   line-height: 1.2;
@@ -1763,15 +1930,18 @@ nav[aria-label^="Fil d"] a::after {
 /* Held at zero height on a collapsed card rather than unmounted, so the text
    never reflows while the card is still growing. */
 .rituel-detail {
-  display: block;
-  overflow: hidden;
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
   opacity: 0;
   white-space: normal;
-  transition: opacity 0.45s ease 0.1s, max-height 0.6s cubic-bezier(0.22, 0.68, 0.24, 1);
+  transition: opacity 0.45s ease 0.1s, grid-template-rows 0.6s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+.rituel-detail > * {
+  overflow: hidden;
+  min-height: 0;
 }
 .rituel-card[data-active="true"] .rituel-detail {
-  max-height: 120px;
+  grid-template-rows: 1fr;
   opacity: 1;
 }
 
@@ -1812,6 +1982,55 @@ nav[aria-label^="Fil d"] a::after {
   .chrome-footer-link,
   .chrome-header-link {
     transition: none;
+  }
+}
+
+/* The footer's two tracks — brand/contact and the link columns — are a
+   desktop arrangement. Below the tablet breakpoint they stack, and the link
+   columns keep their own auto-fit grid so two of them still sit side by side
+   on a phone rather than becoming one long ladder. */
+@media (max-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.footer-social {
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.footer-social:hover {
+  border-color: rgba(247, 238, 229, 0.5) !important;
+  background: rgba(247, 238, 229, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-social {
+    transition: none;
+  }
+}
+
+/* The copyright and the legal list read as one line on a wide footer and as
+   two stacked blocks on a phone, where space-between would otherwise push
+   them to opposite edges of a very narrow row. */
+@media (max-width: 560px) {
+  .footer-baseline {
+    justify-content: flex-start !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+}
+
+/* Room for the floating "back to top" button.
+   It is fixed to the bottom-left of the viewport, and scrolled to the end of
+   the page that is exactly where the last footer line sits. On desktop the
+   1280px container is centred and starts well clear of it, but on a phone the
+   container's own padding is 14px and the button spans 16-60px — measured, it
+   covered the copyright and the "Mentions légales" link. The footer reserves
+   the height instead of the button moving, since its corner is deliberate. */
+@media (max-width: 767px) {
+  .site-footer {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -1905,7 +2124,7 @@ nav[aria-label^="Fil d"] a::after {
    opacity, which is roughly 2.3:1 on white — present in the markup and
    invisible in practice. */
 .brand-tile-count {
-  font-family: var(--font-raleway);
+  font-family: var(--font-poppins);
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.11em;
@@ -1977,11 +2196,11 @@ nav[aria-label^="Fil d"] a::after {
 .pdh-actif {
   position: absolute;
   top: 0;
-  right: 0;
+  inset-inline-end: 0;
   z-index: 2;
   background: rgba(15, 61, 71, 0.9);
   color: #fff;
-  font-family: var(--font-raleway);
+  font-family: var(--font-poppins);
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -1998,21 +2217,44 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 .pdh-brand {
-  font-family: var(--font-raleway);
-  font-size: 9.5px;
+  font-family: var(--font-poppins);
+  /* 9.5px with 0.16em of tracking was a label first and a brand second: at
+     that size the letters read individually before the word does. */
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #6f6a63;
+  color: var(--pdh-muted-text);
   margin-bottom: 6px;
 }
 
 .pdh-name {
-  font-family: var(--font-jost);
-  font-weight: 300;
-  line-height: 1.3;
+  /* Poppins, deliberately, while every heading on the page stays Alta.
+     Alta is the display voice and its Light weight is a 35/1000 stem — half
+     of its Regular — which at 15px turned product names into hairlines. A
+     name here is not editorial: it is the string a shopper matches against
+     the box in their bathroom, so it goes to the face built for text, at a
+     weight that survives a glance.
+
+     1.4 rather than 1.3 because these names run to two lines and wrap
+     mid-phrase; the extra leading is what keeps the second line from
+     crowding the first. */
+  font-family: var(--font-poppins);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0;
   color: var(--pdh-ink);
   transition: color 0.2s ease;
+  /* Three lines, overriding the shared .pdh-clamp-2 the markup also carries
+     (this rule is later in the sheet, so it wins).
+
+     Two lines cut "Anthelios UVMune 400 Fluide Solaire Invisible SPF50+" and
+     "Capital Soleil Crème Solaire Onctueuse SPF50+" mid-phrase — and on a
+     sunscreen the part that gets cut is the SPF. Only 2 of 30 names need the
+     third line, so it is mostly empty space; the fixed min-height below pays
+     for it in air rather than in a price that jumps between neighbours. */
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 .pdh-name:hover {
   color: var(--pdh-plum);
@@ -2025,10 +2267,13 @@ nav[aria-label^="Fil d"] a::after {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 16px;
-  margin-top: 5px;
-  font-size: 11.5px;
-  color: #6a7178;
+  min-height: 17px;
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  /* #6a7178 measured 4.31:1 on the cream band — under AA on the one surface
+     where these cards also appear. */
+  color: var(--pdh-muted-text);
 }
 
 .pdh-price-row {
@@ -2038,16 +2283,19 @@ nav[aria-label^="Fil d"] a::after {
   margin-top: 8px;
 }
 .pdh-price {
-  font-family: var(--font-jost);
-  font-weight: 400;
+  /* Same reasoning as the name: a price is read, not admired. Poppins at 600
+     carries at 20px what Alta needed 26px to suggest. */
+  font-family: var(--font-poppins);
+  font-weight: 600;
   letter-spacing: -0.01em;
-  line-height: 1;
-  color: var(--pdh-plum);
+  line-height: 1.1;
+  color: var(--pdh-primary);
   white-space: nowrap;
 }
 .pdh-price-old {
   font-size: 12.5px;
-  color: #6f6a63;
+  font-weight: 500;
+  color: var(--pdh-muted-text);
   text-decoration: line-through;
 }
 
@@ -2066,12 +2314,12 @@ nav[aria-label^="Fil d"] a::after {
   border-top: 1px solid rgba(94, 64, 116, 0.16);
   background: none;
   color: var(--pdh-plum);
-  font-family: var(--font-raleway);
+  font-family: var(--font-poppins);
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   /* Fixed height so the reveal never reflows the card or ragged-bottoms the
      row it sits in. */
@@ -2108,7 +2356,7 @@ nav[aria-label^="Fil d"] a::after {
 .pdh-card .fav-btn {
   position: absolute;
   top: 4px;
-  right: 4px;
+  inset-inline-end: 4px;
   z-index: 3;
   width: 30px;
   height: 30px;
@@ -2126,7 +2374,7 @@ nav[aria-label^="Fil d"] a::after {
    12px offset left the pill floating in the packshot's white margin. */
 .pdh-shot-wrap .product-badges {
   top: 0 !important;
-  left: 0 !important;
+  inset-inline-start: 0 !important;
 }
 
 /* Touch and pen: there is no hover to give, so the action is simply there. */
@@ -2184,6 +2432,18 @@ nav[aria-label^="Fil d"] a::after {
     background: #fffdfb;
   }
 
+  /* The home page is pure white, by request. The warm off-white above stays
+     the default for every other mobile page, so this is scoped rather than
+     changed at the source.
+
+     `.home-movement` is the hook because it exists only on the home page —
+     it is the section-grouping wrapper — so no extra class or body flag has
+     to be threaded through the layout to mark the route. A browser without
+     :has() simply keeps #fffdfb, which is a 1% difference, not a defect. */
+  body:has(.home-movement) {
+    background: #fff;
+  }
+
   .mobile-page-pad,
   .cart-mobile-page {
     padding: 16px 14px calc(42px + env(safe-area-inset-bottom, 0px)) !important;
@@ -2234,7 +2494,7 @@ nav[aria-label^="Fil d"] a::after {
      when it is off the remaining two children space-between correctly on
      their own. */
   .header-row > .header-search-icon-btn {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   /* 38px was below the 44px minimum every other header control meets, so the
@@ -2282,7 +2542,11 @@ nav[aria-label^="Fil d"] a::after {
     min-height: 400px;
     max-height: 560px;
     margin-top: 0 !important;
-    border-radius: 0 0 18px 18px !important;
+    /* Square, edge to edge. The rounded bottom corners read as a card
+       floating on the page; a phone hero is the top of the page itself, and
+       the two notches of background showing under it were the only thing
+       between the photograph and the section beneath it. */
+    border-radius: 0 !important;
   }
 
   /* The category strip costs the fold 61px.
@@ -2412,7 +2676,10 @@ nav[aria-label^="Fil d"] a::after {
   }
 
   .pdh-brand {
-    font-size: 9px;
+    /* 10px, not 9: the brand is how a shopper recognises the product before
+       reading its name, and a phone is held closer but read faster. Shrinking
+       it to fit was buying width with the one line that identifies the box. */
+    font-size: 10px;
     margin-bottom: 5px;
   }
 
@@ -2496,6 +2763,18 @@ nav[aria-label^="Fil d"] a::after {
   .pdp-layout {
     display: flex !important;
     flex-direction: column;
+    /* Load-bearing. The desktop rule sets `align-items: flex-start`, which is
+       harmless on a grid but not on this column flex box: flex-start makes
+       every child shrink to its content width instead of filling the row. The
+       gallery column resolved to 0, so `.pdp-media`'s `calc(100% + 28px)`
+       below computed to a literal 28px — the product photo rendered as a
+       28px-wide sliver beside 400px of empty white, on every product page on
+       every phone.
+
+       `!important` because that flex-start is an inline style on the element
+       (ProductDetail.tsx), which no stylesheet rule can outrank — the same
+       reason `display` and `gap` here already carry one. */
+    align-items: stretch !important;
     gap: 18px !important;
   }
 
@@ -2635,95 +2914,1210 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 /* ============================================================
-   Mobile quick-category strip
+   Category tiles — the row that opens the home page
    ============================================================
-   Sits under the header on phones. Hidden from 768px up, where the same
-   destinations are already in the main navigation — the strip is a
-   small-screen shortcut, never a second nav to keep in sync.
+   Circular cards with the label beneath, wrapping and centred rather than
+   scrolling sideways: everything the shop sells is meant to be visible at a
+   glance, and a horizontal scroller hides the tail behind an affordance
+   people miss. Centring is what lets four tiles and twelve tiles both look
+   composed, with no empty tracks trailing off to the right.
 
-   Not sticky, deliberately: the header above it already occupies the top of
-   a short viewport, and a second sticky band would eat roughly a fifth of a
-   phone screen before any content. It scrolls away with the page. */
-.cat-strip {
+   Shown at every width. The main menu carries the same destinations from
+   tablet up, and that duplication is intended — a row of photographs sells
+   the range where a text menu only lists it.
+
+   No background of its own: it sits on the page's white ground. */
+.cat-tiles {
+  /* One knob drives the disc, the type inside it and the row rhythm.
+     Deliberately modest: these are signposts above the hero, not the
+     content — at 112px they competed with the campaign underneath them. */
+  --tile: clamp(58px, 6vw, 82px);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(18px, 2.4vw, 32px) var(--sec-pad-x) clamp(12px, 1.8vw, 22px);
+}
+
+.cat-tiles-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(12px, 1.8vw, 26px) clamp(8px, 1.4vw, 20px);
+}
+
+.cat-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  width: var(--tile);
+  text-decoration: none;
+  color: var(--pdh-ink);
+}
+
+.cat-tile-disc {
+  position: relative;
+  width: var(--tile);
+  height: var(--tile);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--pdh-sand);
+  display: grid;
+  place-items: center;
+  /* A hairline ring so a pale packshot does not dissolve into the page,
+     without drawing a heavy border around every tile. */
+  box-shadow: inset 0 0 0 1px rgba(55, 48, 32, 0.1);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
+}
+
+@media (hover: hover) {
+  .cat-tile:hover .cat-tile-disc {
+    transform: translateY(-3px);
+    box-shadow: inset 0 0 0 1px rgba(55, 48, 32, 0.16), 0 10px 22px -12px rgba(55, 48, 32, 0.5);
+  }
+
+  .cat-tile:hover .cat-tile-label {
+    color: var(--pdh-plum);
+  }
+}
+
+/* The monogram, shown when a chip has no photograph yet. Sized off --tile so
+   it scales with the disc instead of rattling around inside it at desktop
+   widths. */
+.cat-tile-monogram {
+  font-family: var(--font-alta);
+  font-size: calc(var(--tile) * 0.3);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--pdh-plum);
+}
+
+.cat-tile-mark {
+  color: var(--pdh-plum);
+}
+
+.cat-tile-label {
+  font-size: clamp(11px, 1vw, 12.5px);
+  line-height: 1.3;
+  text-align: center;
+  color: var(--pdh-ink);
+  transition: color 0.2s ease;
+  /* Two lines, so a long aisle name never pushes its neighbours out of
+     alignment along the row. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* The ring belongs on the circle, not on the flex column: on the anchor it
+   drew a tall rectangle around tile and label together, which read as a
+   selection rather than a focus position. */
+.cat-tile:focus-visible {
+  outline: none;
+}
+
+.cat-tile:focus-visible .cat-tile-disc {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-tile-disc,
+  .cat-tile:hover .cat-tile-disc {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Home page movements
+   ============================================================
+   The home page renders as a CMS-ordered stack of ~14 sections.
+   Every one of them carried the same vertical padding, so the
+   page read as 14 equal blocks: nothing grouped, nothing led.
+
+   page.tsx now walks the resolved order and wraps each run of
+   consecutive sections that belong to the same movement in one
+   .home-movement element. Because the grouping is computed from
+   the order that actually renders, an editor reordering sections
+   in the Storefront Builder regroups the bands automatically.
+
+   The boundary between two movements is the page's widest
+   interval; the commercial core additionally carries a tint so
+   it holds the eye above the editorial tail. */
+
+.home-movement {
+  /* Collapse the seam between two movements into ONE loose gap
+     instead of stacking both sections' own padding on top of it. */
+  --sec-y: clamp(28px, 3.6vw, 48px);
+}
+
+.home-movement + .home-movement {
+  margin-top: var(--sec-y-loose);
+}
+
+/* Several sections decide at render time that they have nothing to show
+   (no active campaign, no marquee brands, no Instagram posts) and return
+   nothing. Their movement wrapper would still be in the DOM contributing
+   a movement-sized gap between two sections that are actually adjacent. */
+.home-movement:empty {
   display: none;
 }
 
-@media (max-width: 767px) {
-  .cat-strip {
-    display: block;
-    background: var(--pdh-cream);
-    border-bottom: 1px solid rgba(55, 48, 32, 0.08);
-  }
+/* The shop.
 
-  .cat-strip-scroller {
-    display: flex;
-    gap: 8px;
-    margin: 0;
-    padding: 10px 14px;
-    list-style: none;
-    overflow-x: auto;
-    /* Momentum scrolling on iOS, and snapping so a swipe settles on a chip
-       rather than halfway through one. `proximity`, not `mandatory`: a
-       mandatory scroller fights a short flick near the end of the list and
-       can make the last chip feel unreachable. */
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
-    scroll-padding-left: 14px;
-    /* The scrollbar is meaningless on a touch device and adds a grey line
-       under the chips on desktop-class browsers emulating mobile. */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    /* Contains the horizontal scroll: a swipe that runs out of chips must not
-       chain up to the page and start a browser back-gesture. */
-    overscroll-behavior-x: contain;
-  }
+   This band used to be tinted (--pdh-sand) so product photography, nearly
+   all of it shot on white, separated from the page rather than floating on
+   it. The homepage is now white by request, so the band carries no colour
+   and does its remaining work through rhythm alone: the generous
+   padding-block below is what still marks the commercial core off from the
+   editorial sections around it. */
+.home-movement--core {
+  /* <main> is unconstrained and each section centres itself on its own
+     1280px measure, so this stays full-bleed with no negative-margin
+     trick — which also keeps the 100vw/scrollbar overflow away. */
+  background: #fff;
+  padding-block: var(--sec-y-loose);
+  /* Kept, and still load-bearing: without them these two fall back to the
+     cream/sand root values, which would put tinted cards on the now-white
+     band — the inverse of the problem the tint was removed to solve. */
+  --surface-card: #fff;
+  --surface-panel: #fff;
+}
 
-  .cat-strip-scroller::-webkit-scrollbar {
-    display: none;
-  }
+/* A movement supplies its own outer breathing room, so the first
+   and last section inside it must not add theirs on top.
 
-  .cat-strip-item {
-    flex: none;
-    scroll-snap-align: start;
-  }
+   These set --sec-pt/--sec-pb rather than padding: the sections carry
+   their padding in an inline style, which no stylesheet rule can
+   outrank. The inline value reads those two custom properties, so the
+   cascade retunes the padding without fighting specificity. */
+.home-movement--core > :first-child {
+  --sec-pt: 0px;
+}
 
-  .cat-strip-chip {
-    display: inline-flex;
-    align-items: center;
-    /* The chip is the tap target and the chip is what looks tappable — its
-       own width, never the row's. 40px of height plus the strip's own 10px
-       of vertical padding puts the touch area comfortably past 44px without
-       a pill tall enough to look like a button bar. */
-    min-height: 40px;
-    padding: 0 16px;
-    border-radius: 999px;
-    background: rgba(55, 48, 32, 0.06);
-    color: var(--pdh-ink);
-    font-family: var(--font-raleway), system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    text-decoration: none;
-    transition: background 0.2s ease, transform 0.15s ease;
-  }
+.home-movement--core > :last-child {
+  --sec-pb: 0px;
+}
 
-  .cat-strip-chip:active {
-    background: rgba(55, 48, 32, 0.12);
-    transform: scale(0.96);
-  }
+/* A rail and its own editorial block are ONE unit. Without this
+   they sat 96px apart — exactly as far as two unrelated sections,
+   which is why the block read as a separate section rather than
+   as belonging to the rail above it.
 
-  .cat-strip-chip:focus-visible {
-    outline: 2px solid var(--pdh-plum);
-    outline-offset: 2px;
+   :has() keeps the rule self-correcting: when the editorial block
+   is not rendered, the rail keeps its normal padding. */
+section.mobile-rail-section:has(+ section.rail-editorial) {
+  --sec-pb: var(--sec-y-tight);
+}
+
+section.rail-editorial {
+  --sec-pt: var(--sec-y-tight);
+}
+
+/* ============================================================
+   Product listing with promo banner
+   ============================================================
+   The banner is a cell of the product grid, not a strip above it: same
+   column, same height, same radius as the cards beside it. `auto-fit`
+   with the same minimum as the promotions grid keeps the two blocks
+   reflowing at identical breakpoints, so a page carrying both never
+   shows two different column counts at the same width. */
+.featured-promo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: clamp(12px, 1.6vw, 20px);
+  align-items: stretch;
+}
+
+.featured-promo-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Centred by default. With no picture the tile is copy alone, and pinning
+     that copy to the top left the lower half an empty block of plum — the
+     banner read as unfinished rather than as deliberate. */
+  justify-content: center;
+  overflow: hidden;
+  min-height: 260px;
+  padding: clamp(20px, 2.2vw, 26px);
+  border-radius: clamp(14px, 1.6vw, 18px);
+  /* The brand's darkest shade, the same one the footer and the CTA scrims
+     are built from — cream on it measures 11.6:1. */
+  background: var(--pdh-plum-dark);
+  color: var(--pdh-cream);
+  isolation: isolate;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+}
+
+ /* With a picture the copy goes back to the top, so the image has the
+    bottom of the tile to itself. */
+.featured-promo-tile:has(.featured-promo-tile-img) {
+  justify-content: flex-start;
+}
+
+.featured-promo-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 34px -22px rgba(47, 31, 61, 0.6);
+}
+
+.featured-promo-tile:focus-visible {
+  outline: 2px solid var(--pdh-teal);
+  outline-offset: 3px;
+}
+
+/* Bottom-anchored and deliberately cropped, so the picture reads as part of
+   the tile rather than a thumbnail sitting in it. */
+.featured-promo-tile-img {
+  position: absolute;
+  inset-inline-end: -12%;
+  bottom: -8%;
+  width: 78%;
+  aspect-ratio: 1 / 1;
+  z-index: -1;
+  opacity: 0.9;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 42%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 42%);
+}
+
+.featured-promo-tile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.featured-promo-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: var(--pdh-cream);
+  color: var(--pdh-plum-dark);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+}
+
+.featured-promo-tile:hover .featured-promo-cta {
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-promo-tile,
+  .featured-promo-cta {
+    transition: none;
+  }
+  .featured-promo-tile:hover {
+    transform: none;
   }
 }
 
-@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
-  .cat-strip-chip {
+/* ============================================================
+   Seasonal coupon modal
+   ============================================================ */
+.promo-modal-root {
+  position: fixed;
+  inset: 0;
+  /* Above the cart drawer (90) and the toast's siblings, below nothing the
+     visitor needs while it is open. */
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(14px, 4vw, 32px);
+  background: rgba(40, 26, 52, 0.55);
+  backdrop-filter: blur(3px);
+  animation: pop 0.25s both;
+  overflow-y: auto;
+}
+
+.promo-modal {
+  position: relative;
+  width: min(460px, 100%);
+  max-height: calc(100dvh - 2 * clamp(14px, 4vw, 32px));
+  overflow-y: auto;
+  border-radius: clamp(16px, 2vw, 22px);
+  background: #fff;
+  box-shadow: 0 40px 80px -40px rgba(40, 26, 52, 0.7);
+  animation: rise 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.promo-modal-close {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--pdh-ink);
+  /* Opaque, not translucent: this button sits on a photograph, and a
+     see-through chip over a light image is a control you have to hunt for. */
+  background: #fff;
+  box-shadow: 0 2px 10px -4px rgba(55, 48, 32, 0.5);
+}
+
+.promo-modal-close:hover {
+  background: var(--pdh-sand);
+}
+
+.promo-modal-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--pdh-sand);
+}
+
+.promo-modal-body {
+  padding: clamp(20px, 3.4vw, 30px);
+  text-align: center;
+}
+
+.promo-modal-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.promo-modal-badge {
+  padding: 5px 11px;
+  border-radius: 999px;
+  /* The contrast-guaranteed red: white on --pdh-sale measures 3.21:1, which
+     this size of text does not survive. */
+  background: var(--pdh-sale-strong);
+  color: #fff;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.promo-modal-expiry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--pdh-ink);
+  opacity: 0.72;
+}
+
+.promo-modal-title {
+  font-family: var(--font-alta), sans-serif;
+  font-weight: 200;
+  font-size: clamp(24px, 3.4vw, 31px);
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+.promo-modal-title-accent {
+  font-weight: 400;
+}
+
+.promo-modal-desc {
+  font-size: 13.5px;
+  line-height: 1.7;
+  opacity: 0.72;
+  margin: 0 auto 20px;
+  max-width: 34ch;
+}
+
+.promo-modal-code-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.promo-modal-code {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 22px;
+  border: 1px dashed rgba(94, 64, 116, 0.45);
+  border-radius: 10px;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  /* Selectable: the clipboard API fails on insecure origins, and the
+     fallback is the visitor selecting the code by hand. */
+  user-select: all;
+}
+
+.promo-modal-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  min-height: 44px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--pdh-plum);
+  color: var(--pdh-cream);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: background 0.2s ease;
+}
+
+.promo-modal-copy:hover {
+  background: var(--pdh-plum-dark);
+}
+
+.promo-modal-conditions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  font-size: 12.5px;
+  opacity: 0.75;
+}
+
+.promo-modal-conditions li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.promo-modal-conditions svg {
+  color: var(--pdh-teal-text);
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-modal-root,
+  .promo-modal {
+    animation: none;
+  }
+  .promo-modal-copy {
     transition: none;
   }
-  .cat-strip-chip:active {
+}
+
+/* ====================================================================
+   Bundle upsell — "Complétez votre routine" (components/product/BundleUpsell)
+
+   The storefront's product cards are deliberately frameless: the packshots
+   are photographed on white, the page is white, so a border round each one
+   was chrome with nothing to do. Here the frame comes back, and only
+   because it has a job — it is the selection state. A card that can be in
+   or out of a bundle has to show which it is, so the border carries
+   information rather than decoration, and stays nearly invisible until it
+   does.
+
+   --bundle-accent is declared, not borrowed. The live theme accent
+   (--pdh-plum) is #5E4074 and editable from the Theme Builder; this block
+   is pinned to the brand primary #6D28D9 so the offer reads as its own
+   thing. White on it measures 7.1:1. Overriding --pdh-btn-* on the scope
+   is what lets the CTA stay the existing .btn-plum button — same geometry,
+   radius, weight and hover — while wearing the bundle's accent.
+   ==================================================================== */
+.bundle {
+  --bundle-accent: var(--pdh-primary);
+  --bundle-accent-dark: #58209f;
+  --bundle-line: rgba(55, 48, 32, 0.11);
+  --pdh-btn-bg: var(--bundle-accent);
+  --pdh-btn-hover-bg: var(--bundle-accent-dark);
+  margin: clamp(34px, 5vw, 60px) 0 0;
+}
+
+.bundle-head {
+  margin-bottom: clamp(18px, 2.4vw, 26px);
+}
+
+.bundle-title {
+  font-family: var(--font-alta);
+  font-weight: 200;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.15;
+  color: var(--pdh-ink);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.bundle-sub {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #6a7178;
+  max-width: 56ch;
+}
+
+.bundle-body {
+  display: grid;
+  gap: clamp(18px, 2.4vw, 30px);
+  align-items: start;
+}
+
+@media (min-width: 1000px) {
+  .bundle-body {
+    grid-template-columns: minmax(0, 1fr) minmax(264px, 318px);
+    gap: clamp(24px, 3vw, 40px);
+  }
+}
+
+/* ---- the picks ---------------------------------------------------- */
+.bundle-picks {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.bundle-slot {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.bundle-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid var(--bundle-line);
+  border-radius: 14px;
+  padding: 10px 10px 14px;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+@media (hover: hover) {
+  .bundle-card:hover {
+    border-color: rgba(55, 48, 32, 0.2);
+    /* Offset and blur, so the card lifts off the page rather than glowing. */
+    box-shadow: 0 6px 20px -8px rgba(55, 48, 32, 0.28);
+    transform: translateY(-2px);
+  }
+}
+
+.bundle-card[data-on] {
+  border-color: var(--bundle-accent);
+  box-shadow: 0 0 0 1px var(--bundle-accent), 0 6px 18px -10px rgba(109, 40, 217, 0.5);
+}
+
+.bundle-card[data-out] {
+  background: #fcfbf9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bundle-card,
+  .bundle-card:hover {
     transform: none;
+  }
+}
+
+/* ---- shot --------------------------------------------------------- */
+.bundle-shot-wrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 11px;
+}
+
+.bundle-shot-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.bundle-shot {
+  padding: 4%;
+  object-fit: contain;
+}
+
+.bundle-card[data-out] .bundle-shot {
+  filter: grayscale(0.55);
+  opacity: 0.7;
+}
+
+/* The alternate shot, for the products photographed more than once. Fades
+   in over the hero on pointer devices only — there is no hover to give on
+   touch, and a swap bound to :active would fight the link. */
+.bundle-shot--alt {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+@media (hover: hover) {
+  .bundle-card:hover .bundle-shot--alt {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bundle-shot--alt {
+    transition: none;
+  }
+}
+
+/* ---- the checkbox ------------------------------------------------- */
+.bundle-check {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  z-index: 2;
+  appearance: none;
+  -webkit-appearance: none;
+  /* 24 exactly, not 23: WCAG 2.5.8 sets the minimum target at 24x24 CSS px
+     and the earlier value missed it by a pixel. */
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border: 1.5px solid rgba(55, 48, 32, 0.3);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.bundle-check:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.bundle-check:checked {
+  background: var(--bundle-accent);
+  border-color: var(--bundle-accent);
+}
+
+/* The tick is drawn, not a glyph: two borders on a rotated box. It is also
+   the non-colour half of the selected state — a card reads as chosen by the
+   mark being there, not only by the border turning violet. */
+.bundle-check::after {
+  content: "";
+  width: 5px;
+  height: 9px;
+  margin-top: -2px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0.6);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.bundle-check:checked::after {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+
+@media (hover: hover) {
+  .bundle-check:not(:disabled):hover {
+    border-color: var(--bundle-accent);
+  }
+}
+
+/* ---- info --------------------------------------------------------- */
+.bundle-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.bundle-brand {
+  font-family: var(--font-poppins);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6f6a63;
+  margin-bottom: 5px;
+}
+
+.bundle-name {
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: 13.5px;
+  line-height: 1.32;
+  color: var(--pdh-ink);
+  min-height: 36px;
+  transition: color 0.2s ease;
+}
+
+.bundle-name:hover {
+  color: var(--bundle-accent);
+}
+
+.bundle-metaline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 16px;
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: #6a7178;
+}
+
+.bundle-stars {
+  color: var(--pdh-teal-text);
+  letter-spacing: 0.08em;
+}
+
+.bundle-price-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.bundle-price {
+  font-family: var(--font-alta);
+  font-weight: 400;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--pdh-ink);
+  white-space: nowrap;
+}
+
+.bundle-card[data-on] .bundle-price {
+  color: var(--bundle-accent);
+}
+
+.bundle-out {
+  margin-top: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pdh-sale-strong);
+}
+
+/* ---- the "+" ------------------------------------------------------ */
+.bundle-plus {
+  flex: 0 0 auto;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(22px, 2.6vw, 34px);
+  color: rgba(55, 48, 32, 0.34);
+}
+
+/* ---- summary ------------------------------------------------------ */
+.bundle-summary {
+  display: flex;
+  flex-direction: column;
+  background: var(--pdh-cream);
+  border-radius: 16px;
+  padding: clamp(18px, 2vw, 22px);
+}
+
+@media (min-width: 1000px) {
+  .bundle-summary {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+.bundle-summary-kicker {
+  font-family: var(--font-poppins);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bundle-accent);
+}
+
+.bundle-count {
+  margin: 6px 0 0;
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--pdh-ink);
+}
+
+.bundle-figures {
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid rgba(55, 48, 32, 0.13);
+}
+
+.bundle-fig {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 13px;
+  color: #5f5a52;
+}
+
+.bundle-fig + .bundle-fig {
+  margin-top: 9px;
+}
+
+.bundle-fig dt,
+.bundle-fig dd {
+  margin: 0;
+}
+
+.bundle-fig dd {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.bundle-fig-minus {
+  color: var(--bundle-accent);
+  font-weight: 600;
+}
+
+.bundle-fig--total {
+  margin-top: 13px;
+  padding-top: 13px;
+  border-top: 1px solid rgba(55, 48, 32, 0.13);
+  font-family: var(--font-alta);
+  font-size: 15px;
+  color: var(--pdh-ink);
+}
+
+.bundle-fig--total dd {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--pdh-ink);
+}
+
+.bundle-save {
+  margin: 12px 0 0;
+  align-self: flex-start;
+  background: rgba(109, 40, 217, 0.09);
+  color: var(--bundle-accent);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.bundle-cta {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 46px;
+  padding: 13px 18px;
+  font-family: var(--font-poppins);
+  font-size: 12.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bundle-cta:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bundle-hint {
+  margin: 9px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #6a7178;
+}
+
+/* ---- phones -------------------------------------------------------
+   The cards turn on their side rather than stacking three tall portraits:
+   it keeps the packshot at a readable size, stops the summary being pushed
+   below two screens of scroll, and leaves the CTA reachable. */
+@media (max-width: 660px) {
+  .bundle-picks {
+    flex-direction: column;
+  }
+
+  .bundle-slot {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .bundle-card {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 13px;
+    align-items: center;
+    padding: 11px;
+  }
+
+  .bundle-shot-wrap {
+    margin-bottom: 0;
+  }
+
+  .bundle-name {
+    min-height: 0;
+  }
+
+  .bundle-plus {
+    width: 100%;
+    height: 26px;
+  }
+}
+
+/* ====================================================================
+   Checkout — mode de paiement + coordonnées de virement
+   (components/cart/CartView, lib/storefront/paymentSettings)
+
+   --pay-accent is pinned to the brand primary rather than the live theme
+   colour, matching the bundle upsell: choosing how to pay is the one moment
+   in the cart where the shopper commits, and it reads as its own step.
+   White on #6D28D9 measures 7.1:1.
+   ==================================================================== */
+.pay-set {
+  --pay-accent: var(--pdh-primary);
+  border: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.pay-legend {
+  padding: 0;
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.8;
+  color: var(--pdh-ink);
+}
+
+.pay-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pay-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 13px;
+  background: #fff;
+  border: 1px solid rgba(55, 48, 32, 0.13);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+@media (hover: hover) {
+  .pay-option:hover {
+    border-color: rgba(55, 48, 32, 0.24);
+  }
+}
+
+.pay-option[data-on] {
+  border-color: var(--pay-accent);
+  box-shadow: 0 0 0 1px var(--pay-accent);
+}
+
+/* A real radio, restyled — not a div pretending. Keyboard, arrow-key group
+   navigation and the name-based grouping all come free, and the global
+   :focus-visible ring lands on it without help. */
+.pay-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 0 auto;
+  /* 20px + the 12px card padding clears WCAG 2.5.8 through the spacing
+     exception; the whole label is the hit target in any case. */
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  border: 1.5px solid rgba(55, 48, 32, 0.32);
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+
+.pay-radio::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--pay-accent);
+  transform: scale(0);
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pay-radio:checked {
+  border-color: var(--pay-accent);
+}
+
+.pay-radio:checked::after {
+  transform: scale(1);
+}
+
+.pay-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pay-option-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--pdh-ink);
+  line-height: 1.3;
+}
+
+.pay-option-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6a7178;
+}
+
+/* One method available: stated, not offered. */
+.pay-single {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 13px;
+  background: var(--pdh-sand);
+  border-radius: 12px;
+}
+
+/* ---- bank coordinates, on the confirmation screen ------------------- */
+.pay-bank {
+  --pay-accent: var(--pdh-primary);
+  text-align: start;
+  max-width: 460px;
+  margin: 20px auto 0;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid rgba(55, 48, 32, 0.12);
+  border-radius: 14px;
+}
+
+.pay-bank-intro {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--pdh-ink);
+}
+
+.pay-bank-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.pay-bank-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12.5px;
+}
+
+.pay-bank-row dt {
+  color: #6a7178;
+  flex: 0 0 auto;
+}
+
+.pay-bank-row dd {
+  margin: 0;
+  text-align: end;
+  color: var(--pdh-ink);
+  min-width: 0;
+  /* An IBAN has no spaces to break at, so it must be allowed to wrap
+     mid-string rather than push the panel wider than the screen. */
+  overflow-wrap: anywhere;
+}
+
+/* Account numbers are read digit by digit and compared against a bank app —
+   tabular figures and a little tracking, without swapping in a monospace
+   face the rest of the storefront never uses. */
+.pay-bank-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+
+.pay-bank-row--ref {
+  margin-top: 4px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(55, 48, 32, 0.12);
+}
+
+.pay-bank-row--ref dd {
+  color: var(--pay-accent);
+  font-weight: 600;
+}
+
+.pay-bank-note {
+  margin: 12px 0 0;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #6a7178;
+}
+
+@media (max-width: 460px) {
+  .pay-bank-row {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .pay-bank-row dd {
+    text-align: start;
+  }
+}
+
+/* ====================================================================
+   Progress fills (free-shipping meter, carousel progress)
+
+   The fill is a full-width bar scaled on the X axis rather than an element
+   whose `width` animates. Width is a layout property: every step relaid the
+   track and its siblings. A transform is composited, and the visual result is
+   identical here because each track already clips with `overflow: hidden`
+   and owns the rounding — which is also why the fill carries no radius of
+   its own; scaling a rounded box would squash its end caps into ellipses.
+   ==================================================================== */
+.bar-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* There is no logical value for transform-origin, so the mirrored case is
+   stated explicitly: a meter must fill from the side reading starts on. */
+[dir="rtl"] .bar-fill {
+  transform-origin: right center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill {
+    transition: none;
   }
 }

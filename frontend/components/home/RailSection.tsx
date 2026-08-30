@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Rail, type RailHandle } from "@/components/Rail";
 import type { RailDef } from "@/data/home";
 import type { LiveProduct } from "@/lib/storefront/products";
-import { type RailEditorial, resolveRailEditorial } from "@/lib/storefront/railEditorial";
+import { hasOwnEditorialCopy, type RailEditorial, resolveRailEditorial } from "@/lib/storefront/railEditorial";
 
 function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
   // Every string here used to be written into the JSX below, which is why
@@ -17,11 +17,11 @@ function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
   const copy = resolveRailEditorial(editorial);
 
   return (
-    <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
+    <section className="rail-editorial" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div
         style={{
           borderRadius: "clamp(16px,2vw,24px)",
-          background: "var(--pdh-cream)",
+          background: "var(--surface-card)",
           padding: "clamp(22px,3.6vw,40px)",
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))",
@@ -37,10 +37,10 @@ function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
           <CloudinaryImage preset="editorial" src={copy.image} alt={copy.title} fill sizes="480px" style={{ objectFit: "cover" }} />
         </div>
         <div>
-          <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+          <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
             {copy.eyebrow}
           </div>
-          <h2 className="overlay-card-title" style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.05, margin: "12px 0 14px", letterSpacing: "-.02em" }}>
+          <h2 className="overlay-card-title" style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.05, margin: "12px 0 14px", letterSpacing: "-.02em" }}>
             {copy.title}
           </h2>
           <p style={{ fontSize: 14.5, lineHeight: 1.8, opacity: 0.72, margin: "0 0 24px", maxWidth: 820 }}>
@@ -72,17 +72,17 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
 
   return (
     <>
-      <section className="mobile-rail-section" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
+      <section className="mobile-rail-section" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
         <div className="mobile-section-head" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+              <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
                 {rail.eyebrow}
               </div>
               {badgeLabel && (
                 <span
                   style={{
-                    fontFamily: "var(--font-raleway)",
+                    fontFamily: "var(--font-poppins)",
                     fontSize: 9.5,
                     fontWeight: 600,
                     letterSpacing: ".08em",
@@ -97,7 +97,7 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
                 </span>
               )}
             </div>
-            <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0", letterSpacing: "-.01em" }}>
+            <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0", letterSpacing: "-.01em" }}>
               {rail.title}
             </h2>
             <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, maxWidth: 760 }}>{rail.subtitle}</div>
@@ -137,14 +137,14 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
                   style={{
                     position: "absolute",
                     top: 10,
-                    left: 10,
+                    insetInlineStart: 10,
                     zIndex: 4,
                     width: 24,
                     height: 24,
                     borderRadius: "50%",
                     background: "var(--pdh-ink)",
                     color: "var(--pdh-cream)",
-                    fontFamily: "var(--font-jost)",
+                    fontFamily: "var(--font-alta)",
                     fontSize: 12,
                     display: "flex",
                     alignItems: "center",
@@ -160,7 +160,7 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
         </Rail>
       </section>
 
-      {rail.editorial && <EditorialBlock editorial={rail.editorial} />}
+      {rail.editorial && hasOwnEditorialCopy(rail.editorial) && <EditorialBlock editorial={rail.editorial} />}
     </>
   );
 }

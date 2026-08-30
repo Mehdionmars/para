@@ -18,7 +18,7 @@ export default function OrderTrackingPage() {
         <span style={{ opacity: 0.4 }}>/</span> <span style={{ fontWeight: 600 }}>Suivi de commande</span>
       </nav>
 
-      <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: "0 0 12px" }}>
+      <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: "0 0 12px" }}>
         Suivi de commande
       </h1>
       <p style={{ fontSize: 14.5, opacity: 0.7, maxWidth: 560, margin: "0 0 clamp(24px,3vw,36px)", lineHeight: 1.6 }}>

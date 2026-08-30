@@ -149,7 +149,13 @@ export type LiveHomeContent = {
   heroSlides: LiveHeroSlide[];
   rails: RailDef[];
   brandsFeatured: BrandFeatured[];
-  promotionsGrid: { title: string; subtitle: string; limit: number };
+  promotionsGrid: { eyebrow: string; title: string; subtitle: string; limit: number };
+  brandsFeaturedCopy: { eyebrow: string; title: string };
+  featuredPromo: {
+    eyebrow: string; title: string; subtitle: string; ctaLabel: string; ctaUrl: string; limit: number;
+    promoEyebrow: string; promoTitle: string; promoCtaLabel: string; promoCtaUrl: string; promoImage: string;
+  };
+  servicesTeaserCopy: { eyebrow: string; title: string; subtitle: string };
   ctaPair1: { eyebrow: string; title: string; bg: string; img: string }[];
   ctaPair2: { eyebrow: string; title: string; bg: string; img: string }[];
   marketingBanners: {
@@ -390,6 +396,7 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
     rails,
     brandsFeatured,
     promotionsGrid: {
+      eyebrow: home.promotionsGrid?.eyebrow || "Promotions",
       title: home.promotionsGrid?.title || "Les offres du moment",
       subtitle: home.promotionsGrid?.subtitle || "",
       limit: home.promotionsGrid?.limit || 8,
@@ -429,6 +436,29 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
     },
     campaignProducts,
     dermoPicks,
+    featuredPromo: {
+      eyebrow: home.featuredPromo?.eyebrow || "Sélection",
+      title: home.featuredPromo?.title || "Les incontournables",
+      subtitle: home.featuredPromo?.subtitle || "",
+      ctaLabel: home.featuredPromo?.ctaLabel || "Voir tout",
+      ctaUrl: home.featuredPromo?.ctaUrl || "/catalogue",
+      limit: home.featuredPromo?.limit || 3,
+      promoEyebrow: home.featuredPromo?.promoEyebrow || "Nouveautés",
+      promoTitle: home.featuredPromo?.promoTitle || "Les dernières arrivées, chaque semaine",
+      promoCtaLabel: home.featuredPromo?.promoCtaLabel || "Tout parcourir",
+      promoCtaUrl: home.featuredPromo?.promoCtaUrl || "/shop/nouveautes",
+      promoImage: resolveMediaUrl(home.featuredPromo?.promoImage) || "",
+    },
+    brandsFeaturedCopy: {
+      eyebrow: home.brandsFeaturedCopy?.eyebrow || "Nos partenaires",
+      title: home.brandsFeaturedCopy?.title || "Marques à l’honneur",
+    },
+    servicesTeaserCopy: {
+      eyebrow: home.servicesTeaserCopy?.eyebrow || "Accompagnement",
+      title: home.servicesTeaserCopy?.title || "Nos services",
+      subtitle:
+        home.servicesTeaserCopy?.subtitle || "Nos pharmaciens vous accompagnent, en ligne comme en institut.",
+    },
     dermoCornerCopy: {
       eyebrow: home.dermoCornerCopy?.eyebrow || "Dermo corner",
       title: home.dermoCornerCopy?.title || "La sélection dermatologique du moment",

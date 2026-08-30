@@ -4,25 +4,29 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SERVICES, servicePriceLabel } from "@/data/services";
+import { fetchServiceById } from "@/lib/storefront/services";
 
 export function generateStaticParams() {
   return SERVICES.map((s) => ({ id: String(s.id) }));
 }
 
-function findService(id: string) {
-  return SERVICES.find((s) => s.id === Number(id));
+/** Live. SERVICES above is still used by generateStaticParams: which paths
+ * are pre-rendered is a build-time question, and a service added in the CMS
+ * afterwards still renders on demand. */
+async function findService(id: string) {
+  return fetchServiceById(Number(id));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const service = findService(id);
+  const service = await findService(id);
   if (!service) return {};
   return { title: `${service.title} — Para d'Hiver` };
 }
 
 export default async function ServiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const service = findService(id);
+  const service = await findService(id);
   if (!service) notFound();
 
   return (
@@ -53,10 +57,10 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <div>
-          <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
             Service en institut
           </div>
-          <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,4vw,46px)", lineHeight: 1.04, margin: "12px 0 14px" }}>
+          <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,4vw,46px)", lineHeight: 1.04, margin: "12px 0 14px" }}>
             {service.title}
           </h1>
           <p style={{ fontSize: 14.5, lineHeight: 1.8, opacity: 0.75, margin: "0 0 22px", maxWidth: 860 }}>{service.desc}</p>
@@ -64,15 +68,15 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
             <div style={{ border: "1px solid rgba(94,64,116,.18)", borderRadius: 14, padding: "14px 20px" }}>
               <div style={{ fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", opacity: 0.5 }}>Durée</div>
-              <div style={{ fontFamily: "var(--font-jost)", fontSize: 22, color: "var(--pdh-plum)" }}>{service.duration}</div>
+              <div style={{ fontFamily: "var(--font-alta)", fontSize: 22, color: "var(--pdh-plum)" }}>{service.duration}</div>
             </div>
             <div style={{ border: "1px solid rgba(94,64,116,.18)", borderRadius: 14, padding: "14px 20px" }}>
               <div style={{ fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", opacity: 0.5 }}>Tarif</div>
-              <div style={{ fontFamily: "var(--font-jost)", fontSize: 22, color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>{servicePriceLabel(service)}</div>
+              <div style={{ fontFamily: "var(--font-alta)", fontSize: 22, color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>{servicePriceLabel(service)}</div>
             </div>
             <div style={{ border: "1px solid rgba(94,64,116,.18)", borderRadius: 14, padding: "14px 20px" }}>
               <div style={{ fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", opacity: 0.5 }}>Avec</div>
-              <div style={{ fontFamily: "var(--font-jost)", fontSize: 22, color: "var(--pdh-plum)" }}>{service.expert}</div>
+              <div style={{ fontFamily: "var(--font-alta)", fontSize: 22, color: "var(--pdh-plum)" }}>{service.expert}</div>
             </div>
           </div>
 
@@ -88,7 +92,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))", gap: "clamp(20px,3vw,44px)", marginTop: 52 }}>
         <div>
-          <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", margin: "0 0 18px" }}>Bénéfices</h2>
+          <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", margin: "0 0 18px" }}>Bénéfices</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {service.benefits.map((b) => (
               <div key={b} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "var(--pdh-sand)", borderRadius: 14, padding: "14px 18px" }}>
@@ -101,7 +105,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
         <div>
-          <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", margin: "0 0 18px" }}>Le déroulé</h2>
+          <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", margin: "0 0 18px" }}>Le déroulé</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {service.steps.map((step) => (
               <div key={step.n} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
@@ -115,7 +119,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontFamily: "var(--font-jost)",
+                    fontFamily: "var(--font-alta)",
                     fontSize: 13,
                     color: "var(--pdh-plum)",
                     flex: "none",

@@ -26,7 +26,7 @@ const HEX_COLOR_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA
  * first. The picker stays, so this is a shortcut, never a restriction. */
 export const QUICK_PALETTE: { label: string; value: string }[] = [
   { label: "Brun Para d'Hiver", value: "#373020" },
-  { label: "Prune", value: "#5E4074" },
+  { label: "Prune", value: "var(--pdh-plum)" },
   { label: "Violet", value: "#6D28D9" },
   { label: "Violet doux", value: "#8B5CF6" },
   { label: "Teal", value: "#008AA5" },
@@ -100,7 +100,7 @@ export function ColorField({
           }`}
           id={id}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={inheritedHint ? `${inheritedHint} (par défaut)` : "#5E4074"}
+          placeholder={inheritedHint ? `${inheritedHint} (par défaut)` : "var(--pdh-plum)"}
           value={value}
         />
         <button

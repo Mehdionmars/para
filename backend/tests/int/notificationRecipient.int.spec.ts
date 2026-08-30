@@ -46,7 +46,7 @@ describe('Destinataire des notifications', () => {
         customerName: 'Client Destinataire',
         customerPhone: '0600112233',
         items: [{ name: 'Article', price: 100, product: productId, quantity: 1 }],
-        paymentMethod: 'À la livraison',
+        paymentMethod: 'cash_on_delivery',
         paymentStatus: 'pending',
         shipping: 0,
         status: 'pending',

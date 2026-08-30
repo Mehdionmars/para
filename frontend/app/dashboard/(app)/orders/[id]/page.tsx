@@ -9,7 +9,7 @@ import { Collapsible } from "@/components/dashboard/ui/Collapsible";
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { requireRole } from "@/lib/dashboard/guard";
 import { getOrder, getOrderHistory, getOrderItemImages } from "@/lib/dashboard/orders";
-import { ORDER_STATUS_LABELS, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
+import { paymentMethodLabel, ORDER_STATUS_LABELS, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
 import { canEditOrders, isStaffUser } from "@/lib/dashboard/roles";
 
 function money(n: number) {
@@ -99,6 +99,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           id={order.id}
           orderNumber={order.orderNumber}
           printHref={`/dashboard/orders/${order.id}/print?autoprint=1`}
+          receiptHref={`/dashboard/orders/${order.id}/recu`}
           readOnly={!editable}
           status={order.status}
         />
@@ -209,7 +210,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
               <p className="text-gray-400">Aucune adresse renseignée</p>
             )}
             <p className="mt-1 text-xs text-gray-500">
-              {order.paymentMethod || "Mode de paiement non précisé"}
+              {paymentMethodLabel(order.paymentMethod)}
               {" · "}
               {order.shipping ? money(order.shipping) : "Livraison offerte"}
             </p>
@@ -256,7 +257,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           <div className="flex flex-col gap-3">
             <PaymentStatusSelect id={order.id} paymentStatus={order.paymentStatus} readOnly={!editable} />
             <div className="flex flex-col gap-1">
-              <Line label="Mode" value={order.paymentMethod || "—"} />
+              <Line label="Mode" value={paymentMethodLabel(order.paymentMethod)} />
               {order.couponCode && <Line label="Code promo" value={order.couponCode} />}
             </div>
           </div>

@@ -103,12 +103,12 @@ export function UniverseCarousel({
     <section aria-labelledby="univers-title" style={{ marginTop: "clamp(30px,3.6vw,48px)" }}>
       <div style={{ alignItems: "flex-end", display: "flex", gap: 20, justifyContent: "space-between", marginBottom: "clamp(16px,1.8vw,22px)" }}>
         <div>
-          <div style={{ color: "var(--pdh-teal)", fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase" }}>
+          <div style={{ color: "var(--pdh-teal-text)", fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase" }}>
             Le catalogue
           </div>
           <h2
             id="univers-title"
-            style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(24px,3vw,34px)", fontWeight: 200, margin: "10px 0 0" }}
+            style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(24px,3vw,34px)", fontWeight: 200, margin: "10px 0 0" }}
           >
             Explorer nos univers
           </h2>
@@ -206,7 +206,7 @@ export function UniverseCarousel({
                       background: "linear-gradient(160deg, var(--pdh-sand) 0%, #efe7dc 100%)",
                       color: "rgba(94,64,116,.16)",
                       display: "flex",
-                      fontFamily: "var(--font-jost)",
+                      fontFamily: "var(--font-alta)",
                       fontSize: "clamp(64px,9vw,120px)",
                       fontWeight: 200,
                       inset: 0,

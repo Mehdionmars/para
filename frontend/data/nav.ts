@@ -41,11 +41,6 @@ export type NavAnimation = {
   /** "infinite" or a stringified integer. */
   iterationCount: string;
 };
-/** A mega-menu link is styled by the very same appearance/animation groups a
- * top-level nav item is (see the CMS's shared appearance group), and
- * lib/navStyle.ts renders both through one code path — so it carries the same
- * optional fields. They were configurable in the CMS and mapped by
- * siteChromeContent long before this type admitted they existed. */
 export type MegaLink = {
   label: string;
   href: string;
@@ -640,25 +635,34 @@ export const MEGA_MENU: Record<string, MegaMenuContent> = {
   }
 };
 
-/**
- * Fallback for the mobile quick-category strip.
- *
- * Disabled, and that is the point: this is what renders when the CMS cannot
- * be reached, and a shop that loses its Payload connection should degrade to
- * the layout it had before the strip existed rather than to a hardcoded set
- * of categories that may no longer match the catalogue.
- *
- * The real content comes from the Navigation global (`catStrip`), edited in
- * the Storefront Builder's "Navigation" tab.
- */
+/** The round category shortcuts above the hero. `enabled` is opt-in: a shop
+ * that never configured the strip must not suddenly grow one because a sync
+ * ran. `image` is omitted per chip rather than emitted empty — the strip
+ * renders as tiles only when every configured chip has one. */
 export const CATEGORY_STRIP: {
   enabled: boolean;
   showAllChip: boolean;
   allChipLabel: string;
-  items: { label: string; href: string }[];
+  items: { label: string; href: string; image?: string }[];
 } = {
-  allChipLabel: "Tout",
-  enabled: false,
-  items: [],
-  showAllChip: true,
+  "allChipLabel": "Tout",
+  "enabled": true,
+  "items": [
+    {
+      "href": "/catalogue",
+      "label": "Soin visage",
+      "image": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/3a085aa99720728e8ee34b35a5946b35a13c883a2e66b6aaea5c3ab87ed4e9bc291aadc3-1.jpg"
+    },
+    {
+      "href": "/shop/nouveautes",
+      "label": "Solaire",
+      "image": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/76696368792d6361706974616c2d736f6c65696c2d6372656d652d736f6c616972652d6f6e637475657573652d7370662d35302d6661636528286717-1.jpg"
+    },
+    {
+      "href": "/marques",
+      "label": "Marques",
+      "image": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d65666661636c61722d67656c2d6d6f757373616e742d707572696669616e742d3230306d6cb75ed8cb-1.jpg"
+    }
+  ],
+  "showAllChip": true
 };

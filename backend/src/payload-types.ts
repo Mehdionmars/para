@@ -135,6 +135,7 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     home: Home;
+    'payment-settings': PaymentSetting;
     'collections-page': CollectionsPage;
     'catalogue-page': CataloguePage;
     'site-chrome': SiteChrome;
@@ -143,6 +144,7 @@ export interface Config {
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
+    'payment-settings': PaymentSettingsSelect<false> | PaymentSettingsSelect<true>;
     'collections-page': CollectionsPageSelect<false> | CollectionsPageSelect<true>;
     'catalogue-page': CataloguePageSelect<false> | CataloguePageSelect<true>;
     'site-chrome': SiteChromeSelect<false> | SiteChromeSelect<true>;
@@ -574,9 +576,9 @@ export interface Order {
   status: 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   /**
-   * e.g. "CMI" or "À la livraison"
+   * Renseigné par le checkout. Modifiable ici si la commande est prise par téléphone.
    */
-  paymentMethod?: string | null;
+  paymentMethod?: ('cash_on_delivery' | 'bank_transfer') | null;
   notes?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2031,9 +2033,25 @@ export interface Home {
    * Copy for the "Les offres du moment" section. Products themselves are always resolved live by category tab — this only controls title/subtitle/count, not a fixed list of products.
    */
   promotionsGrid?: {
+    eyebrow?: string | null;
     title?: string | null;
     subtitle?: string | null;
     limit?: number | null;
+  };
+  /**
+   * En-tête de la section marques (les marques elles-mêmes se configurent dans « Marques à l'honneur »).
+   */
+  brandsFeaturedCopy?: {
+    eyebrow?: string | null;
+    title?: string | null;
+  };
+  /**
+   * En-tête de la section services (les cartes se configurent dans « Services »).
+   */
+  servicesTeaserCopy?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
   };
   /**
    * Editorial header for the Dermo Corner section (the product picks below are configured separately, in dermoPicks).
@@ -2365,6 +2383,53 @@ export interface Home {
   createdAt?: string | null;
 }
 /**
+ * Modes de paiement proposés au checkout et coordonnées bancaires pour le virement. Modifiable ici sans redéploiement.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-settings".
+ */
+export interface PaymentSetting {
+  id: number;
+  codEnabled?: boolean | null;
+  codDescription?: string | null;
+  /**
+   * Nécessite au minimum le bénéficiaire, la banque et le RIB ci-dessous.
+   */
+  bankTransferEnabled?: boolean | null;
+  bankTransferDescription?: string | null;
+  /**
+   * Ces informations sont affichées au client après la commande. Laissez vide tant que vous n'avez pas les valeurs réelles — rien n'est pré-rempli ici volontairement.
+   */
+  bank?: {
+    /**
+     * Le titulaire du compte, tel qu’il doit être saisi par le client.
+     */
+    beneficiary?: string | null;
+    /**
+     * Ex. Attijariwafa Bank, BMCE, CIH…
+     */
+    bankName?: string | null;
+    /**
+     * 24 chiffres. Affiché tel quel au client.
+     */
+    rib?: string | null;
+    /**
+     * Optionnel. Affiché uniquement si renseigné.
+     */
+    iban?: string | null;
+    /**
+     * Optionnel. Affiché uniquement si renseigné.
+     */
+    bic?: string | null;
+    /**
+     * Optionnel. Affiché sous les coordonnées, après la référence de commande.
+     */
+    instructions?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * The editorial "collections" landing page (/collections).
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2596,6 +2661,36 @@ export interface SiteChrome {
      */
     borderColor?: string | null;
   };
+  /**
+   * S'affiche une fois par visiteur, après un court délai. Se remet à zéro pour tous dès que le code change.
+   */
+  promoModal?: {
+    enabled?: boolean | null;
+    badge?: string | null;
+    /**
+     * Ex. « Jusqu'au 31 juillet ». Texte libre, aucune date n'est calculée.
+     */
+    expiryLabel?: string | null;
+    title?: string | null;
+    /**
+     * Deuxième ligne du titre, mise en avant.
+     */
+    subtitle?: string | null;
+    description?: string | null;
+    /**
+     * Doit correspondre à un coupon actif dans Promotions, sinon il sera refusé au panier.
+     */
+    code?: string | null;
+    ctaLabel?: string | null;
+    conditions?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    image?: (number | null) | Media;
+    delaySeconds?: number | null;
+  };
   logo?: {
     /**
      * Leave empty to keep the default logo mark.
@@ -2769,6 +2864,10 @@ export interface Navigation {
     items?:
       | {
           label: string;
+          /**
+           * Carré de préférence (il est recadré en cercle). Sans image, la puce reste un simple bouton texte.
+           */
+          image?: (number | null) | Media;
           visible?: boolean | null;
           type: 'category' | 'brand' | 'collection' | 'page' | 'custom';
           category?: (number | null) | Category;
@@ -2808,7 +2907,7 @@ export interface Navigation {
          */
         badgeLabel?: string | null;
         /**
-         * Palette du thème. Pour une couleur libre, remplissez les deux champs hexadécimaux ci-dessous — ils ont priorité.
+         * Palette du thème. C'est le libellé ci-dessus qui crée le badge : laissé sur « none », le badge s'affiche quand même, aux couleurs de la marque. Pour une couleur libre, remplissez les deux champs hexadécimaux ci-dessous — ils ont priorité.
          */
         badgeColor?: ('none' | 'plum' | 'teal' | 'sale') | null;
         /**
@@ -3076,9 +3175,23 @@ export interface HomeSelect<T extends boolean = true> {
   promotionsGrid?:
     | T
     | {
+        eyebrow?: T;
         title?: T;
         subtitle?: T;
         limit?: T;
+      };
+  brandsFeaturedCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+      };
+  servicesTeaserCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
       };
   dermoCornerCopy?:
     | T
@@ -3281,6 +3394,29 @@ export interface HomeSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-settings_select".
+ */
+export interface PaymentSettingsSelect<T extends boolean = true> {
+  codEnabled?: T;
+  codDescription?: T;
+  bankTransferEnabled?: T;
+  bankTransferDescription?: T;
+  bank?:
+    | T
+    | {
+        beneficiary?: T;
+        bankName?: T;
+        rib?: T;
+        iban?: T;
+        bic?: T;
+        instructions?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections-page_select".
  */
 export interface CollectionsPageSelect<T extends boolean = true> {
@@ -3413,6 +3549,26 @@ export interface SiteChromeSelect<T extends boolean = true> {
         iconColor?: T;
         borderColor?: T;
       };
+  promoModal?:
+    | T
+    | {
+        enabled?: T;
+        badge?: T;
+        expiryLabel?: T;
+        title?: T;
+        subtitle?: T;
+        description?: T;
+        code?: T;
+        ctaLabel?: T;
+        conditions?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        image?: T;
+        delaySeconds?: T;
+      };
   logo?:
     | T
     | {
@@ -3505,6 +3661,7 @@ export interface NavigationSelect<T extends boolean = true> {
           | T
           | {
               label?: T;
+              image?: T;
               visible?: T;
               type?: T;
               category?: T;

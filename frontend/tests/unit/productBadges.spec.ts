@@ -6,7 +6,10 @@ import {
   BADGE_TYPE_PRESETS,
   MAX_BADGES,
   computeAutoBadge,
+  contrastRatio,
+  discountBadge,
   discountPercentage,
+  readableTextColor,
   resolveBadgesForDoc,
   resolveProductBadges,
   type BadgePreset,
@@ -213,5 +216,89 @@ describe("backend preset table stays in sync", () => {
       expect({ type, bgColor: mine.bgColor }).toEqual({ type, bgColor: preset.bgColor });
       expect({ type, textColor: mine.textColor }).toEqual({ type, textColor: preset.textColor });
     }
+  });
+});
+
+/**
+ * Badge colours are the one part of this system an editor types by hand, and
+ * the pills render at 10.5px — squarely under the 4.5:1 floor for normal
+ * text. Two shipped presets had drifted below it before these tests existed.
+ */
+describe("badge contrast", () => {
+  const AA = 4.5;
+
+  it("measures known pairs against the WCAG formula", () => {
+    // Verified against the published algorithm, not against our own output.
+    expect(contrastRatio("#FFFFFF", "#000000")).toBeCloseTo(21, 1);
+    expect(contrastRatio("#FFFFFF", "#6D28D9")).toBeCloseTo(7.1, 1);
+    expect(contrastRatio("#FFFFFF", "#008AA5")).toBeCloseTo(4.06, 1);
+    expect(contrastRatio("#FFFFFF", "#00758A")).toBeCloseTo(5.37, 1);
+  });
+
+  it("returns null for a colour it cannot resolve rather than guessing", () => {
+    expect(contrastRatio("#FFFFFF", "var(--pdh-sale-strong)")).toBeNull();
+    expect(contrastRatio("", "#FFFFFF")).toBeNull();
+    expect(contrastRatio("rgb(0,0,0)", "#FFFFFF")).toBeNull();
+  });
+
+  it("accepts shorthand hex", () => {
+    expect(contrastRatio("#fff", "#000")).toBeCloseTo(21, 1);
+  });
+
+  it("every shipped preset is legible", () => {
+    for (const [type, preset] of Object.entries(BADGE_TYPE_PRESETS)) {
+      const ratio = contrastRatio(preset.textColor, preset.bgColor);
+      expect(ratio, `preset "${type}" has an unmeasurable colour`).not.toBeNull();
+      expect({ type, ratio: Number(ratio!.toFixed(2)) }).toEqual({
+        type,
+        ratio: expect.any(Number),
+      });
+      expect(ratio!, `preset "${type}" measures ${ratio!.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA);
+    }
+  });
+
+  it("keeps the discount pill on the contrast-safe red token", () => {
+    // The brand red --pdh-sale is 3.21:1 under white; --pdh-sale-strong is the
+    // surface white may sit on. This pill carries the only number that changes
+    // a purchase decision.
+    expect(discountBadge(70, 100)?.bgColor).toBe("var(--pdh-sale-strong)");
+  });
+});
+
+describe("readableTextColor", () => {
+  it("leaves a passing pair exactly as the editor chose it", () => {
+    expect(readableTextColor("#6D28D9", "#FFFFFF")).toBe("#FFFFFF");
+    expect(readableTextColor("#F7EEE5", "#373020")).toBe("#373020");
+  });
+
+  it("replaces a pair nobody could read", () => {
+    // Pale lilac with white text: 1.35:1.
+    const fixed = readableTextColor("#E9D5FF", "#FFFFFF");
+    expect(fixed).not.toBe("#FFFFFF");
+    expect(contrastRatio(fixed, "#E9D5FF")!).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("clears AA on any background, including the worst case", () => {
+    // ~0.179 relative luminance is where white and near-black cross; every
+    // other background is easier than this one.
+    for (const bg of ["#767676", "#008AA5", "#FF514D", "#E9D5FF", "#111827", "#FFFFFF"]) {
+      const chosen = readableTextColor(bg, "#FFFFFF");
+      expect(contrastRatio(chosen, bg)!, `background ${bg}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("passes through colours it cannot measure instead of overriding them", () => {
+    expect(readableTextColor("var(--pdh-sale-strong)", "#FFFFFF")).toBe("#FFFFFF");
+  });
+
+  it("guards editor-supplied colours at resolution time", () => {
+    const [badge] = resolveProductBadges(
+      [{ enabled: true, type: "custom", text: "Offre", bgColor: "#FFF9C4", textColor: "#FFFFFF" }],
+      100,
+      null,
+    );
+    expect(badge.bgColor).toBe("#FFF9C4");
+    expect(badge.textColor).not.toBe("#FFFFFF");
+    expect(contrastRatio(badge.textColor, badge.bgColor)!).toBeGreaterThanOrEqual(4.5);
   });
 });

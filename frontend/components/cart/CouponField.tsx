@@ -78,7 +78,7 @@ export function CouponField({
           marginBottom: 16,
         }}
       >
-        <Check aria-hidden="true" size={15} style={{ color: "#1F8A5C", flex: "none" }} />
+        <Check aria-hidden="true" size={15} style={{ color: "var(--pdh-success)", flex: "none" }} />
         <span style={{ fontSize: 12.5, flex: 1, minWidth: 0 }}>
           Code <strong>{applied.code}</strong> appliqué
         </span>
@@ -166,7 +166,7 @@ export function CouponField({
         </button>
       </div>
       {error && (
-        <p id="coupon-error" role="alert" style={{ fontSize: 12, color: "#9A3B3B", margin: "8px 0 0", lineHeight: 1.5 }}>
+        <p id="coupon-error" role="alert" style={{ fontSize: 12, color: "var(--pdh-error)", margin: "8px 0 0", lineHeight: 1.5 }}>
           {error}
         </p>
       )}

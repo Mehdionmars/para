@@ -1,4 +1,5 @@
 import { APIError, type CollectionConfig, type PayloadRequest } from 'payload'
+import { PAYMENT_METHOD_OPTIONS } from '../globals/PaymentSettings'
 
 import { adminOrManager, canEditOrders, isStaff, staffOnlyInAdmin } from '../access/roles'
 import { runSql, sql } from '../lib/db/exec'
@@ -339,9 +340,15 @@ export const Orders: CollectionConfig = {
           required: true,
         },
         {
+          // A select, like paymentStatus beside it. As free text this held
+          // the display string 'À la livraison' on every order, so the
+          // dashboard's own label map never matched and the wording became
+          // the data. Values are codes; PAYMENT_METHOD_LABELS renders them.
           name: 'paymentMethod',
-          type: 'text',
-          admin: { description: 'e.g. "CMI" or "À la livraison"' },
+          type: 'select',
+          defaultValue: 'cash_on_delivery',
+          options: [...PAYMENT_METHOD_OPTIONS],
+          admin: { description: 'Renseigné par le checkout. Modifiable ici si la commande est prise par téléphone.' },
         },
       ],
     },

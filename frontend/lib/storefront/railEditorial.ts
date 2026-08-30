@@ -46,6 +46,24 @@ export type ResolvedRailEditorial = {
  * who deliberately clears the description wants the paragraph gone, and
  * `hideDescription` lets the caller say so.
  */
+/**
+ * Does this rail actually say something of its own?
+ *
+ * The fallbacks above exist so a rail saved before these fields existed
+ * still renders. On a page with one such rail that is right; on the home
+ * page, where several rails carry an image but no copy, every one of them
+ * printed the identical "Des conseils pensés pour votre peau" paragraph —
+ * the same block, twice, a screen apart.
+ *
+ * So the fallbacks still fill individual blanks (a rail with a title but no
+ * CTA label keeps working), but a rail with NO words of its own no longer
+ * earns an editorial block at all. The image alone was never the content.
+ */
+export function hasOwnEditorialCopy(editorial: RailEditorial | undefined): boolean {
+  if (!editorial) return false;
+  return Boolean(editorial.title?.trim() || editorial.description?.trim());
+}
+
 export function resolveRailEditorial(editorial: RailEditorial): ResolvedRailEditorial {
   return {
     image: editorial.image,

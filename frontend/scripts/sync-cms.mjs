@@ -619,6 +619,7 @@ export const FREE_SHIPPING_THRESHOLD = ${home.freeShippingThreshold ?? 399};
 
 export type SectionKey =
   | "hero"
+  | "featuredPromo"
   | "marketingBanner"
   | "ctaPair1"
   | "summerEdit"
@@ -941,9 +942,12 @@ async function syncNav() {
   const cleanAppearance = (a) => {
     if (!a) return undefined
     const out = {}
-    for (const key of ['color', 'hoverColor', 'activeColor', 'backgroundColor', 'fontWeight']) {
+    for (const key of ['color', 'hoverColor', 'activeColor', 'backgroundColor', 'borderColor', 'fontWeight']) {
       if (a[key]) out[key] = a[key]
     }
+    // Numeric, so the truthiness loop above would have swallowed a legitimate
+    // 0. lib/navStyle.ts reads both this and borderColor.
+    if (typeof a.opacity === 'number') out.opacity = a.opacity
     return Object.keys(out).length ? out : undefined
   }
 
@@ -981,6 +985,28 @@ async function syncNav() {
     ...(cleanAnimation(item.animation) ? { animation: cleanAnimation(item.animation) } : {}),
   }))
 
+  // The mobile/desktop category strip. Absent from this generator until now,
+  // which meant every successful sync silently deleted CATEGORY_STRIP from
+  // data/nav.ts and broke the build on the next compile — the snapshot is the
+  // fallback the home page reads when the CMS is unreachable, so it has to be
+  // regenerated here or not regenerated at all.
+  const strip = nav.catStrip || {}
+  const categoryStrip = {
+    allChipLabel: strip.allChipLabel || 'Tout',
+    enabled: strip.enabled === true,
+    items: (strip.items || [])
+      .filter((i) => i.visible !== false && i.label?.trim())
+      .map((i) => {
+        const image = mediaURL(i.image)
+        return {
+          href: resolveNavHref(i),
+          label: i.label.trim(),
+          ...(image ? { image } : {}),
+        }
+      }),
+    showAllChip: strip.showAllChip !== false,
+  }
+
   const megaMenu = {}
   for (const item of items) {
     if (!item.megaMenuEnabled) continue
@@ -989,7 +1015,16 @@ async function syncNav() {
       subtitle: mm.subtitle || '',
       columns: (mm.columns || []).map((col) => ({
         title: col.title,
-        links: (col.links || []).filter((l) => l.visible !== false).map((l) => ({ href: resolveNavHref(l), label: l.label })),
+        links: (col.links || []).filter((l) => l.visible !== false).map((l) => ({
+          href: resolveNavHref(l),
+          label: l.label,
+          ...(l.openInNewTab ? { openInNewTab: true } : {}),
+          // Mega-menu links carry the same appearance/animation fields as the
+          // top-level items and are rendered by the same helpers — dropping
+          // them here silently flattened every styled sub-link.
+          ...(cleanAppearance(l.appearance) ? { appearance: cleanAppearance(l.appearance) } : {}),
+          ...(cleanAnimation(l.animation) ? { animation: cleanAnimation(l.animation) } : {}),
+        })),
       })),
       promo: mm.promo?.title
         ? {
@@ -1026,7 +1061,12 @@ export type NavAppearance = {
   hoverColor?: string;
   activeColor?: string;
   backgroundColor?: string;
+  /** Thin outline around the link. Configured per item in the CMS. */
+  borderColor?: string;
   fontWeight?: string;
+  /** 0–1. Absent means "not configured" and inherits the CSS fallback of 1,
+   * which is why it is optional rather than defaulted here. */
+  opacity?: number;
 };
 
 export type NavAnimationType = "blink" | "pulse" | "shimmer" | "glow";
@@ -1038,7 +1078,13 @@ export type NavAnimation = {
   /** "infinite" or a stringified integer. */
   iterationCount: string;
 };
-export type MegaLink = { label: string; href: string };
+export type MegaLink = {
+  label: string;
+  href: string;
+  openInNewTab?: boolean;
+  appearance?: NavAppearance;
+  animation?: NavAnimation;
+};
 export type MegaColumn = { title: string; links: MegaLink[] };
 export type MegaPromo = { img: string; title: string; description: string; ctaLabel: string; ctaUrl: string };
 export type MegaMenuContent = { subtitle: string; columns: MegaColumn[]; promo: MegaPromo | null };
@@ -1060,6 +1106,17 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = ${JSON.stringify(navItems, null, 2)};
 
 export const MEGA_MENU: Record<string, MegaMenuContent> = ${JSON.stringify(megaMenu, null, 2)};
+
+/** The round category shortcuts above the hero. \`enabled\` is opt-in: a shop
+ * that never configured the strip must not suddenly grow one because a sync
+ * ran. \`image\` is omitted per chip rather than emitted empty — the strip
+ * renders as tiles only when every configured chip has one. */
+export const CATEGORY_STRIP: {
+  enabled: boolean;
+  showAllChip: boolean;
+  allChipLabel: string;
+  items: { label: string; href: string; image?: string }[];
+} = ${JSON.stringify(categoryStrip, null, 2)};
 `
   writeGenerated('nav.ts', content)
 }

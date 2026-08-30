@@ -31,15 +31,24 @@ function requestHost(request: NextRequest): string {
 function isAdminHost(request: NextRequest) {
   const hostname = requestHost(request);
 
-  return (
-    hostname === ADMIN_HOST ||
-    // Kept as-is: reaching the dashboard at localhost is the existing local
-    // convention. Any other name — 127.0.0.1, a *.test alias, the LAN IP —
-    // now resolves as the public storefront, which is what makes it
-    // developable locally again.
-    hostname === "localhost" ||
-    hostname.startsWith("admin.")
-  );
+  return hostname === ADMIN_HOST || hostname.startsWith("admin.");
+}
+
+/**
+ * A developer's own machine, where the whole app is served from one origin.
+ *
+ * In production the split is by domain: paradhiver.ma is the shop and
+ * admin.paradhiver.ma is the back office, and `/dashboard` is deliberately
+ * not reachable through the public name. Locally there is only one origin,
+ * so the same split has to be by path — `/` is the shop and `/dashboard` is
+ * the back office, which is the arrangement every other Next app uses.
+ *
+ * `localhost` used to be listed in `isAdminHost` above instead, which is why
+ * opening http://localhost:3000/ landed on /dashboard/login: every public
+ * path on that host was being rewritten into the dashboard.
+ */
+function isLocalHost(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1" || hostname.endsWith(".localhost");
 }
 
 /**
@@ -139,6 +148,18 @@ export function proxy(request: NextRequest) {
     // this case and was in fact the cause of it.
     if (pathname === "/dashboard/login") return NextResponse.next();
 
+    // On a developer's single origin, /dashboard IS the back office and must
+    // behave like one: serve it, and let the real guard decide.
+    //
+    // The unconditional bounce below sent /dashboard to the login page even
+    // for a signed-in administrator, because it never looked at the session.
+    // Authentication is not re-implemented here — app/dashboard/(app)/layout
+    // already calls requireStaffUser() and redirects anyone without a valid
+    // staff session. Passing through keeps that one guard the only authority.
+    if (isLocalHost(requestHost(request))) return NextResponse.next();
+
+    // Public production domain: the dashboard is not exposed here at all.
+    // It lives on admin.paradhiver.ma, and that stays true.
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard/login";
 

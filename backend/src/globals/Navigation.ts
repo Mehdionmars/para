@@ -329,6 +329,16 @@ export const Navigation: GlobalConfig = {
           maxRows: 10,
           fields: [
             { name: 'label', type: 'text', required: true },
+            {
+              name: 'image',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Visuel de la pastille',
+              admin: {
+                description:
+                  "Carré de préférence (il est recadré en cercle). Sans image, la puce reste un simple bouton texte.",
+              },
+            },
             { name: 'visible', type: 'checkbox', defaultValue: true, label: 'Afficher cette puce' },
             ...linkTypeFields(NAV_LINK_TYPES),
           ],

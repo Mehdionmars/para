@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
-import { Jost, Poppins, Raleway } from "next/font/google";
+import localFont from "next/font/local";
+import { Cairo, Poppins } from "next/font/google";
 import { StoreProvider } from "@/context/store-provider";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
-import { MobileCategoryStrip } from "@/components/layout/MobileCategoryStrip";
 import { Footer } from "@/components/layout/Footer";
+import { PromoModal } from "@/components/layout/PromoModal";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { Toast } from "@/components/layout/Toast";
 import { FloatingActions } from "@/components/floating-actions/FloatingActions";
 import { FOOTER_COLUMNS, HEADER_ACTIONS, HEADER_SEARCH, LOGO, TOPBAR_CONFIG } from "@/data/siteChrome";
 import { chromeAppearanceCss } from "@/lib/chromeAppearance";
+import { SITE_DIR, SITE_LOCALE } from "@/lib/locale";
 import { THEME } from "@/data/theme";
-import { CATEGORY_STRIP, MEGA_MENU, NAV_ITEMS } from "@/data/nav";
+import { MEGA_MENU, NAV_ITEMS } from "@/data/nav";
 import {
   fetchLiveNavigation,
   fetchLiveSiteChrome,
@@ -23,22 +25,79 @@ import {
 } from "@/lib/storefront/siteChromeContent";
 import "./globals.css";
 
-const jost = Jost({
-  variable: "--font-jost",
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "500"],
+/**
+ * Alta — the brand's primary typeface, self-hosted.
+ *
+ * It replaces Jost, which had been standing in for it: same geometric,
+ * high-waisted character, but Jost is not the approved face and the
+ * closest available font is a substitute, not a choice.
+ *
+ * Two files, declared as weight *ranges* rather than single values. The
+ * family ships only Light and Regular (measured stems of 35 and 71 units
+ * per 1000 — exactly double), while the storefront asks for 200, 300, 400
+ * and 500 across 58 declarations. Ranges let each existing declaration
+ * resolve to the right file with no call-site edits, and — more importantly
+ * — stop the browser synthesising a fake bold for 500, which is what a bare
+ * `weight: "400"` would have invited.
+ *
+ * Alta Caption, the third file supplied, is deliberately not shipped: it is
+ * Regular with ~5% looser spacing for small sizes, and every Alta role here
+ * is display. Loading an unused 14 KB face to be thorough is not thorough.
+ *
+ * One caveat lives in the font itself: Light has no ellipsis glyph (U+2026).
+ * Nothing set in Alta uses one today — the storefront's ellipses are all in
+ * body copy and placeholders, which are Poppins — but a heading written with
+ * "…" would fall back mid-word.
+ */
+const alta = localFont({
+  src: [
+    { path: "../fonts/Alta_light.woff2", weight: "200 300", style: "normal" },
+    { path: "../fonts/Alta_regular.woff2", weight: "400 500", style: "normal" },
+  ],
+  variable: "--font-alta",
+  display: "swap",
+  // Alta's lowercase runs nearly as tall as its caps, so the default metric
+  // fallback overshoots badly. Arial is the closest of the adjustable set
+  // and keeps the swap from reflowing headings.
+  adjustFontFallback: "Arial",
+  fallback: ["Century Gothic", "system-ui", "sans-serif"],
 });
 
+/**
+ * Cairo — the brand's third face, for Arabic.
+ *
+ * Requested with the arabic subset only, which makes next/font emit a
+ * @font-face scoped by unicode-range. A browser fetches it the first time an
+ * Arabic glyph is actually painted and never otherwise, so this costs a
+ * French-only page nothing at all — the reason it can ship before a single
+ * string has been translated. `preload: false` keeps it out of the document
+ * head for the same reason: preloading a font no current page renders would
+ * be spending a request on a promise.
+ *
+ * It sits after Poppins in the stack rather than replacing it: Cairo has no
+ * Latin design of its own worth imposing on French copy, and the fallback
+ * chain hands it only the characters Poppins cannot draw.
+ */
+const cairo = Cairo({
+  variable: "--font-cairo",
+  subsets: ["arabic"],
+  weight: ["300", "400", "600", "700"],
+  preload: false,
+});
+
+/**
+ * Poppins now carries two roles: body copy, as before, and the small
+ * uppercase labels that used to be Raleway — eyebrows, badges, buttons and
+ * brand lines at 9–14px with 0.06–0.16em tracking.
+ *
+ * Raleway was never in the brand system. Folding its 42 uses in here means
+ * one fewer family over the wire and one fewer face to keep in sync, and
+ * Poppins already carried the 500/600 weights those labels ask for.
+ */
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-});
-
-const raleway = Raleway({
-  variable: "--font-raleway",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -92,12 +151,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const headerSearch = chrome?.headerSearch ?? HEADER_SEARCH;
   const headerActions = chrome?.headerActions ?? HEADER_ACTIONS;
   const footerColumns = chrome?.footerColumns ?? FOOTER_COLUMNS;
+  // Off unless the CMS says otherwise — a popup nobody configured must not appear.
+  const promoModal = chrome?.promoModal;
   const navItems = navigation?.navItems ?? NAV_ITEMS;
   const megaMenu = navigation?.megaMenu ?? MEGA_MENU;
-  // Comes from the same live, tag-purged Navigation fetch as the menu above,
-  // so an editor's change reaches visitors without a rebuild. CATEGORY_STRIP
-  // is the disabled fallback used only when that fetch fails.
-  const categoryStrip = navigation?.categoryStrip ?? CATEGORY_STRIP;
+  // The mobile category strip used to render here, under the header on every
+  // page. It belongs to the home page now — above the hero, which is the only
+  // place it was ever meant to sit in front of — so it is fetched there.
   const t = theme ?? THEME;
 
   const themeStyle = `:root{--pdh-plum:${safeHex(t.colorPrimary, THEME.colorPrimary)};--pdh-teal:${safeHex(t.colorSecondary, THEME.colorSecondary)};--pdh-accent:${safeHex(t.colorAccent, THEME.colorAccent)};--pdh-sale:${safeHex(t.colorSale, THEME.colorSale)};--pdh-ink:${safeHex(t.colorTextPrimary, THEME.colorTextPrimary)};--pdh-muted:${safeHex(t.colorTextMuted, THEME.colorTextMuted)};--pdh-cream:${safeHex(t.colorBackgroundSecondary, THEME.colorBackgroundSecondary)};--pdh-btn-bg:${safeHex(t.buttonBg, THEME.buttonBg)};--pdh-btn-text:${safeHex(t.buttonText, THEME.buttonText)};--pdh-btn-hover-bg:${safeHex(t.buttonHoverBg, THEME.buttonHoverBg)};--pdh-btn-hover-text:${safeHex(t.buttonHoverText, THEME.buttonHoverText)};--pdh-btn-radius:${safeNumber(t.buttonRadius, THEME.buttonRadius, 0, 999)}px;--pdh-btn-weight:${safeNumber(t.buttonFontWeight, THEME.buttonFontWeight, 100, 900)};--pdh-btn-tracking:${safeNumber(t.buttonLetterSpacing, THEME.buttonLetterSpacing, 0, 1)}em;--pdh-badge-bg:${safeHex(t.badgeBg, THEME.badgeBg)};--pdh-badge-text:${safeHex(t.badgeText, THEME.badgeText)};--pdh-badge-font-size:${safeNumber(t.badgeFontSize, THEME.badgeFontSize, 8, 16)}px;--pdh-badge-weight:${safeNumber(t.badgeFontWeight, THEME.badgeFontWeight, 100, 900)};--pdh-badge-tracking:${safeNumber(t.badgeLetterSpacing, THEME.badgeLetterSpacing, 0, 1)}em;--pdh-badge-radius:${safeNumber(t.badgeRadius, THEME.badgeRadius, 0, 999)}px;--pdh-badge-padding-x:${safeNumber(t.badgePaddingX, THEME.badgePaddingX, 0, 30)}px;--pdh-badge-padding-y:${safeNumber(t.badgePaddingY, THEME.badgePaddingY, 0, 20)}px;--pdh-badge-gap:${safeNumber(t.badgeGap, THEME.badgeGap, 0, 20)}px;}`;
@@ -110,7 +170,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const rootStyle = chromeCss ? `${themeStyle}:root{${chromeCss}}` : themeStyle;
 
   return (
-    <html lang="fr" className={`${jost.variable} ${poppins.variable} ${raleway.variable}`}>
+    <html dir={SITE_DIR} lang={SITE_LOCALE} className={`${alta.variable} ${poppins.variable} ${cairo.variable}`}>
       <body style={{ minHeight: "100vh", overflowX: "hidden" }}>
         {/* Values are hex/number-validated above (safeHex, chromeAppearanceCss),
             never raw operator text. */}
@@ -118,14 +178,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <StoreProvider>
           <TopBar config={topBarConfig} />
           <Header logo={logo} headerSearch={headerSearch} headerActions={headerActions} navItems={navItems} megaMenu={megaMenu} />
-          {/* Directly under the header and outside it: the header is sticky,
-              this scrolls away with the page. */}
-          <MobileCategoryStrip strip={categoryStrip} />
           <main>{children}</main>
           <Footer columns={footerColumns} />
           <CartDrawer />
           <Toast />
           <FloatingActions />
+          {promoModal && <PromoModal config={promoModal} />}
         </StoreProvider>
       </body>
     </html>

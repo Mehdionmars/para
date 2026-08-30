@@ -3,14 +3,16 @@ import type { Metadata } from "next";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { Snowflakes } from "@/components/Snowflakes";
-import { SERVICES, servicePriceLabel } from "@/data/services";
-import { STORES } from "@/data/stores";
+import { servicePriceLabel } from "@/data/services";
+import { fetchServices } from "@/lib/storefront/services";
+import { fetchStores } from "@/lib/storefront/stores";
 
 export const metadata: Metadata = {
   title: "Services — Para d'Hiver",
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const [SERVICES, STORES] = await Promise.all([fetchServices(), fetchStores()]);
   return (
     <div style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
       <nav aria-label="Fil d'Ariane" style={{ fontSize: 11.5, letterSpacing: ".1em", opacity: 0.55, marginBottom: 18 }}>
@@ -33,10 +35,10 @@ export default function ServicesPage() {
       >
         <Snowflakes opacity={0.3} />
         <div style={{ position: "relative", maxWidth: "min(100%,860px)" }}>
-          <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.8 }}>
+          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.8 }}>
             Institut Para d&apos;Hiver
           </div>
-          <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(30px,4.6vw,52px)", lineHeight: 1.02, margin: "14px 0 12px" }}>
+          <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(30px,4.6vw,52px)", lineHeight: 1.02, margin: "14px 0 12px" }}>
             Nos services en institut
           </h1>
           <p style={{ fontSize: 14.5, lineHeight: 1.75, opacity: 0.8, margin: 0 }}>
@@ -72,7 +74,7 @@ export default function ServicesPage() {
               <div style={{ fontSize: 16, fontWeight: 600, color: "var(--pdh-ink)" }}>{service.title}</div>
               <div style={{ fontSize: 12.5, lineHeight: 1.65, opacity: 0.65, marginTop: 8, minHeight: 62, color: "var(--pdh-ink)" }}>{service.sub}</div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12 }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 24, color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>{servicePriceLabel(service)}</span>
+                <span style={{ fontFamily: "var(--font-alta)", fontSize: 24, color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>{servicePriceLabel(service)}</span>
                 <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>Découvrir →</span>
               </div>
             </div>
@@ -81,7 +83,7 @@ export default function ServicesPage() {
       </div>
 
       <section style={{ marginTop: "clamp(40px,5vw,64px)" }}>
-        <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(24px,3vw,34px)", margin: "0 0 18px" }}>
+        <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(24px,3vw,34px)", margin: "0 0 18px" }}>
           Nos magasins
         </h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))", gap: "clamp(14px,1.8vw,22px)" }}>
@@ -97,7 +99,7 @@ export default function ServicesPage() {
                 gap: 14,
               }}
             >
-              <div style={{ fontFamily: "var(--font-jost)", fontSize: 20, fontWeight: 400, color: "var(--pdh-ink)" }}>
+              <div style={{ fontFamily: "var(--font-alta)", fontSize: 20, fontWeight: 400, color: "var(--pdh-ink)" }}>
                 {store.name}
               </div>
 

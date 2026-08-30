@@ -30,7 +30,7 @@ function CoffretCard({ c }: { c: Coffret }) {
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
-        textAlign: "left",
+        textAlign: "start",
       }}
     >
       <CloudinaryImage preset="category" src={c.img} alt={c.title} fill sizes="380px" style={{ objectFit: "cover" }} />
@@ -41,12 +41,12 @@ function CoffretCard({ c }: { c: Coffret }) {
             {c.tag}
           </span>
         )}
-        <div style={{ fontFamily: "var(--font-jost)", fontWeight: 300, fontSize: 24, lineHeight: 1.15, margin: "12px 0 6px", maxWidth: 280, color: "var(--pdh-cream)", textShadow: "0 1px 12px rgba(30,24,14,.5)" }}>
+        <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 24, lineHeight: 1.15, margin: "12px 0 6px", maxWidth: 280, color: "var(--pdh-cream)", textShadow: "0 1px 12px rgba(30,24,14,.5)" }}>
           {c.title}
         </div>
         <div style={{ fontSize: 12.5, color: "rgba(247,238,229,.82)", maxWidth: 280, lineHeight: 1.6 }}>{c.sub}</div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 16 }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 21, color: "var(--pdh-cream)", whiteSpace: "nowrap" }}>
+          <span style={{ fontFamily: "var(--font-alta)", fontSize: 21, color: "var(--pdh-cream)", whiteSpace: "nowrap" }}>
             {c.priceFrom ? "Dès " : ""}
             {money(c.price)}
           </span>
@@ -72,13 +72,13 @@ export function GiftSetsCarousel({ coffrets, copy: copyProp }: { coffrets?: Coff
   if (items.length === 0) return null;
 
   return (
-    <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
+    <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
             {copy.eyebrow}
           </div>
-          <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0" }}>{copy.title}</h2>
+          <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0" }}>{copy.title}</h2>
           {copy.subtitle && <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6 }}>{copy.subtitle}</div>}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>

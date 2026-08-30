@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ChevronDown, ExternalLink, Loader2, MoreVertical, Printer } from "lucide-react";
+import { AlertTriangle, ChevronDown, ExternalLink, Loader2, MoreVertical, Printer, ReceiptText } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { updateOrderStatus } from "@/app/dashboard/(app)/orders/actions";
@@ -59,6 +59,7 @@ export function OrderHeaderActions({
   id,
   orderNumber,
   printHref,
+  receiptHref,
   readOnly = false,
   status,
 }: {
@@ -66,6 +67,7 @@ export function OrderHeaderActions({
   id: number;
   orderNumber: string;
   printHref: string;
+  receiptHref: string;
   readOnly?: boolean;
   status: OrderStatus;
 }) {
@@ -217,6 +219,10 @@ export function OrderHeaderActions({
             <a className={MENU_ITEM} href={printHref} rel="noopener" role="menuitem" target="_blank">
               <Printer aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-400" />
               Imprimer le ticket
+            </a>
+            <a className={MENU_ITEM} href={receiptHref} rel="noopener" role="menuitem" target="_blank">
+              <ReceiptText aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-400" />
+              Reçu client
             </a>
             <a className={MENU_ITEM} href={adminHref} rel="noopener" role="menuitem" target="_blank">
               <ExternalLink aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-400" />

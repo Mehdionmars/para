@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { BundleUpsell } from "@/components/product/BundleUpsell";
 import { ProductDetail } from "@/components/product/ProductDetail";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { SimilarProducts } from "@/components/product/SimilarProducts";
@@ -149,6 +150,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           picking an option has to move the price, the stock, the SKU and —
           when the option ships one — the photograph. */}
       <ProductDetail product={product} />
+
+      {/* Directly under the buy box, where the decision is still open. Reuses
+          the same live category matches the "Vous aimerez aussi" rail below
+          renders — one fetch, two sections, no second recommendation path. */}
+      <BundleUpsell bundleDiscountPercent={15} currentProduct={product} products={similar} />
 
       <ProductReviews product={product} />
       <SimilarProducts product={product} products={similar} />

@@ -17,9 +17,8 @@ import { BRAND_LOGO_FILES, wordmarkMeasure, wordmarkSpec } from "@/lib/brandWord
  */
 
 const FAMILY_VAR = {
-  jost: "var(--font-jost)",
+  alta: "var(--font-alta)",
   poppins: "var(--font-poppins)",
-  raleway: "var(--font-raleway)",
 } as const;
 
 type Size = "sm" | "md" | "lg";

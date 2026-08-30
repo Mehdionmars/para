@@ -2,7 +2,7 @@
 
 import { Printer } from "lucide-react";
 import { useEffect } from "react";
-import { orderItemVariantLabel } from "@/lib/dashboard/orders-types";
+import { paymentMethodLabel, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
 import type { Order } from "@/lib/dashboard/orders-types";
 
 /**
@@ -28,11 +28,6 @@ function formatDate(iso: string) {
   return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-const PAYMENT_LABELS: Record<string, string> = {
-  cod: "Paiement à la livraison",
-  cmi: "Carte bancaire (CMI)",
-};
-
 export function OrderTicket({ order, autoPrint = false }: { order: Order; autoPrint?: boolean }) {
   // Opening the print view from the order page should land straight in the
   // print dialog — the operator's next action is always "print".
@@ -46,7 +41,7 @@ export function OrderTicket({ order, autoPrint = false }: { order: Order; autoPr
   // that doesn't reach the total means something was taken off.
   const discount = Math.max(0, order.subtotal + (order.shipping || 0) - order.total);
   const paymentLabel =
-    (order.paymentMethod && (PAYMENT_LABELS[order.paymentMethod.toLowerCase()] || order.paymentMethod)) ||
+    (order.paymentMethod ? paymentMethodLabel(order.paymentMethod) : null) ||
     "Paiement à la livraison";
 
   return (

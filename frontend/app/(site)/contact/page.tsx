@@ -2,16 +2,18 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Snowflakes } from "@/components/Snowflakes";
-import { STORES } from "@/data/stores";
+import { fetchStores } from "@/lib/storefront/stores";
 
 export const metadata: Metadata = {
   title: "Contact — Para d'Hiver",
 };
 
 const WHATSAPP_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
-const primaryStore = STORES[0];
-
-export default function ContactPage() {
+export default async function ContactPage() {
+  // Live: this page's whole job is telling people how to reach the pharmacy,
+  // and a phone number corrected in the admin used to wait for a redeploy.
+  const STORES = await fetchStores();
+  const primaryStore = STORES[0];
   return (
     <div style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
       <nav aria-label="Fil d'Ariane" style={{ fontSize: 11.5, letterSpacing: ".1em", opacity: 0.55, marginBottom: 18 }}>
@@ -34,10 +36,10 @@ export default function ContactPage() {
       >
         <Snowflakes opacity={0.3} />
         <div style={{ position: "relative", maxWidth: "min(100%,860px)" }}>
-          <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.8 }}>
+          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.8 }}>
             Para d&apos;Hiver
           </div>
-          <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(30px,4.6vw,52px)", lineHeight: 1.02, margin: "14px 0 12px" }}>
+          <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(30px,4.6vw,52px)", lineHeight: 1.02, margin: "14px 0 12px" }}>
             Nous contacter
           </h1>
           <p style={{ fontSize: 14.5, lineHeight: 1.75, opacity: 0.8, margin: 0 }}>
@@ -54,7 +56,7 @@ export default function ContactPage() {
             style={{ display: "flex", flexDirection: "column", gap: 12, borderRadius: 20, border: "1px solid rgba(94,64,116,.12)", padding: "clamp(20px,2.4vw,28px)", background: "#fff" }}
           >
             <Phone aria-hidden="true" size={22} strokeWidth={1.6} style={{ color: "var(--pdh-plum)" }} />
-            <div style={{ fontFamily: "var(--font-jost)", fontSize: 17, color: "var(--pdh-ink)" }}>Téléphone</div>
+            <div style={{ fontFamily: "var(--font-alta)", fontSize: 17, color: "var(--pdh-ink)" }}>Téléphone</div>
             <div style={{ fontSize: 13.5, opacity: 0.75 }}>{primaryStore.phone}</div>
           </a>
         )}
@@ -66,7 +68,7 @@ export default function ContactPage() {
             style={{ display: "flex", flexDirection: "column", gap: 12, borderRadius: 20, border: "1px solid rgba(94,64,116,.12)", padding: "clamp(20px,2.4vw,28px)", background: "#fff" }}
           >
             <Mail aria-hidden="true" size={22} strokeWidth={1.6} style={{ color: "var(--pdh-plum)" }} />
-            <div style={{ fontFamily: "var(--font-jost)", fontSize: 17, color: "var(--pdh-ink)" }}>Email</div>
+            <div style={{ fontFamily: "var(--font-alta)", fontSize: 17, color: "var(--pdh-ink)" }}>Email</div>
             <div style={{ fontSize: 13.5, opacity: 0.75 }}>{primaryStore.email}</div>
           </a>
         )}
@@ -80,14 +82,14 @@ export default function ContactPage() {
             style={{ display: "flex", flexDirection: "column", gap: 12, borderRadius: 20, border: "1px solid rgba(94,64,116,.12)", padding: "clamp(20px,2.4vw,28px)", background: "#fff" }}
           >
             <MessageCircle aria-hidden="true" size={22} strokeWidth={1.6} style={{ color: "var(--pdh-plum)" }} />
-            <div style={{ fontFamily: "var(--font-jost)", fontSize: 17, color: "var(--pdh-ink)" }}>WhatsApp</div>
+            <div style={{ fontFamily: "var(--font-alta)", fontSize: 17, color: "var(--pdh-ink)" }}>WhatsApp</div>
             <div style={{ fontSize: 13.5, opacity: 0.75 }}>Réponse rapide, du lundi au samedi</div>
           </a>
         )}
       </div>
 
       <section>
-        <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(24px,3vw,34px)", margin: "0 0 18px" }}>
+        <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(24px,3vw,34px)", margin: "0 0 18px" }}>
           Nos magasins
         </h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))", gap: "clamp(14px,1.8vw,22px)" }}>
@@ -103,7 +105,7 @@ export default function ContactPage() {
                 gap: 14,
               }}
             >
-              <div style={{ fontFamily: "var(--font-jost)", fontSize: 20, fontWeight: 400, color: "var(--pdh-ink)" }}>
+              <div style={{ fontFamily: "var(--font-alta)", fontSize: 20, fontWeight: 400, color: "var(--pdh-ink)" }}>
                 {store.name}
               </div>
 

@@ -79,7 +79,7 @@ export function MobileNavDrawer({
           borderBottom: "1px solid rgba(94,64,116,.12)",
         }}
       >
-        <span style={{ fontFamily: "var(--font-jost)", fontSize: 18, fontWeight: 500, color: "var(--pdh-ink)" }}>Menu</span>
+        <span style={{ fontFamily: "var(--font-alta)", fontSize: 18, fontWeight: 500, color: "var(--pdh-ink)" }}>Menu</span>
         <button type="button" onClick={onClose} aria-label="Fermer le menu" className="icon-btn" style={{ color: "var(--pdh-plum)" }}>
           <X aria-hidden="true" size={22} />
         </button>
@@ -107,7 +107,7 @@ export function MobileNavDrawer({
                       // Same per-item variables as desktop; the CSS fallback
                       // keeps the drawer's original ink colour when unset.
                       ...navItemStyle(item),
-                      "--nav-color": item.appearance?.color ?? "#222222",
+                      "--nav-color": item.appearance?.color ?? "var(--pdh-ink)",
                     } as React.CSSProperties}
                   >
                     <NavItemLabel item={item} />
@@ -131,9 +131,9 @@ export function MobileNavDrawer({
                     padding: "16px 4px",
                     fontSize: 15,
                     cursor: "pointer",
-                    textAlign: "left",
+                    textAlign: "start",
                     ...navItemStyle(item),
-                    "--nav-color": item.appearance?.color ?? "#222222",
+                    "--nav-color": item.appearance?.color ?? "var(--pdh-ink)",
                   } as React.CSSProperties}
                 >
                   <span style={{ display: "inline-flex", alignItems: "center" }}>
@@ -142,14 +142,14 @@ export function MobileNavDrawer({
                   <ChevronDown
                     aria-hidden="true"
                     size={18}
-                    style={{ color: "var(--pdh-teal)", transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}
+                    style={{ color: "var(--pdh-teal-text)", transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}
                   />
                 </button>
                 {isOpen && (
                   <div style={{ padding: "0 4px 18px", display: "flex", flexDirection: "column", gap: 18 }}>
                     {columns.map((col) => (
                       <div key={col.title}>
-                        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--pdh-teal)", marginBottom: 10 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--pdh-teal-text)", marginBottom: 10 }}>
                           {col.title}
                         </div>
                         <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
@@ -196,7 +196,7 @@ export function MobileNavDrawer({
           tabIndex={0}
           onClick={() => navigate("/services")}
           onKeyDown={(e) => onNavKeyDown(e, "/services")}
-          style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "#222222" }}
+          style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "var(--pdh-ink)" }}
         >
           <MapPin aria-hidden="true" size={19} strokeWidth={1.6} />
           Magasin et services
@@ -206,7 +206,7 @@ export function MobileNavDrawer({
           tabIndex={0}
           onClick={() => navigate("/contact")}
           onKeyDown={(e) => onNavKeyDown(e, "/contact")}
-          style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "#222222" }}
+          style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "var(--pdh-ink)" }}
         >
           <MessageCircle aria-hidden="true" size={19} strokeWidth={1.6} />
           Contact
@@ -216,7 +216,7 @@ export function MobileNavDrawer({
           tabIndex={0}
           onClick={() => navigate("/favoris")}
           onKeyDown={(e) => onNavKeyDown(e, "/favoris")}
-          style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "#222222" }}
+          style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", minHeight: 44, fontSize: 14, color: "var(--pdh-ink)" }}
         >
           <Heart aria-hidden="true" size={19} strokeWidth={1.6} />
           Mes favoris {favorites.count > 0 ? `(${favorites.count})` : ""}

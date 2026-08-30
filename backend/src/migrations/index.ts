@@ -25,6 +25,8 @@ import * as migration_20260826_110000_order_number_sequence from './20260826_110
 import * as migration_20260826_120000_rate_limit_idempotency from './20260826_120000_rate_limit_idempotency';
 import * as migration_20260826_140000_mobile_category_strip from './20260826_140000_mobile_category_strip';
 import * as migration_20260826_150000_home_schema_drift from './20260826_150000_home_schema_drift';
+import * as migration_20260829_090000_nav_strip_image_and_promo_modal from './20260829_090000_nav_strip_image_and_promo_modal';
+import * as migration_20260829_120000_payment_settings_and_method_enum from './20260829_120000_payment_settings_and_method_enum';
 
 export const migrations = [
   {
@@ -161,5 +163,15 @@ export const migrations = [
     up: migration_20260826_150000_home_schema_drift.up,
     down: migration_20260826_150000_home_schema_drift.down,
     name: '20260826_150000_home_schema_drift'
+  },
+  {
+    up: migration_20260829_090000_nav_strip_image_and_promo_modal.up,
+    down: migration_20260829_090000_nav_strip_image_and_promo_modal.down,
+    name: '20260829_090000_nav_strip_image_and_promo_modal'
+  },
+  {
+    up: migration_20260829_120000_payment_settings_and_method_enum.up,
+    down: migration_20260829_120000_payment_settings_and_method_enum.down,
+    name: '20260829_120000_payment_settings_and_method_enum'
   },
 ];

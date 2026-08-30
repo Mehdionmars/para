@@ -63,7 +63,7 @@ export function CheckoutField({
     value,
   };
 
-  const border = error ? { borderColor: "#9A3B3B" } : undefined;
+  const border = error ? { borderColor: "var(--pdh-error)" } : undefined;
 
   return (
     <div>
@@ -72,7 +72,7 @@ export function CheckoutField({
         {required && (
           <>
             {" "}
-            <span aria-hidden="true" style={{ color: "#9A3B3B" }}>
+            <span aria-hidden="true" style={{ color: "var(--pdh-error)" }}>
               *
             </span>
             <span className="sr-only" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>
@@ -102,7 +102,7 @@ export function CheckoutField({
         </p>
       )}
       {error && (
-        <p id={errorId} role="alert" style={{ margin: "5px 0 0", fontSize: 12, color: "#9A3B3B" }}>
+        <p id={errorId} role="alert" style={{ margin: "5px 0 0", fontSize: 12, color: "var(--pdh-error)" }}>
           {error}
         </p>
       )}

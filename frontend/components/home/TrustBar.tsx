@@ -6,7 +6,7 @@ type TrustBadge = { title: string; sub: string; icon: LucideIcon };
 export function TrustBar({ badges }: { badges?: TrustBadge[] } = {}) {
   const items = badges ?? TRUST_BADGES;
   return (
-    <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "0 clamp(14px,3.4vw,32px) clamp(28px,3.6vw,48px)" }}>
+    <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,0px) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div
         className="trust-bar"
         role="list"

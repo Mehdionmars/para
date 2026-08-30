@@ -19,7 +19,9 @@
 
 export type WordmarkSpec = {
   /** Which of the three loaded faces carries this brand's character. */
-  family: "jost" | "poppins" | "raleway";
+  /** Alta carries the geometric wordmarks; Poppins the rest, including
+   *  the four that were set in Raleway before it left the system. */
+  family: "alta" | "poppins";
   weight: 200 | 300 | 400 | 500 | 600 | 700;
   /** Letter-spacing in em. Couture brands run wide, retail brands run tight. */
   tracking: number;
@@ -29,7 +31,7 @@ export type WordmarkSpec = {
   size?: number;
 };
 
-const DEFAULT_SPEC: WordmarkSpec = { family: "jost", weight: 300, tracking: 0.18, transform: "uppercase" };
+const DEFAULT_SPEC: WordmarkSpec = { family: "alta", weight: 300, tracking: 0.18, transform: "uppercase" };
 
 /**
  * Keyed by brand slug. Each entry is a reading of how that laboratory
@@ -40,31 +42,31 @@ const DEFAULT_SPEC: WordmarkSpec = { family: "jost", weight: 300, tracking: 0.18
  */
 export const BRAND_WORDMARKS: Record<string, WordmarkSpec> = {
   arkopharma: { family: "poppins", weight: 600, tracking: 0.02, transform: "uppercase" },
-  avene: { family: "jost", weight: 300, tracking: 0.22, transform: "uppercase" },
+  avene: { family: "alta", weight: 300, tracking: 0.22, transform: "uppercase" },
   bioderma: { family: "poppins", weight: 700, tracking: -0.01, transform: "uppercase" },
   cerave: { family: "poppins", weight: 600, tracking: -0.015, transform: "none" },
-  "d-biotic": { family: "jost", weight: 400, tracking: 0.12, transform: "uppercase" },
+  "d-biotic": { family: "alta", weight: 400, tracking: 0.12, transform: "uppercase" },
   dcp: { family: "poppins", weight: 700, tracking: 0.06, transform: "uppercase" },
-  ducray: { family: "jost", weight: 300, tracking: 0.26, transform: "uppercase" },
-  ecrinal: { family: "raleway", weight: 500, tracking: 0.2, transform: "uppercase" },
+  ducray: { family: "alta", weight: 300, tracking: 0.26, transform: "uppercase" },
+  ecrinal: { family: "poppins", weight: 500, tracking: 0.2, transform: "uppercase" },
   elmex: { family: "poppins", weight: 700, tracking: -0.02, transform: "lowercase" },
-  heliabrine: { family: "raleway", weight: 300, tracking: 0.24, transform: "uppercase" },
-  htceutic: { family: "jost", weight: 400, tracking: 0.1, transform: "uppercase" },
+  heliabrine: { family: "poppins", weight: 300, tracking: 0.24, transform: "uppercase" },
+  htceutic: { family: "alta", weight: 400, tracking: 0.1, transform: "uppercase" },
   inava: { family: "poppins", weight: 600, tracking: 0.02, transform: "lowercase" },
   isdin: { family: "poppins", weight: 700, tracking: 0.01, transform: "uppercase" },
-  klorane: { family: "jost", weight: 300, tracking: 0.3, transform: "uppercase" },
+  klorane: { family: "alta", weight: 300, tracking: 0.3, transform: "uppercase" },
   "la-roche-posay": { family: "poppins", weight: 500, tracking: 0.02, transform: "uppercase" },
   lcp: { family: "poppins", weight: 700, tracking: 0.06, transform: "uppercase" },
-  lierac: { family: "jost", weight: 200, tracking: 0.34, transform: "uppercase" },
+  lierac: { family: "alta", weight: 200, tracking: 0.34, transform: "uppercase" },
   mustela: { family: "poppins", weight: 600, tracking: 0.01, transform: "lowercase" },
-  nuxe: { family: "jost", weight: 300, tracking: 0.3, transform: "uppercase" },
+  nuxe: { family: "alta", weight: 300, tracking: 0.3, transform: "uppercase" },
   parodontax: { family: "poppins", weight: 600, tracking: -0.01, transform: "lowercase" },
-  phyto: { family: "jost", weight: 400, tracking: 0.28, transform: "uppercase" },
-  saforelle: { family: "raleway", weight: 500, tracking: 0.04, transform: "none" },
+  phyto: { family: "alta", weight: 400, tracking: 0.28, transform: "uppercase" },
+  saforelle: { family: "poppins", weight: 500, tracking: 0.04, transform: "none" },
   solgar: { family: "poppins", weight: 600, tracking: 0.1, transform: "uppercase" },
   svr: { family: "poppins", weight: 700, tracking: 0.04, transform: "uppercase" },
-  uriage: { family: "jost", weight: 300, tracking: 0.26, transform: "uppercase" },
-  "vita-citral": { family: "raleway", weight: 400, tracking: 0.16, transform: "uppercase" },
+  uriage: { family: "alta", weight: 300, tracking: 0.26, transform: "uppercase" },
+  "vita-citral": { family: "poppins", weight: 400, tracking: 0.16, transform: "uppercase" },
   vichy: { family: "poppins", weight: 600, tracking: 0.14, transform: "uppercase" },
 };
 

@@ -180,7 +180,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
               >
                 <span
                   style={{
-                    fontFamily: "var(--font-raleway)",
+                    fontFamily: "var(--font-poppins)",
                     display: "inline-block",
                     whiteSpace: "nowrap",
                     fontSize: 10.5,
@@ -196,7 +196,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                 </span>
                 <Title
                   style={{
-                    fontFamily: "var(--font-jost)",
+                    fontFamily: "var(--font-alta)",
                     fontWeight: 300,
                     fontSize: "clamp(26px,3.2vw,38px)",
                     lineHeight: 1.08,
@@ -261,7 +261,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
         className="hero-nav-btn"
         style={{
           position: "absolute",
-          left: 18,
+          insetInlineStart: 18,
           top: "50%",
           transform: "translateY(-50%)",
           width: 38,
@@ -286,7 +286,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
         className="hero-nav-btn"
         style={{
           position: "absolute",
-          right: 18,
+          insetInlineEnd: 18,
           top: "50%",
           transform: "translateY(-50%)",
           width: 38,

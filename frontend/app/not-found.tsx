@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Jost, Poppins } from "next/font/google";
+import localFont from "next/font/local";
+import { Poppins } from "next/font/google";
 import { LOGO } from "@/data/siteChrome";
 import { THEME } from "@/data/theme";
 import { routes } from "@/lib/routes";
@@ -18,7 +19,19 @@ import { routes } from "@/lib/routes";
 // rendered site page (e.g. /shop/[slug]) and keeps the full header/footer
 // chrome there.
 
-const jost = Jost({ variable: "--font-jost", subsets: ["latin"], weight: ["200", "300", "400", "500"] });
+// Declared again here rather than shared: this file is its own document
+// shell (the project has no root layout), so it cannot inherit the (site)
+// group's font variables. Same two files, same weight ranges.
+const alta = localFont({
+  src: [
+    { path: "./fonts/Alta_light.woff2", weight: "200 300", style: "normal" },
+    { path: "./fonts/Alta_regular.woff2", weight: "400 500", style: "normal" },
+  ],
+  variable: "--font-alta",
+  display: "swap",
+  adjustFontFallback: "Arial",
+  fallback: ["Century Gothic", "system-ui", "sans-serif"],
+});
 const poppins = Poppins({ variable: "--font-poppins", subsets: ["latin"], weight: ["300", "400", "500", "600"] });
 
 export const metadata: Metadata = {
@@ -40,7 +53,7 @@ const linkBase: React.CSSProperties = {
 
 export default function GlobalNotFound() {
   return (
-    <html lang="fr" className={`${jost.variable} ${poppins.variable}`}>
+    <html lang="fr" className={`${alta.variable} ${poppins.variable}`}>
       <body
         style={{
           margin: 0,
@@ -63,7 +76,7 @@ export default function GlobalNotFound() {
           ) : null}
           <span
             style={{
-              fontFamily: "var(--font-jost)",
+              fontFamily: "var(--font-alta)",
               fontSize: 20,
               fontWeight: 400,
               letterSpacing: "0.18em",
@@ -89,7 +102,7 @@ export default function GlobalNotFound() {
 
         <h1
           style={{
-            fontFamily: "var(--font-jost)",
+            fontFamily: "var(--font-alta)",
             fontWeight: 300,
             fontSize: "clamp(28px,4.6vw,46px)",
             lineHeight: 1.18,

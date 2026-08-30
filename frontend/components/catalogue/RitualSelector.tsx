@@ -94,12 +94,12 @@ export function RitualSelector({ activeSlug }: { activeSlug?: string }) {
   return (
     <section aria-labelledby="rituel-title" className="rituel">
       <div style={{ marginBottom: "clamp(18px,2.2vw,28px)", textAlign: "center" }}>
-        <div style={{ color: "var(--pdh-teal)", fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase" }}>
+        <div style={{ color: "var(--pdh-teal-text)", fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase" }}>
           Trouvez votre rituel
         </div>
         <h2
           id="rituel-title"
-          style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(24px,3vw,36px)", fontWeight: 200, margin: "12px 0 0" }}
+          style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(24px,3vw,36px)", fontWeight: 200, margin: "12px 0 0" }}
         >
           Découvrez les soins adaptés à vos envies
         </h2>
@@ -147,21 +147,28 @@ export function RitualSelector({ activeSlug }: { activeSlug?: string }) {
                   <span className="rituel-text">
                     <span className="rituel-name">{ritual.title}</span>
                     <span className="rituel-detail">
-                      <span style={{ display: "block", fontSize: 12.5, lineHeight: 1.6, opacity: 0.88 }}>{ritual.blurb}</span>
-                      <span
-                        style={{
-                          alignItems: "center",
-                          display: "inline-flex",
-                          fontSize: 10.5,
-                          fontWeight: 600,
-                          gap: 7,
-                          letterSpacing: ".14em",
-                          marginTop: 12,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        Découvrir les soins
-                        <ArrowRight aria-hidden="true" size={13} strokeWidth={2} />
+                      {/* One wrapper, because the reveal animates a single grid
+                          row: a second direct child would land in an implicit
+                          row the transition never touches. */}
+                      <span style={{ display: "block" }}>
+                        <span style={{ display: "block", fontSize: 12.5, lineHeight: 1.6, opacity: 0.88 }}>
+                          {ritual.blurb}
+                        </span>
+                        <span
+                          style={{
+                            alignItems: "center",
+                            display: "inline-flex",
+                            fontSize: 10.5,
+                            fontWeight: 600,
+                            gap: 7,
+                            letterSpacing: ".14em",
+                            marginTop: 12,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Découvrir les soins
+                          <ArrowRight aria-hidden="true" size={13} strokeWidth={2} />
+                        </span>
                       </span>
                     </span>
                   </span>
