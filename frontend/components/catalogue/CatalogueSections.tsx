@@ -29,10 +29,10 @@ export function CatalogueHero({ intro, title }: { intro: string; title: string }
   return (
     <section className="cat-hero">
       <div className="cat-hero-copy">
-        <div style={{ color: "var(--pdh-teal)", fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase" }}>
+        <div style={{ color: "var(--pdh-teal-text)", fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase" }}>
           Parapharmacie
         </div>
-        <h1 style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(30px,4.2vw,50px)", fontWeight: 200, lineHeight: 1.08, margin: "14px 0 0" }}>
+        <h1 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(30px,4.2vw,50px)", fontWeight: 200, lineHeight: 1.08, margin: "14px 0 0" }}>
           {title}
         </h1>
         <p style={{ fontSize: "clamp(13.5px,1.1vw,15px)", lineHeight: 1.75, margin: "16px 0 0", maxWidth: 460, opacity: 0.66 }}>{intro}</p>
@@ -85,10 +85,10 @@ export function EditorialPair() {
     <div className="cat-editorial">
       <section className="cat-advice">
         <div style={{ padding: "clamp(24px,2.6vw,38px)" }}>
-          <div style={{ color: "var(--pdh-teal)", fontFamily: "var(--font-raleway)", fontSize: 10, letterSpacing: ".24em", textTransform: "uppercase" }}>
+          <div style={{ color: "var(--pdh-teal-text)", fontFamily: "var(--font-poppins)", fontSize: 10, letterSpacing: ".24em", textTransform: "uppercase" }}>
             Besoin d&apos;un conseil ?
           </div>
-          <h2 style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(21px,2.2vw,28px)", fontWeight: 200, lineHeight: 1.2, margin: "12px 0 10px" }}>
+          <h2 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(21px,2.2vw,28px)", fontWeight: 200, lineHeight: 1.2, margin: "12px 0 10px" }}>
             Nos pharmaciens vous accompagnent dans le choix de vos soins.
           </h2>
           <p style={{ fontSize: 13, lineHeight: 1.7, margin: "0 0 22px", maxWidth: 340, opacity: 0.66 }}>
@@ -105,13 +105,13 @@ export function EditorialPair() {
 
       <section className="cat-routine">
         <div style={{ padding: "clamp(24px,2.6vw,38px)", position: "relative" }}>
-          <div style={{ color: "rgba(247,238,229,.72)", fontFamily: "var(--font-raleway)", fontSize: 10, letterSpacing: ".24em", textTransform: "uppercase" }}>
+          <div style={{ color: "rgba(247,238,229,.72)", fontFamily: "var(--font-poppins)", fontSize: 10, letterSpacing: ".24em", textTransform: "uppercase" }}>
             Routine personnalisée
           </div>
           <h2
             style={{
               color: "var(--pdh-cream)",
-              fontFamily: "var(--font-jost)",
+              fontFamily: "var(--font-alta)",
               fontSize: "clamp(21px,2.2vw,28px)",
               fontWeight: 200,
               lineHeight: 1.2,
@@ -165,7 +165,7 @@ export function BrandsRail({ brands }: { brands: { logo: string | null; name: st
   return (
     <section aria-labelledby="brands-title" style={{ marginTop: "clamp(38px,4.4vw,64px)" }}>
       <div style={{ alignItems: "center", display: "flex", gap: 16, justifyContent: "space-between", marginBottom: 18 }}>
-        <h2 id="brands-title" style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(21px,2.4vw,30px)", fontWeight: 200, margin: 0 }}>
+        <h2 id="brands-title" style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(21px,2.4vw,30px)", fontWeight: 200, margin: 0 }}>
           Nos marques partenaires
         </h2>
         <div className="univers-arrows" style={{ display: "flex", gap: 8 }}>

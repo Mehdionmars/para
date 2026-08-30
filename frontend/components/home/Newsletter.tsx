@@ -23,7 +23,7 @@ export function Newsletter({ copy: copyProp }: { copy?: NewsletterCopy } = {}) {
   const logoEnabled = copy.logoEnabled !== false;
   const logoSize = copy.logoSize || 76;
   const logoPosition = copy.logoPosition === "top" ? "top" : "left";
-  const backgroundColor = copy.backgroundColor || "#5E4074";
+  const backgroundColor = copy.backgroundColor || "var(--pdh-plum)";
   const textColor = copy.textColor || "#FFFFFF";
   const ctaColor = copy.ctaColor || "#008AA5";
   const borderRadius = copy.borderRadius ?? 26;
@@ -34,7 +34,7 @@ export function Newsletter({ copy: copyProp }: { copy?: NewsletterCopy } = {}) {
     <div
       style={{
         maxWidth: "min(1280px,100%)",
-        margin: "0 auto clamp(28px,3.6vw,48px)",
+        margin: "0 auto var(--sec-y)",
         borderRadius,
         background: backgroundColor,
         padding: "clamp(18px,2.6vw,28px) clamp(22px,3.2vw,36px)",
@@ -65,7 +65,7 @@ export function Newsletter({ copy: copyProp }: { copy?: NewsletterCopy } = {}) {
           </span>
         )}
         <div style={{ minWidth: 0 }}>
-          <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", lineHeight: 1.08, margin: "0 0 8px" }}>
+          <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", lineHeight: 1.08, margin: "0 0 8px" }}>
             {copy.title || "Recevez nos conseils & nouveautés"}
           </h2>
           <p style={{ fontSize: 13.5, opacity: 0.75, margin: 0, maxWidth: 760 }}>

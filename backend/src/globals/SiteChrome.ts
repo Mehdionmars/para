@@ -172,6 +172,34 @@ export const SiteChrome: GlobalConfig = {
       label: 'Apparence du pied de page',
     },
     {
+      // Seasonal coupon popup. Site-wide chrome rather than a homepage
+      // section: a campaign popup follows the visitor, and putting it in the
+      // ordered homepage stack would have made it a block in the page flow.
+      name: 'promoModal',
+      type: 'group',
+      label: 'Pop-up promo saisonnière',
+      admin: { description: "S'affiche une fois par visiteur, après un court délai. Se remet à zéro pour tous dès que le code change." },
+      fields: [
+        { name: 'enabled', type: 'checkbox', defaultValue: false, label: 'Activer la pop-up' },
+        { name: 'badge', type: 'text', defaultValue: 'Offre de saison' },
+        { name: 'expiryLabel', type: 'text', label: "Mention d'échéance", admin: { description: "Ex. « Jusqu'au 31 juillet ». Texte libre, aucune date n'est calculée." } },
+        { name: 'title', type: 'text', defaultValue: 'Pensé pour la saison' },
+        { name: 'subtitle', type: 'text', defaultValue: '25% sur votre commande', admin: { description: 'Deuxième ligne du titre, mise en avant.' } },
+        { name: 'description', type: 'textarea' },
+        { name: 'code', type: 'text', label: 'Code promo', admin: { description: 'Doit correspondre à un coupon actif dans Promotions, sinon il sera refusé au panier.' } },
+        { name: 'ctaLabel', type: 'text', defaultValue: 'Copier le code' },
+        {
+          name: 'conditions',
+          type: 'array',
+          label: "Conditions d'utilisation",
+          maxRows: 4,
+          fields: [{ name: 'text', type: 'text', required: true }],
+        },
+        { name: 'image', type: 'upload', relationTo: 'media', label: 'Visuel' },
+        { name: 'delaySeconds', type: 'number', defaultValue: 6, min: 0, max: 60, label: 'Délai avant affichage (s)' },
+      ],
+    },
+    {
       name: 'logo',
       type: 'group',
       fields: [

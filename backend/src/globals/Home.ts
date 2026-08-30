@@ -24,6 +24,7 @@ export const SECTION_KEYS = [
   'ctaPair1',
   'summerEdit',
   'promotionsGrid',
+  'featuredPromo',
   'services',
   'coffrets',
   'campaign',
@@ -43,6 +44,7 @@ export const SECTION_LABELS: Record<(typeof SECTION_KEYS)[number], string> = {
   ctaPair1: 'CTA — paire d’images (haut)',
   summerEdit: 'Summer Edit',
   promotionsGrid: 'Grille promotions',
+  featuredPromo: 'Sélection + bannière promo',
   services: 'Nos services',
   coffrets: 'Coffrets / cartes cadeaux',
   campaign: 'Nos coups de cœur',
@@ -66,6 +68,7 @@ export const SECTION_GROUPS = {
   ctaPair2: 'content',
   summerEdit: 'products',
   promotionsGrid: 'products',
+  featuredPromo: 'products',
   campaign: 'products',
   imageCarousel: 'products',
   dermoCorner: 'products',
@@ -515,9 +518,38 @@ export const Home: GlobalConfig = {
           'Copy for the "Les offres du moment" section. Products themselves are always resolved live by category tab — this only controls title/subtitle/count, not a fixed list of products.',
       },
       fields: [
+        { name: 'eyebrow', type: 'text', defaultValue: 'Promotions' },
         { name: 'title', type: 'text', defaultValue: 'Les offres du moment' },
         { name: 'subtitle', type: 'text', defaultValue: 'Profitez de nos meilleures offres.' },
         { name: 'limit', type: 'number', defaultValue: 8, min: 2, max: 24 },
+      ],
+    },
+    {
+      // The header of "Marques à l'honneur". The brands themselves are the
+      // `brandsFeatured` array; this is only the wording above them, which
+      // used to be written into the component.
+      name: 'brandsFeaturedCopy',
+      type: 'group',
+      admin: { description: "En-tête de la section marques (les marques elles-mêmes se configurent dans « Marques à l'honneur »)." },
+      fields: [
+        { name: 'eyebrow', type: 'text', defaultValue: 'Nos partenaires' },
+        { name: 'title', type: 'text', defaultValue: "Marques à l'honneur" },
+      ],
+    },
+    {
+      // Same split for the services teaser: `servicesTeaser` holds the cards,
+      // this holds the words above them.
+      name: 'servicesTeaserCopy',
+      type: 'group',
+      admin: { description: 'En-tête de la section services (les cartes se configurent dans « Services »).' },
+      fields: [
+        { name: 'eyebrow', type: 'text', defaultValue: 'Accompagnement' },
+        { name: 'title', type: 'text', defaultValue: 'Nos services' },
+        {
+          name: 'subtitle',
+          type: 'text',
+          defaultValue: 'Nos pharmaciens vous accompagnent, en ligne comme en institut.',
+        },
       ],
     },
     {

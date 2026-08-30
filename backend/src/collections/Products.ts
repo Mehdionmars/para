@@ -43,7 +43,10 @@ export const VARIANT_OPTION_TYPES = [
 export const BADGE_TYPE_PRESETS = {
   nouveau: { label: 'Nouveauté', bgColor: '#6D28D9', textColor: '#FFFFFF', priority: 2 },
   bestseller: { label: 'Best-seller', bgColor: '#111827', textColor: '#FFFFFF', priority: 3 },
-  exclusivite: { label: 'Exclu web', bgColor: '#008AA5', textColor: '#FFFFFF', priority: 4 },
+  // #00758A rather than the brand teal #008AA5: white on the brighter teal
+  // measures 4.06:1 at the size these pills render, under the AA floor.
+  // Kept in step with frontend/lib/productBadges.core.mjs.
+  exclusivite: { label: 'Exclu web', bgColor: '#00758A', textColor: '#FFFFFF', priority: 4 },
   routine: { label: 'Routine', bgColor: '#F7EEE5', textColor: '#373020', priority: 5 },
   coupdecoeur: { label: 'Coup de cœur', bgColor: '#F7EEE5', textColor: '#6D28D9', priority: 6 },
   offrespeciale: { label: 'Offre spéciale', bgColor: '#6D28D9', textColor: '#FFFFFF', priority: 7 },

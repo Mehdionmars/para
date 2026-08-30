@@ -4,7 +4,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/context/toast-context";
+import { Baby, Droplet, Feather, Palette, ScanFace, Scissors, type LucideIcon } from "lucide-react";
 import { type Service, servicePriceLabel } from "@/data/services";
+
+/**
+ * The icon arrives as a name, not as a component.
+ *
+ * `Service.icon` is a React function component, and a server component cannot
+ * hand a function to a client one — this page answered 500 on every visit
+ * ("Functions cannot be passed directly to Client Components"), on the
+ * committed code as well. A name crosses that boundary fine and is resolved
+ * back into a component here.
+ */
+const ICONS: Record<string, LucideIcon> = { Baby, Droplet, Feather, Palette, ScanFace, Scissors };
 
 const DAY_NAMES = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 const MONTH_NAMES = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -25,7 +37,8 @@ function formatDateLabel(d: Date): string {
   return `${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 }
 
-export function ReservationView({ service }: { service: Service }) {
+export function ReservationView({ service, iconName }: { service: Omit<Service, "icon">; iconName?: string }) {
+  const Icon = (iconName && ICONS[iconName]) || Feather;
   const router = useRouter();
   const toast = useToast();
   const dates = buildUpcomingDates(7);
@@ -55,7 +68,7 @@ export function ReservationView({ service }: { service: Service }) {
         </Link>{" "}
         / Réservation
       </nav>
-      <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,4vw,46px)", margin: "0 0 28px" }}>Réserver un créneau</h1>
+      <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,4vw,46px)", margin: "0 0 28px" }}>Réserver un créneau</h1>
 
       <form onSubmit={handleConfirm} style={{ display: "flex", flexWrap: "wrap-reverse", gap: "clamp(18px,2.4vw,34px)", alignItems: "flex-start" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 26, flex: "2 1 480px" }}>
@@ -84,7 +97,7 @@ export function ReservationView({ service }: { service: Service }) {
                     }}
                   >
                     <div style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", opacity: 0.7 }}>{DAY_NAMES[d.getDay()]}</div>
-                    <div style={{ fontFamily: "var(--font-jost)", fontSize: 22, marginTop: 2 }}>{d.getDate()}</div>
+                    <div style={{ fontFamily: "var(--font-alta)", fontSize: 22, marginTop: 2 }}>{d.getDate()}</div>
                     <div style={{ fontSize: 10, opacity: 0.6 }}>{MONTH_NAMES[d.getMonth()]}</div>
                   </button>
                 );
@@ -138,10 +151,10 @@ export function ReservationView({ service }: { service: Service }) {
         </div>
 
         <div style={{ border: "1px solid rgba(94,64,116,.14)", borderRadius: 20, padding: 26, position: "sticky", top: 150, background: "var(--pdh-sand)", flex: "1 1 300px" }}>
-          <div style={{ fontFamily: "var(--font-jost)", fontSize: 24, fontWeight: 300, marginBottom: 18 }}>Récapitulatif</div>
+          <div style={{ fontFamily: "var(--font-alta)", fontSize: 24, fontWeight: 300, marginBottom: 18 }}>Récapitulatif</div>
           <div style={{ display: "flex", gap: 14, alignItems: "center", paddingBottom: 18, borderBottom: "1px solid rgba(94,64,116,.14)" }}>
             <div style={{ width: 64, height: 64, borderRadius: 16, background: service.bg, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
-              <service.icon aria-hidden="true" size={26} strokeWidth={1.4} />
+              <Icon aria-hidden="true" size={26} strokeWidth={1.4} />
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>{service.title}</div>
@@ -166,8 +179,8 @@ export function ReservationView({ service }: { service: Service }) {
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "18px 0 20px" }}>
             <span style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" }}>Total</span>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(22px,2.6vw,30px)", color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>
-              {servicePriceLabel(service)}
+            <span style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(22px,2.6vw,30px)", color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>
+              {servicePriceLabel(service as Service)}
             </span>
           </div>
           <button

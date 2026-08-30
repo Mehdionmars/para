@@ -9,7 +9,9 @@ import type { Category, Product } from "@/data/products";
 import type { RailDef } from "@/data/home";
 import type { StockState } from "./catalogue";
 
-export type LiveProduct = Product & { image: string };
+/** `gallery` holds the *alternate* shots only (the hero is `image`), and is
+ *  absent for the many products that have just one photograph. */
+export type LiveProduct = Product & { image: string; gallery?: string[] };
 
 /** Re-exported so existing importers keep working; defined once in lib/productBadges. */
 export type { ResolvedBadge };
@@ -41,6 +43,10 @@ export type PayloadProductDoc = {
   tint?: string | null;
   description?: string | null;
   image?: PayloadMediaRef;
+  /** Lives on the base doc, not just the detail one: Payload returns these
+   *  rows on list queries too, and the bundle upsell reads the second image
+   *  for its hover swap. Most products have none — hence optional. */
+  gallery?: { image?: PayloadMediaRef }[] | null;
   createdAt: string;
   featured?: boolean | null;
 };
@@ -69,7 +75,6 @@ export type PayloadProductDetailDoc = PayloadProductDoc & {
   variantPricingMode?: "same-price" | "per-variant" | null;
   variants?: PayloadVariantRow[] | null;
   updatedAt?: string;
-  gallery?: { image?: PayloadMediaRef }[] | null;
   stock?: number | null;
   lowStockThreshold?: number | null;
   sku?: string | null;
@@ -115,6 +120,7 @@ function toLiveProduct(doc: PayloadProductDoc): LiveProduct {
     id: doc.id,
     slug: doc.slug || String(doc.id),
     image: resolveMediaUrl(doc.image),
+    gallery: (doc.gallery || []).map((row) => resolveMediaUrl(row.image)).filter(Boolean),
     name: doc.name,
     old: doc.oldPrice && doc.oldPrice > doc.price ? doc.oldPrice : 0,
     price: doc.price,
@@ -148,7 +154,21 @@ function sortParam(sortOrder: RailDef["sortOrder"]): string {
   }
 }
 
-async function fetchProducts(where: Record<string, unknown>, limit: number, sort: string): Promise<PayloadProductDoc[]> {
+/**
+ * Same query as `fetchProducts`, but `null` means "the CMS could not be
+ * reached" where `[]` means "the CMS answered, and nothing matched".
+ *
+ * Most callers do not care — a rail with no products and a rail whose fetch
+ * failed both fall back the same way. One does: the promotions block hides
+ * itself when there are genuinely no offers, and must NOT hide itself just
+ * because the CMS blinked, or an unreachable backend silently deletes a
+ * section from the page.
+ */
+async function fetchProductsOrNull(
+  where: Record<string, unknown>,
+  limit: number,
+  sort: string,
+): Promise<PayloadProductDoc[] | null> {
   const params = new URLSearchParams();
   params.set("where", JSON.stringify(where));
   params.set("limit", String(limit));
@@ -159,11 +179,15 @@ async function fetchProducts(where: Record<string, unknown>, limit: number, sort
   try {
     res = await fetch(`${CMS_URL}/api/products?${params.toString()}`, { cache: "no-store" });
   } catch {
-    return [];
+    return null;
   }
-  if (!res.ok) return [];
+  if (!res.ok) return null;
   const data = await res.json();
   return data.docs || [];
+}
+
+async function fetchProducts(where: Record<string, unknown>, limit: number, sort: string): Promise<PayloadProductDoc[]> {
+  return (await fetchProductsOrNull(where, limit, sort)) ?? [];
 }
 
 /** Real order-quantity ranking from the PII-free aggregate endpoint — never
@@ -234,6 +258,54 @@ export async function fetchRailProducts(rail: RailDef): Promise<LiveProduct[]> {
   }
 
   return docs.map(toLiveProduct);
+}
+
+/**
+ * The products the "Les offres du moment" block is allowed to show: live,
+ * genuinely discounted, in stock.
+ *
+ * Deliberately no `fetchFallback`. A rail with nothing to show falls back to
+ * the broadest honest query, because a rail promises a selection. This block
+ * promises a *discount*, and padding it with full-price products is precisely
+ * the bug it used to have — it rendered `PRODUCTS.slice(0, 8)` off the static
+ * snapshot and called eight full-price arrivals "nos meilleures offres".
+ * Nothing on sale returns nothing, and the section removes itself.
+ *
+ * Payload cannot compare two columns in a `where`, so `oldPrice > 0` is the
+ * query and the real `oldPrice > price` test happens on the mapped result —
+ * `toLiveProduct` already zeroes `old` when it does not exceed `price`.
+ */
+export async function fetchDiscountedProducts(limit: number): Promise<LiveProduct[] | null> {
+  const and = [...BASE_ELIGIBILITY, { oldPrice: { greater_than: 0 } }];
+  const docs = await fetchProductsOrNull({ and }, Math.max(limit * 2, limit), "-createdAt");
+  // Unreachable CMS: hand back null so the caller keeps its own fallback
+  // rather than reading an empty list as "nothing is on sale".
+  if (docs === null) return null;
+  return (
+    docs
+      .map(toLiveProduct)
+      .filter((p) => p.old > p.price)
+      // A third of the catalogue has no photograph yet. Nothing is hidden, but
+      // the ones that have one lead, so the grid does not open on placeholders.
+      .sort((a, b) => Number(Boolean(b.image)) - Number(Boolean(a.image)))
+      .slice(0, limit)
+  );
+}
+
+/**
+ * The products behind the "featured + promo banner" block.
+ *
+ * `featured` is an editor's flag on the product itself, so the block follows
+ * what the shop actually promotes rather than a second list to keep in sync.
+ * When nothing is flagged it falls back to the newest in-stock products —
+ * unlike the promotions block, which must stay empty rather than lie, a
+ * "selection" with no explicit picks is still honestly a selection.
+ */
+export async function fetchFeaturedProducts(limit: number): Promise<LiveProduct[]> {
+  const and = [...BASE_ELIGIBILITY, { featured: { equals: true } }];
+  const featured = await fetchProducts({ and }, limit, "-createdAt");
+  const docs = featured.length > 0 ? featured : await fetchFallback(limit);
+  return docs.map(toLiveProduct).slice(0, limit);
 }
 
 /** Resolves a specific, curator-picked set of products live (same eligibility

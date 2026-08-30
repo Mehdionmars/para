@@ -63,7 +63,7 @@ export function navItemLinkProps(item: Pick<NavItem, "openInNewTab">): { target?
 
 const BADGE_COLOR_VAR: Record<string, string> = {
   plum: "var(--pdh-plum)",
-  sale: "var(--pdh-sale)",
+  sale: "var(--pdh-sale-strong)",
   teal: "var(--pdh-teal)",
 };
 

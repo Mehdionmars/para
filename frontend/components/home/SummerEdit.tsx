@@ -137,7 +137,7 @@ export function SummerEdit({
               className="summer-reveal"
               data-in-view={heroInView}
               style={{
-                fontFamily: "var(--font-raleway)",
+                fontFamily: "var(--font-poppins)",
                 fontSize: 11,
                 letterSpacing: ".28em",
                 textTransform: "uppercase",
@@ -154,7 +154,7 @@ export function SummerEdit({
               className="summer-reveal"
               data-in-view={heroInView}
               style={{
-                fontFamily: "var(--font-jost)",
+                fontFamily: "var(--font-alta)",
                 fontWeight: 200,
                 fontSize: "clamp(38px,6.2vw,76px)",
                 lineHeight: 0.98,
@@ -320,12 +320,12 @@ function ActBand({ act, tint, copy, speed }: { act: Act; tint: boolean; copy: Co
         }}
       >
         <div>
-          <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
             {act.eyebrow}
           </div>
           <h3
             style={{
-              fontFamily: "var(--font-jost)",
+              fontFamily: "var(--font-alta)",
               fontWeight: 200,
               fontSize: "clamp(28px,3.4vw,40px)",
               lineHeight: 1.02,
@@ -358,18 +358,16 @@ function ActBand({ act, tint, copy, speed }: { act: Act; tint: boolean; copy: Co
             {showProgress && (
               <div style={{ flex: "1 1 auto", maxWidth: 120, height: 2, borderRadius: 999, background: "rgba(94,64,116,.14)", overflow: "hidden" }}>
                 <div
+                  className="bar-fill"
                   style={{
-                    height: "100%",
-                    borderRadius: 999,
                     background: "var(--pdh-plum)",
-                    width: `${((activeIndex + 1) / items.length) * 100}%`,
-                    transition: "width .4s ease",
+                    transform: `scaleX(${(activeIndex + 1) / items.length})`,
                   }}
                 />
               </div>
             )}
             {showCounter && (
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: 12.5, letterSpacing: ".08em", color: "var(--pdh-ink)", opacity: 0.55, whiteSpace: "nowrap" }}>
+              <span style={{ fontFamily: "var(--font-alta)", fontSize: 12.5, letterSpacing: ".08em", color: "var(--pdh-ink)", opacity: 0.55, whiteSpace: "nowrap" }}>
                 {String(activeIndex + 1).padStart(2, "0")} — {String(items.length).padStart(2, "0")}
               </span>
             )}

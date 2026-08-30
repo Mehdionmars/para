@@ -28,7 +28,10 @@
 export const BADGE_TYPE_PRESETS = {
   nouveau: { label: "Nouveauté", bgColor: "#6D28D9", textColor: "#FFFFFF", priority: 2 },
   bestseller: { label: "Best-seller", bgColor: "#111827", textColor: "#FFFFFF", priority: 3 },
-  exclusivite: { label: "Exclu web", bgColor: "#008AA5", textColor: "#FFFFFF", priority: 4 },
+  // #00758A, not the brand teal #008AA5: white on the brighter teal measures
+  // 4.06:1 at the 10.5px these pills are set in, under the 4.5 AA floor.
+  // This is the same hue carried down, and the value behind --pdh-teal-text.
+  exclusivite: { label: "Exclu web", bgColor: "#00758A", textColor: "#FFFFFF", priority: 4 },
   routine: { label: "Routine", bgColor: "#F7EEE5", textColor: "#373020", priority: 5 },
   coupdecoeur: { label: "Coup de cœur", bgColor: "#F7EEE5", textColor: "#6D28D9", priority: 6 },
   offrespeciale: { label: "Offre spéciale", bgColor: "#6D28D9", textColor: "#FFFFFF", priority: 7 },
@@ -69,7 +72,93 @@ export function discountPercentage(price, oldPrice) {
 export function discountBadge(price, oldPrice) {
   const pct = discountPercentage(price, oldPrice);
   if (pct === null) return null;
-  return { text: `−${pct}%`, bgColor: "var(--pdh-sale)", textColor: "#FFFFFF", priority: 1 };
+  // --pdh-sale-strong, not --pdh-sale: white on the brand red #FF514D is
+  // 3.21:1, and this pill is the one number a shopper actually reads.
+  return { text: `−${pct}%`, bgColor: "var(--pdh-sale-strong)", textColor: "#FFFFFF", priority: 1 };
+}
+
+/**
+ * Relative luminance per WCAG 2.x, or null for anything that is not a plain
+ * hex colour — `var(--pdh-sale-strong)` and friends cannot be resolved here,
+ * and must not be guessed at.
+ * @param {string} color
+ * @returns {number|null}
+ */
+function luminance(color) {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((color || "").trim());
+  if (!m) return null;
+  let hex = m[1];
+  if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  const channel = (i) => {
+    const v = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+}
+
+/**
+ * WCAG contrast ratio, or null when either colour is unresolvable.
+ * @param {string} a
+ * @param {string} b
+ * @returns {number|null}
+ */
+export function contrastRatio(a, b) {
+  const la = luminance(a);
+  const lb = luminance(b);
+  if (la === null || lb === null) return null;
+  const [hi, lo] = la > lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/** Badge text is set at 10.5px, so the 4.5:1 floor for normal text applies. */
+const AA_NORMAL = 4.5;
+
+/**
+ * The fallback ladder, in preference order.
+ *
+ * White and the soft near-black come first because they are what the rest of
+ * the storefront uses. Pure black is last and is the actual guarantee: the
+ * white and black contrast curves cross at a background luminance of ~0.179,
+ * where both measure 4.58:1, so one of the two always clears AA whatever an
+ * editor types. #111827 does *not* carry that promise — it is light enough
+ * that on the brand teal it reaches only 4.37:1, which is precisely how this
+ * ladder came to have three rungs instead of two.
+ */
+const SAFE_TEXT = ["#FFFFFF", "#111827", "#000000"];
+
+/**
+ * Guarantees a badge's text is legible on its own background.
+ *
+ * Badge colours are editor-supplied — the CMS offers free hex fields with no
+ * validation behind them — so a well-meant pastel pill can reach a shopper
+ * with text nobody can read. This is the last gate before render, and it is
+ * deliberately conservative: an editor's colour that already passes is kept
+ * exactly as chosen, and only a genuine failure is overridden.
+ *
+ * Colours it cannot measure (CSS custom properties, gradients) pass through
+ * untouched. Those are ours, not an editor's, and are checked at the token.
+ *
+ * @param {string} bgColor
+ * @param {string} textColor
+ * @returns {string} the colour to actually render the text in
+ */
+export function readableTextColor(bgColor, textColor) {
+  const asked = contrastRatio(textColor, bgColor);
+  if (asked === null || asked >= AA_NORMAL) return textColor;
+  let best = textColor;
+  let bestRatio = asked;
+  for (const candidate of SAFE_TEXT) {
+    const r = contrastRatio(candidate, bgColor);
+    if (r === null) continue;
+    // First rung that clears the floor wins, so a pale badge keeps the soft
+    // near-black rather than being forced to pure black for no benefit.
+    if (r >= AA_NORMAL) return candidate;
+    if (r > bestRatio) {
+      best = candidate;
+      bestRatio = r;
+    }
+  }
+  return best;
 }
 
 /**
@@ -92,10 +181,13 @@ export function resolveProductBadges(badges, price, oldPrice, limit = MAX_BADGES
     .filter((b) => b.enabled !== false)
     .map((b) => {
       const preset = BADGE_TYPE_PRESETS[b.type || "custom"] ?? BADGE_TYPE_PRESETS.custom;
+      const bgColor = b.bgColor || preset.bgColor;
       return {
         text: (b.text?.trim() || preset.label || "").trim(),
-        bgColor: b.bgColor || preset.bgColor,
-        textColor: b.textColor || preset.textColor,
+        bgColor,
+        // Applied after the editor's value has won, not before: the guard
+        // corrects a failing pair, it does not pre-empt a working choice.
+        textColor: readableTextColor(bgColor, b.textColor || preset.textColor),
         priority: b.priority ?? preset.priority,
       };
     })

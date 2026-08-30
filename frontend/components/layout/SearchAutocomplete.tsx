@@ -37,6 +37,7 @@ export function SearchAutocomplete({
   placeholder,
   autoFocus = false,
   variant = "header",
+  onPanelChange,
 }: {
   value: string;
   onValueChange: (v: string) => void;
@@ -45,6 +46,9 @@ export function SearchAutocomplete({
   placeholder: string;
   autoFocus?: boolean;
   variant?: "header" | "overlay";
+  /** Fires whenever the suggestions panel opens or closes, so the header can
+   * keep its own hover menus out of the way while it is up. */
+  onPanelChange?: (open: boolean) => void;
 }) {
   const router = useRouter();
   const listId = useId();
@@ -140,6 +144,10 @@ export function SearchAutocomplete({
   const hasResults = data.products.length > 0 || data.brands.length > 0 || data.categories.length > 0;
   const showPanel = open && !!term;
 
+  useEffect(() => {
+    onPanelChange?.(showPanel);
+  }, [showPanel, onPanelChange]);
+
   return (
     <div ref={rootRef} style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", alignItems: "center" }}>
       <Search
@@ -147,7 +155,7 @@ export function SearchAutocomplete({
         size={18}
         strokeWidth={1.8}
         color="#6b6355"
-        style={{ position: "absolute", left: variant === "header" ? 22 : 16, pointerEvents: "none" }}
+        style={{ position: "absolute", insetInlineStart: variant === "header" ? 22 : 16, pointerEvents: "none" }}
       />
       <label htmlFor={inputId} className="sr-only" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>
         Rechercher un produit, une marque
@@ -185,7 +193,7 @@ export function SearchAutocomplete({
           aria-hidden="true"
           size={16}
           className="animate-spin"
-          style={{ position: "absolute", right: variant === "header" ? 20 : 14, color: "var(--pdh-plum)" }}
+          style={{ position: "absolute", insetInlineEnd: variant === "header" ? 20 : 14, color: "var(--pdh-plum)" }}
         />
       )}
 
@@ -199,7 +207,11 @@ export function SearchAutocomplete({
             top: "calc(100% + 8px)",
             left: 0,
             right: 0,
-            zIndex: 60,
+            // Above the mega-menu (70). This panel belongs to the control the
+            // visitor is actually typing into, so nothing in the header may
+            // paint over it; at 60 the hover menu cut a band straight through
+            // the middle of the results.
+            zIndex: 80,
             background: "#fff",
             border: "1px solid rgba(94,64,116,.14)",
             borderRadius: 16,

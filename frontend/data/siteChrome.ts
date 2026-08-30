@@ -36,7 +36,7 @@ export const TOPBAR_CONFIG: TopBarConfig = {
 };
 
 export const LOGO: Logo = {
-  "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/logo.png",
+  "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/para-dhiver-1.png",
   "wordmark": "PARA D'HIVER",
   "href": "/"
 };
@@ -49,7 +49,7 @@ export const HEADER_SEARCH: HeaderSearchConfig = {
 export const HEADER_ACTIONS: HeaderAction[] = [
   {
     "key": "services",
-    "label": "Magasin et services",
+    "label": "Services et magasins",
     "icon": "MapPin",
     "href": "/services"
   },

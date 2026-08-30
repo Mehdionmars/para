@@ -276,7 +276,7 @@ export function CatalogueView({
           items={[{ label: "Accueil", href: routes.home() }, ...(breadcrumbExtra ? [breadcrumbExtra] : []), { label: heroTitle }]}
         />
         <div style={{ marginTop: 10, maxWidth: 760 }}>
-          <h1 style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>{heroTitle}</h1>
+          <h1 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>{heroTitle}</h1>
           <p style={{ fontSize: 13.5, lineHeight: 1.75, margin: "12px 0 0", opacity: 0.62 }}>
             Ce rayon n&apos;est pas encore en ligne. En attendant, voici les univers déjà disponibles — ou parcourez le{" "}
             <Link className="link-hover" href={routes.catalogue()} style={{ color: "var(--pdh-plum)", fontWeight: 600 }}>
@@ -301,7 +301,7 @@ export function CatalogueView({
         <CatalogueHero intro={heroIntro} title={heroTitle} />
       ) : (
         <div style={{ marginTop: 10, maxWidth: 760 }}>
-          <h1 style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>{heroTitle}</h1>
+          <h1 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>{heroTitle}</h1>
           <p style={{ fontSize: 13.5, lineHeight: 1.75, margin: "12px 0 0", opacity: 0.62 }}>{heroIntro}</p>
         </div>
       )}

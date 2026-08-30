@@ -23,12 +23,27 @@ type RawHeaderAction = { key: string; label: string; icon?: string; href?: strin
 type RawFooterLink = { label: string; href: string; visible?: boolean };
 type RawFooterColumn = { title: string; visible?: boolean; links?: RawFooterLink[] };
 
+export type PromoModalContent = {
+  enabled: boolean;
+  badge: string;
+  expiryLabel: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  code: string;
+  ctaLabel: string;
+  conditions: string[];
+  image: string;
+  delaySeconds: number;
+};
+
 export type LiveSiteChrome = {
   topBar: TopBarConfig;
   logo: Logo;
   headerSearch: HeaderSearchConfig;
   headerActions: HeaderAction[];
   footerColumns: FooterColumn[];
+  promoModal: PromoModalContent;
   /** Operator colour overrides. Every field optional and normally unset —
    * see lib/chromeAppearance.ts for why nothing here has a default. */
   appearance: ChromeAppearance;
@@ -68,6 +83,7 @@ export async function fetchSiteChrome({ draft }: { draft: boolean }): Promise<Li
     headerActions: ((chrome.headerActions || []) as RawHeaderAction[])
       .filter((a) => a.visible !== false)
       .map((a) => ({ key: a.key, label: a.label, icon: a.icon || "Heart", href: a.href || "" })),
+    promoModal: mapPromoModal(chrome.promoModal as RawPromoModal | undefined),
     footerColumns: ((chrome.footerColumns || []) as RawFooterColumn[])
       .filter((c) => c.visible !== false)
       .map((c) => ({
@@ -217,7 +233,13 @@ function navPresentation(raw: RawNavLink): Pick<NavItem, "badge" | "appearance" 
 /** One chip in the mobile category strip. Deliberately just a label and a
  * resolved href: the strip is a shortcut bar, not a second navigation system
  * with its own styling model. */
-export type CategoryChip = { label: string; href: string };
+export type CategoryChip = {
+  label: string;
+  href: string;
+  /** Optional round thumbnail. Chips without one stay text-only, so a strip
+   * that is half-illustrated does not render as half a design. */
+  image?: string;
+};
 
 export type MobileCategoryStrip = {
   enabled: boolean;
@@ -233,6 +255,43 @@ export type LiveNavigation = {
 };
 
 /** Cache tag the CMS invalidates when the Site Chrome global is saved. */
+type RawPromoModal = {
+  enabled?: boolean;
+  badge?: string;
+  expiryLabel?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  code?: string;
+  ctaLabel?: string;
+  conditions?: { text?: string }[];
+  image?: PayloadMediaRef;
+  delaySeconds?: number;
+};
+
+/**
+ * `enabled` is opt-in (`=== true`), like the category strip: a popup is the
+ * most intrusive thing on a storefront, and a mapper does not get to switch
+ * one on for a shop whose document predates the field. A modal with no code
+ * has nothing to offer, so that counts as off too.
+ */
+function mapPromoModal(raw: RawPromoModal | undefined): PromoModalContent {
+  const code = raw?.code?.trim() || "";
+  return {
+    enabled: raw?.enabled === true && code.length > 0,
+    badge: raw?.badge?.trim() || "",
+    expiryLabel: raw?.expiryLabel?.trim() || "",
+    title: raw?.title?.trim() || "",
+    subtitle: raw?.subtitle?.trim() || "",
+    description: raw?.description?.trim() || "",
+    code,
+    ctaLabel: raw?.ctaLabel?.trim() || "Copier le code",
+    conditions: (raw?.conditions || []).map((c) => c.text?.trim() || "").filter(Boolean),
+    image: resolveMediaUrl(raw?.image) || "",
+    delaySeconds: typeof raw?.delaySeconds === "number" ? Math.max(0, Math.min(60, raw.delaySeconds)) : 6,
+  };
+}
+
 export const SITE_CHROME_TAG = "site-chrome";
 
 /**
@@ -327,7 +386,7 @@ type RawCategoryStrip = {
   enabled?: boolean;
   showAllChip?: boolean;
   allChipLabel?: string;
-  items?: (RawNavLink & { label: string; visible?: boolean })[];
+  items?: (RawNavLink & { label: string; visible?: boolean; image?: PayloadMediaRef })[];
 };
 
 /**
@@ -345,7 +404,11 @@ type RawCategoryStrip = {
 function mapCategoryStrip(raw: RawCategoryStrip | undefined): MobileCategoryStrip {
   const items = (raw?.items || [])
     .filter((item) => item.visible !== false && Boolean(item.label?.trim()))
-    .map((item) => ({ href: resolveLiveNavHref(item), label: item.label.trim() }));
+    .map((item) => ({
+      href: resolveLiveNavHref(item),
+      label: item.label.trim(),
+      image: resolveMediaUrl(item.image) || undefined,
+    }));
 
   return {
     allChipLabel: raw?.allChipLabel?.trim() || "Tout",

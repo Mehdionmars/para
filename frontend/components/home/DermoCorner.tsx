@@ -67,7 +67,7 @@ export function DermoCorner({
 
   return (
     <>
-      <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px) clamp(14px,2vw,20px)" }}>
+      <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y-tight))" }}>
         <div
           className="dermo-band"
           style={{
@@ -81,12 +81,12 @@ export function DermoCorner({
             {copy.img && <CloudinaryImage preset="editorial" src={copy.img} alt="" fill sizes="(max-width: 768px) 100vw, 420px" style={{ objectFit: "cover" }} />}
           </div>
           <div>
-            <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+            <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
               {copy.eyebrow}
             </div>
             <h2
               style={{
-                fontFamily: "var(--font-jost)",
+                fontFamily: "var(--font-alta)",
                 fontWeight: 200,
                 fontSize: "clamp(28px,3.6vw,42px)",
                 lineHeight: 1.08,
@@ -125,15 +125,15 @@ export function DermoCorner({
           onMouseLeave={() => (pausedRef.current = false)}
           style={{
             maxWidth: "min(1280px,100%)",
-            margin: "0 auto clamp(28px,3.6vw,48px)",
+            margin: "0 auto var(--sec-y)",
             padding: "clamp(24px,3vw,36px) clamp(14px,3.4vw,32px)",
-            background: "var(--pdh-cream)",
+            background: "var(--surface-card)",
             borderRadius: "clamp(16px,2vw,24px)",
           }}
         >
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
             <div>
-              <h3 style={{ fontFamily: "var(--font-jost)", fontWeight: 300, fontSize: "clamp(19px,2.2vw,24px)", margin: 0, color: "var(--pdh-ink)" }}>
+              <h3 style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: "clamp(19px,2.2vw,24px)", margin: 0, color: "var(--pdh-ink)" }}>
                 {copy.picksTitle}
               </h3>
               <div style={{ fontSize: 12.5, opacity: 0.6, marginTop: 4 }}>{items.length} produits sélectionnés par nos pharmaciens</div>
@@ -171,6 +171,10 @@ export function DermoCorner({
                     border: "none",
                     padding: 0,
                     background: i === activeDot ? "var(--pdh-plum)" : "rgba(94,64,116,.25)",
+                    // Width, deliberately, not a transform: the dot grows into
+                    // a pill, and scaleX on a 6px box with a 999px radius
+                    // squashes its end caps into ellipses. Six 6px dots are
+                    // also the cheapest layout this page performs.
                     transition: "width .25s ease, background .25s ease",
                     cursor: "pointer",
                   }}

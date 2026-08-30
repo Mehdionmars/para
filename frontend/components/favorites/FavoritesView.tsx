@@ -47,7 +47,7 @@ export function FavoritesView() {
         }}
       >
         <div style={{ maxWidth: 760 }}>
-          <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: 0 }}>
+          <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: 0 }}>
             Mes favoris
           </h1>
           <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: 0.62, margin: "12px 0 0" }}>
@@ -90,7 +90,7 @@ export function FavoritesView() {
           >
             <Heart aria-hidden="true" size={22} strokeWidth={1.5} />
           </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(20px,2.4vw,26px)", fontWeight: 300, marginBottom: 8 }}>
+          <div style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(20px,2.4vw,26px)", fontWeight: 300, marginBottom: 8 }}>
             Votre liste de favoris est vide
           </div>
           <p style={{ fontSize: 13.5, opacity: 0.6, maxWidth: 380, margin: "0 auto 24px", lineHeight: 1.7 }}>

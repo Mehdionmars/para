@@ -87,7 +87,7 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
   // compare. Scarcity keeps its line, in its own colour; rupture is said once,
   // at the bottom, in the slot where the action would otherwise be.
   const meta = lowStock
-    ? { color: "#8A5A0F", text: `Plus que ${product.stock}` }
+    ? { color: "var(--pdh-warning)", text: `Plus que ${product.stock}` }
     : product.size
       ? { color: undefined, text: product.size }
       : null;
@@ -168,8 +168,12 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
           className="pdh-clamp-2 pdh-name"
           href={href}
           style={{
-            fontSize: config.large ? 15.5 : variant === "dermo" ? 13.5 : 14.5,
-            minHeight: config.large ? 41 : 38,
+            fontSize: config.large ? 16 : variant === "dermo" ? 14 : 15,
+            // Three lines at the 1.4 leading the class sets, rounded up:
+            // 16→67, 15→63, 14→59. Derived rather than eyeballed, because
+            // this is the number that keeps every price in a row on the same
+            // baseline no matter how long a neighbour's name runs.
+            minHeight: config.large ? 67 : variant === "dermo" ? 59 : 63,
           }}
         >
           {product.name}
@@ -179,7 +183,7 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
           {meta && <span style={{ color: meta.color }}>{meta.text}</span>}
           {config.showRating && product.reviews > 0 && (
             <>
-              <span aria-hidden="true" style={{ color: "var(--pdh-teal)", letterSpacing: ".08em" }}>
+              <span aria-hidden="true" style={{ color: "var(--pdh-teal-text)", letterSpacing: ".08em" }}>
                 {stars(product.rating)}
               </span>
               <span>({product.reviews})</span>
@@ -189,7 +193,7 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
         </div>
 
         <div className="pdh-price-row">
-          <span className="pdh-price" style={{ fontSize: config.large ? 26 : 22 }}>
+          <span className="pdh-price" style={{ fontSize: config.large ? 22 : 20 }}>
             {money(product.price)}
           </span>
           {!!product.old && <span className="pdh-price-old">{money(product.old)}</span>}

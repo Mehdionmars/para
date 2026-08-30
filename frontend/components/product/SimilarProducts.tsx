@@ -17,7 +17,7 @@ export function SimilarProducts({
 
   return (
     <>
-      <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(24px,3vw,34px)", margin: "clamp(34px,5vw,60px) 0 22px" }}>
+      <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(24px,3vw,34px)", margin: "clamp(34px,5vw,60px) 0 22px" }}>
         Vous aimerez aussi
       </h2>
       {/* auto-FILL, not auto-fit: suggestions are filtered by category and

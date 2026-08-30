@@ -4,7 +4,7 @@ import { HelpCircle, Heart, Mail, MapPin, Menu, MessageCircle, Phone, Search, Sh
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MEGA_MENU, NAV_ITEMS, type MegaMenuContent, type NavItem } from "@/data/nav";
 import { HEADER_ACTIONS, HEADER_SEARCH, LOGO, type HeaderAction, type HeaderSearchConfig, type Logo } from "@/data/siteChrome";
 import { useCart } from "@/context/cart-context";
@@ -61,6 +61,7 @@ export function Header({
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [query, setQuery] = useState("");
   const [activeNav, setActiveNav] = useState<string | null>(null);
+  const [searchPanelOpen, setSearchPanelOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const cart = useCart();
@@ -91,6 +92,26 @@ export function Header({
   function cancelClose() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
   }
+
+  /**
+   * The suggestions panel and the mega-menu are two overlays in one header,
+   * and they were free to be open at once: typing a query while the pointer
+   * happened to rest on a nav item drew the hover menu straight across the
+   * middle of the results.
+   *
+   * They are not equal claims on the screen. The mega-menu opens on hover —
+   * something the visitor can do by accident — while the suggestions panel
+   * only opens because they typed. So the panel wins: while it is up the
+   * hover menu is closed and held shut, and it is free again the moment the
+   * panel closes.
+   */
+  const handleSearchPanelChange = useCallback((open: boolean) => {
+    setSearchPanelOpen(open);
+    if (open) {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+      setActiveNav(null);
+    }
+  }, []);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -149,7 +170,7 @@ export function Header({
           <span
             className="logo-wordmark"
             style={{
-              fontFamily: "var(--font-jost)",
+              fontFamily: "var(--font-alta)",
               fontWeight: 400,
               fontSize: "clamp(20px,2.2vw,27px)",
               letterSpacing: ".24em",
@@ -174,6 +195,7 @@ export function Header({
               value={query}
               onValueChange={setQuery}
               placeholder={headerSearch.placeholder}
+              onPanelChange={handleSearchPanelChange}
             />
           </form>
         )}
@@ -228,7 +250,7 @@ export function Header({
                 style={{
                   position: "absolute",
                   top: -6,
-                  right: -8,
+                  insetInlineEnd: -8,
                   minWidth: 16,
                   height: 16,
                   borderRadius: 999,
@@ -263,7 +285,7 @@ export function Header({
                 style={{
                   position: "absolute",
                   top: -6,
-                  right: -8,
+                  insetInlineEnd: -8,
                   minWidth: 16,
                   height: 16,
                   borderRadius: 999,
@@ -365,7 +387,7 @@ export function Header({
           })}
         </ul>
 
-        {activeItem?.megaKey && (
+        {activeItem?.megaKey && !searchPanelOpen && (
           <MegaMenu
             activeKey={activeItem.megaKey}
             megaMenu={megaMenu}

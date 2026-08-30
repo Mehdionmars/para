@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ShippingOption } from "@/app/api/shipping-rules/route";
 import { CheckoutField } from "@/components/cart/CheckoutField";
+import type { PaymentMethodCode, PaymentSettings } from "@/lib/storefront/paymentSettings";
+import { usePersistedFields } from "@/lib/usePersistedFields";
 import { CouponField, type AppliedCoupon } from "@/components/cart/CouponField";
 import { PaymentBadges } from "@/components/layout/PaymentBadges";
 import { useCart } from "@/context/cart-context";
@@ -13,14 +15,42 @@ import { routes } from "@/lib/routes";
 
 type Step = "cart" | "form" | "success";
 
-export function CartView() {
+export function CartView({ payment }: { payment: PaymentSettings }) {
   const cart = useCart();
   const [step, setStep] = useState<Step>("cart");
+  // Seeded from what the shop offers rather than a hardcoded default: if the
+  // merchant ever turns cash off, the first real option is preselected.
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodCode>(
+    payment.options[0]?.code ?? "cash_on_delivery",
+  );
+  // What the *server* accepted, not what was in the form. The confirmation
+  // screen shows bank coordinates off this, so it must reflect the order that
+  // actually exists.
+  const [placedMethod, setPlacedMethod] = useState<PaymentMethodCode>("cash_on_delivery");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+
+  // Delivery details survive a reload. Losing a filled address to a stray
+  // refresh is the most expensive thing this page can do to someone, and the
+  // browser's own autofill only covers the fields it recognises.
+  //
+  // Cleared the moment an order exists: these are a name, a phone number and
+  // a home address, and once the order is placed they have served their
+  // purpose. Leaving them behind on a shared machine would not.
+  const persistedCheckout = usePersistedFields(
+    "pdh-checkout-v1",
+    { name, email, phone, address, city },
+    (saved) => {
+      if (saved.name) setName(saved.name);
+      if (saved.email) setEmail(saved.email);
+      if (saved.phone) setPhone(saved.phone);
+      if (saved.address) setAddress(saved.address);
+      if (saved.city) setCity(saved.city);
+    },
+  );
   // The cart signature the coupon was priced against is stored with it, so a
   // stale discount is discarded during render rather than by an effect that
   // would briefly paint the wrong total first.
@@ -145,6 +175,7 @@ export function CartView() {
           // database and ignores anything an amount-shaped field might carry.
           lines: cart.checkoutLines(),
           name,
+          paymentMethod,
           phone,
         }),
         headers: { "Content-Type": "application/json" },
@@ -153,6 +184,8 @@ export function CartView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Impossible de créer la commande.");
       setOrderNumber(data.orderNumber);
+      setPlacedMethod((data.paymentMethod as PaymentMethodCode) || "cash_on_delivery");
+      persistedCheckout.clear();
       cart.clear();
       setStep("success");
     } catch (err) {
@@ -171,7 +204,7 @@ export function CartView() {
         <span style={{ opacity: 0.4 }}>/</span> <span style={{ fontWeight: 600 }}>Panier</span>
       </nav>
 
-      <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: "0 0 clamp(24px,3vw,36px)" }}>
+      <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,3.8vw,44px)", margin: "0 0 clamp(24px,3vw,36px)" }}>
         {step === "success" ? "Commande confirmée" : `Votre panier${cart.lines.length > 0 ? ` (${cart.count})` : ""}`}
       </h1>
 
@@ -194,18 +227,20 @@ export function CartView() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "var(--pdh-teal)",
+              color: "var(--pdh-teal-text)",
               margin: "0 auto 18px",
             }}
           >
             <CheckCircle2 aria-hidden="true" size={26} strokeWidth={1.5} />
           </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(20px,2.4vw,26px)", fontWeight: 300, marginBottom: 8 }}>
+          <div style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(20px,2.4vw,26px)", fontWeight: 300, marginBottom: 8 }}>
             Merci, {name} !
           </div>
           <p style={{ fontSize: 13.5, opacity: 0.7, maxWidth: 420, margin: "0 auto 6px", lineHeight: 1.7 }}>
-            Votre commande a bien été enregistrée. Nous vous contactons rapidement au{" "}
-            {phone || email} pour confirmer la livraison.
+            Votre commande a bien été enregistrée.{" "}
+            {placedMethod === "bank_transfer"
+              ? "Elle sera expédiée dès réception de votre virement."
+              : `Nous vous contactons rapidement au ${phone || email} pour confirmer la livraison.`}
           </p>
 
           {/* The order number is the one string the shopper has to keep — it is
@@ -220,9 +255,52 @@ export function CartView() {
             <span>{orderNumber}</span>
             {copiedOrderNumber ? <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} /> : <Copy aria-hidden="true" size={15} strokeWidth={1.8} />}
           </button>
-          <div aria-live="polite" style={{ fontSize: 12, color: "var(--pdh-teal)", minHeight: 18, marginTop: 6 }}>
+          <div aria-live="polite" style={{ fontSize: 12, color: "var(--pdh-teal-text)", minHeight: 18, marginTop: 6 }}>
             {copiedOrderNumber ? "Numéro copié" : ""}
           </div>
+
+          {/* Only for an order that is actually awaiting a transfer, and only
+              when the merchant has filled the coordinates in. Nothing here is
+              hardcoded: it all comes from the payment-settings global. */}
+          {placedMethod === "bank_transfer" && payment.bank && (
+            <div className="pay-bank">
+              <p className="pay-bank-intro">
+                Effectuez votre virement bancaire en utilisant les informations ci-dessous.
+              </p>
+              <dl className="pay-bank-list">
+                <div className="pay-bank-row">
+                  <dt>Bénéficiaire</dt>
+                  <dd>{payment.bank.beneficiary}</dd>
+                </div>
+                <div className="pay-bank-row">
+                  <dt>Banque</dt>
+                  <dd>{payment.bank.bankName}</dd>
+                </div>
+                <div className="pay-bank-row">
+                  <dt>RIB</dt>
+                  <dd className="pay-bank-num">{payment.bank.rib}</dd>
+                </div>
+                {payment.bank.iban && (
+                  <div className="pay-bank-row">
+                    <dt>IBAN</dt>
+                    <dd className="pay-bank-num">{payment.bank.iban}</dd>
+                  </div>
+                )}
+                {payment.bank.bic && (
+                  <div className="pay-bank-row">
+                    <dt>BIC / SWIFT</dt>
+                    <dd className="pay-bank-num">{payment.bank.bic}</dd>
+                  </div>
+                )}
+                <div className="pay-bank-row pay-bank-row--ref">
+                  <dt>Référence à indiquer</dt>
+                  <dd className="pay-bank-num">{orderNumber}</dd>
+                </div>
+              </dl>
+              <p className="pay-bank-note">Veuillez indiquer cette référence dans le motif du virement.</p>
+              {payment.bank.instructions && <p className="pay-bank-note">{payment.bank.instructions}</p>}
+            </div>
+          )}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginTop: 18 }}>
             <Link
               href="/catalogue"
@@ -265,7 +343,7 @@ export function CartView() {
           >
             <ShoppingBag aria-hidden="true" size={22} strokeWidth={1.5} />
           </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(20px,2.4vw,26px)", fontWeight: 300, marginBottom: 8 }}>
+          <div style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(20px,2.4vw,26px)", fontWeight: 300, marginBottom: 8 }}>
             Votre panier est vide
           </div>
           <p style={{ fontSize: 13.5, opacity: 0.6, maxWidth: 380, margin: "0 auto 24px", lineHeight: 1.7 }}>
@@ -286,11 +364,10 @@ export function CartView() {
               <div style={{ fontSize: 12.5, marginBottom: 8 }}>{cart.freeShippingMessage}</div>
               <div style={{ height: 6, borderRadius: 999, background: "rgba(94,64,116,.15)", overflow: "hidden" }}>
                 <div
+                  className="bar-fill"
                   style={{
-                    height: "100%",
-                    width: `${cart.freeShippingProgress}%`,
                     background: "linear-gradient(90deg,var(--pdh-plum),var(--pdh-teal))",
-                    transition: "width .5s cubic-bezier(.22,1,.36,1)",
+                    transform: `scaleX(${Math.max(0, Math.min(100, cart.freeShippingProgress)) / 100})`,
                   }}
                 />
               </div>
@@ -321,7 +398,7 @@ export function CartView() {
                       <CloudinaryImage preset="thumb" src={line.image} alt={line.name} fill sizes="92px" style={{ objectFit: "contain" }} />
                     </Link>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+                      <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
                         {line.brand}
                       </div>
                       <Link
@@ -332,12 +409,12 @@ export function CartView() {
                       </Link>
                       {!!line.variantLabel && (
                         <div style={{ color: "var(--pdh-ink)", fontSize: 12.5, marginTop: 5 }}>
-                          <span style={{ color: "#6a7178" }}>{line.variantType || "Option"} : </span>
+                          <span style={{ color: "var(--pdh-muted-text)" }}>{line.variantType || "Option"} : </span>
                           <span style={{ fontWeight: 500 }}>{line.variantLabel}</span>
                         </div>
                       )}
-                      {!!line.sku && <div style={{ color: "#6a7178", fontSize: 11.5, marginTop: 2 }}>SKU {line.sku}</div>}
-                      <div style={{ color: "#6a7178", fontSize: 11.5, marginTop: 4 }}>
+                      {!!line.sku && <div style={{ color: "var(--pdh-muted-text)", fontSize: 11.5, marginTop: 2 }}>SKU {line.sku}</div>}
+                      <div style={{ color: "var(--pdh-muted-text)", fontSize: 11.5, marginTop: 4 }}>
                         {cart.money(line.price)} l&apos;unité
                       </div>
                       <div className="cart-line-actions" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, flexWrap: "wrap", gap: 12 }}>
@@ -371,7 +448,7 @@ export function CartView() {
                             <Plus aria-hidden="true" size={14} />
                           </button>
                         </div>
-                        <span style={{ fontFamily: "var(--font-jost)", fontSize: 19, color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>
+                        <span style={{ fontFamily: "var(--font-alta)", fontSize: 19, color: "var(--pdh-plum)", whiteSpace: "nowrap" }}>
                           {cart.money(line.price * line.qty)}
                         </span>
                       </div>
@@ -429,7 +506,7 @@ export function CartView() {
               ))}
             </ol>
 
-            <h2 style={{ fontFamily: "var(--font-jost)", fontSize: 18, fontWeight: 500, margin: "0 0 18px" }}>
+            <h2 style={{ fontFamily: "var(--font-alta)", fontSize: 18, fontWeight: 500, margin: "0 0 18px" }}>
               {step === "form" ? "Vos coordonnées" : "Récapitulatif"}
             </h2>
 
@@ -462,7 +539,7 @@ export function CartView() {
                       justifyContent: "space-between",
                       fontSize: 13,
                       marginBottom: 8,
-                      color: "#1F8A5C",
+                      color: "var(--pdh-success)",
                       fontWeight: 500,
                     }}
                   >
@@ -489,7 +566,7 @@ export function CartView() {
                   }}
                 >
                   <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" }}>Total</span>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(24px,2.8vw,30px)", color: "var(--pdh-plum)" }}>
+                  <span style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(24px,2.8vw,30px)", color: "var(--pdh-plum)" }}>
                     {cart.money(total)}
                   </span>
                 </div>
@@ -589,12 +666,47 @@ export function CartView() {
                   required
                 />
 
+                {/* Radio cards, not a select: there are two choices at most
+                    and the difference between them (pay now vs pay the
+                    courier) is worth reading, which a collapsed dropdown
+                    hides. A single available method is stated rather than
+                    offered — a lone radio you cannot untick is a control
+                    pretending to be a choice. */}
+                <fieldset className="pay-set">
+                  <legend className="pay-legend">Mode de paiement</legend>
+                  {payment.options.length > 1 ? (
+                    <div className="pay-options">
+                      {payment.options.map((opt) => (
+                        <label className="pay-option" data-on={paymentMethod === opt.code || undefined} key={opt.code}>
+                          <input
+                            checked={paymentMethod === opt.code}
+                            className="pay-radio"
+                            name="paymentMethod"
+                            onChange={() => setPaymentMethod(opt.code)}
+                            type="radio"
+                            value={opt.code}
+                          />
+                          <span className="pay-option-body">
+                            <span className="pay-option-label">{opt.label}</span>
+                            <span className="pay-option-desc">{opt.description}</span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="pay-single">
+                      <span className="pay-option-label">{payment.options[0].label}</span>
+                      <span className="pay-option-desc">{payment.options[0].description}</span>
+                    </div>
+                  )}
+                </fieldset>
+
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, opacity: 0.7, marginTop: 4 }}>
                   <span>Sous-total</span>
                   <span>{cart.money(cart.subtotal)}</span>
                 </div>
                 {discount > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "#1F8A5C", fontWeight: 500 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--pdh-success)", fontWeight: 500 }}>
                     <span>Réduction {coupon ? `(${coupon.code})` : ""}</span>
                     <span>−{cart.money(discount)}</span>
                   </div>
@@ -613,8 +725,10 @@ export function CartView() {
                     borderTop: "1px solid rgba(94,64,116,.12)",
                   }}
                 >
-                  <span style={{ fontSize: 12.5, opacity: 0.7 }}>Total à payer à la livraison</span>
-                  <span style={{ fontFamily: "var(--font-jost)", fontSize: 20, color: "var(--pdh-plum)" }}>
+                  <span style={{ fontSize: 12.5, opacity: 0.7 }}>
+                    {paymentMethod === "bank_transfer" ? "Total à virer" : "Total à payer à la livraison"}
+                  </span>
+                  <span style={{ fontFamily: "var(--font-alta)", fontSize: 20, color: "var(--pdh-plum)" }}>
                     {cart.money(total)}
                   </span>
                 </div>
@@ -622,7 +736,7 @@ export function CartView() {
                 {formError && (
                   // role="alert" so a screen reader announces the failure
                   // instead of it being silently painted below the button.
-                  <p role="alert" style={{ fontSize: 12.5, color: "#9A3B3B", margin: 0 }}>
+                  <p role="alert" style={{ fontSize: 12.5, color: "var(--pdh-error)", margin: 0 }}>
                     {formError}
                   </p>
                 )}

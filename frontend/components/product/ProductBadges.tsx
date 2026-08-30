@@ -48,7 +48,7 @@ export function ProductBadges({ badges, price, oldPrice, limit = MAX_BADGES, com
       style={{
         position: "absolute",
         top: compact ? 10 : 12,
-        left: compact ? 10 : 12,
+        insetInlineStart: compact ? 10 : 12,
         zIndex: 2,
         display: "flex",
         flexDirection: "column",

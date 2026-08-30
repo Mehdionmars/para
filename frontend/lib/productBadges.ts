@@ -69,6 +69,23 @@ export const NEW_WINDOW_MS: number = core.NEW_WINDOW_MS;
 export const discountPercentage: (price: number, oldPrice?: number | null) => number | null =
   core.discountPercentage;
 
+/**
+ * WCAG contrast ratio between two colours, or null when either is not a plain
+ * hex value (a CSS custom property cannot be resolved outside the browser).
+ */
+export const contrastRatio: (a: string, b: string) => number | null = core.contrastRatio;
+
+/**
+ * The colour a badge's text must actually be rendered in.
+ *
+ * Badge colours are editor-supplied through free hex fields, so this is the
+ * last gate before render: a pair that already meets 4.5:1 is returned
+ * untouched, and only a genuine failure is replaced. Unmeasurable colours
+ * (custom properties) pass through — those are ours, and vetted at the token.
+ */
+export const readableTextColor: (bgColor: string, textColor: string) => string =
+  core.readableTextColor;
+
 /** The automatic markdown pill, or null. Always priority 1. */
 export const discountBadge: (price: number, oldPrice?: number | null) => ResolvedBadge | null =
   core.discountBadge;

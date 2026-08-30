@@ -32,7 +32,7 @@ export default function SiteNotFound() {
 
       <h1
         style={{
-          fontFamily: "var(--font-jost)",
+          fontFamily: "var(--font-alta)",
           fontWeight: 300,
           fontSize: "clamp(28px,4.4vw,44px)",
           color: "var(--pdh-plum)",

@@ -15,16 +15,16 @@ export function ProductReviews({ product }: { product: Product }) {
     >
       {hasReviews ? (
         <div>
-          <div style={{ fontFamily: "var(--font-raleway)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
             Avis vérifiés
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(34px,4vw,46px)", color: "var(--pdh-plum)" }}>
+            <span style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(34px,4vw,46px)", color: "var(--pdh-plum)" }}>
               {product.rating.toFixed(1).replace(".", ",")}
             </span>
             <span style={{ fontSize: 13, opacity: 0.6 }}>/ 5 · {product.reviews} avis</span>
           </div>
-          <div style={{ color: "var(--pdh-teal)", letterSpacing: ".14em", marginTop: 6 }}>{stars(product.rating)}</div>
+          <div style={{ color: "var(--pdh-teal-text)", letterSpacing: ".14em", marginTop: 6 }}>{stars(product.rating)}</div>
         </div>
       ) : (
         <div style={{ textAlign: "center", padding: "clamp(20px,3vw,32px) 10px" }}>
@@ -44,7 +44,7 @@ export function ProductReviews({ product }: { product: Product }) {
           >
             <Star aria-hidden="true" size={20} strokeWidth={1.5} />
           </div>
-          <div style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(18px,2.2vw,22px)", fontWeight: 300, marginBottom: 6 }}>
+          <div style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(18px,2.2vw,22px)", fontWeight: 300, marginBottom: 6 }}>
             Aucun avis pour le moment
           </div>
           <p style={{ fontSize: 13, opacity: 0.6, maxWidth: 380, margin: "0 auto", lineHeight: 1.7 }}>

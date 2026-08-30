@@ -39,7 +39,7 @@ async function makeOrder(status = 'pending') {
       customerName: 'Test Lifecycle',
       customerPhone: '0600000000',
       items: [{ name: 'Produit test', price: 100, product: productId, quantity: ORDER_QTY }],
-      paymentMethod: 'À la livraison',
+      paymentMethod: 'cash_on_delivery',
       paymentStatus: 'pending',
       shipping: 20,
       status: status as 'pending',

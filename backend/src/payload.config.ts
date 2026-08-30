@@ -32,6 +32,7 @@ import { CataloguePage } from './globals/CataloguePage'
 import { CollectionsPage } from './globals/CollectionsPage'
 import { Home } from './globals/Home'
 import { Navigation } from './globals/Navigation'
+import { PaymentSettings } from './globals/PaymentSettings'
 import { SiteChrome } from './globals/SiteChrome'
 import { Theme } from './globals/Theme'
 
@@ -197,6 +198,7 @@ export default buildConfig({
 
   globals: [
     Home,
+    PaymentSettings,
     CollectionsPage,
     CataloguePage,
     SiteChrome,

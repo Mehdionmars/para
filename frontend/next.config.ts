@@ -33,6 +33,18 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   /**
+   * `standalone` emits .next/standalone, which the Dockerfile copies into the
+   * runner stage — without it that COPY fails and no image can be built.
+   *
+   * Vercel is the one platform that must NOT get it: it does its own tracing
+   * and output packaging, and a standalone build is what destabilised the
+   * deploy that removed this line. Keying off VERCEL (which Vercel always
+   * sets) keeps that fix while letting every other build — Docker, local,
+   * CI — produce the directory again. Only `next build` reads this; `next
+   * dev` is unaffected either way.
+   */
+  output: process.env.VERCEL ? undefined : "standalone",
+  /**
    * Hostnames the dev server accepts besides `localhost`.
    *
    * proxy.ts routes by host — `localhost` is the dashboard, anything else is
@@ -44,7 +56,7 @@ const nextConfig: NextConfig = {
    *
    * Development only; Next ignores this in a production build.
    */
-  allowedDevOrigins: ["paradhiver.test", "admin.paradhiver.test"],
+  allowedDevOrigins: ["paradhiver.test", "admin.paradhiver.test", "127.0.0.1"],
 
   async headers() {
     return [

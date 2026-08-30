@@ -25,7 +25,7 @@ export default async function BrandsPage() {
       <Breadcrumbs items={[{ label: "Accueil", href: routes.home() }, { label: "Marques" }]} />
 
       <div style={{ maxWidth: 760 }}>
-        <h1 style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>
+        <h1 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>
           Toutes les marques
         </h1>
         <p style={{ fontSize: 13.5, lineHeight: 1.75, margin: "12px 0 0", color: "#5f6772" }}>

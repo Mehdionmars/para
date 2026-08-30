@@ -35,7 +35,7 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
   const objectPosition = framingToObjectPosition(banner.imageFraming);
 
   return (
-    <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
+    <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       {imageOnly ? (
         <Link href={href} aria-label={wholeTileLabel} className="marketing-banner" style={{ display: "block" }}>
           <BannerImage banner={banner} alt={altText} objectPosition={objectPosition} />
@@ -44,22 +44,19 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
       ) : (
         <div className="marketing-banner" style={{ display: "flex", alignItems: "flex-end" }}>
           <BannerImage banner={banner} alt="" objectPosition={objectPosition} />
-          <div
-            aria-hidden="true"
-            style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg,rgba(30,20,14,.6) 0%,rgba(30,20,14,.15) 45%,transparent 70%)" }}
-          />
+          <div className="scrim-bottom" aria-hidden="true" style={{ position: "absolute", inset: 0 }} />
           {banner.badgeLabel && <BannerBadge label={banner.badgeLabel} />}
 
           <div className="overlay-card-content" style={{ position: "relative", zIndex: 2, padding: "clamp(24px,3.6vw,48px)", maxWidth: 560, color: "#fff" }}>
             {banner.eyebrow && (
-              <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-raleway)", fontSize: 11, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.9, marginBottom: 10 }}>
+              <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.9, marginBottom: 10 }}>
                 {banner.eyebrow}
               </div>
             )}
             {banner.title && (
               <h2
                 className="overlay-card-title"
-                style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(28px,4vw,44px)", lineHeight: 1.08, margin: "0 0 14px", letterSpacing: "-.01em" }}
+                style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,4vw,44px)", lineHeight: 1.08, margin: "0 0 14px", letterSpacing: "-.01em" }}
               >
                 {banner.title}
               </h2>
@@ -133,11 +130,11 @@ function BannerBadge({ label }: { label: string }) {
       style={{
         position: "absolute",
         top: "clamp(14px,2vw,20px)",
-        right: "clamp(14px,2vw,20px)",
+        insetInlineEnd: "clamp(14px,2vw,20px)",
         zIndex: 2,
-        background: "var(--pdh-sale)",
+        background: "var(--pdh-sale-strong)",
         color: "#fff",
-        fontFamily: "var(--font-raleway)",
+        fontFamily: "var(--font-poppins)",
         fontSize: 12,
         fontWeight: 700,
         letterSpacing: ".04em",

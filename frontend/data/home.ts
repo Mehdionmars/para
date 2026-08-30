@@ -30,7 +30,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     "ctaUrl": "/catalogue",
     "secondaryCta": "",
     "secondaryCtaUrl": "",
-    "align": "right",
+    "align": "left",
     "overlay": true,
     "bg": "linear-gradient(120deg,#2f1f3d,#5E4074 60%,#4b3563)",
     "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/visage.png",
@@ -121,9 +121,9 @@ export const RAILS: RailDef[] = [
       717
     ],
     "category": "",
-    "brandFilterId": 17,
+    "brandFilterId": 16,
     "limit": 8,
-    "sortOrder": "newest",
+    "sortOrder": "price-desc",
     "ctaLabel": "Voir tout",
     "ctaUrl": "/catalogue",
     "badgeStyle": "none",
@@ -502,6 +502,7 @@ export const FREE_SHIPPING_THRESHOLD = 399;
 
 export type SectionKey =
   | "hero"
+  | "featuredPromo"
   | "marketingBanner"
   | "ctaPair1"
   | "summerEdit"
@@ -529,15 +530,19 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
     "visible": true
   },
   {
-    "key": "rail:saison",
-    "visible": true
-  },
-  {
     "key": "rail:nouveautes",
     "visible": true
   },
   {
     "key": "promotionsGrid",
+    "visible": true
+  },
+  {
+    "key": "featuredPromo",
+    "visible": true
+  },
+  {
+    "key": "rail:saison",
     "visible": true
   },
   {

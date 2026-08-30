@@ -1,5 +1,7 @@
 import configPromise from '@payload-config'
-import { getPayload } from 'payload'
+import { getPayload, type Payload } from 'payload'
+
+import { PAYMENT_METHOD_OPTIONS, type PaymentMethod } from '../../../globals/PaymentSettings'
 
 import {
   claimIdempotencyKey,
@@ -38,7 +40,35 @@ type CheckoutBody = {
    * percentage and fixed coupons produces order-dependent totals and is a
    * standing source of margin leaks. */
   couponCode?: string
+  /** One of PAYMENT_METHOD_OPTIONS. Checked against what the shop actually
+   * accepts before it is stored — see resolvePaymentMethod. */
+  paymentMethod?: string
   lines?: CheckoutLine[]
+}
+
+/**
+ * The methods the shop accepts right now, read from the CMS rather than the
+ * request. A client posting `bank_transfer` while transfers are switched off
+ * would otherwise place an order nobody can collect payment for.
+ *
+ * The bank-coordinates check mirrors the global's own validate: a transfer is
+ * only offerable when there is somewhere to transfer to. If the global cannot
+ * be read at all, checkout falls back to the one method this shop has always
+ * had rather than refusing every order.
+ */
+async function allowedPaymentMethods(payload: Payload): Promise<PaymentMethod[]> {
+  try {
+    const settings = await payload.findGlobal({ slug: 'payment-settings', depth: 0 })
+    const out: PaymentMethod[] = []
+    if (settings?.codEnabled !== false) out.push('cash_on_delivery')
+    const bank = settings?.bank
+    const filled = (v: string | null | undefined) => typeof v === 'string' && v.trim().length > 0
+    const hasCoordinates = filled(bank?.beneficiary) && filled(bank?.bankName) && filled(bank?.rib)
+    if (settings?.bankTransferEnabled === true && hasCoordinates) out.push('bank_transfer')
+    return out.length > 0 ? out : ['cash_on_delivery']
+  } catch {
+    return ['cash_on_delivery']
+  }
 }
 
 type ResolvedLine = {
@@ -132,6 +162,22 @@ async function handlePOST(request: Request) {
   }
   if (!Array.isArray(body.lines) || body.lines.length === 0) {
     return fail(Response.json({ error: 'Panier vide.' }, { status: 400 }))
+  }
+
+  // Resolved before anything is written. An unknown or disabled method is a
+  // 400 rather than a silent downgrade to cash: the shopper chose how to pay
+  // and must be told if that choice is not available, not discover it on
+  // delivery.
+  const offered = await allowedPaymentMethods(payload)
+  const requestedMethod = body.paymentMethod?.trim()
+  const paymentMethod: PaymentMethod | null = requestedMethod
+    ? ((PAYMENT_METHOD_OPTIONS as readonly string[]).includes(requestedMethod) &&
+      offered.includes(requestedMethod as PaymentMethod)
+        ? (requestedMethod as PaymentMethod)
+        : null)
+    : offered[0]
+  if (!paymentMethod) {
+    return fail(Response.json({ error: 'Mode de paiement indisponible.' }, { status: 400 }))
   }
 
   // Merge duplicates before touching the database: the same product *and the
@@ -428,7 +474,7 @@ async function handlePOST(request: Request) {
         coupon: appliedCouponId ?? undefined,
         couponCode: appliedCouponCode ?? undefined,
         discount,
-        paymentMethod: 'À la livraison',
+        paymentMethod,
         // Both carry a defaultValue in the collection but are `required`, so
         // the generated input type still expects them.
         paymentStatus: 'pending',
@@ -558,6 +604,7 @@ async function handlePOST(request: Request) {
 
     const success = {
       couponApplied: appliedCouponCode,
+      paymentMethod,
       discount,
       orderNumber: order.orderNumber,
       shipping,

@@ -25,7 +25,12 @@ COPY . .
 # `next build` without a live database — real values are injected at
 # container runtime via docker-compose `environment:`.
 ARG DATABASE_URI=postgresql://postgres:postgres@localhost:5432/para_dhiver
-ARG PAYLOAD_SECRET=build-time-placeholder-secret
+# 40 chars, and deliberately self-describing: env.ts requires at least 32,
+# and the previous placeholder was 29 — which broke every image build with
+# an error that reads like a misconfigured deployment rather than a stale
+# default. Never used at runtime: docker-compose supplies the real secret
+# through env_file, and .dockerignore keeps .env out of the image.
+ARG PAYLOAD_SECRET=build-only-placeholder-not-a-real-secret
 ENV DATABASE_URI=$DATABASE_URI
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV NEXT_TELEMETRY_DISABLED=1

@@ -60,7 +60,7 @@ export function CartDrawer() {
             alignItems: "center",
           }}
         >
-          <h2 style={{ fontFamily: "var(--font-jost)", fontSize: 24, fontWeight: 300, margin: 0 }}>
+          <h2 style={{ fontFamily: "var(--font-alta)", fontSize: 24, fontWeight: 300, margin: 0 }}>
             Votre panier ({cart.count})
           </h2>
           <button
@@ -106,7 +106,7 @@ export function CartDrawer() {
         <div style={{ flex: 1, overflowY: "auto", padding: "8px 26px" }}>
           {cart.lines.length === 0 ? (
             <div style={{ textAlign: "center", padding: "70px 20px", opacity: 0.55 }}>
-              <div style={{ fontFamily: "var(--font-jost)", fontSize: 22, fontWeight: 300, marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-alta)", fontSize: 22, fontWeight: 300, marginBottom: 8 }}>
                 Votre panier est vide
               </div>
               <div style={{ fontSize: 13 }}>Ajoutez vos essentiels d&apos;hiver.</div>
@@ -141,12 +141,12 @@ export function CartDrawer() {
                       <CloudinaryImage preset="thumb" src={line.image} alt={line.name} fill sizes="72px" style={{ objectFit: "contain" }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+                      <div style={{ fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
                         {line.brand}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 500, marginTop: 3, lineHeight: 1.35 }}>{line.name}</div>
                       {!!line.variantLabel && (
-                        <div style={{ color: "#6a7178", fontSize: 11.5, marginTop: 3 }}>
+                        <div style={{ color: "var(--pdh-muted-text)", fontSize: 11.5, marginTop: 3 }}>
                           {line.variantType || "Option"} :{" "}
                           <span style={{ color: "var(--pdh-ink)", fontWeight: 500 }}>{line.variantLabel}</span>
                         </div>
@@ -182,7 +182,7 @@ export function CartDrawer() {
                             <Plus aria-hidden="true" size={13} />
                           </button>
                         </div>
-                        <span style={{ fontFamily: "var(--font-jost)", fontSize: 17, color: "var(--pdh-plum)" }}>
+                        <span style={{ fontFamily: "var(--font-alta)", fontSize: 17, color: "var(--pdh-plum)" }}>
                           {cart.money(line.price * line.qty)}
                         </span>
                       </div>
@@ -218,7 +218,7 @@ export function CartDrawer() {
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
             <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" }}>Total</span>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(22px,2.6vw,30px)", color: "var(--pdh-plum)" }}>
+            <span style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(22px,2.6vw,30px)", color: "var(--pdh-plum)" }}>
               {cart.money(cart.total)}
             </span>
           </div>

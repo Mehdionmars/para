@@ -158,16 +158,16 @@ export function PurchasePanel({
   return (
     <>
     <div className="pdp-purchase-panel">
-      <div style={{ fontFamily: "var(--font-raleway)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--pdh-teal)" }}>
+      <div style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
         {product.brand}
       </div>
-      <h1 style={{ fontFamily: "var(--font-jost)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.06, margin: "10px 0 12px" }}>
+      <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.06, margin: "10px 0 12px" }}>
         {product.name}
       </h1>
       {product.reviews > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-          <span style={{ color: "var(--pdh-teal)", letterSpacing: ".12em" }}>{stars(product.rating)}</span>
-          <span style={{ fontSize: 12, color: "#6a7178" }}>{product.reviews} avis</span>
+          <span style={{ color: "var(--pdh-teal-text)", letterSpacing: ".12em" }}>{stars(product.rating)}</span>
+          <span style={{ fontSize: 12, color: "var(--pdh-muted-text)" }}>{product.reviews} avis</span>
         </div>
       )}
       {/* Clamped, not truncated. CMS descriptions run to a full monograph —
@@ -209,7 +209,7 @@ export function PurchasePanel({
       </div>
 
       <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 22 }}>
-        <span style={{ fontFamily: "var(--font-jost)", fontSize: "clamp(25px,3.2vw,38px)", color: "var(--pdh-plum)" }}>{money(effectivePrice)}</span>
+        <span style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(25px,3.2vw,38px)", color: "var(--pdh-plum)" }}>{money(effectivePrice)}</span>
         {!!effectiveOld && <span style={{ fontSize: 16, opacity: 0.45, textDecoration: "line-through" }}>{money(effectiveOld)}</span>}
       </div>
 
@@ -270,7 +270,7 @@ export function PurchasePanel({
         <span
           style={{
             alignItems: "center",
-            color: effectiveStockState === "out" ? "#9A3B3B" : effectiveStockState === "low" ? "#8A5A0F" : "#1F7A55",
+            color: effectiveStockState === "out" ? "var(--pdh-error)" : effectiveStockState === "low" ? "var(--pdh-warning)" : "#1F7A55",
             display: "flex",
             fontSize: 13,
             fontWeight: 500,
@@ -294,7 +294,7 @@ export function PurchasePanel({
               : "En stock"}
         </span>
         {!!effectiveSku && (
-          <span style={{ color: "#6a7178", fontSize: 12 }}>
+          <span style={{ color: "var(--pdh-muted-text)", fontSize: 12 }}>
             SKU <span style={{ letterSpacing: ".04em" }}>{effectiveSku}</span>
           </span>
         )}
@@ -401,9 +401,9 @@ export function PurchasePanel({
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2, flex: "none" }}>
-        <span style={{ fontFamily: "var(--font-jost)", fontSize: 18, color: "var(--pdh-plum)" }}>{money(effectivePrice)}</span>
+        <span style={{ fontFamily: "var(--font-alta)", fontSize: 18, color: "var(--pdh-plum)" }}>{money(effectivePrice)}</span>
         {activeVariant ? (
-          <span style={{ color: "#6a7178", fontSize: 11 }}>{activeVariant.optionValue}</span>
+          <span style={{ color: "var(--pdh-muted-text)", fontSize: 11 }}>{activeVariant.optionValue}</span>
         ) : (
           !!effectiveOld && <span style={{ color: "#6f6a63", fontSize: 11, textDecoration: "line-through" }}>{money(effectiveOld)}</span>
         )}

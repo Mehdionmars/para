@@ -36,7 +36,7 @@ function MegaColumnList({ links, showArrows }: { links: MegaLink[]; showArrows: 
                 ...navItemStyle(link),
               }}
             >
-              {showArrows && <ArrowRight aria-hidden="true" size={14} style={{ color: "var(--pdh-teal)", flexShrink: 0 }} />}
+              {showArrows && <ArrowRight aria-hidden="true" size={14} style={{ color: "var(--pdh-teal-text)", flexShrink: 0 }} />}
               <NavItemLabel item={link} badgeScale={0.9} />
             </Link>
           </li>
@@ -48,7 +48,7 @@ function MegaColumnList({ links, showArrows }: { links: MegaLink[]; showArrows: 
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
           className="link-hover mega-link"
-          style={{ fontSize: 12, color: "var(--pdh-teal)", marginTop: 10, textAlign: "left", cursor: "pointer" }}
+          style={{ fontSize: 12, color: "var(--pdh-teal-text)", marginTop: 10, textAlign: "start", cursor: "pointer" }}
         >
           {expanded ? "Voir moins" : "Voir plus"}
         </button>
@@ -150,7 +150,7 @@ export function MegaMenu({
                   fontWeight: 600,
                   letterSpacing: ".08em",
                   textTransform: "uppercase",
-                  color: "#222222",
+                  color: "var(--pdh-ink)",
                 }}
               >
                 {col.title}
@@ -175,7 +175,7 @@ export function MegaMenu({
               {promo.img && <CloudinaryImage preset="thumb" src={promo.img} alt="" fill sizes="280px" style={{ objectFit: "cover" }} />}
               <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(55,48,32,0) 40%,rgba(47,31,61,.82) 100%)" }} />
               <div style={{ position: "relative", zIndex: 3, padding: 18, color: "var(--pdh-cream)" }}>
-                <div style={{ fontFamily: "var(--font-jost)", fontWeight: 300, fontSize: 17, lineHeight: 1.15 }}>{promo.title}</div>
+                <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 17, lineHeight: 1.15 }}>{promo.title}</div>
                 {promo.description && (
                   <div style={{ fontSize: 11.5, color: "rgba(247,238,229,.82)", marginTop: 5, lineHeight: 1.5 }}>{promo.description}</div>
                 )}
