@@ -56,10 +56,19 @@ export function DashboardShell({
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900">
       {/* Below lg the aside is taken out of the flow and slid in; above it,
-          the wrapper is inert and the sidebar sits in the row as before. */}
+          the wrapper is inert and the sidebar sits in the row as before.
+
+          `invisible` is what actually closes the drawer. Translating it off
+          the left edge only moved it: all twelve nav links stayed in the tab
+          order, so tabbing off the burger walked a keyboard through a menu
+          nobody could see. `visibility` is the one property that both hides
+          and un-focuses, and `lg:visible` keeps it off the static sidebar.
+          `transition-discrete` holds the old value for the full 200ms instead
+          of flipping it immediately, so the drawer still slides out rather
+          than blinking away. */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 ${
-          navOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 transition-[transform,visibility] duration-200 transition-discrete lg:visible lg:static lg:z-auto lg:translate-x-0 ${
+          navOpen ? "visible translate-x-0" : "invisible -translate-x-full"
         }`}
       >
         <Sidebar roles={roles} />

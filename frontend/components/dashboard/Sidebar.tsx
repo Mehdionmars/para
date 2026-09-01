@@ -69,6 +69,20 @@ function matches(pathname: string, item: (typeof NAV)[number]) {
 
 const COLLAPSE_STORAGE_KEY = "dashboard-sidebar-collapsed";
 
+/**
+ * Collapsing is a desktop affordance and is expressed only in `lg:` classes.
+ *
+ * It used to be applied at every width — an inline `width` and `!collapsed &&`
+ * guards around the labels — which broke below `lg`, where this sidebar is not
+ * a rail in the layout but the off-canvas drawer that DashboardShell slides
+ * in. Three things went wrong there: the drawer opened as a 68px icon strip
+ * for anyone who had collapsed it on a desktop, its toggle (offset `-right-3`
+ * to straddle the sidebar's edge) stayed ~11px inside the viewport while the
+ * drawer itself was off-canvas, leaving a clickable sliver of a control
+ * attached to nothing, and the toggle was pointless anyway on a panel whose
+ * whole job is to open and close. Keeping the state but scoping its effect to
+ * `lg` fixes all three and leaves the desktop behaviour untouched.
+ */
 export function Sidebar({ roles }: { roles: Role[] }) {
   const pathname = usePathname();
   const items = NAV.filter((item) => item.visible({ roles }));
@@ -95,23 +109,27 @@ export function Sidebar({ roles }: { roles: Role[] }) {
 
   return (
     <aside
-      className="relative flex h-screen flex-none flex-col overflow-visible border-r border-gray-100 bg-white transition-[width] duration-200"
-      style={{ width: collapsed ? 68 : 220 }}
+      className={cn(
+        "relative flex h-screen w-[220px] flex-none flex-col overflow-visible border-r border-gray-100 bg-white transition-[width] duration-200",
+        collapsed && "lg:w-[68px]",
+      )}
     >
       <button
         type="button"
         onClick={toggle}
         aria-label={collapsed ? "Déplier la barre latérale" : "Réduire la barre latérale"}
-        className="absolute -right-3 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm hover:text-gray-900"
+        className="absolute -right-3 top-6 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 lg:flex"
       >
         {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
       </button>
 
-      <div className={cn("flex items-center gap-2.5 px-5 py-5", collapsed && "justify-center px-0")}>
+      <div className={cn("flex items-center gap-2.5 px-5 py-5", collapsed && "lg:justify-center lg:px-0")}>
         <div className="relative h-8 w-8 flex-none">
           <Image src="/assets/logo.png" alt="Para d'Hiver" fill sizes="32px" className="object-contain" priority />
         </div>
-        {!collapsed && <span className="whitespace-nowrap text-sm font-semibold text-gray-900">Para d&apos;Hiver</span>}
+        <span className={cn("whitespace-nowrap text-sm font-semibold text-gray-900", collapsed && "lg:hidden")}>
+          Para d&apos;Hiver
+        </span>
       </div>
 
       <nav className="flex flex-1 flex-col gap-0.5 px-3">
@@ -124,17 +142,24 @@ export function Sidebar({ roles }: { roles: Role[] }) {
               href={item.href}
               className={cn(
                 "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                collapsed && "justify-center px-0",
+                collapsed && "lg:justify-center lg:px-0",
                 active ? "bg-violet-50 text-violet-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
               )}
             >
               <Icon className="h-4 w-4 flex-none" />
-              {!collapsed && <span className="whitespace-nowrap">{item.label}</span>}
-              {collapsed && (
-                <span className="pointer-events-none absolute left-full top-1/2 z-20 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                  {item.label}
-                </span>
-              )}
+              <span className={cn("whitespace-nowrap", collapsed && "lg:hidden")}>{item.label}</span>
+              {/* The rail's only label, so it has to answer to the keyboard as
+                  well as the mouse: reaching an icon-only link by Tab used to
+                  leave it unnamed on screen. */}
+              <span
+                className={cn(
+                  "pointer-events-none absolute left-full top-1/2 z-20 ml-2 hidden -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100",
+                  collapsed && "lg:block",
+                )}
+                aria-hidden="true"
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
