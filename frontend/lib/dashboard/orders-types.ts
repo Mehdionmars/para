@@ -97,6 +97,26 @@ export const ORDER_STATUS_BADGE: Record<OrderStatus, "info" | "success" | "warni
   shipped: "info",
 };
 
+/**
+ * One colour per status, for the overview calendar.
+ *
+ * ORDER_STATUS_BADGE beside it cannot do this job: it maps onto the five
+ * Badge variants, so confirmed, preparing and shipped all come out "info" —
+ * fine for a label that carries its own text, useless for a dot that has
+ * nothing but its colour. Written as whole class names because that is what
+ * Tailwind's scanner looks for; a built `bg-${x}-500` would never be emitted.
+ */
+export const ORDER_STATUS_DOT: Record<OrderStatus, string> = {
+  cancelled: "bg-red-500",
+  confirmed: "bg-sky-500",
+  delivered: "bg-emerald-500",
+  pending: "bg-amber-500",
+  preparing: "bg-indigo-500",
+  refunded: "bg-rose-500",
+  returned: "bg-orange-500",
+  shipped: "bg-violet-500",
+};
+
 export type OrderItem = {
   id: string;
   product?: number | { id: number; name: string } | null;

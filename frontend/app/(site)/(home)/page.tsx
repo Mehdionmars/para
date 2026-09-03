@@ -87,16 +87,7 @@ const DEFAULT_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
  */
 type Movement = "opening" | "core" | "editorial" | "close";
 
-/**
- * `featuredPromo` is new: it exists in the Payload schema and in the builder,
- * but `SectionKey` is generated into data/home.ts by `sync-cms` and will not
- * carry it until the next successful sync. Widening the key here lets the
- * section render today without editing a generated file, and the union
- * collapses back to `SectionKey` once the snapshot catches up.
- */
-type HomeSectionKey = SectionKey | "featuredPromo";
-
-const SECTION_MOVEMENT: Partial<Record<HomeSectionKey, Movement>> = {
+const SECTION_MOVEMENT: Partial<Record<SectionKey, Movement>> = {
   // A shoppable grid: it belongs to the commercial core, with the rails.
   featuredPromo: "core",
   hero: "opening",
@@ -112,7 +103,7 @@ const SECTION_MOVEMENT: Partial<Record<HomeSectionKey, Movement>> = {
 function movementOf(key: SectionEntryKey): Movement {
   // Every product rail is part of the shop, whatever its key.
   if (key.startsWith("rail:")) return "core";
-  return SECTION_MOVEMENT[key as HomeSectionKey] ?? "editorial";
+  return SECTION_MOVEMENT[key as SectionKey] ?? "editorial";
 }
 
 /**
@@ -154,7 +145,7 @@ function groupIntoMovements(entries: SectionEntryKey[]): { movement: Movement; k
  * renders. Mirroring the backfill here means a new block appears immediately,
  * in the same place the CMS would have put it, whether or not the CMS answers.
  */
-const BACKFILL_AFTER: Partial<Record<HomeSectionKey, SectionEntryKey>> = {
+const BACKFILL_AFTER: Partial<Record<SectionKey, SectionEntryKey>> = {
   featuredPromo: "promotionsGrid",
 };
 
@@ -251,7 +242,7 @@ export default async function HomePage() {
   // this map; each product rail is its own independently orderable entry,
   // addressed as "rail:<railKey>" and resolved dynamically below instead of
   // being grouped under one shared "rails" slot.
-  const sectionsByKey: Record<HomeSectionKey, ReactNode> = {
+  const sectionsByKey: Record<SectionKey, ReactNode> = {
     featuredPromo: <FeaturedWithPromo copy={featuredPromoCopy} products={featuredProducts} />,
     hero: <HeroCarousel slides={heroSlides} />,
     marketingBanner: <MarketingBanner banner={activeBanner} />,
@@ -278,7 +269,7 @@ export default async function HomePage() {
       if (!rail) return null;
       return <RailSection rail={rail} products={railProductsByKey.get(railKey) ?? []} />;
     }
-    return sectionsByKey[key as HomeSectionKey] ?? null;
+    return sectionsByKey[key as SectionKey] ?? null;
   }
 
   const order = withMissingSections(sectionOrder.length > 0 ? sectionOrder : DEFAULT_ORDER);

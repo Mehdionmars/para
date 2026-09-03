@@ -352,3 +352,112 @@
     margin: 14mm;
   }
 }
+
+/* ============================================================
+   shadcn/ui tokens
+   ============================================================
+   Added so the statistics-02 block can render inside the dashboard root,
+   which imports this file rather than app/shadcn.css. Importing that file
+   here instead would pull a second copy of the whole Tailwind build into the
+   same document, and its base layer would repaint the dashboard.
+
+   Chosen to sit on the palette already in use: --border is gray-100 and
+   --muted-foreground gray-500, the exact values the dashboard's own cards and
+   labels use, so the block reads as part of this interface rather than as a
+   visitor from another design system.
+
+   Note the deliberate absence of shadcn's `* { border-color: var(--border) }`
+   base rule. That sets a default border colour on every element in the
+   document; here it is narrowed to the shadcn components that rely on it,
+   leaving the rest of the dashboard untouched. */
+:root {
+  --radius: 0.625rem;
+
+  --background: #ffffff;
+  --foreground: oklch(0.145 0 0);
+
+  --card: #ffffff;
+  --card-foreground: #111827; /* gray-900, matching the dashboard's headings */
+
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: #f3f4f6; /* gray-100 */
+  --secondary-foreground: #111827;
+
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280; /* gray-500, the dashboard's label colour */
+
+  --accent: #f3f4f6;
+  --accent-foreground: #111827;
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: #f3f4f6; /* gray-100, as used by every dashboard card */
+  --input: #e5e7eb;
+  --ring: #c4b5fd; /* violet-300, the dashboard's focus ring */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  /* shadcn's Card and Badge set a border *width* and expect the colour from
+     the global base rule. Supplying it only to them is what keeps that rule
+     from leaking onto the rest of the dashboard. */
+  [data-slot="card"],
+  [data-slot="badge"] {
+    border-color: var(--border);
+  }
+}
+
+/* ============================================================
+   shadcn sidebar tokens
+   ============================================================
+   The dashboard root imports this file, not app/shadcn.css, so the sidebar
+   primitives need their palette here too. Values chosen to reproduce the
+   sidebar the dashboard already had rather than to import shadcn's neutral
+   greys: white surface, gray-100 rules, and violet-50/violet-700 for the
+   active item — the same pair the old hand-written nav used. */
+:root {
+  --sidebar: #ffffff;
+  --sidebar-foreground: #4b5563; /* gray-600 */
+  --sidebar-primary: #6d28d9; /* violet-700 */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f3ff; /* violet-50 — active and hover */
+  --sidebar-accent-foreground: #6d28d9;
+  --sidebar-border: #f3f4f6; /* gray-100 */
+  --sidebar-ring: #c4b5fd; /* violet-300 */
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}

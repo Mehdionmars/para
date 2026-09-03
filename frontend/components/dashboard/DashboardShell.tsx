@@ -1,24 +1,30 @@
 "use client";
 
-import { Menu } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { Role } from "@/lib/dashboard/roles";
 
 /**
- * Dashboard chrome, with an off-canvas sidebar below `lg`.
+ * Dashboard chrome.
  *
- * The sidebar used to be a fixed 220px flex child at every width. On a 375px
- * screen that left ~150px for the page, which did not overflow — it simply
- * crushed the content until text wrapped one character per line. Absence of
- * horizontal overflow is not evidence of a usable layout.
+ * This used to own the responsive behaviour itself: an off-canvas wrapper, the
+ * open/closed state, a body scroll lock, an Escape handler, a backdrop, and a
+ * burger — plus a separate collapse toggle living inside the sidebar. That
+ * arrangement produced three defects worth naming, since they are the reason
+ * for the rewrite rather than a preference for shadcn:
  *
- * Desktop behaviour is untouched: at `lg` and above the sidebar is static in
- * the flex row exactly as before, and this component only owns the drawer
- * state that the burger and the backdrop share.
+ *  - the collapse toggle, offset to straddle the sidebar's edge, stayed ~11px
+ *    inside the viewport while the drawer itself was off-canvas;
+ *  - the closed drawer was only translated away, so all twelve nav links kept
+ *    their place in the tab order;
+ *  - a collapsed desktop preference was replayed on mobile, opening the drawer
+ *    as a 68px icon strip with no way to widen it.
+ *
+ * SidebarProvider answers all of it — a Sheet below `md`, cookie-persisted
+ * collapse that survives the server render, ⌘B, and a TooltipProvider for the
+ * icon rail's labels — so the shell is now layout and nothing else.
  */
 export function DashboardShell({
   roles,
@@ -29,74 +35,31 @@ export function DashboardShell({
   email: string;
   children: React.ReactNode;
 }) {
-  const [navOpen, setNavOpen] = useState(false);
-  const pathname = usePathname();
-
-  // Navigating is the whole point of the drawer, so it closes itself on
-  // arrival rather than covering the page the operator just asked for.
-  useEffect(() => {
-    setNavOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!navOpen) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setNavOpen(false);
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previous;
-    };
-  }, [navOpen]);
-
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-900">
-      {/* Below lg the aside is taken out of the flow and slid in; above it,
-          the wrapper is inert and the sidebar sits in the row as before. */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 ${
-          navOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <Sidebar roles={roles} />
-      </div>
+    <SidebarProvider>
+      <DashboardSidebar roles={roles} />
 
-      {navOpen && (
-        <button
-          type="button"
-          aria-label="Fermer le menu"
-          onClick={() => setNavOpen(false)}
-          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
-        />
-      )}
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex flex-none items-center gap-1 border-b border-gray-100 bg-white lg:border-b-0">
-          <button
-            type="button"
-            aria-label="Ouvrir le menu"
-            aria-expanded={navOpen}
-            onClick={() => setNavOpen(true)}
-            className="ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 lg:hidden"
-          >
-            <Menu className="h-5 w-5" aria-hidden="true" />
-          </button>
+      <SidebarInset className="min-w-0 bg-gray-50">
+        {/* sticky, because the scroll container changed. The old shell was
+            `h-screen` with the main pane scrolling inside it, which held this
+            bar in place; SidebarProvider is `min-h-svh`, so the window scrolls
+            and an unpinned bar would ride away on the storefront builder and
+            the long product tables. */}
+        <header className="sticky top-0 z-10 flex h-16 flex-none items-center gap-1 border-b border-gray-100 bg-white px-2 sm:px-4">
+          <SidebarTrigger className="text-gray-600" />
+          {/* min-w-0 is what lets the search field shrink: a flex child
+              defaults to min-width:auto and refuses to go below its content,
+              which is what pushed the whole dashboard sideways on a phone. */}
           <div className="min-w-0 flex-1">
             <Topbar email={email} />
           </div>
-          {/* Sits outside Topbar so the bell is reachable on every dashboard
-              page without threading props through it. */}
-          <div className="mr-2 flex-none">
+          <div className="flex-none">
             <NotificationBell />
           </div>
-        </div>
+        </header>
 
         <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

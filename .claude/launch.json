@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "para-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Users/liquidpro/Desktop/Para-dhiver/frontend", "run", "dev"],
+      "port": 3000
+    },
+    {
       "name": "koog-web",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/Users/liquidpro/koog-website", "run", "dev"],

@@ -46,6 +46,33 @@ async function fetchGlobal(slug, depth = 2) {
   return fetchJSON(`/api/globals/${slug}?depth=${depth}`)
 }
 
+/**
+ * The homepage section catalogue, from the CMS rather than from a literal in
+ * this file.
+ *
+ * The union below used to be typed out here by hand, which made this script a
+ * second source of truth for something globals/Home.ts already owns. It stayed
+ * correct only as long as someone remembered to edit both, and the dashboard's
+ * own third copy in lib/dashboard/storefront-mapping.ts proved the point by
+ * missing `featuredPromo` entirely.
+ *
+ * Not derivable from /api/globals/home: `sections` there is the *order*, an
+ * array of free-text keys, so a section pulled out of the order would vanish
+ * from the catalogue, and it carries neither labels nor groups.
+ *
+ * A failure here aborts the sync like any other, leaving data/*.ts untouched —
+ * the contract this script has always had. That is deliberate: emitting a
+ * partial catalogue would silently narrow SectionKey and break consumers in a
+ * way far harder to notice than a failed sync.
+ */
+async function fetchSectionRegistry() {
+  const registry = await fetchJSON('/api/section-registry')
+  if (!Array.isArray(registry?.keys) || registry.keys.length === 0) {
+    throw new Error('GET /api/section-registry -> aucune clé de section reçue')
+  }
+  return registry
+}
+
 const mediaURL = (doc) => {
   if (!doc) return ''
   const url = typeof doc === 'string' ? '' : doc.url || ''
@@ -252,6 +279,7 @@ export function servicePriceLabel(service: Service): string {
 
 async function syncHome() {
   const home = await fetchGlobal('home')
+  const sectionRegistry = await fetchSectionRegistry()
 
   const heroSlides = (home.heroSlides || [])
     .filter((s) => s.active !== false)
@@ -618,23 +646,15 @@ export const SAMPLE_REVIEWS: SampleReview[] = ${JSON.stringify(sampleReviews, nu
 export const FREE_SHIPPING_THRESHOLD = ${home.freeShippingThreshold ?? 399};
 
 export type SectionKey =
-  | "hero"
-  | "featuredPromo"
-  | "marketingBanner"
-  | "ctaPair1"
-  | "summerEdit"
-  | "promotionsGrid"
-  | "services"
-  | "coffrets"
-  | "campaign"
-  | "imageCarousel"
-  | "dermoCorner"
-  | "brandsFeatured"
-  | "brandsMarquee"
-  | "ctaPair2"
-  | "instagram"
-  | "newsletter"
-  | "trustBar";
+${sectionRegistry.keys.map((k) => `  | ${JSON.stringify(k)}`).join('\n')};
+
+/** French label per section, shown in the Storefront Builder's list. */
+export const SECTION_LABELS: Record<SectionKey, string> = ${JSON.stringify(sectionRegistry.labels, null, 2)};
+
+/** Which "+ Ajouter un bloc" library group each section belongs to. */
+export const SECTION_GROUPS: Record<string, string> = ${JSON.stringify(sectionRegistry.groups, null, 2)};
+
+export const SECTION_GROUP_LABELS: Record<string, string> = ${JSON.stringify(sectionRegistry.groupLabels, null, 2)};
 
 /** Either a fixed section key, or "rail:<railKey>" addressing one specific
  * entry in RAILS — each rail is independently orderable/hideable, not

@@ -99,6 +99,9 @@ export type Product = {
   /** Payload timestamp. Displayed as a column, and used as the reference for
    * the bulk operations' optimistic-concurrency check. */
   updatedAt?: string;
+  /** Payload timestamp. Always present on the wire; optional here because the
+   * bulk-edit paths build Products locally without one. */
+  createdAt?: string;
 };
 
 export function stockStatus(product: Pick<Product, "stock" | "lowStockThreshold">): "out" | "low" | "ok" {

@@ -502,11 +502,11 @@ export const FREE_SHIPPING_THRESHOLD = 399;
 
 export type SectionKey =
   | "hero"
-  | "featuredPromo"
   | "marketingBanner"
   | "ctaPair1"
   | "summerEdit"
   | "promotionsGrid"
+  | "featuredPromo"
   | "services"
   | "coffrets"
   | "campaign"
@@ -518,6 +518,56 @@ export type SectionKey =
   | "instagram"
   | "newsletter"
   | "trustBar";
+
+/** French label per section, shown in the Storefront Builder's list. */
+export const SECTION_LABELS: Record<SectionKey, string> = {
+  "hero": "Bannière hero",
+  "marketingBanner": "Bannière marketing (saisonnière)",
+  "ctaPair1": "CTA — paire d’images (haut)",
+  "summerEdit": "Summer Edit",
+  "promotionsGrid": "Grille promotions",
+  "featuredPromo": "Sélection + bannière promo",
+  "services": "Nos services",
+  "coffrets": "Coffrets / cartes cadeaux",
+  "campaign": "Nos coups de cœur",
+  "imageCarousel": "Image + carrousel produits",
+  "dermoCorner": "Conseil dermo",
+  "brandsFeatured": "Marques à l’honneur",
+  "brandsMarquee": "Marques (défilement)",
+  "ctaPair2": "CTA — paire d’images (bas)",
+  "instagram": "Instagram",
+  "newsletter": "Newsletter",
+  "trustBar": "Barre de confiance"
+};
+
+/** Which "+ Ajouter un bloc" library group each section belongs to. */
+export const SECTION_GROUPS: Record<string, string> = {
+  "hero": "content",
+  "marketingBanner": "content",
+  "ctaPair1": "content",
+  "ctaPair2": "content",
+  "summerEdit": "products",
+  "promotionsGrid": "products",
+  "featuredPromo": "products",
+  "campaign": "products",
+  "imageCarousel": "products",
+  "dermoCorner": "products",
+  "brandsFeatured": "brands",
+  "brandsMarquee": "brands",
+  "services": "services",
+  "coffrets": "marketing",
+  "instagram": "marketing",
+  "newsletter": "marketing",
+  "trustBar": "marketing"
+};
+
+export const SECTION_GROUP_LABELS: Record<string, string> = {
+  "content": "Contenu",
+  "products": "Produits",
+  "brands": "Marques",
+  "services": "Services",
+  "marketing": "Marketing"
+};
 
 /** Either a fixed section key, or "rail:<railKey>" addressing one specific
  * entry in RAILS — each rail is independently orderable/hideable, not

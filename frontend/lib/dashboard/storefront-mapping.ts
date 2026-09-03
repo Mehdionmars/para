@@ -5,10 +5,22 @@ import {
   toImageFraming,
 } from "@/lib/storefront/cardLayout";
 import { CMS_URL } from "./constants";
+import type { SectionEntryKey } from "@/data/home";
 
-/** Mirrors backend/src/globals/Home.ts's SECTION_KEYS/SECTION_LABELS — kept
- * as a small duplicated constant here (rather than importing across the
- * frontend/backend package boundary) since it's just display labels. */
+/**
+ * The homepage section registry — keys, labels and library groups — is no
+ * longer defined here. It is generated into data/home.ts by sync-cms, from
+ * the single declaration in backend/src/globals/Home.ts.
+ *
+ * It used to be re-typed in this file, justified at the time as "just display
+ * labels". It drifted exactly as that arrangement invites: `featuredPromo` was
+ * added to the CMS and never landed here, so the Storefront Builder listed it
+ * by its raw camelCase key. Re-exported rather than moved so every existing
+ * `@/lib/dashboard/storefront-mapping` import keeps working.
+ */
+export { SECTION_GROUP_LABELS, SECTION_GROUPS, SECTION_LABELS } from "@/data/home";
+export type { SectionEntryKey, SectionKey } from "@/data/home";
+
 export const SUMMER_EDIT_HIGHLIGHT_ICONS = ["Sun", "Droplet", "Leaf", "Sparkles", "ShieldCheck"] as const;
 export const SUMMER_EDIT_IMAGE_POSITIONS = [
   { label: "Droite", value: "right" },
@@ -19,89 +31,6 @@ export const SUMMER_EDIT_ANIMATION_SPEEDS = [
   { label: "Normale", value: "normal" },
   { label: "Rapide", value: "fast" },
 ] as const;
-
-export const SECTION_KEYS = [
-  "hero",
-  "marketingBanner",
-  "ctaPair1",
-  "summerEdit",
-  "promotionsGrid",
-  "services",
-  "coffrets",
-  "campaign",
-  "imageCarousel",
-  "dermoCorner",
-  "brandsFeatured",
-  "brandsMarquee",
-  "ctaPair2",
-  "instagram",
-  "newsletter",
-  "trustBar",
-] as const;
-
-export type SectionKey = (typeof SECTION_KEYS)[number];
-
-/** Either a fixed section key, or "rail:<railKey>" addressing one specific
- * entry in `rails` — each of the 4 default product rails is its own
- * independently orderable/hideable section, not grouped under one shared
- * "rails" slot (no tabs). */
-export type SectionEntryKey = SectionKey | `rail:${string}`;
-
-export const SECTION_LABELS: Record<SectionKey, string> = {
-  hero: "Bannière hero",
-  marketingBanner: "Bannière marketing (saisonnière)",
-  ctaPair1: "CTA — paire d'images (haut)",
-  promotionsGrid: "Grille promotions",
-  services: "Nos services",
-  coffrets: "Coffrets / cartes cadeaux",
-  campaign: "Nos coups de cœur",
-  summerEdit: "Summer Edit",
-  imageCarousel: "Image + carrousel produits",
-  dermoCorner: "Conseil dermo",
-  brandsFeatured: "Marques à l'honneur",
-  brandsMarquee: "Marques (défilement)",
-  ctaPair2: "CTA — paire d'images (bas)",
-  instagram: "Instagram",
-  newsletter: "Newsletter",
-  trustBar: "Barre de confiance",
-};
-
-// Sections without any CMS-backed content yet — only visibility/order can be
-// controlled from the builder, not their copy (documented limitation).
-export const CONTENT_LESS_SECTIONS: SectionKey[] = [];
-
-/** Which "+ Ajouter un bloc" library group each fixed section belongs to —
- * mirrors backend/src/globals/Home.ts's SECTION_GROUPS. Display-only
- * grouping for the builder sidebar; rails are grouped under "products"
- * separately since they're dynamic, not one of SECTION_KEYS. */
-export const SECTION_GROUPS: Record<SectionKey, string> = {
-  hero: "content",
-  marketingBanner: "content",
-  ctaPair1: "content",
-  ctaPair2: "content",
-  promotionsGrid: "products",
-  campaign: "products",
-  summerEdit: "products",
-  imageCarousel: "products",
-  dermoCorner: "products",
-  brandsFeatured: "brands",
-  brandsMarquee: "brands",
-  services: "services",
-  coffrets: "marketing",
-  instagram: "marketing",
-  newsletter: "marketing",
-  trustBar: "marketing",
-};
-
-export const SECTION_GROUP_ORDER = ["content", "products", "brands", "services", "marketing"] as const;
-
-export const SECTION_GROUP_LABELS: Record<string, string> = {
-  content: "Contenu",
-  products: "Produits",
-  brands: "Marques",
-  services: "Services",
-  marketing: "Marketing",
-};
 
 export const SERVICE_ICONS = [
   "ScanLine",
