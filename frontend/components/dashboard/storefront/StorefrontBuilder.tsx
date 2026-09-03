@@ -16,28 +16,11 @@ import {
   saveSiteChromeDraft,
   saveThemeDraft,
 } from "@/app/dashboard/(app)/storefront/actions";
+import { SingleRailEditor, newRail } from "@/components/dashboard/storefront/editors";
 import {
-  CampaignEditor,
-  BrandsFeaturedEditor,
-  BrandsMarqueeEditor,
-  CoffretsCopyEditor,
-  CoffretsEditor,
-  CtaPairEditor,
-  DermoCornerCopyEditor,
-  DermoPicksEditor,
-  HeroSlidesEditor,
-  ImageCarouselEditor,
-  InstagramEditor,
-  MarketingBannersEditor,
-  NewsletterEditor,
-  PromotionsGridEditor,
-  ServicesEditor,
-  SingleRailEditor,
-  SummerEditActsEditor,
-  SummerEditCopyEditor,
-  TrustBadgesEditor,
-  newRail,
-} from "@/components/dashboard/storefront/editors";
+  SECTION_EDITORS,
+  type BrandOption,
+} from "@/components/dashboard/storefront/sectionEditors";
 import { FooterColumnsEditor, HeaderEditor, ThemeEditor, TopBarEditor } from "@/components/dashboard/storefront/globalEditors";
 import { CategoryStripEditor, NavigationItemEditor } from "@/components/dashboard/storefront/NavigationEditors";
 import { NavigationList } from "@/components/dashboard/storefront/NavigationList";
@@ -45,7 +28,6 @@ import { SectionList } from "@/components/dashboard/storefront/SectionList";
 import { Button } from "@/components/dashboard/ui/Button";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import {
-  CONTENT_LESS_SECTIONS,
   mapDraftToPayload,
   mapHomeDocToDraft,
   mapNavigationDocToDraft,
@@ -163,6 +145,13 @@ function useGlobalDraft<T>({
   return { draft, setDraft, status, saveState, saveError, publishing, discarding, dirty, handlePublish, handleDiscard };
 }
 
+/**
+ * Renders the editor for whatever is selected in the left-hand list.
+ *
+ * The per-section wiring lives in SECTION_EDITORS; this only resolves what
+ * kind of thing is selected. It used to be a 110-line `switch` whose
+ * `default: return null` quietly swallowed any section nobody had wired up.
+ */
 function SectionEditor({
   selectedKey,
   draft,
@@ -172,12 +161,14 @@ function SectionEditor({
   selectedKey: SectionEntryKey | null;
   draft: HomeDraft;
   update: (patch: Partial<HomeDraft>) => void;
-  brands: { id: number; name: string; slug: string }[];
+  brands: BrandOption[];
 }) {
   if (!selectedKey) {
     return <p className="p-4 text-sm text-gray-400">Sélectionnez une section à gauche pour la modifier.</p>;
   }
 
+  // Rails are dynamic — one entry per configured rail, addressed as
+  // "rail:<key>" — so they are resolved by lookup, not by the registry.
   if (selectedKey.startsWith("rail:")) {
     const railKey = selectedKey.slice("rail:".length);
     const railIndex = draft.rails.findIndex((r) => r.key === railKey);
@@ -195,85 +186,17 @@ function SectionEditor({
     );
   }
 
-  if (CONTENT_LESS_SECTIONS.includes(selectedKey as SectionKey)) {
+  const renderEditor = SECTION_EDITORS[selectedKey as SectionKey];
+  if (!renderEditor) {
     return (
       <p className="p-4 text-sm text-gray-500">
-        Ce bloc n&apos;a pas encore de contenu éditable depuis le builder — seules sa visibilité et sa position peuvent être modifiées pour le moment.
+        Ce bloc n&apos;a pas encore de contenu éditable depuis le builder — seules sa visibilité et sa position
+        peuvent être modifiées pour le moment.
       </p>
     );
   }
 
-  switch (selectedKey as SectionKey) {
-    case "hero":
-      return <HeroSlidesEditor value={draft.heroSlides} onChange={(heroSlides) => update({ heroSlides })} brands={brands} />;
-    case "marketingBanner":
-      return <MarketingBannersEditor value={draft.marketingBanners} onChange={(marketingBanners) => update({ marketingBanners })} />;
-    case "ctaPair1":
-      return <CtaPairEditor title="CTA — paire d'images (haut)" value={draft.ctaPair1} onChange={(ctaPair1) => update({ ctaPair1 })} />;
-    case "ctaPair2":
-      return <CtaPairEditor title="CTA — paire d'images (bas)" value={draft.ctaPair2} onChange={(ctaPair2) => update({ ctaPair2 })} />;
-    case "promotionsGrid":
-      return <PromotionsGridEditor value={draft.promotionsGrid} onChange={(promotionsGrid) => update({ promotionsGrid })} />;
-    case "coffrets":
-      return (
-        <div className="flex flex-col gap-6">
-          <CoffretsCopyEditor value={draft.coffretsCopy} onChange={(coffretsCopy) => update({ coffretsCopy })} />
-          <div className="border-t border-gray-100 pt-4">
-            <CoffretsEditor value={draft.coffrets} onChange={(coffrets) => update({ coffrets })} />
-          </div>
-        </div>
-      );
-    case "campaign":
-      return (
-        <CampaignEditor
-          copy={draft.campaignCopy}
-          products={draft.campaignProducts}
-          onChangeCopy={(campaignCopy) => update({ campaignCopy })}
-          onChangeProducts={(campaignProducts) => update({ campaignProducts })}
-        />
-      );
-    case "dermoCorner":
-      return (
-        <div className="flex flex-col gap-6">
-          <DermoCornerCopyEditor value={draft.dermoCornerCopy} onChange={(dermoCornerCopy) => update({ dermoCornerCopy })} />
-          <div className="border-t border-gray-100 pt-4">
-            <DermoPicksEditor value={draft.dermoPicks} onChange={(dermoPicks) => update({ dermoPicks })} />
-          </div>
-        </div>
-      );
-    case "imageCarousel":
-      return (
-        <ImageCarouselEditor
-          copy={draft.imageCarouselCopy}
-          products={draft.imageCarouselProducts}
-          onChangeCopy={(imageCarouselCopy) => update({ imageCarouselCopy })}
-          onChangeProducts={(imageCarouselProducts) => update({ imageCarouselProducts })}
-        />
-      );
-    case "summerEdit":
-      return (
-        <div className="flex flex-col gap-6">
-          <SummerEditCopyEditor value={draft.summerEditCopy} onChange={(summerEditCopy) => update({ summerEditCopy })} />
-          <div className="border-t border-gray-100 pt-4">
-            <SummerEditActsEditor value={draft.summerEditActs} onChange={(summerEditActs) => update({ summerEditActs })} />
-          </div>
-        </div>
-      );
-    case "brandsFeatured":
-      return <BrandsFeaturedEditor value={draft.brandsFeatured} onChange={(brandsFeatured) => update({ brandsFeatured })} brands={brands} />;
-    case "brandsMarquee":
-      return <BrandsMarqueeEditor value={draft.brandsMarquee} allBrands={brands} onChange={(brandsMarquee) => update({ brandsMarquee })} />;
-    case "instagram":
-      return <InstagramEditor value={draft.instagram} onChange={(instagram) => update({ instagram })} />;
-    case "trustBar":
-      return <TrustBadgesEditor value={draft.trustBadges} onChange={(trustBadges) => update({ trustBadges })} />;
-    case "services":
-      return <ServicesEditor value={draft.servicesTeaser} onChange={(servicesTeaser) => update({ servicesTeaser })} />;
-    case "newsletter":
-      return <NewsletterEditor value={draft.newsletterSection} onChange={(newsletterSection) => update({ newsletterSection })} />;
-    default:
-      return null;
-  }
+  return <>{renderEditor({ draft, update, brands })}</>;
 }
 
 const GLOBAL_ITEMS = [

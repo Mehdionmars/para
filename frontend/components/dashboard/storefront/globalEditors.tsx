@@ -81,11 +81,15 @@ function AppearanceBlock({
   onChangeAppearance,
 }: ChromeAppearanceProps & { surface: "topBar" | "header" | "footer"; title: string; description: string }) {
   return (
-    <div className="mt-6 border-t border-gray-100 pt-5">
-      {/* Preview above the fields on a phone, beside them on a laptop: on a
-          narrow screen a preview under six colour inputs is a preview nobody
-          sees while typing. */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,260px)]">
+    <div className="mt-6 border-t border-gray-100 pt-5 @container">
+      {/* Preview under the fields when there is no room, beside them when
+          there is — measured against this block, not the window.
+          `lg:` was a window breakpoint, and this editor only ever renders
+          inside the builder's 320px aside: on any laptop it fired, handed the
+          preview its full 260px and left the six colour inputs a sliver of
+          what remained. A container query asks the question that actually
+          matters, so the two columns appear only if the panel can hold them. */}
+      <div className="grid grid-cols-1 gap-5 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,260px)]">
         <ColorSection
           description={description}
           fields={CHROME_SURFACE_FIELDS[surface]}
@@ -95,7 +99,7 @@ function AppearanceBlock({
           title={title}
           value={appearance[surface]}
         />
-        <div className="lg:sticky lg:top-4 lg:self-start">
+        <div className="@2xl:sticky @2xl:top-4 @2xl:self-start">
           <ChromePreview focus={surface} footer={appearance.footer} header={appearance.header} topBar={appearance.topBar} />
         </div>
       </div>

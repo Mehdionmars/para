@@ -3,9 +3,9 @@
 import { Eye, EyeOff, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Modal } from "@/components/dashboard/ui/Modal";
+import { CONTENT_LESS_SECTIONS } from "@/components/dashboard/storefront/sectionEditors";
 import { cn } from "@/lib/dashboard/cn";
 import {
-  CONTENT_LESS_SECTIONS,
   SECTION_GROUP_LABELS,
   SECTION_GROUPS,
   SECTION_LABELS,
