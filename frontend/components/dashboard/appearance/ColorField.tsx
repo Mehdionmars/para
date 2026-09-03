@@ -66,7 +66,7 @@ export function ColorField({
   const verdict = contrastAgainst && effective ? judgeContrast(effective, contrastAgainst) : null;
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
         <label className="text-xs font-medium text-gray-600" htmlFor={id}>
           {label}
@@ -95,7 +95,14 @@ export function ColorField({
           value={HEX_COLOR_RE.test(effective) ? effective : "#000000"}
         />
         <input
-          className={`w-full rounded-lg border px-3 py-1.5 font-mono text-sm uppercase outline-none focus:border-violet-400 ${
+          // min-w-0 is load-bearing. A flex item keeps `min-width: auto`,
+          // which for an <input> resolves to the browser's intrinsic field
+          // width (~175px from the default `size`), so `w-full` could not
+          // shrink it. Beside a 40px swatch and a 62px button that made the
+          // row refuse to go under ~293px, and a flex row does not wrap: the
+          // excess spilled sideways over whatever sat next to it, which is
+          // what turned two colour fields into overlapping text.
+          className={`w-full min-w-0 rounded-lg border px-3 py-1.5 font-mono text-sm uppercase outline-none focus:border-violet-400 ${
             valid ? "border-gray-200" : "border-red-300"
           }`}
           id={id}

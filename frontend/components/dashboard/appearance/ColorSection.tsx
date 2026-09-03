@@ -51,7 +51,7 @@ export function ColorSection({
     value.opacity !== null;
 
   return (
-    <div>
+    <div className="@container">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
@@ -71,7 +71,13 @@ export function ColorSection({
 
       {/* One column on a phone, two from the small breakpoint up — the fields
           are short and pairing them halves the scroll on a laptop. */}
-      <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+      {/* Container query, not `sm:`. A colour field needs a swatch, a hex
+          input and a "Palette" button on one line; pairing them up is only
+          possible when this section is wide enough, which has nothing to do
+          with the window. Under `sm:` the pair fired at 640px of *window* and
+          split a 288px panel into two 134px columns, wrapping every label to
+          three lines. */}
+      <div className="grid grid-cols-1 gap-x-4 gap-y-3 @md:grid-cols-2">
         {fields.map((field) => (
           <ColorField
             // The background has nothing behind it to be measured against.
