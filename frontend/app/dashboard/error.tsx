@@ -20,9 +20,17 @@ import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
 export default function DashboardRootError({
   error,
   reset,
+  unstable_retry,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
+  /** Next 16 hands both to an error boundary. `reset()` only re-renders the
+   * children; `unstable_retry()` re-fetches them first, which is the whole
+   * point here — every error this catches is a failed request, and clearing
+   * the error state without going back to the server would redraw the same
+   * failure. Falls back to `reset` so the button still does something if the
+   * unstable API is withdrawn. */
+  unstable_retry?: () => void;
 }) {
   useEffect(() => {
     console.error("Erreur du tableau de bord (racine) :", error);
@@ -49,7 +57,7 @@ export default function DashboardRootError({
         {error.digest && <p className="mt-2 text-xs text-gray-400">Référence : {error.digest}</p>}
 
         <div className="mt-5 flex flex-wrap justify-center gap-2">
-          <Button onClick={reset}>
+          <Button onClick={() => (unstable_retry ?? reset)()}>
             <RotateCw className="h-4 w-4" aria-hidden="true" />
             Réessayer
           </Button>
