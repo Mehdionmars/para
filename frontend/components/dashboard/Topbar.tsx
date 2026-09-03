@@ -21,11 +21,15 @@ export function Topbar({ email }: { email: string }) {
   }
 
   return (
-    // min-w-0 on the header and the form is what actually lets them shrink:
-    // a flex child defaults to min-width:auto and refuses to go below its
-    // content, which is why the bar pushed the whole dashboard sideways on a
-    // phone.
-    <header className="flex h-16 min-w-0 flex-none items-center justify-between gap-3 border-b border-gray-100 bg-white px-4 sm:gap-4 sm:px-6">
+    // A plain container, not a <header>: DashboardShell owns the bar itself
+    // — its height, border and background — and nesting a second <header>
+    // inside it duplicated all three.
+    //
+    // min-w-0 on this element and on the form is what actually lets them
+    // shrink: a flex child defaults to min-width:auto and refuses to go below
+    // its content, which is why the bar pushed the whole dashboard sideways
+    // on a phone.
+    <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:gap-4">
       <form onSubmit={handleSearch} className="relative w-full min-w-0 max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
@@ -75,6 +79,6 @@ export function Topbar({ email }: { email: string }) {
           </>
         )}
       </div>
-    </header>
+    </div>
   );
 }
