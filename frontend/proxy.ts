@@ -28,10 +28,25 @@ function requestHost(request: NextRequest): string {
   return raw.toLowerCase().split(":")[0].trim();
 }
 
+/**
+ * The back office is served from the host whose first label is the admin one.
+ *
+ * Two spellings, and the second exists for a specific reason. `admin.<rest>`
+ * is the production form. `admin-<env>.<zone>` is what environments have to
+ * use: Cloudflare's free Universal SSL certificate covers `zone` and
+ * `*.zone` and stops there, so `admin.preprod.paradhiver.ma` — two labels
+ * deep — is served a certificate that does not match it and fails in the
+ * browser before any of this code runs. Flattening the name to
+ * `admin-preprod.paradhiver.ma` brings it back under the wildcard.
+ *
+ * Matching on the first label rather than a bare `startsWith` is what keeps
+ * `administration.paradhiver.ma`, were it ever created, a public page.
+ */
 function isAdminHost(request: NextRequest) {
   const hostname = requestHost(request);
+  const [label] = hostname.split(".");
 
-  return hostname === ADMIN_HOST || hostname.startsWith("admin.");
+  return hostname === ADMIN_HOST || label === "admin" || label.startsWith("admin-");
 }
 
 /**
