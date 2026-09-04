@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE } from "@/lib/dashboard/constants";
+import { PREVIEW_PREFIX, SESSION_COOKIE } from "@/lib/dashboard/constants";
 
 const ADMIN_HOST = "admin.paradhiver.ma";
 
@@ -107,6 +107,21 @@ export function proxy(request: NextRequest) {
   // every domain, and rewriting one only ever produces a 404.
   if (isRouteHandler(pathname)) return NextResponse.next();
 
+  // The storefront, served verbatim on whatever host asked — see
+  // PREVIEW_PREFIX. Handled before the admin branch because the whole point
+  // is to escape it: the builder's iframe asked the admin host for "/" and
+  // the rewrite below handed it /dashboard, so the builder previewed itself
+  // instead of the shop.
+  //
+  // Links inside the previewed page still point at the shop's own paths, so
+  // clicking one on the admin host lands in the dashboard's 404. The preview
+  // is for looking at a draft, not for browsing it.
+  if (pathname === PREVIEW_PREFIX || pathname.startsWith(`${PREVIEW_PREFIX}/`)) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.slice(PREVIEW_PREFIX.length) || "/";
+    return NextResponse.rewrite(url);
+  }
+
   // ------------------------------------------------------------
   // ADMIN DOMAIN
   // ------------------------------------------------------------
@@ -156,29 +171,31 @@ export function proxy(request: NextRequest) {
   // ------------------------------------------------------------
   // Never expose the dashboard through the public domain.
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
-    // Already on the login page: serve it. The previous form computed
-    // `loginPath` as `pathname` in this case and then redirected to it — a
-    // redirect from /dashboard/login to /dashboard/login, which browsers stop
-    // with ERR_TOO_MANY_REDIRECTS. The ternary looked like it was handling
-    // this case and was in fact the cause of it.
-    if (pathname === "/dashboard/login") return NextResponse.next();
-
     // On a developer's single origin, /dashboard IS the back office and must
     // behave like one: serve it, and let the real guard decide.
     //
-    // The unconditional bounce below sent /dashboard to the login page even
-    // for a signed-in administrator, because it never looked at the session.
     // Authentication is not re-implemented here — app/dashboard/(app)/layout
     // already calls requireStaffUser() and redirects anyone without a valid
     // staff session. Passing through keeps that one guard the only authority.
     if (isLocalHost(requestHost(request))) return NextResponse.next();
 
-    // Public production domain: the dashboard is not exposed here at all.
-    // It lives on admin.paradhiver.ma, and that stays true.
+    // Public production domain: the dashboard does not exist here. It lives
+    // on the admin host, and that stays true.
+    //
+    // This used to redirect to /dashboard/login and serve that page — which
+    // meant the shop showed a working login form that could never lead
+    // anywhere: the credentials were accepted, the cookie was set, and the
+    // next request bounced straight back here. Someone following an old link
+    // could try forever without a single error message explaining why.
+    //
+    // Rewriting to a path no route matches is what makes Next render the
+    // app's own not-found page with a 404, the same as any unknown URL. A
+    // bare 404 status would leave a blank page for a person who arrived by
+    // pasting a link; the literal path is there to be readable in a log.
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard/login";
+    url.pathname = "/dashboard-is-on-the-admin-host";
 
-    return NextResponse.redirect(url);
+    return NextResponse.rewrite(url);
   }
 
   return NextResponse.next();

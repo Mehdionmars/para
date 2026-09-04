@@ -1,5 +1,6 @@
 import { draftMode } from "next/headers";
 import { NextResponse } from "next/server";
+import { PREVIEW_PREFIX } from "@/lib/dashboard/constants";
 import { getSessionUser } from "@/lib/dashboard/payload";
 import { canEditContent } from "@/lib/dashboard/roles";
 
@@ -25,5 +26,13 @@ export async function GET(request: Request) {
   // what's trustworthy here.
   const host = request.headers.get("host") || requestUrl.host;
   const protocol = request.headers.get("x-forwarded-proto") || requestUrl.protocol.replace(":", "");
-  return NextResponse.redirect(new URL(next, `${protocol}://${host}`));
+
+  // Under PREVIEW_PREFIX rather than at `next` directly. Staying on this host
+  // is what keeps the draft-mode cookie — it is host-only, and the shop's own
+  // hostname would never be sent it — but on the admin host "/" is rewritten
+  // to /dashboard, so the builder's iframe was previewing the dashboard.
+  // proxy.ts strips the prefix and serves the storefront underneath.
+  const target = `${PREVIEW_PREFIX}${next === "/" ? "" : next}`;
+
+  return NextResponse.redirect(new URL(target, `${protocol}://${host}`));
 }

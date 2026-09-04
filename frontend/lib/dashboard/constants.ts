@@ -44,3 +44,18 @@ if (isServer && isProduction && !isBuildPhase && !process.env.CMS_URL?.trim()) {
 
 export const CMS_URL = process.env.CMS_URL?.trim() || "http://localhost:3001";
 export const SESSION_COOKIE = "dashboard_token";
+
+/**
+ * Path prefix that serves the storefront verbatim, on whatever host asked.
+ *
+ * The Storefront Builder previews the shop in an iframe from inside the
+ * dashboard, and that iframe has to load from the dashboard's own host: draft
+ * mode is carried by a host-only cookie, so a shop hostname would never
+ * receive it and would render the published page instead of the draft being
+ * edited.
+ *
+ * Asking the admin host for "/" does not work either — proxy.ts rewrites it
+ * to /dashboard, which is how the builder ended up previewing itself. This
+ * prefix is the exemption, stripped in proxy.ts before routing.
+ */
+export const PREVIEW_PREFIX = "/preview";
