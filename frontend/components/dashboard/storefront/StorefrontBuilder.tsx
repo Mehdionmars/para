@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, Monitor, PanelTop, Redo2, RotateCcw, Smartphone, Tablet, Undo2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
   discardDraft,
   discardNavigationDraft,
@@ -51,10 +51,55 @@ const VIEWPORTS = { desktop: 1440, tablet: 834, mobile: 390 } as const;
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
+/** The draft under edit, plus the undo stack it moves along. */
+type DraftState<T> = { draft: T; past: T[]; cursor: number };
+
+type DraftAction<T> =
+  | { type: "set"; value: T | ((prev: T) => T); record: boolean }
+  | { type: "undo" }
+  | { type: "redo" }
+  | { type: "reset"; value: T };
+
+/**
+ * Editing and time travel in one transition.
+ *
+ * The stack used to live beside the draft in two refs, mutated from inside a
+ * setState updater. That broke the rule that updaters are pure and may run
+ * more than once: under StrictMode React invokes them twice, so a single edit
+ * pushed two entries and undo appeared to do nothing. The cursor was then read
+ * back during render to grey out the buttons, one render behind the truth.
+ *
+ * Neither is expressible here. The stack moves with the draft instead of
+ * chasing it, and every case derives its result from the state it was handed.
+ */
+export function draftReducer<T>(state: DraftState<T>, action: DraftAction<T>): DraftState<T> {
+  switch (action.type) {
+    case "set": {
+      const draft = typeof action.value === "function" ? (action.value as (prev: T) => T)(state.draft) : action.value;
+      if (draft === state.draft) return state;
+      if (!action.record) return { ...state, draft };
+      // Editing after an undo drops whatever had been redone past this point.
+      return { draft, past: [...state.past.slice(0, state.cursor + 1), draft], cursor: state.cursor + 1 };
+    }
+    case "undo":
+      return state.cursor === 0 ? state : { ...state, cursor: state.cursor - 1, draft: state.past[state.cursor - 1] };
+    case "redo":
+      return state.cursor >= state.past.length - 1
+        ? state
+        : { ...state, cursor: state.cursor + 1, draft: state.past[state.cursor + 1] };
+    // Discarding restores the published document; there is nothing left to undo.
+    case "reset":
+      return { draft: action.value, past: [action.value], cursor: 0 };
+  }
+}
+
 /** Shared autosave/publish/discard lifecycle for a single Payload global's
- * draft, used identically for Site Chrome and Theme — Home keeps its own
- * richer version below (undo/redo history), since it's a much larger,
- * longer-lived editing session than either of these two smaller globals. */
+ * draft. Every panel of the builder runs on this one — Home, Navigation,
+ * Theme and Site Chrome — so there is a single place where "dirty", "saving"
+ * and "published" mean what they say.
+ *
+ * Home is the only one that also wants undo/redo, so `history` is opt-in
+ * rather than a second copy of the hook. */
 function useGlobalDraft<T>({
   initial,
   initialStatus,
@@ -63,6 +108,8 @@ function useGlobalDraft<T>({
   save,
   publish,
   discard,
+  history: withHistory = false,
+  onSaved,
 }: {
   initial: T;
   initialStatus: string;
@@ -71,16 +118,36 @@ function useGlobalDraft<T>({
   save: (payload: Record<string, unknown>) => Promise<{ error?: string }>;
   publish: (payload: Record<string, unknown>) => Promise<{ error?: string; warning?: string }>;
   discard: () => Promise<{ error?: string; doc?: unknown }>;
+  history?: boolean;
+  /** Ran after anything that changed what the storefront would render. */
+  onSaved?: () => void;
 }) {
-  const [draft, setDraft] = useState(initial);
+  const [{ draft, past, cursor }, dispatch] = useReducer(draftReducer<T>, {
+    draft: initial,
+    past: [initial],
+    cursor: 0,
+  });
   const [status, setStatus] = useState(initialStatus);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [discarding, setDiscarding] = useState(false);
-  const lastSavedRef = useRef(JSON.stringify(initial));
+  // State rather than a ref: `dirty` is read while rendering, to label the
+  // toolbar "Modifications non enregistrées".
+  const [lastSaved, setLastSaved] = useState(() => JSON.stringify(initial));
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const dirty = JSON.stringify(draft) !== lastSavedRef.current;
+  const dirty = JSON.stringify(draft) !== lastSaved;
+
+  // Same signature as a useState setter, so callers pass a value or an
+  // updater and never touch the undo stack themselves.
+  const setDraft = useCallback(
+    (value: T | ((prev: T) => T)) => dispatch({ type: "set", value, record: withHistory }),
+    [withHistory],
+  );
+  const undo = useCallback(() => dispatch({ type: "undo" }), []);
+  const redo = useCallback(() => dispatch({ type: "redo" }), []);
+  const canUndo = withHistory && cursor > 0;
+  const canRedo = withHistory && cursor < past.length - 1;
 
   const doSave = useCallback(
     async (current: T) => {
@@ -92,10 +159,11 @@ function useGlobalDraft<T>({
         setSaveError(res.error);
         return;
       }
-      lastSavedRef.current = JSON.stringify(current);
+      setLastSaved(JSON.stringify(current));
       setSaveState("saved");
+      onSaved?.();
     },
-    [save, toPayload],
+    [save, toPayload, onSaved],
   );
 
   useEffect(() => {
@@ -120,9 +188,10 @@ function useGlobalDraft<T>({
       setSaveState("error");
       setSaveError(res.warning);
     }
-    lastSavedRef.current = JSON.stringify(draft);
+    setLastSaved(JSON.stringify(draft));
     setStatus("published");
     setSaveState("saved");
+    onSaved?.();
   }
 
   async function handleDiscard() {
@@ -136,13 +205,29 @@ function useGlobalDraft<T>({
       return;
     }
     const restored = mapDocToDraft(res.doc);
-    setDraft(restored);
-    lastSavedRef.current = JSON.stringify(restored);
+    dispatch({ type: "reset", value: restored });
+    setLastSaved(JSON.stringify(restored));
     setStatus("published");
     setSaveState("saved");
+    onSaved?.();
   }
 
-  return { draft, setDraft, status, saveState, saveError, publishing, discarding, dirty, handlePublish, handleDiscard };
+  return {
+    canRedo,
+    canUndo,
+    discarding,
+    dirty,
+    draft,
+    handleDiscard,
+    handlePublish,
+    publishing,
+    redo,
+    saveError,
+    saveState,
+    setDraft,
+    status,
+    undo,
+  };
 }
 
 /**
@@ -250,70 +335,38 @@ export function StorefrontBuilder({
   const [globalSelectedKey, setGlobalSelectedKey] = useState<GlobalItemKey>("topBar");
   const [navSelectedIndex, setNavSelectedIndex] = useState<number>(0);
 
-  const [draft, setDraft] = useState(initialDraft);
   const [selectedKey, setSelectedKey] = useState<SectionEntryKey | null>(null);
-  const [status, setStatus] = useState(initialStatus);
-  const [saveState, setSaveState] = useState<SaveState>("idle");
-  const [saveError, setSaveError] = useState("");
-  const [publishing, setPublishing] = useState(false);
-  const [discarding, setDiscarding] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [viewport, setViewport] = useState<keyof typeof VIEWPORTS>("desktop");
   const [previewNonce, setPreviewNonce] = useState(0);
 
-  const history = useRef<HomeDraft[]>([initialDraft]);
-  const historyIndex = useRef(0);
-  const [, setHistoryTick] = useState(0);
-  const lastSavedRef = useRef(JSON.stringify(initialDraft));
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const dirty = JSON.stringify(draft) !== lastSavedRef.current;
+  // Remounts the preview iframe. Handed to each draft rather than watched from
+  // an effect: an effect on four save states cannot tell "this one just
+  // saved" from "that one is still saved", and reloaded the preview under the
+  // editor's hands whenever any other panel started saving.
+  const refreshPreview = useCallback(() => setPreviewNonce((n) => n + 1), []);
 
-  const update = useCallback((patch: Partial<HomeDraft>) => {
-    setDraft((prev) => {
-      const next = { ...prev, ...patch };
-      history.current = [...history.current.slice(0, historyIndex.current + 1), next];
-      historyIndex.current = history.current.length - 1;
-      setHistoryTick((t) => t + 1);
-      return next;
-    });
-  }, []);
+  const home = useGlobalDraft<HomeDraft>({
+    initial: initialDraft,
+    initialStatus,
+    mapDraftToPayload,
+    mapDocToDraft: mapHomeDocToDraft,
+    save: saveHomeDraft,
+    publish: publishHome,
+    discard: async () => {
+      const res = await discardDraft();
+      return { error: res.error, doc: res.home };
+    },
+    history: true,
+    onSaved: refreshPreview,
+  });
 
-  function undo() {
-    if (historyIndex.current === 0) return;
-    historyIndex.current -= 1;
-    setDraft(history.current[historyIndex.current]);
-    setHistoryTick((t) => t + 1);
-  }
+  const { draft, setDraft, undo, redo } = home;
 
-  function redo() {
-    if (historyIndex.current >= history.current.length - 1) return;
-    historyIndex.current += 1;
-    setDraft(history.current[historyIndex.current]);
-    setHistoryTick((t) => t + 1);
-  }
-
-  const doSave = useCallback(async (current: HomeDraft) => {
-    setSaveState("saving");
-    setSaveError("");
-    const res = await saveHomeDraft(mapDraftToPayload(current));
-    if (res.error) {
-      setSaveState("error");
-      setSaveError(res.error);
-      return;
-    }
-    lastSavedRef.current = JSON.stringify(current);
-    setSaveState("saved");
-    setPreviewNonce((n) => n + 1);
-  }, []);
-
-  // Debounced autosave — waits for edits to pause rather than firing per keystroke.
-  useEffect(() => {
-    if (!dirty) return;
-    clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => doSave(draft), AUTOSAVE_DEBOUNCE_MS);
-    return () => clearTimeout(debounceRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft]);
+  const update = useCallback(
+    (patch: Partial<HomeDraft>) => setDraft((prev) => ({ ...prev, ...patch })),
+    [setDraft],
+  );
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -326,49 +379,7 @@ export function StorefrontBuilder({
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeTab]);
-
-  async function handlePublish() {
-    setPublishing(true);
-    clearTimeout(debounceRef.current);
-    const res = await publishHome(mapDraftToPayload(draft));
-    setPublishing(false);
-    if (res.error) {
-      setSaveState("error");
-      setSaveError(res.error);
-      return;
-    }
-    if (res.warning) {
-      setSaveState("error");
-      setSaveError(res.warning);
-    }
-    lastSavedRef.current = JSON.stringify(draft);
-    setStatus("published");
-    setSaveState("saved");
-    setPreviewNonce((n) => n + 1);
-  }
-
-  async function handleDiscard() {
-    setDiscarding(true);
-    clearTimeout(debounceRef.current);
-    const res = await discardDraft();
-    setDiscarding(false);
-    setConfirmDiscard(false);
-    if (res.error || !res.home) {
-      setSaveState("error");
-      setSaveError(res.error || "Échec de l'annulation du brouillon.");
-      return;
-    }
-    const restored = mapHomeDocToDraft(res.home);
-    setDraft(restored);
-    history.current = [restored];
-    historyIndex.current = 0;
-    setHistoryTick((t) => t + 1);
-    lastSavedRef.current = JSON.stringify(restored);
-    setStatus("published");
-    setSaveState("saved");
-    setPreviewNonce((n) => n + 1);
-  }
+  }, [activeTab, undo, redo]);
 
   function handleAddRail() {
     const rail = newRail();
@@ -395,6 +406,7 @@ export function StorefrontBuilder({
       const res = await discardSiteChromeDraft();
       return { error: res.error, doc: res.chrome };
     },
+    onSaved: refreshPreview,
   });
 
   const theme = useGlobalDraft<ThemeDraft>({
@@ -408,6 +420,7 @@ export function StorefrontBuilder({
       const res = await discardThemeDraft();
       return { error: res.error, doc: res.theme };
     },
+    onSaved: refreshPreview,
   });
 
   // The three surfaces are edited on three different panels but previewed
@@ -435,6 +448,7 @@ export function StorefrontBuilder({
       const res = await discardNavigationDraft();
       return { error: res.error, doc: res.navigation };
     },
+    onSaved: refreshPreview,
   });
 
   function handleAddNavItem() {
@@ -448,19 +462,14 @@ export function StorefrontBuilder({
   const activeKind = activeTab === "home" ? "home" : activeTab === "navigation" ? "navigation" : activeTab === "theme" ? "theme" : "chrome";
   const active =
     activeKind === "home"
-      ? { dirty, saveState, saveError, publishing, discarding, status, handlePublish, handleDiscard: () => setConfirmDiscard(true) }
+      ? // Home is the one panel that asks before discarding: it is the only
+        // draft with an undo stack to lose along with the edits.
+        { ...home, handleDiscard: () => setConfirmDiscard(true) }
       : activeKind === "theme"
-        ? { ...theme, handleDiscard: theme.handleDiscard }
+        ? theme
         : activeKind === "navigation"
-          ? { ...navigation, handleDiscard: navigation.handleDiscard }
-          : { ...chrome, handleDiscard: chrome.handleDiscard };
-
-  useEffect(() => {
-    // Any autosave in any Global/Navigation draft should also refresh the
-    // live preview iframe, same as Home's autosave already does.
-    if (chrome.saveState === "saved" || theme.saveState === "saved" || navigation.saveState === "saved") setPreviewNonce((n) => n + 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chrome.saveState, theme.saveState, navigation.saveState]);
+          ? navigation
+          : chrome;
 
   const previewSrc = `/api/dashboard-preview?next=${encodeURIComponent("/")}&v=${previewNonce}`;
 
@@ -528,13 +537,13 @@ export function StorefrontBuilder({
           </span>
           {activeKind === "home" && (
             <>
-              <button type="button" onClick={undo} disabled={historyIndex.current === 0} aria-label="Annuler" className="rounded p-1.5 text-gray-400 hover:bg-gray-100 disabled:opacity-30">
+              <button type="button" onClick={home.undo} disabled={!home.canUndo} aria-label="Annuler" className="rounded p-1.5 text-gray-400 hover:bg-gray-100 disabled:opacity-30">
                 <Undo2 className="h-4 w-4" />
               </button>
               <button
                 type="button"
-                onClick={redo}
-                disabled={historyIndex.current >= history.current.length - 1}
+                onClick={home.redo}
+                disabled={!home.canRedo}
                 aria-label="Rétablir"
                 className="rounded p-1.5 text-gray-400 hover:bg-gray-100 disabled:opacity-30"
               >
@@ -546,7 +555,7 @@ export function StorefrontBuilder({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => (activeKind === "home" ? setConfirmDiscard(true) : active.handleDiscard())}
+            onClick={() => active.handleDiscard()}
             disabled={active.discarding}
           >
             {active.discarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
@@ -555,7 +564,7 @@ export function StorefrontBuilder({
           <Button type="button" variant="outline" size="sm" onClick={() => window.open(previewSrc, "_blank")}>
             Aperçu
           </Button>
-          <Button type="button" size="sm" onClick={activeKind === "home" ? handlePublish : active.handlePublish} disabled={active.publishing}>
+          <Button type="button" size="sm" onClick={() => active.handlePublish()} disabled={active.publishing}>
             {active.publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Publier"}
           </Button>
         </div>
@@ -570,7 +579,16 @@ export function StorefrontBuilder({
             <Button type="button" variant="outline" size="sm" onClick={() => setConfirmDiscard(false)}>
               Annuler
             </Button>
-            <Button type="button" variant="destructive" size="sm" onClick={handleDiscard}>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              disabled={home.discarding}
+              onClick={async () => {
+                await home.handleDiscard();
+                setConfirmDiscard(false);
+              }}
+            >
               Revenir à la version publiée
             </Button>
           </div>
