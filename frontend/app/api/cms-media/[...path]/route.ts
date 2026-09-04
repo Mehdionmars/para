@@ -3,6 +3,11 @@ import { CMS_URL } from "@/lib/dashboard/constants";
 /**
  * Serves CMS-stored media from this app's own origin.
  *
+ * Lives under /api on purpose. proxy.ts routes by host, and on the admin
+ * hostname it rewrites every path that is not /dashboard or /api into
+ * /dashboard/... — so this sat at /cms-media, it became /dashboard/cms-media
+ * there and 404'd, while working perfectly on the storefront.
+ *
  * When Cloudinary is not configured, Payload stores uploads on its own disk
  * and reports them as relative URLs (`/api/media/file/x.png`). Those were
  * resolved against `CMS_URL` and handed straight to the browser — which works
@@ -24,7 +29,7 @@ import { CMS_URL } from "@/lib/dashboard/constants";
  */
 export async function GET(request: Request) {
   const { pathname, search } = new URL(request.url);
-  const file = pathname.replace(/^\/cms-media\//, "");
+  const file = pathname.replace(/^\/api\/cms-media\//, "");
 
   // Path traversal would let a crafted URL reach any CMS route, not just the
   // media directory.

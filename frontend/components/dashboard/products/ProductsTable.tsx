@@ -24,6 +24,7 @@ import { Tooltip } from "@/components/dashboard/ui/Tooltip";
 import type { ProductQuery, SortField } from "@/lib/dashboard/product-query";
 import { railEligibility, stockStatus, type Product } from "@/lib/dashboard/products-types";
 import { COLUMN_LABELS, COLUMN_SORT, type ColumnKey } from "./product-columns";
+import { mediaSrc } from "@/lib/mediaSrc";
 
 export type RowAction =
   | "edit"
@@ -57,7 +58,9 @@ function brandName(p: Product): string {
 }
 
 function imageUrl(p: Product): string | null {
-  return typeof p.image === "object" && p.image?.url ? p.image.url : null;
+  // Payload reports a relative URL; handing it straight to next/image made
+  // it resolve against the dashboard, where no such route exists (400).
+  return typeof p.image === "object" && p.image?.url ? mediaSrc(p.image.url) : null;
 }
 
 function statusBadge(p: Product) {

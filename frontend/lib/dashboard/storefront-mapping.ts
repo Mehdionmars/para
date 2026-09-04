@@ -4,8 +4,8 @@ import {
   toCtaAlign,
   toImageFraming,
 } from "@/lib/storefront/cardLayout";
-import { CMS_URL } from "./constants";
 import type { SectionEntryKey } from "@/data/home";
+import { mediaSrc } from "@/lib/mediaSrc";
 
 /**
  * The homepage section registry — keys, labels and library groups — is no
@@ -237,7 +237,9 @@ type RawRel = { id?: number; name?: string } | number | null | undefined;
 
 function mediaRef(m: RawMedia): ImageRef {
   if (m && typeof m === "object") {
-    const url = m.url ? (m.url.startsWith("http") ? m.url : `${CMS_URL}${m.url}`) : "";
+    // CMS_URL here produced http://backend:3001/... in containers — a host
+    // the browser cannot resolve, so every image preview in the builder broke.
+    const url = mediaSrc(m.url);
     return { id: m.id, url };
   }
   return { url: "" };
