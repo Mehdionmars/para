@@ -1,0 +1,31 @@
+# TLS front for a deployment reached by IP or by a name without public DNS.
+#
+#   PUBLIC_HOST=<ip-or-host> \
+#   docker compose -f docker-compose.yml -f docker-compose.https.yml up -d
+#
+# Exists because the dashboard session cookie is set Secure whenever
+# NODE_ENV=production, and a browser discards a Secure cookie delivered over
+# plain HTTP: logging in over http://<host>:3000 succeeds, the cookie is
+# dropped, and the next request bounces back to the login form.
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    environment:
+      # No default: a wrong host here yields a certificate for the wrong name
+      # and a handshake failure that reads like a broken proxy.
+      PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST to the address browsers use, e.g. 192.0.2.10 or cms.example.com}
+    ports:
+      - "443:443"
+      - "3443:3443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  caddy_data:
+  caddy_config:

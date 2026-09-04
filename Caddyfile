@@ -1,0 +1,26 @@
+{
+	auto_https disable_redirects
+	# A TLS client connecting to a bare IP sends no SNI — SNI carries a
+	# hostname, never an address — so Caddy has nothing to match a site on and
+	# answers the handshake with a `tlsv1 alert internal error`. This names the
+	# certificate to present when SNI is absent, which is every request until
+	# the deployment has a real domain name.
+	default_sni {$PUBLIC_HOST}
+}
+
+# Storefront + dashboard.
+https://{$PUBLIC_HOST} {
+	# No public DNS name, so ACME is not an option: Caddy issues from its own
+	# local CA. Browsers warn once; past the warning the origin is https://,
+	# which is what the Secure session cookie needs — over plain HTTP the
+	# browser discards it and every dashboard login silently fails.
+	tls internal
+	reverse_proxy frontend:3000
+}
+
+# Payload admin + API. A separate port rather than a path prefix: both apps
+# serve their own /api, so splitting by path would collide.
+https://{$PUBLIC_HOST}:3443 {
+	tls internal
+	reverse_proxy backend:3001
+}
