@@ -28,6 +28,7 @@ import * as migration_20260826_140000_mobile_category_strip from './20260826_140
 import * as migration_20260826_150000_home_schema_drift from './20260826_150000_home_schema_drift';
 import * as migration_20260829_090000_nav_strip_image_and_promo_modal from './20260829_090000_nav_strip_image_and_promo_modal';
 import * as migration_20260829_120000_payment_settings_and_method_enum from './20260829_120000_payment_settings_and_method_enum';
+import * as migration_20260904_000000_theme_badge_and_newsletter_logo from './20260904_000000_theme_badge_and_newsletter_logo';
 
 export const migrations = [
   {
@@ -179,5 +180,10 @@ export const migrations = [
     up: migration_20260829_120000_payment_settings_and_method_enum.up,
     down: migration_20260829_120000_payment_settings_and_method_enum.down,
     name: '20260829_120000_payment_settings_and_method_enum'
+  },
+  {
+    up: migration_20260904_000000_theme_badge_and_newsletter_logo.up,
+    down: migration_20260904_000000_theme_badge_and_newsletter_logo.down,
+    name: '20260904_000000_theme_badge_and_newsletter_logo'
   },
 ];
