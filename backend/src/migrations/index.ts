@@ -29,6 +29,7 @@ import * as migration_20260826_150000_home_schema_drift from './20260826_150000_
 import * as migration_20260829_090000_nav_strip_image_and_promo_modal from './20260829_090000_nav_strip_image_and_promo_modal';
 import * as migration_20260829_120000_payment_settings_and_method_enum from './20260829_120000_payment_settings_and_method_enum';
 import * as migration_20260904_000000_theme_badge_and_newsletter_logo from './20260904_000000_theme_badge_and_newsletter_logo';
+import * as migration_20260904_010000_newsletter_cta_radius_particles from './20260904_010000_newsletter_cta_radius_particles';
 
 export const migrations = [
   {
@@ -185,5 +186,10 @@ export const migrations = [
     up: migration_20260904_000000_theme_badge_and_newsletter_logo.up,
     down: migration_20260904_000000_theme_badge_and_newsletter_logo.down,
     name: '20260904_000000_theme_badge_and_newsletter_logo'
+  },
+  {
+    up: migration_20260904_010000_newsletter_cta_radius_particles.up,
+    down: migration_20260904_010000_newsletter_cta_radius_particles.down,
+    name: '20260904_010000_newsletter_cta_radius_particles'
   },
 ];
