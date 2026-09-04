@@ -9,7 +9,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - '5433:5432'
+      # Loopback only. The backend reaches Postgres over the compose network;
+      # this mapping exists for a database client on the host, and on a server
+      # it published the database to every machine on the network — where the
+      # compose defaults are postgres/postgres. Reach it remotely with an SSH
+      # tunnel instead: ssh -L 5433:127.0.0.1:5433 <host>
+      - '127.0.0.1:5433:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +27,10 @@ services:
     image: adminer:latest
     restart: always
     ports:
-      - '8080:8080'
+      # Loopback only. Adminer is a database administration console; on the
+      # network it was one form away from full access to the data, guarded by
+      # nothing but the compose default credentials. Same tunnel as above.
+      - '127.0.0.1:8080:8080'
     depends_on:
       - postgres
 
