@@ -87,11 +87,36 @@ export type PayloadProductDetailDoc = PayloadProductDoc & {
 // lib/productBadges.core.mjs, shared with the ProductBadges component and with
 // scripts/sync-cms.mjs — this file used to keep its own copy of both.
 
+/** Payload's own disk storage, used whenever Cloudinary is not configured. */
+const CMS_FILE_PREFIX = "/api/media/file/";
+
+/**
+ * A browser-usable URL for a CMS media reference.
+ *
+ * Absolute URLs (Cloudinary, the Instagram CDN) are handed through untouched.
+ * A relative one means Payload is storing the file itself, and those used to
+ * be prefixed with CMS_URL — which is a *server-side* address. That works
+ * locally, where CMS_URL is `http://localhost:3001`, and breaks as soon as the
+ * two run as containers: it becomes `http://backend:3001`, a name only the
+ * Docker network can resolve, and every image 404s in the browser while the
+ * page around it renders perfectly.
+ *
+ * They go through this app's own /cms-media proxy instead, which keeps media
+ * same-origin whatever the deployment looks like. Relative is also the right
+ * shape for metadata: Next resolves openGraph images against `metadataBase`,
+ * so a product's social image follows the public site URL rather than the
+ * CMS origin.
+ */
 export function resolveMediaUrl(media: PayloadMediaRef): string {
-  if (media && typeof media === "object" && media.url) {
-    return media.url.startsWith("http") ? media.url : `${CMS_URL}${media.url}`;
+  if (!media || typeof media !== "object" || !media.url) return "";
+  if (media.url.startsWith("http")) return media.url;
+  if (media.url.startsWith(CMS_FILE_PREFIX)) {
+    return `/cms-media/${media.url.slice(CMS_FILE_PREFIX.length)}`;
   }
-  return "";
+  // Some other relative path the CMS reported. Nothing proxies it, so fall
+  // back to the previous behaviour rather than emitting a URL that resolves
+  // against this app and certainly 404s.
+  return `${CMS_URL}${media.url}`;
 }
 
 export function resolveBrandName(brand: PayloadBrandRef): string {
