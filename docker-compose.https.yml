@@ -14,7 +14,11 @@ services:
     environment:
       # No default: a wrong host here yields a certificate for the wrong name
       # and a handshake failure that reads like a broken proxy.
-      PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST to the address browsers use, e.g. 192.0.2.10 or cms.example.com}
+      PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST to the address browsers use, e.g. 192.0.2.10 or shop.example.com}
+      # Must begin with `admin.` — that prefix is what proxy.ts matches to
+      # serve the dashboard instead of the storefront. With an IP-only
+      # deployment, a wildcard DNS service works: admin.192.0.2.10.nip.io
+      ADMIN_HOST: ${ADMIN_HOST:?set ADMIN_HOST to the dashboard hostname, e.g. admin.example.com}
     ports:
       - "443:443"
       - "3443:3443"

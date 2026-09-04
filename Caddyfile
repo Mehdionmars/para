@@ -18,6 +18,22 @@ https://{$PUBLIC_HOST} {
 	reverse_proxy frontend:3000
 }
 
+# The dashboard, on its own hostname.
+#
+# Not a path on the shop's origin: proxy.ts routes by host, and treats anything
+# that is neither localhost nor an `admin.` name as the public storefront —
+# where the dashboard is deliberately unreachable, so every /dashboard/* URL is
+# bounced to the login form regardless of session. Reaching it by IP therefore
+# looked exactly like a login that would not stick.
+#
+# `startsWith("admin.")` is what proxy.ts already matches on, so this needs no
+# code change. Points at the frontend: the dashboard is part of that app, not
+# the CMS.
+https://{$ADMIN_HOST} {
+	tls internal
+	reverse_proxy frontend:3000
+}
+
 # Payload admin + API. A separate port rather than a path prefix: both apps
 # serve their own /api, so splitting by path would collide.
 https://{$PUBLIC_HOST}:3443 {
