@@ -1,0 +1,41 @@
+# Cloudflare Tunnel front, for a host with no inbound ports open.
+#
+#   TUNNEL_TOKEN=<token from the Cloudflare dashboard> \
+#   docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d
+#
+# Replaces docker-compose.https.yml rather than joining it: Cloudflare
+# terminates TLS with a publicly trusted certificate, so the Caddy front and
+# its self-signed local CA have nothing left to do. Run one or the other.
+#
+# The tunnel dials out to Cloudflare, so nothing here publishes a port and the
+# host needs no public address — which is the point, on a machine sitting on a
+# private LAN.
+#
+# Routes are configured in the dashboard (Zero Trust > Networks > Tunnels >
+# Published application routes), not here, because a token-managed tunnel
+# takes its configuration from Cloudflare. The topology this project expects:
+#
+#   paradhiver.ma        -> http://frontend:3000   storefront
+#   admin.paradhiver.ma  -> http://frontend:3000   dashboard
+#   api.paradhiver.ma    -> http://backend:3001    Payload CMS
+#
+# Both frontend routes point at the same service on purpose: the dashboard is
+# part of the storefront app, and proxy.ts decides which of the two to serve
+# from the Host header. The `admin.` prefix is what it matches on, and
+# admin.paradhiver.ma is already its hardcoded ADMIN_HOST.
+#
+# Service names are used as origins because cloudflared shares the compose
+# network — the traffic between it and the apps never leaves the host.
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    # No ports. The tunnel is an outbound connection.
+    command: tunnel --no-autoupdate run
+    environment:
+      # A credential: it authorises a connection into your Cloudflare account.
+      # Keep it in the gitignored .env beside this file, never in the compose.
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN from Zero Trust > Networks > Tunnels}
+    depends_on:
+      - frontend
+      - backend
