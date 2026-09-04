@@ -41,14 +41,20 @@ services:
     restart: always
     env_file:
       - ./backend/.env
+    # Only values that describe Docker's own topology belong here. `environment:`
+    # overrides `env_file:`, so anything listed is a value backend/.env can no
+    # longer set — FRONTEND_URL and SERVER_URL used to be pinned to localhost
+    # here, which silently discarded the real origins on every deployment that
+    # is not a developer's laptop, and left Payload computing CORS, CSRF and
+    # its own admin links against an address no browser was using.
     environment:
+      # The host form in .env (127.0.0.1:5433) is for tools run outside Docker;
+      # inside the network the database answers on its service name.
       DATABASE_URI: postgresql://postgres:postgres@postgres:5432/para_dhiver
-      FRONTEND_URL: http://localhost:3000
       # Container-to-container address for the cache purge. FRONTEND_URL stays
       # the browser-facing origin (it backs CORS/CSRF), and inside this
       # container "localhost:3000" would resolve to the backend itself.
       STOREFRONT_INTERNAL_URL: http://frontend:3000
-      SERVER_URL: http://localhost:3001
       PORT: '3001'
     ports:
       # Loopback only. Caddy reaches this over the compose network, not through
