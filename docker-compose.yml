@@ -56,6 +56,14 @@ services:
       # that has no TLS and whose dashboard login cannot work over plain HTTP.
       # `localhost:3001` still resolves for local development.
       - '127.0.0.1:3001:3001'
+    volumes:
+      # Uploads live here whenever Cloudinary is not configured. Without a
+      # volume they sit in the container's writable layer, and every
+      # `up --build` destroys them while the media rows in Postgres survive —
+      # leaving a database full of records whose files are gone and a backend
+      # answering 500 on its own images. That is not hypothetical: it is what
+      # happened to the thirteen files the seed wrote.
+      - media:/app/media
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,3 +92,4 @@ services:
 
 volumes:
   pgdata:
+  media:
