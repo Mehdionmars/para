@@ -43,7 +43,11 @@ services:
       SERVER_URL: http://localhost:3001
       PORT: '3001'
     ports:
-      - '3001:3001'
+      # Loopback only. Caddy reaches this over the compose network, not through
+      # a host port, so publishing it to every interface only exposed an origin
+      # that has no TLS and whose dashboard login cannot work over plain HTTP.
+      # `localhost:3001` still resolves for local development.
+      - '127.0.0.1:3001:3001'
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,7 +69,8 @@ services:
       # caches expire on their own timer, which is the intended degradation.
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
     ports:
-      - '3000:3000'
+      # Loopback only — see the backend service above.
+      - '127.0.0.1:3000:3000'
     depends_on:
       - backend
 
