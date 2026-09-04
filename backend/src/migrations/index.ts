@@ -4,6 +4,7 @@ import * as migration_20260813_220000_add_marketing_banner from './20260813_2200
 import * as migration_20260814_224900_marketing_banners_array from './20260814_224900_marketing_banners_array';
 import * as migration_20260817_150000_add_product_categories from './20260817_150000_add_product_categories';
 import * as migration_20260818_120000_nav_item_appearance from './20260818_120000_nav_item_appearance';
+import * as migration_20260818_180000_product_badges from './20260818_180000_product_badges';
 import * as migration_20260818_190000_product_badge_priority from './20260818_190000_product_badge_priority';
 import * as migration_20260819_100000_variant_pricing_mode from './20260819_100000_variant_pricing_mode';
 import * as migration_20260819_140000_order_status_returned from './20260819_140000_order_status_returned';
@@ -58,6 +59,11 @@ export const migrations = [
     up: migration_20260818_120000_nav_item_appearance.up,
     down: migration_20260818_120000_nav_item_appearance.down,
     name: '20260818_120000_nav_item_appearance'
+  },
+  {
+    up: migration_20260818_180000_product_badges.up,
+    down: migration_20260818_180000_product_badges.down,
+    name: '20260818_180000_product_badges'
   },
   {
     up: migration_20260818_190000_product_badge_priority.up,
