@@ -3,6 +3,7 @@ import { Fragment, type ReactNode } from "react";
 import { BrandsFeaturedSection } from "@/components/home/BrandsFeaturedSection";
 import { BrandsMarquee } from "@/components/home/BrandsMarquee";
 import { CampaignSection } from "@/components/home/CampaignSection";
+import { CtaBanner } from "@/components/home/CtaBanner";
 import { CtaPair } from "@/components/home/CtaPair";
 import { DermoCorner } from "@/components/home/DermoCorner";
 import { GiftSetsCarousel } from "@/components/home/GiftSetsCarousel";
@@ -20,6 +21,7 @@ import { HeroCarousel } from "@/components/HeroCarousel";
 import {
   BRANDS_FEATURED,
   COFFRETS_COPY,
+  CTA_BANNER_COPY,
   CTA_PAIR_1,
   CTA_PAIR_2,
   INSTAGRAM_SECTION,
@@ -65,6 +67,7 @@ const DEFAULT_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
   "brandsFeatured",
   "brandsMarquee",
   "ctaPair2",
+  "ctaBanner",
   "instagram",
   "newsletter",
   "trustBar",
@@ -201,6 +204,7 @@ export default async function HomePage() {
   const marketingBanners = live?.marketingBanners ?? MARKETING_BANNERS;
   const ctaPair1 = live?.ctaPair1 ?? CTA_PAIR_1;
   const ctaPair2 = live?.ctaPair2 ?? CTA_PAIR_2;
+  const ctaBannerCopy = live?.ctaBannerCopy ?? CTA_BANNER_COPY;
   const instagramSection = live?.instagramSection ?? INSTAGRAM_SECTION;
   const sectionOrder = live?.sections ?? SECTION_ORDER;
   const heroSlides = live?.heroSlides;
@@ -257,6 +261,7 @@ export default async function HomePage() {
     brandsFeatured: <BrandsFeaturedSection brands={brandsFeatured} copy={brandsFeaturedCopy} />,
     brandsMarquee: <BrandsMarquee brands={brandsMarquee} />,
     ctaPair2: <CtaPair tiles={ctaPair2} height={260} />,
+    ctaBanner: <CtaBanner copy={ctaBannerCopy} />,
     instagram: <InstagramGrid posts={instagramPosts} config={instagramSection} />,
     newsletter: <Newsletter copy={newsletterCopy} />,
     trustBar: <TrustBar badges={trustBadges} />,

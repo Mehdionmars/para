@@ -180,6 +180,16 @@ export type LiveHomeContent = {
   campaignCopy: { eyebrow: string; title: string; description: string; ctaLabel: string; ctaUrl: string; railTitle: string; img: string };
   campaignProducts: LiveProduct[];
   dermoPicks: { product: LiveProduct; actif: string; claim: string }[];
+  ctaBannerCopy: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    ctaLabel: string;
+    ctaUrl: string;
+    bg: string;
+    textColor: string;
+    ctaColor: string;
+  };
   dermoCornerCopy: {
     eyebrow: string;
     title: string;
@@ -458,6 +468,16 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       title: home.servicesTeaserCopy?.title || "Nos services",
       subtitle:
         home.servicesTeaserCopy?.subtitle || "Nos pharmaciens vous accompagnent, en ligne comme en institut.",
+    },
+    ctaBannerCopy: {
+      eyebrow: home.ctaBannerCopy?.eyebrow || "",
+      title: home.ctaBannerCopy?.title || "",
+      description: home.ctaBannerCopy?.description || "",
+      ctaLabel: home.ctaBannerCopy?.ctaLabel || "",
+      ctaUrl: home.ctaBannerCopy?.ctaUrl || "/contact",
+      bg: home.ctaBannerCopy?.bg || "#F7EEE5",
+      textColor: home.ctaBannerCopy?.textColor || "#373020",
+      ctaColor: home.ctaBannerCopy?.ctaColor || "#5E4074",
     },
     dermoCornerCopy: {
       eyebrow: home.dermoCornerCopy?.eyebrow || "Dermo corner",

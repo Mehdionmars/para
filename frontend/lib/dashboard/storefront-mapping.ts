@@ -132,6 +132,19 @@ export type Rail = {
   editorialCtaUrl: string;
 };
 export type BrandFeaturedItem = { brand: { id?: number; name: string }; phrase: string; image: ImageRef; ctaLabel: string };
+/** Every field of the centred CTA is a plain string, colours included, so the
+ * draft round-trips through JSON without a mapper of its own. */
+export type CtaBannerCopyDraft = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  bg: string;
+  textColor: string;
+  ctaColor: string;
+};
+
 export type DermoCornerCopy = {
   eyebrow: string;
   title: string;
@@ -218,6 +231,7 @@ export type HomeDraft = {
   campaignCopy: CampaignCopy;
   campaignProducts: ProductRef[];
   dermoPicks: DermoPick[];
+  ctaBannerCopy: CtaBannerCopyDraft;
   dermoCornerCopy: DermoCornerCopy;
   imageCarouselCopy: ImageCarouselCopy;
   imageCarouselProducts: ProductRef[];
@@ -359,6 +373,16 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
     },
     campaignProducts: (home.campaignProducts || []).map(productRef).filter(Boolean) as ProductRef[],
     dermoPicks: (home.dermoPicks || []).map((d: any) => ({ product: productRef(d.product), actif: d.actif || "", claim: d.claim || "" })),
+    ctaBannerCopy: {
+      eyebrow: home.ctaBannerCopy?.eyebrow || "",
+      title: home.ctaBannerCopy?.title || "",
+      description: home.ctaBannerCopy?.description || "",
+      ctaLabel: home.ctaBannerCopy?.ctaLabel || "",
+      ctaUrl: home.ctaBannerCopy?.ctaUrl || "/contact",
+      bg: home.ctaBannerCopy?.bg || "#F7EEE5",
+      textColor: home.ctaBannerCopy?.textColor || "#373020",
+      ctaColor: home.ctaBannerCopy?.ctaColor || "#5E4074",
+    },
     dermoCornerCopy: {
       eyebrow: home.dermoCornerCopy?.eyebrow || "Dermo corner",
       title: home.dermoCornerCopy?.title || "",
@@ -512,6 +536,7 @@ export function mapDraftToPayload(draft: HomeDraft): Record<string, unknown> {
     },
     campaignProducts: draft.campaignProducts.map((p) => p.id),
     dermoPicks: draft.dermoPicks.map((d) => ({ product: d.product?.id || null, actif: d.actif, claim: d.claim })),
+    ctaBannerCopy: { ...draft.ctaBannerCopy },
     dermoCornerCopy: {
       eyebrow: draft.dermoCornerCopy.eyebrow,
       title: draft.dermoCornerCopy.title,

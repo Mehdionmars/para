@@ -27,6 +27,7 @@ import {
   type Coffret,
   type CoffretsCopy,
   type CtaTile,
+  type CtaBannerCopyDraft,
   type DermoCornerCopy,
   type DermoPick,
   type HeroSlide,
@@ -419,6 +420,30 @@ export function BrandsFeaturedEditor({
 }
 
 // ---- Dermo Corner copy -----------------------------------------------------
+
+// ---- CTA centré ----------------------------------------------------------
+
+export function CtaBannerEditor({ value, onChange }: { value: CtaBannerCopyDraft; onChange: (v: CtaBannerCopyDraft) => void }) {
+  const update = (patch: Partial<CtaBannerCopyDraft>) => onChange({ ...value, ...patch });
+  return (
+    <FieldGroup>
+      <EditorHeading
+        title="CTA centré"
+        description="Un titre, une phrase, un bouton. Le bloc n’a volontairement pas de second bouton : deux choix ralentissent la décision."
+      />
+      <TextField label="Eyebrow (facultatif)" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+      <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
+      <TextAreaField label="Texte de soutien" value={value.description} onChange={(description) => update({ description })} />
+      <TextField label="Texte du bouton" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
+      <TextField label="Lien du bouton" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+      <ColorField label="Fond" value={value.bg} onChange={(bg) => update({ bg })} />
+      {/* Both advisories read against the band's own background, which is
+          what these two are actually painted on. */}
+      <ColorField label="Texte" value={value.textColor} contrastAgainst={value.bg} onChange={(textColor) => update({ textColor })} />
+      <ColorField label="Bouton" value={value.ctaColor} contrastAgainst={value.bg} onChange={(ctaColor) => update({ ctaColor })} />
+    </FieldGroup>
+  );
+}
 
 export function DermoCornerCopyEditor({ value, onChange }: { value: DermoCornerCopy; onChange: (v: DermoCornerCopy) => void }) {
   const update = (patch: Partial<DermoCornerCopy>) => onChange({ ...value, ...patch });

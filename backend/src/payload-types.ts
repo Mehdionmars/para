@@ -2054,6 +2054,34 @@ export interface Home {
     subtitle?: string | null;
   };
   /**
+   * Centred call to action: one headline, one line of support, one button. Deliberately has no second button — the point of the block is to leave a single obvious thing to do.
+   */
+  ctaBannerCopy?: {
+    /**
+     * Small line above the headline. Leave empty to omit it.
+     */
+    eyebrow?: string | null;
+    title?: string | null;
+    /**
+     * One or two sentences. Longer copy competes with the button for attention.
+     */
+    description?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    /**
+     * Hex color, e.g. #E7EFF3
+     */
+    bg?: string | null;
+    /**
+     * Hex color, e.g. #E7EFF3
+     */
+    textColor?: string | null;
+    /**
+     * Hex color, e.g. #E7EFF3
+     */
+    ctaColor?: string | null;
+  };
+  /**
    * Editorial header for the Dermo Corner section (the product picks below are configured separately, in dermoPicks).
    */
   dermoCornerCopy?: {
@@ -3192,6 +3220,18 @@ export interface HomeSelect<T extends boolean = true> {
         eyebrow?: T;
         title?: T;
         subtitle?: T;
+      };
+  ctaBannerCopy?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        bg?: T;
+        textColor?: T;
+        ctaColor?: T;
       };
   dermoCornerCopy?:
     | T

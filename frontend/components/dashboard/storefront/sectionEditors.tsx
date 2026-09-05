@@ -8,6 +8,7 @@ import {
   CoffretsCopyEditor,
   CoffretsEditor,
   CtaPairEditor,
+  CtaBannerEditor,
   DermoCornerCopyEditor,
   DermoPicksEditor,
   HeroSlidesEditor,
@@ -106,6 +107,10 @@ export const SECTION_EDITORS: Record<SectionKey, ((ctx: SectionEditorContext) =>
       onChangeCopy={(campaignCopy) => update({ campaignCopy })}
       onChangeProducts={(campaignProducts) => update({ campaignProducts })}
     />
+  ),
+
+  ctaBanner: ({ draft, update }) => (
+    <CtaBannerEditor value={draft.ctaBannerCopy} onChange={(ctaBannerCopy) => update({ ctaBannerCopy })} />
   ),
 
   dermoCorner: ({ draft, update }) => (

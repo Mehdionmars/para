@@ -33,6 +33,7 @@ export const SECTION_KEYS = [
   'brandsFeatured',
   'brandsMarquee',
   'ctaPair2',
+  'ctaBanner',
   'instagram',
   'newsletter',
   'trustBar',
@@ -53,6 +54,7 @@ export const SECTION_LABELS: Record<(typeof SECTION_KEYS)[number], string> = {
   brandsFeatured: 'Marques à l’honneur',
   brandsMarquee: 'Marques (défilement)',
   ctaPair2: 'CTA — paire d’images (bas)',
+  ctaBanner: 'CTA centré',
   instagram: 'Instagram',
   newsletter: 'Newsletter',
   trustBar: 'Barre de confiance',
@@ -66,6 +68,7 @@ export const SECTION_GROUPS = {
   marketingBanner: 'content',
   ctaPair1: 'content',
   ctaPair2: 'content',
+  ctaBanner: 'content',
   summerEdit: 'products',
   promotionsGrid: 'products',
   featuredPromo: 'products',
@@ -550,6 +553,29 @@ export const Home: GlobalConfig = {
           type: 'text',
           defaultValue: 'Nos pharmaciens vous accompagnent, en ligne comme en institut.',
         },
+      ],
+    },
+    {
+      name: 'ctaBannerCopy',
+      type: 'group',
+      admin: {
+        description:
+          'Centred call to action: one headline, one line of support, one button. Deliberately has no second button — the point of the block is to leave a single obvious thing to do.',
+      },
+      fields: [
+        { name: 'eyebrow', type: 'text', admin: { description: 'Small line above the headline. Leave empty to omit it.' } },
+        { name: 'title', type: 'text', defaultValue: 'Un conseil de pharmacien, en deux minutes' },
+        {
+          name: 'description',
+          type: 'textarea',
+          admin: { description: 'One or two sentences. Longer copy competes with the button for attention.' },
+          defaultValue: 'Décrivez votre besoin, nous vous orientons vers les produits adaptés à votre peau.',
+        },
+        { name: 'ctaLabel', type: 'text', defaultValue: 'Nous contacter' },
+        { name: 'ctaUrl', type: 'text', defaultValue: '/contact' },
+        colorField('bg', '#F7EEE5'),
+        colorField('textColor', '#373020'),
+        colorField('ctaColor', '#5E4074'),
       ],
     },
     {

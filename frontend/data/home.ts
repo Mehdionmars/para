@@ -182,6 +182,17 @@ export const CTA_PAIR_2 = [
 
 export const DERMO_PICKS: { id: number; actif: string; claim: string }[] = [];
 
+export const CTA_BANNER_COPY = {
+  "eyebrow": "",
+  "title": "Un conseil de pharmacien, en deux minutes",
+  "description": "Décrivez votre besoin, nous vous orientons vers les produits adaptés à votre peau.",
+  "ctaLabel": "Nous contacter",
+  "ctaUrl": "/contact",
+  "bg": "#F7EEE5",
+  "textColor": "#373020",
+  "ctaColor": "#5E4074"
+};
+
 export const DERMO_CORNER_COPY = {
   "eyebrow": "Dermo corner",
   "title": "La sélection dermatologique du moment",
@@ -515,6 +526,7 @@ export type SectionKey =
   | "brandsFeatured"
   | "brandsMarquee"
   | "ctaPair2"
+  | "ctaBanner"
   | "instagram"
   | "newsletter"
   | "trustBar";
@@ -535,6 +547,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   "brandsFeatured": "Marques à l’honneur",
   "brandsMarquee": "Marques (défilement)",
   "ctaPair2": "CTA — paire d’images (bas)",
+  "ctaBanner": "CTA centré",
   "instagram": "Instagram",
   "newsletter": "Newsletter",
   "trustBar": "Barre de confiance"
@@ -546,6 +559,7 @@ export const SECTION_GROUPS: Record<string, string> = {
   "marketingBanner": "content",
   "ctaPair1": "content",
   "ctaPair2": "content",
+  "ctaBanner": "content",
   "summerEdit": "products",
   "promotionsGrid": "products",
   "featuredPromo": "products",
