@@ -4393,3 +4393,73 @@ section.rail-editorial {
     min-height: 42px;
   }
 }
+
+/* Product blocks that were grids become rails on a phone.
+
+   Everything else on the home page that holds product cards already
+   scrolls — RailSection, "Nos coups de cœur", "Conseil dermo" and the image
+   carousel all render through <Rail>. These two were the exceptions:
+   .featured-promo-grid carried `minmax(min(100%, 210px), 1fr)`, which
+   cannot fit twice into a 362px column and so stacked one card per row, and
+   .promotions-grid was an explicit two-up.
+
+   They borrow .rail's own variables rather than inventing a third set of
+   scroller mechanics, so a swipe feels the same everywhere on the page and
+   there is one place to change the density.
+
+   Desktop is untouched: both keep the grids they were designed with. */
+@media (max-width: 767px) {
+  .featured-promo-grid,
+  .promotions-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    /* Keeps a sideways flick in the rail instead of handing it to the
+       browser as a back gesture. */
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    /* A bar drawn through the row would cut the product names; the sliver
+       of the next card is the affordance, as it is on every other rail. */
+    scrollbar-width: none;
+
+    --rail-gap: clamp(12px, 1.8vw, 18px);
+    /* Just over two, matching .rail: a sliver of the third card shows and
+       the row invites a swipe instead of looking like it ends there. */
+    --rail-cols: 2.15;
+    gap: var(--rail-gap);
+  }
+
+  .featured-promo-grid::-webkit-scrollbar,
+  .promotions-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .featured-promo-grid > *,
+  .promotions-grid > * {
+    flex: 0 0 calc((100% - (var(--rail-cols) - 1) * var(--rail-gap)) / var(--rail-cols));
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  /* The promo banner leads the row and is not a product card: at a product
+     card's width its image and its two lines of copy have nothing to sit
+     in. It takes the width of the first screen instead, so the row opens on
+     the campaign and the products follow it. */
+  .featured-promo-grid > .featured-promo-tile {
+    flex-basis: 78%;
+  }
+
+  /* Nothing inside a card may push it wider than its column. */
+  .featured-promo-grid > * > *,
+  .promotions-grid > * > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-promo-grid,
+  .promotions-grid {
+    scroll-snap-type: none;
+  }
+}
