@@ -91,6 +91,15 @@ export const discountBadge: (price: number, oldPrice?: number | null) => Resolve
   core.discountBadge;
 
 /**
+ * Sorts a resolved list, drops repeats, trims to the cap.
+ *
+ * Exported because the already-resolved path (the synced snapshot) needs the
+ * same guarantee as the live one: no product ever shows the same pill twice.
+ */
+export const dedupeBadges: (badges: ResolvedBadge[], limit?: number) => ResolvedBadge[] =
+  core.dedupeBadges;
+
+/**
  * Turns a product's configured badges plus its pricing into the final,
  * ordered list to render.
  *
@@ -98,6 +107,9 @@ export const discountBadge: (price: number, oldPrice?: number | null) => Resolve
  * preset, then nothing (a badge that resolves to empty text is dropped —
  * a coloured pill with no words carries no information, which is also the
  * accessibility rule here).
+ *
+ * A hand-typed percentage is dropped when a real markdown exists: the
+ * computed pill is the single source of truth for a discount.
  */
 export const resolveProductBadges: (
   badges: RawBadge[] | null | undefined,

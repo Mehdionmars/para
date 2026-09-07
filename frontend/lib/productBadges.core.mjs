@@ -175,6 +175,51 @@ export function readableTextColor(bgColor, textColor) {
  * @param {number} [limit]
  * @returns {ResolvedBadge[]}
  */
+/**
+ * A label that is nothing but a percentage, in any shape an editor might
+ * type it: "-18%", "− 18 %", "18%".
+ */
+const BARE_PERCENTAGE = /^[-–—−+]?\s*\d{1,3}\s*%$/;
+
+/**
+ * Two labels compared the way a shopper compares them — by the words, not by
+ * the bytes. "−18%" and "-18 %" are the same sticker twice.
+ * @param {string} text
+ */
+function badgeKey(text) {
+  return (text || "")
+    .toLowerCase()
+    .replace(/[\s ]+/g, "")
+    .replace(/[-–—−]/g, "-");
+}
+
+/**
+ * Sorts, removes repeats, then trims to the cap.
+ *
+ * Deduplicating before the slice matters: a repeat that survives to the cap
+ * eats the slot a genuine second badge would have used, so the shopper loses
+ * "Nouveauté" to keep a second copy of "−18%".
+ *
+ * @param {ResolvedBadge[]} badges
+ * @param {number} limit
+ * @returns {ResolvedBadge[]}
+ */
+export function dedupeBadges(badges, limit = MAX_BADGES) {
+  const seen = new Set();
+  return badges
+    // Stable sort: equal priorities keep the order they arrived in.
+    .map((b, i) => ({ b, i }))
+    .sort((x, y) => x.b.priority - y.b.priority || x.i - y.i)
+    .map(({ b }) => b)
+    .filter((b) => {
+      const key = badgeKey(b.text);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, limit);
+}
+
 export function resolveProductBadges(badges, price, oldPrice, limit = MAX_BADGES) {
   /** @type {ResolvedBadge[]} */
   const configured = (badges || [])
@@ -194,14 +239,20 @@ export function resolveProductBadges(badges, price, oldPrice, limit = MAX_BADGES
     .filter((b) => b.text);
 
   const auto = discountBadge(price, oldPrice);
-  const all = auto ? [auto, ...configured] : configured;
 
-  // Stable sort: equal priorities keep the editor's own row order.
-  return all
-    .map((b, i) => ({ b, i }))
-    .sort((x, y) => x.b.priority - y.b.priority || x.i - y.i)
-    .map(({ b }) => b)
-    .slice(0, limit);
+  // One source of truth for a markdown. The catalogue was seeded with a hand
+  // typed "−18%" row on every discounted product, and the computed pill says
+  // the same thing — two identical stickers on one photograph, which is what
+  // shoppers were seeing. The computed one wins because it cannot go stale:
+  // change the price and the typed one starts making a false claim, on a
+  // pharmacy storefront.
+  //
+  // Dropped whatever number it carries, not only an exact match: a typed
+  // "−20%" sitting beside a real "−18%" is worse than a repeat, because both
+  // look authoritative and only one is true.
+  const withoutTypedDiscounts = auto ? configured.filter((b) => !BARE_PERCENTAGE.test(b.text.trim())) : configured;
+
+  return dedupeBadges(auto ? [auto, ...withoutTypedDiscounts] : withoutTypedDiscounts, limit);
 }
 
 /**

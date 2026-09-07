@@ -1,4 +1,4 @@
-import { MAX_BADGES, resolveProductBadges, type RawBadge, type ResolvedBadge } from "@/lib/productBadges";
+import { MAX_BADGES, dedupeBadges, resolveProductBadges, type RawBadge, type ResolvedBadge } from "@/lib/productBadges";
 
 /**
  * The stack of marketing pills over a product image.
@@ -18,8 +18,23 @@ type Props = {
   compact?: boolean;
 };
 
+/**
+ * Tells a snapshot badge from a raw CMS row.
+ *
+ * `"priority" in b` was the whole test, and a CMS row carries that field too —
+ * so a raw row with a priority set read as resolved, skipped resolution, and
+ * lost its discount pill. Resolution fills every field and drops `enabled`,
+ * which is what actually separates the two shapes.
+ */
 function isResolved(b: RawBadge | ResolvedBadge): b is ResolvedBadge {
-  return typeof (b as ResolvedBadge).text === "string" && "priority" in b;
+  const r = b as ResolvedBadge;
+  return (
+    !("enabled" in b) &&
+    typeof r.text === "string" &&
+    typeof r.priority === "number" &&
+    typeof r.bgColor === "string" &&
+    typeof r.textColor === "string"
+  );
 }
 
 export function ProductBadges({ badges, price, oldPrice, limit = MAX_BADGES, compact = false }: Props) {
@@ -32,12 +47,10 @@ export function ProductBadges({ badges, price, oldPrice, limit = MAX_BADGES, com
   // trimmed. Raw CMS rows, by contrast, still need the full resolution.
   const alreadyResolved = list.length > 0 && list.every(isResolved);
 
+  // Both paths run through the same dedupe: a snapshot generated before that
+  // rule existed can still be carrying a repeat of its own.
   const resolved = alreadyResolved
-    ? [...(list as ResolvedBadge[])]
-        .map((b, i) => ({ b, i }))
-        .sort((x, y) => x.b.priority - y.b.priority || x.i - y.i)
-        .map(({ b }) => b)
-        .slice(0, limit)
+    ? dedupeBadges(list as ResolvedBadge[], limit)
     : resolveProductBadges(list as RawBadge[], price ?? 0, oldPrice, limit);
 
   if (resolved.length === 0) return null;
