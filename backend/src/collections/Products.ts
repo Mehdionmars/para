@@ -16,6 +16,48 @@ export const CATEGORY_OPTIONS = [
   'Hygiène',
 ] as const
 
+/**
+ * The aisle a product actually sits in, one level under `category`.
+ *
+ * `category` is nine broad shelves and stays that way: the home rails, the
+ * catalogue's tag mapping and `/shop/visage` all read it, and its Postgres
+ * enum is shared with three other tables. This is a second, optional field
+ * beside it, so nothing that works today stops working and a product with no
+ * sub-category still shows under its broad shelf.
+ *
+ * Every value is a slug the storefront navigation already links to, so these
+ * pages exist before a single product points at them — /shop/nettoyants and
+ * its eighty siblings were reachable and empty. Filling them is what this
+ * field is for.
+ *
+ * The nineteen were derived from the catalogue itself rather than from a
+ * category tree borrowed elsewhere: this shop sells professional own-label
+ * lines (HTCeutic, D-BIOTIC, LCP, SEBIOTIC, HAIRLOSS), so its real families
+ * are acne, cicatrisants, rosacea and epilation — not the deodorants and
+ * nail care a mass-market parapharmacy would shelve.
+ */
+export const SUB_CATEGORY_OPTIONS = [
+  { label: 'Solaires', value: 'solaire' },
+  { label: 'Acné & imperfections', value: 'purifiants' },
+  { label: 'Chute de cheveux', value: 'chute-de-cheveux' },
+  { label: 'Anti-âge', value: 'anti-age' },
+  { label: 'Peaux sèches & atopiques', value: 'peaux-seches' },
+  { label: 'Taches & éclat', value: 'anti-taches' },
+  { label: 'Peelings & gommages', value: 'peelings-doux' },
+  { label: 'Cicatrisants', value: 'cremes-cicatrisantes' },
+  { label: 'Nettoyants', value: 'nettoyants' },
+  { label: 'Corps — laits & baumes', value: 'laits-corps' },
+  { label: 'Shampooings', value: 'shampoings-traitants' },
+  { label: 'Mains & pieds', value: 'soins-mains-pieds' },
+  { label: 'Rougeurs & rosacée', value: 'peaux-sensibles' },
+  { label: 'Hygiène intime', value: 'hygiene-intime' },
+  { label: 'Épilation & après', value: 'apres-epilation' },
+  { label: 'Après-shampooing', value: 'apres-shampoings' },
+  { label: 'Démaquillants', value: 'demaquillants' },
+  { label: 'Masques capillaires', value: 'masques-capillaires' },
+  { label: 'Cils & sourcils', value: 'cheveux-ongles' },
+] as const
+
 export const VARIANT_OPTION_TYPES = [
   { label: 'Contenance', value: 'contenance' },
   { label: 'Format', value: 'format' },
@@ -214,6 +256,20 @@ export const Products: CollectionConfig = {
       access: contentFieldAccess,
       options: [...CATEGORY_OPTIONS],
       required: true,
+    },
+    {
+      name: 'subCategory',
+      type: 'select',
+      access: contentFieldAccess,
+      options: [...SUB_CATEGORY_OPTIONS],
+      admin: {
+        description:
+          'Le rayon précis, sous la catégorie ci-dessus. Il fait apparaître le produit sur la page correspondante (/shop/nettoyants, /shop/anti-age…). Laissé vide, le produit reste visible sous sa catégorie large.',
+      },
+      // Not required: 83 products are unpublished and several carry a wrong
+      // broad category already — a serum for the face filed under Cheveux.
+      // Forcing a value would mean guessing on those, and a guess in a
+      // pharmacy catalogue sends someone to the wrong shelf.
     },
     {
       name: 'size',

@@ -325,6 +325,32 @@ export interface Product {
     | 'Compléments alimentaires'
     | 'Hygiène';
   /**
+   * Le rayon précis, sous la catégorie ci-dessus. Il fait apparaître le produit sur la page correspondante (/shop/nettoyants, /shop/anti-age…). Laissé vide, le produit reste visible sous sa catégorie large.
+   */
+  subCategory?:
+    | (
+        | 'solaire'
+        | 'purifiants'
+        | 'chute-de-cheveux'
+        | 'anti-age'
+        | 'peaux-seches'
+        | 'anti-taches'
+        | 'peelings-doux'
+        | 'cremes-cicatrisantes'
+        | 'nettoyants'
+        | 'laits-corps'
+        | 'shampoings-traitants'
+        | 'soins-mains-pieds'
+        | 'peaux-sensibles'
+        | 'hygiene-intime'
+        | 'apres-epilation'
+        | 'apres-shampoings'
+        | 'demaquillants'
+        | 'masques-capillaires'
+        | 'cheveux-ongles'
+      )
+    | null;
+  /**
    * e.g. "400 ml", "50 ml"
    */
   size?: string | null;
@@ -1311,6 +1337,7 @@ export interface ProductsSelect<T extends boolean = true> {
   slug?: T;
   brand?: T;
   category?: T;
+  subCategory?: T;
   size?: T;
   price?: T;
   oldPrice?: T;
@@ -1845,9 +1872,9 @@ export interface Home {
   marketingBanners?:
     | {
         /**
-         * Internal identifier, e.g. "summer-2026" — not shown on the storefront, just for telling campaigns apart here.
+         * Internal identifier, e.g. "summer-2026" — not shown on the storefront, just for telling campaigns apart here. Filled in automatically if you leave it empty.
          */
-        campaign: string;
+        campaign?: string | null;
         image?: (number | null) | Media;
         imageMobile?: (number | null) | Media;
         /**

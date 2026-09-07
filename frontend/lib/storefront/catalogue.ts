@@ -116,6 +116,12 @@ function toCatalogueProduct(doc: CatalogueDoc): CatalogueProduct {
 export type CatalogueQuery = {
   q?: string;
   categories?: Category[];
+  /** The aisle under a category — "nettoyants", "anti-age", "peelings-doux".
+   * A slug, not a label: it is the same value the navigation already links to
+   * at /shop/<slug>, and the one Products.subCategory stores. Narrower than
+   * `categories` and independent of it, so /shop/nettoyants filters on this
+   * while /shop/visage still filters on the broad shelf. */
+  subCategory?: string;
   brand?: string;
   tag?: string;
   /** One of the top quick-filter pills (curated in Payload's catalogue-page
@@ -208,6 +214,7 @@ function buildWhere(query: CatalogueQuery): Record<string, unknown> {
 
   if (query.maxPrice) and.push({ price: { less_than_equal: query.maxPrice } });
   if (query.categories?.length) and.push({ category: { in: query.categories } });
+  if (query.subCategory) and.push({ subCategory: { equals: query.subCategory } });
   if (query.brand) and.push({ "brand.name": { equals: query.brand } });
   if (query.inStockOnly) and.push({ stock: { greater_than: 0 } });
 

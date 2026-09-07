@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
     q: sp.get("q") || undefined,
     quick: sp.get("quick") || undefined,
     sort,
+    subCategory: sp.get("sub") || undefined,
     tag: sp.get("tag") || undefined,
   });
 

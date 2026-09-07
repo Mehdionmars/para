@@ -43,6 +43,42 @@ const REAL_CATEGORY_BY_SLUG: Record<string, Category> = {
   visage: "Visage",
 };
 
+/**
+ * The aisle slugs that now have a real product filter of their own.
+ *
+ * These are the values Products.subCategory stores, and they are the same
+ * slugs the mega menu has always linked to — /shop/nettoyants and its
+ * siblings were reachable and empty long before a product pointed at one.
+ *
+ * The list is duplicated from backend/src/collections/Products.ts rather
+ * than imported: the two apps are separate deploy targets with no shared
+ * package, the same arrangement CATEGORY_OPTIONS already lives under. A slug
+ * present here but not in the CMS simply returns nothing, which is the
+ * honest empty state; the reverse hides an aisle, so the backend list is the
+ * one to read when adding.
+ */
+const SUB_CATEGORY_SLUGS = new Set([
+  "solaire",
+  "purifiants",
+  "chute-de-cheveux",
+  "anti-age",
+  "peaux-seches",
+  "anti-taches",
+  "peelings-doux",
+  "cremes-cicatrisantes",
+  "nettoyants",
+  "laits-corps",
+  "shampoings-traitants",
+  "soins-mains-pieds",
+  "peaux-sensibles",
+  "hygiene-intime",
+  "apres-epilation",
+  "apres-shampoings",
+  "demaquillants",
+  "masques-capillaires",
+  "cheveux-ongles",
+]);
+
 const QUICK_FILTER_BY_SLUG: Record<string, string> = {
   nouveautes: "Nouveautés",
   soldes: "−25% sélection soin",
@@ -117,10 +153,15 @@ export default async function ShopCategoryPage({
   const label = resolveLabel(slug);
   if (!label) notFound();
 
+  // An aisle wins over the broad category when a slug is both — "solaire" is
+  // in each list, and the narrower filter is the one the visitor asked for.
+  const subCategory = SUB_CATEGORY_SLUGS.has(slug) ? slug : "";
+
   return (
     <CatalogueView
       initialQuery={q ?? ""}
-      initialCategory={REAL_CATEGORY_BY_SLUG[slug] || (QUICK_FILTER_BY_SLUG[slug] ? "" : label)}
+      initialCategory={subCategory ? "" : REAL_CATEGORY_BY_SLUG[slug] || (QUICK_FILTER_BY_SLUG[slug] ? "" : label)}
+      initialSubCategory={subCategory}
       initialQuick={QUICK_FILTER_BY_SLUG[slug] || ""}
       pageTitle={label}
     />

@@ -42,6 +42,7 @@ const PAGE_SIZE = 24;
 export function CatalogueView({
   initialQuery,
   initialCategory = "",
+  initialSubCategory = "",
   initialTag = "",
   initialBrand = "",
   initialQuick = "",
@@ -53,6 +54,11 @@ export function CatalogueView({
 }: {
   initialQuery: string;
   initialCategory?: string;
+  /** An aisle slug ("nettoyants", "anti-age") when the page is a
+   * sub-category landing. Fixed for the life of the page: the filter rail
+   * still offers the broad categories, and narrowing an aisle further is not
+   * a thing this view does. */
+  initialSubCategory?: string;
   initialTag?: string;
   /** Real brand name (not slug) — resolved server-side from the URL's brand slug. */
   initialBrand?: string;
@@ -92,7 +98,13 @@ export function CatalogueView({
   // nav taxonomy. Rather than silently show the whole catalogue (wrong) or
   // invent matching products (forbidden), this renders an honest "no
   // products yet" state under the category's real name.
+  //
+  // An aisle slug is the exception: /shop/nettoyants has no matching broad
+  // Category either, but it now has a real filter of its own, so it must
+  // query rather than declare itself empty. Whether it comes back with
+  // products is the catalogue's answer to give, not this component's.
   const [forcedEmptyCategoryLabel] = useState<string>(() => {
+    if (initialSubCategory) return "";
     if (!initialCategory) return "";
     const match = CATEGORY_VALUES.find((c) => c.toLowerCase() === initialCategory.toLowerCase());
     return match ? "" : initialCategory;
@@ -124,6 +136,7 @@ export function CatalogueView({
     if (initialQuery) params.set("q", initialQuery);
     activeCategories.forEach((c) => params.append("cat", c));
     if (brand) params.set("brand", brand);
+    if (initialSubCategory) params.set("sub", initialSubCategory);
     if (tag) params.set("tag", tag);
     if (quick) params.set("quick", quick);
     if (maxPrice < 399) params.set("maxPrice", String(maxPrice));
@@ -155,7 +168,7 @@ export function CatalogueView({
     })();
 
     return () => controller.abort();
-  }, [initialQuery, activeCategories, brand, tag, quick, maxPrice, inStockOnly, sort, limit, forcedEmptyCategoryLabel]);
+  }, [initialQuery, initialSubCategory, activeCategories, brand, tag, quick, maxPrice, inStockOnly, sort, limit, forcedEmptyCategoryLabel]);
 
   // Sets loading eagerly, from the event handler that triggers the fetch
   // effect below — not from inside the effect itself, so a filter click
