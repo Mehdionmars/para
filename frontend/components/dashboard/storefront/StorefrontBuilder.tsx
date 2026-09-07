@@ -176,6 +176,11 @@ function useGlobalDraft<T>({
 
   async function handlePublish() {
     setPublishing(true);
+    // Cleared on the way in, like doSave does. Without this a failure from
+    // an earlier attempt stayed on screen through every later success —
+    // which is how a validation error that had already been fixed kept
+    // being read as the current state of the document.
+    setSaveError("");
     clearTimeout(debounceRef.current);
     const res = await publish(toPayload(draft));
     setPublishing(false);
@@ -196,6 +201,7 @@ function useGlobalDraft<T>({
 
   async function handleDiscard() {
     setDiscarding(true);
+    setSaveError("");
     clearTimeout(debounceRef.current);
     const res = await discard();
     setDiscarding(false);
