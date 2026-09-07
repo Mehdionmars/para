@@ -172,6 +172,13 @@ export function Header({
             style={{
               fontFamily: "var(--font-alta)",
               fontWeight: 400,
+              // Alta ships no italic here — only Light and Regular, both
+              // upright — so this is a synthesised oblique: the browser
+              // slants the upright glyphs rather than drawing italic ones.
+              // Swap in a real Alta Italic face in app/fonts and declare it
+              // in (site)/layout.tsx and this starts using it, with no
+              // change at this call site.
+              fontStyle: "italic",
               fontSize: "clamp(20px,2.2vw,27px)",
               letterSpacing: ".24em",
               color: "var(--pdh-ink)",
