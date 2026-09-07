@@ -761,16 +761,44 @@ button {
   }
 }
 
-/* "Magasin et services" / "Contact" text labels: icon-only on narrow
-   viewports — the full pair doesn't fit next to the logo/search/cart on a
-   320-430px phone (measured overflow at 320px), so this hides earlier than
-   that. Each Link keeps an aria-label, so the accessible name survives. */
+/* "Magasin et services" / "Contact" text labels: icon-only until there is
+   room for the words.
+
+   640px was the old threshold, set against a phone. It was too low: the
+   header row wraps, and between 768 and ~1050px the two labels pushed the
+   utilities onto a second line — measured 152px of header at 1000px against
+   84 at 1100, with the search bar stretching to 598px because it had the
+   first line to itself. The icons are a pin, a phone, a heart and a bag,
+   and each Link keeps its aria-label, so nothing is lost but the words. */
 .header-util-label {
   display: inline;
 }
-@media (max-width: 640px) {
+@media (max-width: 1100px) {
   .header-util-label {
     display: none;
+  }
+}
+
+/* One line, whatever the width.
+
+   Hiding the labels buys ~180px and moves the wrap point below 768, where
+   the search and the secondary links leave the row entirely. That is enough
+   today — but it is enough by arithmetic, and arithmetic changes the moment
+   a label is reworded or a fifth action is added. `nowrap` says the rule
+   instead of leaving it to be recalculated: the search shrinks, and the row
+   cannot break in two.
+
+   !important because the row carries an inline `flexWrap: "wrap"`, which no
+   class rule can outrank on its own. */
+@media (min-width: 768px) {
+  .header-row {
+    flex-wrap: nowrap !important;
+  }
+
+  /* The one element allowed to give: 220px of minimum was what made it
+     refuse to shrink and pushed everything else down. */
+  .header-search-form {
+    min-width: 0 !important;
   }
 }
 
@@ -962,12 +990,35 @@ button {
   }
 
   /* The CTA tiles are half the banner's importance and appear two at a
-     time, so they get a square rather than a portrait — tall enough to show
-     the photograph, short enough that a stacked pair is not a scroll. The
-     inline `height` prop these carry for desktop is released here. */
+     time. The inline `height` prop they carry for desktop is released here
+     and a ratio takes over.
+
+     They used to be square and stacked: `minmax(min(100%, 320px), 1fr)`
+     cannot fit twice into a 362px column, so the pair became two
+     full-width squares and a scroll. Side by side answers that better than
+     a shorter tile did — the pair now costs one card's height instead of
+     two. 3/4, measured rather than picked: the copy block is a
+     fixed ~124px (eyebrow, two title lines, a 42px tappable CTA, padding),
+     so the ratio is what decides how much photograph is left beside it. A
+     square gave the copy 60% of the tile, 4/5 gave 57%, 3/4 gives 53% and
+     a 108px band of picture above the words. Halving the width costs photo
+     share whatever the ratio — a full-width stacked tile held the copy to
+     a third — and this is where the picture still reads. */
   .overlay-card-tile {
     height: auto !important;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 4;
+    /* Without this the min-height below widens the tile as well as
+       heightening it: aspect-ratio resolves the free axis, so a 210px floor
+       asked for 158px of width inside a 139px track and pushed 5px of
+       horizontal scroll onto the page. Pinning the width to the track
+       leaves height as the only axis the ratio and the floor can move. */
+    width: 100%;
+    /* The copy block is a fixed height whatever the tile's width, so on a
+       narrow phone the ratio alone starves the photograph: at 320px the
+       tile came out 139x185 and the words took 67% of it, leaving a 62px
+       strip. The floor is what the ratio cannot express — below ~280px of
+       width it takes over and keeps roughly 85px of picture. */
+    min-height: 210px;
   }
 }
 
@@ -2557,11 +2608,24 @@ nav[aria-label^="Fil d"] a::after {
      250px of it on a common phone, which is enough to read its heading and
      know to scroll. The copy card is 197px, so even at the 400px floor the
      photograph keeps the larger share. */
+  /* Wider than tall, which 58vh was not.
+
+     Measured on a 390x844 phone: the hero came out 490px against 390 of
+     width — a portrait block — and the copy card, which the note above
+     sized at 197px, has since grown to 269. That left 201px of photograph
+     with nothing in it above the card, which is what a visitor reads as a
+     gap rather than as an image.
+
+     44vh with a 360 floor and a 430 ceiling lands the hero at or just under
+     its own width at every common phone size, so it reads as a banner. The
+     card keeps its full height; what shrinks is the empty band over it. The
+     fold argument the note above makes still holds, more so: a shorter hero
+     shows more of the rail beneath it, not less. */
   .home-hero {
     width: 100% !important;
-    height: 58vh !important;
-    min-height: 400px;
-    max-height: 560px;
+    height: 44vh !important;
+    min-height: 360px;
+    max-height: 430px;
     margin-top: 0 !important;
     /* Square, edge to edge. The rounded bottom corners read as a card
        floating on the page; a phone hero is the top of the page itself, and
@@ -2578,9 +2642,12 @@ nav[aria-label^="Fil d"] a::after {
    * The floor is what binds on a short screen (58vh of 568 is 329px), so it
    * is the floor that gives the space back. Taller phones are unaffected:
    * they are sized by the 58vh, not by this. */
+  /* Short screens are bound by the floor, not by the 44vh, so the floor is
+     what has to give the fold its space back. 300px still clears the copy
+     card, which is what the hero has to hold. */
   @media (max-height: 700px) {
     .home-hero {
-      min-height: 330px;
+      min-height: 300px;
     }
   }
 
@@ -4274,5 +4341,55 @@ section.rail-editorial {
 @media (min-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 208px), 1fr));
+  }
+}
+
+
+/* The CTA pair: two across at every width.
+
+   Desktop sizes its own tracks; a phone is told to use two, because the
+   auto-fit minimum that used to govern here could not fit twice into a
+   phone's content width and quietly produced one column. Same failure the
+   product grids had, in a third place. */
+.cta-pair-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .cta-pair-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  }
+}
+
+/* Copy scaled to half a phone's width.
+
+   These sizes were set for a full-width tile; at 174px the 21px title ran
+   past the card and the eyebrow's 0.2em tracking broke mid-word. Scoped to
+   the CTA pair so the marketing banner, which is still full width on a
+   phone, keeps the sizes it was tuned for. */
+@media (max-width: 767px) {
+  .cta-pair-grid .overlay-card-content {
+    padding: 10px 12px 12px !important;
+  }
+
+  .cta-pair-grid .overlay-card-eyebrow {
+    font-size: 8.5px !important;
+    letter-spacing: 0.14em !important;
+    margin-bottom: 4px !important;
+  }
+
+  .cta-pair-grid .overlay-card-title {
+    font-size: 15px !important;
+    line-height: 1.16 !important;
+    margin: 0 0 8px !important;
+  }
+
+  .cta-pair-grid .overlay-card-cta {
+    padding: 10px 14px !important;
+    font-size: 9.5px !important;
+    letter-spacing: 0.1em !important;
+    /* Still a real target: 42px of height, and the tile itself is the link,
+       so the whole card is tappable either way. */
+    min-height: 42px;
   }
 }

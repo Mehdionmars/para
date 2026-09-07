@@ -12,12 +12,14 @@ export type CtaTile = { eyebrow: string; title: string; bg: string; img: string 
 export function CtaPair({ tiles, height }: { tiles: CtaTile[]; height: number }) {
   return (
     <section
+      className="cta-pair-grid"
       style={{
         maxWidth: "min(1280px,100%)",
         margin: "0 auto",
         padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))",
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))",
+        // Columns live in globals.css (.cta-pair-grid): two on a phone, and
+        // an inline template cannot hold the media query that says so.
         gap: "clamp(14px,2vw,24px)",
       }}
     >
