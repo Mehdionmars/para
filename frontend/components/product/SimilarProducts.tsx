@@ -24,7 +24,7 @@ export function SimilarProducts({
           can legitimately come back as 1-3 items. auto-fit collapses the
           empty tracks and stretches those few cards across the full width,
           which looks broken next to the rest of the grid. */}
-      <div role="list" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,208px),1fr))", columnGap: "clamp(16px,2vw,28px)", rowGap: "clamp(30px,3.4vw,46px)" }}>
+      <div role="list" className="product-grid">
         {similar.map((p) => (
           <div key={p.id} role="listitem">
             <ProductCard product={p} variant="similar" />

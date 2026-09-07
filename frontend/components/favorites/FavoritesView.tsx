@@ -112,13 +112,7 @@ export function FavoritesView() {
         // is 1 favourite or 40.
         <div
           role="list"
-          className="wishlist-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,210px),1fr))",
-            columnGap: "clamp(14px,1.8vw,24px)",
-            rowGap: "clamp(28px,3.2vw,42px)",
-          }}
+          className="product-grid"
         >
           {products.map((product, i) => (
             <div key={product.id} role="listitem">
