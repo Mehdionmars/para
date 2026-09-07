@@ -4121,3 +4121,58 @@ section.rail-editorial {
     transition: none;
   }
 }
+
+/* ====================================================================
+   Booking form (services/[id]/reserver)
+
+   One column on phones, two from 880px up — the width at which the
+   480px step column and the 300px summary stop competing.
+
+   Stated as an explicit direction switch rather than flex-wrap so the
+   breakpoint and the sticky rule can never disagree. They did: the
+   summary was `flex-wrap: wrap-reverse` with an unconditional
+   `position: sticky`, so on a phone it wrapped onto its own line above
+   the steps and then travelled down over them as the page scrolled,
+   covering the date picker it was meant to summarise.
+
+   Reversing the wrap also put the confirm button before the fields it
+   confirms. Natural order restores it to the end, where a reader who
+   has just filled in their phone number expects to find it.
+   ==================================================================== */
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.4vw, 34px);
+}
+
+.booking-form__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  /* Without this a long unbroken value in a field can push the column
+     wider than its share and start a horizontal scroll. */
+  min-width: 0;
+}
+
+.booking-form__summary {
+  min-width: 0;
+}
+
+@media (min-width: 880px) {
+  .booking-form {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .booking-form__steps {
+    flex: 2 1 480px;
+  }
+
+  /* Sticky only where there is a second column for it to sit beside.
+     Clears the sticky header plus the announcement bar above it. */
+  .booking-form__summary {
+    flex: 1 1 300px;
+    position: sticky;
+    top: 150px;
+  }
+}

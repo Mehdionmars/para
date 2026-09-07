@@ -70,8 +70,11 @@ export function ReservationView({ service, iconName }: { service: Omit<Service, 
       </nav>
       <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,4vw,46px)", margin: "0 0 28px" }}>Réserver un créneau</h1>
 
-      <form onSubmit={handleConfirm} style={{ display: "flex", flexWrap: "wrap-reverse", gap: "clamp(18px,2.4vw,34px)", alignItems: "flex-start" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 26, flex: "2 1 480px" }}>
+      {/* Layout lives in globals.css (.booking-form): the single/two-column
+          switch and the summary's sticky behaviour have to agree, and an
+          inline style cannot hold a media query. */}
+      <form onSubmit={handleConfirm} className="booking-form">
+        <div className="booking-form__steps">
           <div style={{ border: "1px solid rgba(94,64,116,.14)", borderRadius: 20, padding: 26 }}>
             <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--pdh-plum)", marginBottom: 16 }}>1 · Choisir une date</div>
             <div role="radiogroup" aria-label="Date du rendez-vous" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -150,7 +153,7 @@ export function ReservationView({ service, iconName }: { service: Omit<Service, 
           </div>
         </div>
 
-        <div style={{ border: "1px solid rgba(94,64,116,.14)", borderRadius: 20, padding: 26, position: "sticky", top: 150, background: "var(--pdh-sand)", flex: "1 1 300px" }}>
+        <div className="booking-form__summary" style={{ border: "1px solid rgba(94,64,116,.14)", borderRadius: 20, padding: 26, background: "var(--pdh-sand)" }}>
           <div style={{ fontFamily: "var(--font-alta)", fontSize: 24, fontWeight: 300, marginBottom: 18 }}>Récapitulatif</div>
           <div style={{ display: "flex", gap: 14, alignItems: "center", paddingBottom: 18, borderBottom: "1px solid rgba(94,64,116,.14)" }}>
             <div style={{ width: 64, height: 64, borderRadius: 16, background: service.bg, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
