@@ -2368,6 +2368,27 @@ nav[aria-label^="Fil d"] a::after {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  color: var(--pdh-plum);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+/* Saved: the whole disc turns, not just the glyph.
+
+   A filled 15px heart inside a white circle is a signal you have to look for;
+   across a grid of twelve it disappears. Flipping the disc is legible at a
+   glance, which is what a saved state is for — and it stays quiet at rest,
+   so the card is not shouting before anything has been chosen.
+   Outside the hover block on purpose: touch has the same state to show. */
+.pdh-card .fav-btn[data-active="true"] {
+  background: var(--pdh-plum);
+  border-color: var(--pdh-plum);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdh-card .fav-btn {
+    transition: none;
+  }
 }
 
 /* Flush with the photograph's own edge: with no plate to inset against, a
@@ -4210,5 +4231,48 @@ section.rail-editorial {
     flex: 1 1 300px;
     position: sticky;
     top: 150px;
+  }
+}
+
+/* The newsletter mark, phones excepted.
+
+   At 375px the logo claimed a quarter of the band's width from the headline
+   and the email field — the two things the section exists for. It is dropped
+   rather than shrunk: a 40px mark on a coloured ground reads as an artefact,
+   and the brand is already named by the header above and the footer below.
+
+   `aria-hidden` already, so nothing is lost to a screen reader either way. */
+@media (max-width: 767px) {
+  .newsletter-logo {
+    display: none;
+  }
+}
+
+/* The product grid, everywhere a grid of cards appears.
+
+   Favourites and "Vous aimerez aussi" each carried their own inline
+   `minmax(min(100%, 210px), 1fr)`, which reads as responsive and is not: a
+   210px minimum track cannot fit twice into a 347px phone, so both surfaces
+   dropped to one card per row and each card filled the screen. The catalogue
+   and the promotions grid had already been given an explicit two-column
+   mobile rule; these two never were, and nothing tied them together to make
+   the omission visible.
+
+   Two columns is the floor, stated rather than derived. Above 768px the
+   tracks size themselves — auto-FILL, not auto-fit, because a filtered
+   suggestion list can legitimately return one or two items and auto-fit
+   would stretch them across the full width. */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Rows breathe more than columns: with no border to close a card, the
+     break between two rows has to beat the gutter between two neighbours. */
+  column-gap: clamp(14px, 1.8vw, 24px);
+  row-gap: clamp(28px, 3.2vw, 42px);
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 208px), 1fr));
   }
 }

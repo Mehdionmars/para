@@ -153,7 +153,9 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
             onClick={handleFav}
             type="button"
           >
-            <Heart aria-hidden="true" color="var(--pdh-plum)" fill={isFavorite ? "var(--pdh-plum)" : "none"} size={15} strokeWidth={1.6} />
+            {/* Both colours come from the button, so the saved state can flip
+                the whole disc in CSS instead of restating the palette here. */}
+            <Heart aria-hidden="true" color="currentColor" fill={isFavorite ? "currentColor" : "none"} size={15} strokeWidth={1.6} />
           </button>
         )}
       </div>
