@@ -953,12 +953,26 @@ const MAX_SUMMER_ACTS = 3;
 const MAX_SUMMER_ACT_PRODUCTS = 4;
 
 export function SummerEditActsEditor({ value, onChange }: { value: SummerEditActDraft[]; onChange: (v: SummerEditActDraft[]) => void }) {
+  // The storefront drops any act with no products, and drops the whole
+  // section when that leaves none — SummerEdit.tsx returns null rather than
+  // print a campaign with nothing to sell. That is the right call on the
+  // shop and the wrong silence here: the section read as fully configured,
+  // titles and image and all, and simply never appeared on the page.
+  const withProducts = value.filter((a) => a.products.length > 0).length;
+
   return (
     <>
       <EditorHeading
         title="Summer Edit — actes"
         description={`${value.length}/${MAX_SUMMER_ACTS} actes — chacun avec 4 produits maximum et son propre carrousel automatique.`}
       />
+
+      {value.length > 0 && withProducts === 0 && (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+          <strong className="font-semibold">Cette section n’apparaît pas sur la boutique.</strong> Un acte sans produit
+          est ignoré, et sans acte il n’y a pas de campagne à afficher. Ajoutez au moins un produit ci-dessous.
+        </p>
+      )}
       <ArrayField
         items={value}
         onChange={onChange}
