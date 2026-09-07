@@ -2937,14 +2937,47 @@ nav[aria-label^="Fil d"] a::after {
   padding: clamp(18px, 2.4vw, 32px) var(--sec-pad-x) clamp(12px, 1.8vw, 22px);
 }
 
+/* One line, always — it scrolls rather than wrapping.
+
+   Wrapping left an orphan: six aisles on a phone came out five and one, and
+   a single tile stranded on its own row reads as a mistake rather than as a
+   continuation. The half-visible tile at the right edge of a scroller says
+   "there is more" more plainly than a second row ever did.
+
+   `safe center` is what lets one rule serve both cases: centred while the
+   aisles fit, and start-aligned the moment they do not — plain `center` on
+   an overflowing scroller puts the first item off the left edge, where no
+   amount of scrolling reaches it. */
 .cat-tiles-row {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: safe center;
   gap: clamp(12px, 1.8vw, 26px) clamp(8px, 1.4vw, 20px);
+  overflow-x: auto;
+  /* Keeps a sideways flick inside the strip instead of handing it to the
+     browser as a back-navigation gesture. */
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* `overflow-x` clips vertically too, and the focus ring sits 3px outside
+     the disc. The padding gives the ring room; the matching negative margin
+     keeps the rhythm above and below the strip exactly as it was. */
+  padding-block: 5px;
+  margin-block: -5px;
+  /* The strip is its own scroller, and a bar drawn through it would cut the
+     labels. The peeking tile is the affordance. */
+  scrollbar-width: none;
+}
+
+.cat-tiles-row::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-tiles-row > li {
+  scroll-snap-align: center;
 }
 
 .cat-tile {
@@ -2953,6 +2986,9 @@ nav[aria-label^="Fil d"] a::after {
   align-items: center;
   gap: 9px;
   width: var(--tile);
+  /* In a nowrap row a tile would otherwise give up width to its neighbours
+     and squash every disc into an oval. */
+  flex: 0 0 auto;
   text-decoration: none;
   color: var(--pdh-ink);
 }

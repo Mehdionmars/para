@@ -13,12 +13,20 @@ type Tile = StripConfig["items"][number] & { isAll?: boolean };
  *
  * ## Shape
  *
- * A wrapping, centred row of circular cards with the label beneath each —
- * the pattern a shopper scans rather than reads. It wraps instead of
- * scrolling horizontally: a scroller hides whatever does not fit behind an
- * affordance people miss, and the whole point here is that every aisle is
- * visible at a glance. Centring means four chips and eleven chips both look
- * deliberate, with no empty grid tracks trailing off to the right.
+ * One row of circular cards with the label beneath each — the pattern a
+ * shopper scans rather than reads. It is centred while the aisles fit and
+ * scrolls sideways once they do not, so four chips and eleven chips both
+ * look deliberate.
+ *
+ * This used to wrap, on the argument that a scroller hides what does not
+ * fit behind an affordance people miss. What wrapping actually produced on
+ * a phone was five aisles and a sixth stranded alone on a second row, which
+ * reads as a mistake rather than as a continuation — and a tile cut in half
+ * at the right edge says "there is more" more plainly than that ever did.
+ *
+ * The layout is in globals.css (.cat-tiles-row), where `justify-content:
+ * safe center` is what lets one rule do both: plain `center` on a scroller
+ * that overflows puts the first chip off the left edge, unreachable.
  *
  * ## Every width, now
  *
