@@ -1,0 +1,132 @@
+# Lint, types, unit tests and a production build, for both workspaces.
+#
+# Deliberately not a deploy. The server is reached over SSH from a laptop,
+# and a push to main is not on its own a decision to ship: an automatic
+# deploy would need an SSH key in repository secrets and an answer to what
+# happens when a migration is half-applied. Neither exists yet, and a job
+# that pretends otherwise is worse than no job at all.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A second push to the same branch makes the first one's result irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches the runtime in the Dockerfiles. Left as a major so patch
+          # releases are picked up; pin harder the day a patch breaks
+          # something, not before.
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      # A ratchet, not a gate.
+      #
+      # `npm run lint` reports 26 errors today, every one of them older than
+      # this workflow: 15 no-explicit-any in the Payload mapping layer, and
+      # 11 react-hooks findings across the header, the pickers and two home
+      # sections. Blocking on them would land this file red on arrival, and
+      # a check that is red from day one is a check people learn to scroll
+      # past.
+      #
+      # The count is capped instead: it cannot grow, and when someone clears
+      # them the run says so and BASELINE comes down. The three checks below
+      # block properly from the first commit.
+      - name: Lint (capped at the current baseline)
+        env:
+          BASELINE: '26'
+        run: |
+          # `|| true` because a lint with findings exits 1 and that is the
+          # normal case here. It also swallows eslint failing to start at
+          # all, so the next step refuses to guess: no report means no
+          # measurement, and no measurement must not read as a pass.
+          npx eslint . -f json -o eslint-report.json || true
+          node --input-type=commonjs -e "
+            const fs = require('fs');
+            if (!fs.existsSync('./eslint-report.json')) {
+              console.error('eslint produced no report — it failed to run, rather than finding problems.');
+              process.exit(1);
+            }
+            const files = require('./eslint-report.json');
+            const errors = files.reduce((n, f) => n + f.errorCount, 0);
+            const baseline = Number(process.env.BASELINE);
+            console.log('eslint errors: ' + errors + ' (baseline ' + baseline + ')');
+            if (errors > baseline) {
+              console.error('Lint regressed. Fix the new errors, or say why the baseline should rise.');
+              process.exit(1);
+            }
+            if (errors < baseline) {
+              console.log('Baseline is stale: lower BASELINE to ' + errors + ' in ci.yml.');
+            }
+          "
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      # The check that catches what the three above cannot: a server
+      # component importing something client-only, a route that cannot be
+      # statically analysed, an image host that is not allowed.
+      #
+      # No CMS is reachable here, and that is the point — every live fetch on
+      # the storefront falls back to the synced snapshot in data/, so a build
+      # without a backend is also proof those fallbacks still hold.
+      - run: npm run build
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      # Placeholders, not secrets. Payload's config refuses to load without
+      # them — src/lib/env.ts requires DATABASE_URI, and PAYLOAD_SECRET with
+      # at least 32 characters — and a build never opens the connection.
+      # Real values live on the server and never come near this file.
+      DATABASE_URI: postgres://ci:ci@localhost:5432/ci
+      PAYLOAD_SECRET: ci-placeholder-not-a-secret-000000000000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+
+      # No cap here: the backend lints clean today — 26 warnings, zero
+      # errors — so it is held to that.
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      # test:unit only. `npm test` also runs the integration and e2e suites,
+      # which need a live Postgres and a running server; standing those up
+      # here would be a second deployment wearing a test's clothes.
+      - run: npm run test:unit
+
+      - run: npm run build
