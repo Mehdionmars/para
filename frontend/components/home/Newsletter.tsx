@@ -59,8 +59,12 @@ export function Newsletter({ copy: copyProp }: { copy?: NewsletterCopy } = {}) {
           flexWrap: "wrap",
         }}
       >
+        {/* The mark is hidden on phones in globals.css: at 375px it claimed a
+            quarter of the band's width from the headline and the field, which
+            are what the section is for. The brand is already named by the
+            header above and the footer below. */}
         {logoEnabled && (
-          <span aria-hidden="true" style={{ position: "relative", flex: "none", width: logoSize, height: logoSize, opacity: 0.92 }}>
+          <span aria-hidden="true" className="newsletter-logo" style={{ position: "relative", flex: "none", width: logoSize, height: logoSize, opacity: 0.92 }}>
             <Image src="/assets/logo.png" alt="" fill sizes={`${logoSize}px`} style={{ objectFit: "contain" }} />
           </span>
         )}
