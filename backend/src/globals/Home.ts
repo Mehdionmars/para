@@ -222,8 +222,42 @@ export const Home: GlobalConfig = {
         {
           name: 'campaign',
           type: 'text',
-          admin: { description: 'Internal identifier, e.g. "summer-2026" — not shown on the storefront, just for telling campaigns apart here.' },
-          required: true,
+          admin: { description: 'Internal identifier, e.g. "summer-2026" — not shown on the storefront, just for telling campaigns apart here. Filled in automatically if you leave it empty.' },
+          // Not required, and this is the whole point.
+          //
+          // Payload validates the entire global on every write, and the
+          // Storefront Builder autosaves the whole document after each edit.
+          // So a required field left blank in ONE array row blocked every
+          // save of every other block: reorder a section, change the hero,
+          // rename a rail — all refused, with "Marketing Banners 1 >
+          // Campaign" in English in a corner of the toolbar and no way to
+          // tell which panel to open. The homepage went unsaved for days.
+          //
+          // A required internal label is a poor trade for that. It exists to
+          // tell two campaigns apart in this list; a generated one does the
+          // job and can never hold the document hostage. An editor who wants
+          // a real name still types one, and it wins.
+          hooks: {
+            beforeValidate: [
+              ({ value, siblingData }) => {
+                const typed = typeof value === 'string' ? value.trim() : ''
+                if (typed) return typed
+
+                const from = (siblingData as { title?: string } | undefined)?.title?.trim()
+                const slug = from
+                  ? from
+                      .toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[̀-ͯ]/g, '')
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-|-$/g, '')
+                      .slice(0, 40)
+                  : ''
+
+                return slug || `campagne-${new Date().toISOString().slice(0, 10)}`
+              },
+            ],
+          },
         },
         imageField('image', false),
         imageField('imageMobile', false),
