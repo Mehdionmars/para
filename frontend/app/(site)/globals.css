@@ -2889,16 +2889,6 @@ nav[aria-label^="Fil d"] a::after {
     display: none !important;
   }
 
-  /* ...except the pause control, which stays.
-     The arrows go because a phone swipes instead of aiming at a 38px target.
-     There is no swipe equivalent for "stop", and WCAG 2.2.2 (Pause, Stop,
-     Hide) does not stop applying at 767px — least of all here, where most of
-     the traffic arrives from Instagram on a phone. The `.hero-nav-btn` rule
-     above it still supplies the 44px touch minimum. */
-  .hero-pause-btn {
-    display: flex !important;
-  }
-
   .mobile-rail-section {
     padding: 26px 14px !important;
   }

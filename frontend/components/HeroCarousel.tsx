@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
@@ -26,8 +26,8 @@ function subscribePageVisible(onChange: () => void) {
  * Whether the visitor asked their OS for less motion.
  *
  * SnowParticles reads the same query imperatively, which is right for a canvas
- * loop but wrong here: this value decides what gets *rendered* (the pause
- * button, the live-region politeness), so it has to be state. It is external
+ * loop but wrong here: this value decides what gets *rendered* (the arrows,
+ * the live-region politeness), so it has to be state. It is external
  * browser state that can flip while the page is open, so useSyncExternalStore
  * is the tool — reading it into useState from an effect is the cascade
  * `react-hooks/set-state-in-effect` exists to catch.
@@ -69,9 +69,6 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
 
   const reducedMotion = useReducedMotion();
   const pageVisible = usePageVisible();
-  /** Sticky: set by the pause button and only cleared by the same button.
-   * Hovering away must not silently restart something the visitor stopped. */
-  const [userPaused, setUserPaused] = useState(false);
   /** Transient: the pointer is over the hero, or focus is somewhere inside it.
    * Advancing the slide under a visitor who is reading it — or who is tabbing
    * through its link — is the behaviour that makes carousels hostile. */
@@ -84,9 +81,9 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
    * without being torn down and rebuilt on every slide change. */
   const activeRef = useRef(0);
 
-  // One slide is not a carousel: no timer, no arrows, no pause control.
+  // One slide is not a carousel: no timer, no arrows.
   const isCarousel = heroSlides.length > 1;
-  const autoplaying = isCarousel && !reducedMotion && !userPaused && !engaged && pageVisible;
+  const autoplaying = isCarousel && !reducedMotion && !engaged && pageVisible;
 
   /** The one place the slide changes. Marks the target mounted at the same
    * time, so mounting is driven by the transition itself rather than by an
@@ -107,9 +104,10 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
   );
 
   // The whole autoplay lifecycle, expressed as one condition. Every reason to
-  // stop — reduced motion, the pause button, hover, focus, a hidden tab, a
-  // lone slide — clears the interval by flipping `autoplaying`, and no reason
-  // needs its own teardown path.
+  // stop — reduced motion, hover, focus, a hidden tab, a lone slide — clears
+  // the interval by flipping `autoplaying`, and no reason needs its own
+  // teardown path. There is no visible pause control among them; see the
+  // note next to the arrows for why, and for what that costs.
   //
   // The interval is deliberately not re-created when `active` changes, so it
   // reads the current index from the ref `activate` keeps in step. Deriving it
@@ -393,45 +391,21 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
       })}
 
       {/* Controls only exist when there is something to control. A single
-          configured slide gets a still image, not a carousel with dead arrows
-          and a pause button for a timer that never runs. */}
+          configured slide gets a still image, not a carousel with two arrows
+          that lead back to it. */}
       {isCarousel && (
         <>
-          {/* WCAG 2.2.2 (Pause, Stop, Hide, level A): content that moves on its
-              own for more than five seconds needs a way to stop it. The arrows
-              navigate but never stop the timer, so before this they did not
-              satisfy it. Hidden under reduced motion, where nothing autoplays
-              and a pause button would be a control for nothing. */}
-          {!reducedMotion && (
-            <button
-              type="button"
-              onClick={() => setUserPaused((paused) => !paused)}
-              aria-label={userPaused ? "Reprendre le défilement automatique" : "Mettre en pause le défilement automatique"}
-              // Both classes on purpose: `hero-nav-btn` carries the shared hit
-              // area and the 44px mobile minimum, `hero-pause-btn` is what lets
-              // this one survive the rule that hides the arrows under 768px.
-              className="hero-nav-btn hero-pause-btn"
-              style={{
-                position: "absolute",
-                insetInlineEnd: 18,
-                top: 18,
-                width: 38,
-                height: 38,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,.82)",
-                border: "1px solid var(--pdh-plum-tint)",
-                color: "var(--pdh-plum)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                zIndex: 4,
-              }}
-            >
-              {userPaused ? <Play aria-hidden="true" size={16} /> : <Pause aria-hidden="true" size={16} />}
-            </button>
-          )}
-              <button
+          {/* There is deliberately no pause control here.
+              One was added and then removed at the owner's explicit request,
+              after the trade-off was put to them. The consequence is recorded
+              rather than hidden: the carousel advances on its own every 5.5s
+              with no mechanism to stop it, which fails WCAG 2.2.2 (Pause,
+              Stop, Hide) at level A. Hover and keyboard focus still hold it,
+              and reduced motion still switches it off entirely, but neither of
+              those exists on a touch screen — so on a phone the movement
+              cannot be stopped at all. Re-adding a visible control is the only
+              thing that fixes it. */}
+          <button
             type="button"
             onClick={() => goTo((active - 1 + heroSlides.length) % heroSlides.length)}
             aria-label="Diapositive précédente"
