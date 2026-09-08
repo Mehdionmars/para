@@ -14,7 +14,6 @@ import type { CatalogueFacets, CatalogueProduct, StorefrontBrand } from "@/lib/s
 import { BrandsRail, CatalogueHero, EditorialPair, ReassuranceStrip, ServiceStrip } from "./CatalogueSections";
 import { Filters } from "./Filters";
 import { FiltersDrawer } from "./FiltersDrawer";
-import { RitualSelector } from "./RitualSelector";
 import { UniverseCarousel } from "./UniverseCarousel";
 
 const CATEGORY_VALUES: Category[] = [
@@ -290,16 +289,24 @@ export function CatalogueView({
         />
         <div style={{ marginTop: 10, maxWidth: 760 }}>
           <h1 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>{heroTitle}</h1>
+          {/* The rituals selector used to unfold here in full. It lives on
+              /rituels now, and this points at it instead: a shop URL should
+              not answer with a page-sized editorial block, but an aisle with
+              nothing behind it still has to offer somewhere to go. Dropping
+              the link with the block would put these ~80 pages back to a
+              title and a sentence, which is the dead end it was built for. */}
           <p style={{ fontSize: 13.5, lineHeight: 1.75, margin: "12px 0 0", opacity: 0.62 }}>
-            Ce rayon n&apos;est pas encore en ligne. En attendant, voici les univers déjà disponibles — ou parcourez le{" "}
+            Ce rayon n&apos;est pas encore en ligne. En attendant,{" "}
+            <Link className="link-hover" href={routes.rituals()} style={{ color: "var(--pdh-plum)", fontWeight: 600 }}>
+              trouvez votre rituel
+            </Link>{" "}
+            parmi les univers déjà disponibles, ou parcourez le{" "}
             <Link className="link-hover" href={routes.catalogue()} style={{ color: "var(--pdh-plum)", fontWeight: 600 }}>
               catalogue complet
             </Link>
             .
           </p>
         </div>
-
-        <RitualSelector activeSlug={forcedEmptyCategoryLabel.toLowerCase()} />
       </div>
     );
   }

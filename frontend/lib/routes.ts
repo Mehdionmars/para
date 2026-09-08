@@ -8,6 +8,7 @@ export const routes = {
   home: () => "/",
   catalogue: () => "/catalogue",
   category: (slug: string) => `/shop/${slug}`,
+  rituals: () => "/rituels",
   brands: () => "/marques",
   brand: (slug: string) => `/marques/${slug}`,
   product: (slug: string) => `/produit/${slug}`,

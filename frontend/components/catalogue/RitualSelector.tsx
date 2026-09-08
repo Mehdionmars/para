@@ -6,14 +6,22 @@ import { useEffect, useState } from "react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 
 /**
- * "Trouvez votre rituel" — the way out of a dead end.
+ * "Trouvez votre rituel" — the five aisles that hold products, on /rituels.
  *
- * Around eighty of the mega-menu's /shop/* links point at sub-categories and
- * needs that no product carries yet (Products.category is a nine-value enum,
- * far narrower than the nav taxonomy). Those pages used to show one sentence
- * — "cette catégorie sera bientôt disponible" — and nothing to do next. This
- * turns the empty state into an entry point: the five aisles that do hold
- * products, each with a picture and a way in.
+ * It was written as the way out of a dead end. Around eighty of the mega
+ * menu's /shop/* links point at sub-categories and needs that no product
+ * carries yet (Products.category is a nine-value enum, far narrower than the
+ * nav taxonomy), and those pages showed one sentence and nothing to do next.
+ * Unfolding the whole block there put a large editorial section inside a shop
+ * URL, and made a five-card selector something only a visitor who had already
+ * failed could ever see.
+ *
+ * It has its own page now. The empty-category state still sends people here,
+ * as a link rather than by rendering this inline — see CatalogueView.
+ *
+ * It supplies the <h1> of the page it sits on, so a caller must not add
+ * another. That is the reason `activeSlug` is optional: on /rituels nothing
+ * is preselected and the first card opens.
  *
  * The expanding-card behaviour is the interactive-selector pattern: the
  * chosen card takes `flex: 7`, the rest keep `flex: 1` and stay visible, and
@@ -97,12 +105,12 @@ export function RitualSelector({ activeSlug }: { activeSlug?: string }) {
         <div style={{ color: "var(--pdh-teal-text)", fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase" }}>
           Trouvez votre rituel
         </div>
-        <h2
+        <h1
           id="rituel-title"
           style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(24px,3vw,36px)", fontWeight: 200, margin: "12px 0 0" }}
         >
           Découvrez les soins adaptés à vos envies
-        </h2>
+        </h1>
       </div>
 
       <ul className="rituel-rail">
