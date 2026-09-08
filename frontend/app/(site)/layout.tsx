@@ -112,6 +112,21 @@ export const metadata: Metadata = {
     locale: "fr_MA",
     type: "website",
   },
+  // app/favicon.ico is picked up by the file convention and Next unshifts it
+  // ahead of this list on its own (lib/metadata/resolve-metadata.js treats the
+  // root favicon as a special case that *merges* rather than replaces), so it
+  // is deliberately absent here — listing it too would emit two <link rel=icon
+  // href="/favicon.ico">. The other formats have no such convention slot once
+  // `icons` is set in config: a file-based app/icon.svg or app/apple-icon.png
+  // would be silently dropped, which is why they live in public/ instead.
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+  },
+  manifest: "/site.webmanifest",
 };
 
 // Belt-and-suspenders: the Theme global already validates each color is a
@@ -129,6 +144,30 @@ function safeHex(value: string, fallback: string): string {
 // concatenated into the raw <style> tag below.
 function safeNumber(value: number, fallback: number, min: number, max: number): number {
   return Number.isFinite(value) && value >= min && value <= max ? value : fallback;
+}
+
+/**
+ * The same colour as "r, g, b", for the `--pdh-*-rgb` channel tokens.
+ *
+ * Every alpha tint in the storefront is built as `rgba(var(--pdh-plum-rgb),
+ * .12)` rather than a baked `rgba(94,64,116,.12)`, which is the only way a
+ * tint can follow a colour the admin changes. Emitting the channels here, from
+ * the identical safeHex output the solid token uses, is what keeps the two in
+ * step — a theme edit that moved the fills but left the borders behind would
+ * be worse than not theming at all.
+ *
+ * Input is already validated by safeHex, so this only has to handle the #RGB
+ * and #RRGGBB(AA) shapes that regex admits; anything else returns the fallback
+ * channels rather than emitting `NaN, NaN, NaN` into a stylesheet.
+ */
+function hexChannels(hex: string, fallback: string): string {
+  let body = hex.slice(1);
+  if (body.length === 3) body = body.replace(/./g, (c) => c + c);
+  if (body.length === 8) body = body.slice(0, 6);
+  if (body.length !== 6) return fallback;
+  const n = Number.parseInt(body, 16);
+  if (!Number.isFinite(n)) return fallback;
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -160,7 +199,22 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   // place it was ever meant to sit in front of — so it is fetched there.
   const t = theme ?? THEME;
 
-  const themeStyle = `:root{--pdh-plum:${safeHex(t.colorPrimary, THEME.colorPrimary)};--pdh-teal:${safeHex(t.colorSecondary, THEME.colorSecondary)};--pdh-accent:${safeHex(t.colorAccent, THEME.colorAccent)};--pdh-sale:${safeHex(t.colorSale, THEME.colorSale)};--pdh-ink:${safeHex(t.colorTextPrimary, THEME.colorTextPrimary)};--pdh-muted:${safeHex(t.colorTextMuted, THEME.colorTextMuted)};--pdh-cream:${safeHex(t.colorBackgroundSecondary, THEME.colorBackgroundSecondary)};--pdh-btn-bg:${safeHex(t.buttonBg, THEME.buttonBg)};--pdh-btn-text:${safeHex(t.buttonText, THEME.buttonText)};--pdh-btn-hover-bg:${safeHex(t.buttonHoverBg, THEME.buttonHoverBg)};--pdh-btn-hover-text:${safeHex(t.buttonHoverText, THEME.buttonHoverText)};--pdh-btn-radius:${safeNumber(t.buttonRadius, THEME.buttonRadius, 0, 999)}px;--pdh-btn-weight:${safeNumber(t.buttonFontWeight, THEME.buttonFontWeight, 100, 900)};--pdh-btn-tracking:${safeNumber(t.buttonLetterSpacing, THEME.buttonLetterSpacing, 0, 1)}em;--pdh-badge-bg:${safeHex(t.badgeBg, THEME.badgeBg)};--pdh-badge-text:${safeHex(t.badgeText, THEME.badgeText)};--pdh-badge-font-size:${safeNumber(t.badgeFontSize, THEME.badgeFontSize, 8, 16)}px;--pdh-badge-weight:${safeNumber(t.badgeFontWeight, THEME.badgeFontWeight, 100, 900)};--pdh-badge-tracking:${safeNumber(t.badgeLetterSpacing, THEME.badgeLetterSpacing, 0, 1)}em;--pdh-badge-radius:${safeNumber(t.badgeRadius, THEME.badgeRadius, 0, 999)}px;--pdh-badge-padding-x:${safeNumber(t.badgePaddingX, THEME.badgePaddingX, 0, 30)}px;--pdh-badge-padding-y:${safeNumber(t.badgePaddingY, THEME.badgePaddingY, 0, 20)}px;--pdh-badge-gap:${safeNumber(t.badgeGap, THEME.badgeGap, 0, 20)}px;}`;
+  // Resolved once so the solid token and its channels can never disagree.
+  const plum = safeHex(t.colorPrimary, THEME.colorPrimary);
+  const teal = safeHex(t.colorSecondary, THEME.colorSecondary);
+  const accent = safeHex(t.colorAccent, THEME.colorAccent);
+  const sale = safeHex(t.colorSale, THEME.colorSale);
+  const ink = safeHex(t.colorTextPrimary, THEME.colorTextPrimary);
+  const cream = safeHex(t.colorBackgroundSecondary, THEME.colorBackgroundSecondary);
+  const channelStyle =
+    `--pdh-plum-rgb:${hexChannels(plum, "94, 64, 116")};` +
+    `--pdh-teal-rgb:${hexChannels(teal, "0, 138, 165")};` +
+    `--pdh-ink-rgb:${hexChannels(ink, "55, 48, 32")};` +
+    `--pdh-sale-rgb:${hexChannels(sale, "255, 81, 77")};` +
+    `--pdh-cream-rgb:${hexChannels(cream, "247, 238, 229")};` +
+    `--pdh-accent-rgb:${hexChannels(accent, "95, 190, 0")};`;
+
+  const themeStyle = `:root{${channelStyle}--pdh-plum:${safeHex(t.colorPrimary, THEME.colorPrimary)};--pdh-teal:${safeHex(t.colorSecondary, THEME.colorSecondary)};--pdh-accent:${safeHex(t.colorAccent, THEME.colorAccent)};--pdh-sale:${safeHex(t.colorSale, THEME.colorSale)};--pdh-ink:${safeHex(t.colorTextPrimary, THEME.colorTextPrimary)};--pdh-muted:${safeHex(t.colorTextMuted, THEME.colorTextMuted)};--pdh-cream:${safeHex(t.colorBackgroundSecondary, THEME.colorBackgroundSecondary)};--pdh-btn-bg:${safeHex(t.buttonBg, THEME.buttonBg)};--pdh-btn-text:${safeHex(t.buttonText, THEME.buttonText)};--pdh-btn-hover-bg:${safeHex(t.buttonHoverBg, THEME.buttonHoverBg)};--pdh-btn-hover-text:${safeHex(t.buttonHoverText, THEME.buttonHoverText)};--pdh-btn-radius:${safeNumber(t.buttonRadius, THEME.buttonRadius, 0, 999)}px;--pdh-btn-weight:${safeNumber(t.buttonFontWeight, THEME.buttonFontWeight, 100, 900)};--pdh-btn-tracking:${safeNumber(t.buttonLetterSpacing, THEME.buttonLetterSpacing, 0, 1)}em;--pdh-badge-bg:${safeHex(t.badgeBg, THEME.badgeBg)};--pdh-badge-text:${safeHex(t.badgeText, THEME.badgeText)};--pdh-badge-font-size:${safeNumber(t.badgeFontSize, THEME.badgeFontSize, 8, 16)}px;--pdh-badge-weight:${safeNumber(t.badgeFontWeight, THEME.badgeFontWeight, 100, 900)};--pdh-badge-tracking:${safeNumber(t.badgeLetterSpacing, THEME.badgeLetterSpacing, 0, 1)}em;--pdh-badge-radius:${safeNumber(t.badgeRadius, THEME.badgeRadius, 0, 999)}px;--pdh-badge-padding-x:${safeNumber(t.badgePaddingX, THEME.badgePaddingX, 0, 30)}px;--pdh-badge-padding-y:${safeNumber(t.badgePaddingY, THEME.badgePaddingY, 0, 20)}px;--pdh-badge-gap:${safeNumber(t.badgeGap, THEME.badgeGap, 0, 20)}px;}`;
 
   // Appended to the same rule rather than a second <style>: this block is the
   // one place a colour is concatenated into raw CSS, which is why it is also

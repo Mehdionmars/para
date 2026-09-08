@@ -36,6 +36,43 @@
   --pdh-teal-text: #00758a;
   --pdh-sale-strong: #d0342f;
 
+  /* ---- Brand channels, and the tints built on them --------------------
+     The Theme global lets an editor change the brand colours at runtime, and
+     layout.tsx injects them over the values above. A component that wrote
+     `rgba(94,64,116,.12)` got a plum that could never follow that change —
+     ninety-eight literals across thirty-three files were in exactly that
+     position, so roughly half the storefront's colour ignored the CMS.
+
+     An alpha tint can only track a variable colour if the alpha is applied to
+     the *channels*, hence these. They are emitted alongside the hex tokens by
+     the same injected <style>, so a colour edited in the admin moves the solid
+     fills and every tint derived from it together.
+
+     `color-mix()` would express this more neatly and without the second
+     variable, but it is only Baseline since mid-2023; most of this shop's
+     traffic arrives on mid-range Android in Morocco, and `rgba()` with channel
+     components has no floor at all.
+
+     `--pdh-sale-rgb` and `--pdh-accent-rgb` have no callers yet, and they stay
+     anyway: the set covers the six colours the Theme global can edit, so the
+     day someone needs a 12% sale-red the channel is already there. Without it
+     they would reach for `rgba(255,81,77,.12)` and put back the exact defect
+     the other four just removed. */
+  --pdh-plum-rgb: 94, 64, 116;
+  --pdh-teal-rgb: 0, 138, 165;
+  --pdh-ink-rgb: 55, 48, 32;
+  --pdh-sale-rgb: 255, 81, 77;
+  --pdh-cream-rgb: 247, 238, 229;
+  --pdh-accent-rgb: 95, 190, 0;
+
+  /* Three intents, not seventeen values. The plum tints in the components ran
+     0.07, 0.08, 0.09, 0.10, 0.12, 0.14, 0.15, 0.16, 0.20, 0.22, 0.24, 0.25,
+     0.28, 0.30 and 0.35 — differences nobody chose and nobody can see. They
+     collapse to the three jobs they were actually doing. */
+  --pdh-plum-tint: rgba(var(--pdh-plum-rgb), 0.12); /* faint fills, hairlines */
+  --pdh-plum-border: rgba(var(--pdh-plum-rgb), 0.25); /* visible borders, chips */
+  --pdh-plum-divider: rgba(var(--pdh-plum-rgb), 0.35); /* rules, underlines */
+
   /* ---- Semantic roles -------------------------------------------------
      These four were scattered as literals across the components — the same
      grey retyped seven times, the same red six — which is how a value drifts
@@ -118,9 +155,20 @@
      `--sec-y` is deliberately a variable rather than a literal so a
      movement can retune the rhythm of everything inside it. */
   --sec-pad-x: clamp(14px, 3.4vw, 32px);
-  --sec-y-tight: clamp(10px, 1.3vw, 16px);
-  --sec-y: clamp(28px, 3.6vw, 48px);
-  --sec-y-loose: clamp(44px, 5.4vw, 72px);
+
+  /* `--sec-y-tight` and `--sec-y` are HALF-intervals: a section pays them
+     on both its top and bottom, so two neighbours end up twice this far
+     apart. `--sec-y-loose` is the WHOLE interval, applied once as the
+     margin on a movement seam.
+
+     Mixing the two units is what broke the cadence before: peers paid
+     2 x 48px = 96px, while a plain movement seam paid 72px once — so two
+     unrelated movements sat CLOSER together than two sections inside one
+     movement, and the page's last transition was its tightest. The three
+     names are now a real 1 : 2 : 4 progression at every viewport. */
+  --sec-y-tight: clamp(11px, 1.3vw, 18px);
+  --sec-y: clamp(22px, 2.6vw, 36px);
+  --sec-y-loose: clamp(88px, 10vw, 144px);
 
   /* Surface a card paints itself when it sits on the page's own
      background. A tinted movement band overrides this so cards keep
@@ -340,6 +388,30 @@ button {
  * source design's per-instance values), and inline styles otherwise always beat a
  * stylesheet rule, hover or not, which would silently disable the hover state.
  */
+/* Same 2.5.8 floor as .chrome-footer-link, reached a different way.
+   These section links ("Voir tout", "Tous les coffrets", "Offrir") carry an
+   inline `border-bottom` two or three pixels under their text as their
+   underline, so padding is the wrong tool in both directions: downward drags
+   the rule away from the word it belongs to, and upward needs a magic number
+   that has to be re-guessed for every type size — they run 10.5px and 11.5px
+   today at 23px and 21px tall, and one fixed value cannot clear 24px for both
+   without overshooting the other.
+
+   The transparent ::before expander is the same trick .circle-btn, .add-btn
+   and .fav-btn already use a few hundred lines above. It grows the hit area
+   from the element's own box, so it is correct at any font size, and it
+   changes nothing that is painted. */
+.link-hover {
+  position: relative;
+}
+
+.link-hover::before {
+  content: "";
+  position: absolute;
+  inset-block: -4px;
+  inset-inline: 0;
+}
+
 .link-hover:hover {
   color: var(--pdh-plum) !important;
 }
@@ -371,7 +443,7 @@ button {
   transition: background 0.25s;
 }
 .btn-outline-plum:hover {
-  background: rgba(94, 64, 116, 0.08) !important;
+  background: var(--pdh-plum-tint) !important;
 }
 
 .card-hover {
@@ -379,7 +451,7 @@ button {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 22px 34px -24px rgba(55, 48, 32, 0.55);
+  box-shadow: 0 22px 34px -24px rgba(var(--pdh-ink-rgb), 0.55);
 }
 
 /* The frameless product card lives in its own block further down. */
@@ -389,7 +461,7 @@ button {
 }
 .tile-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 26px 40px -26px rgba(55, 48, 32, 0.6);
+  box-shadow: 0 26px 40px -26px rgba(var(--pdh-ink-rgb), 0.6);
 }
 
 /* Touch-target fix: these buttons keep their visual size (icon/circle stays
@@ -434,7 +506,7 @@ button {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid rgba(94, 64, 116, 0.25);
+  border: 1px solid var(--pdh-plum-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -579,7 +651,7 @@ button {
   aspect-ratio: 1/1;
   flex: none;
   border-radius: 12px;
-  border: 1.5px solid rgba(94, 64, 116, 0.12);
+  border: 1.5px solid var(--pdh-plum-tint);
   background: #fff;
   overflow: hidden;
   cursor: pointer;
@@ -884,13 +956,13 @@ button {
   width: 46px;
   height: 46px;
   background: #fff;
-  border: 1px solid rgba(94, 64, 116, 0.16);
-  box-shadow: 0 12px 24px -12px rgba(55, 48, 32, 0.35);
+  border: 1px solid var(--pdh-plum-tint);
+  box-shadow: 0 12px 24px -12px rgba(var(--pdh-ink-rgb), 0.35);
   color: var(--pdh-plum);
 }
 .fab-back-to-top:hover {
   transform: scale(1.08);
-  box-shadow: 0 14px 26px -10px rgba(55, 48, 32, 0.4);
+  box-shadow: 0 14px 26px -10px rgba(var(--pdh-ink-rgb), 0.4);
 }
 /* True phone widths only; tablets get the desktop offsets, where more corner
    clearance reduces how often the fixed button's footprint lands on a product
@@ -1280,7 +1352,7 @@ nav[aria-label^="Fil d"] a::after {
   min-height: 46px;
   margin-top: 14px;
   padding: 0 18px;
-  border: 1px dashed rgba(94, 64, 116, 0.35);
+  border: 1px dashed var(--pdh-plum-divider);
   border-radius: 999px;
   background: #fff;
   color: var(--pdh-plum);
@@ -1321,7 +1393,7 @@ nav[aria-label^="Fil d"] a::after {
   content: "";
   width: 18px;
   height: 1px;
-  background: rgba(94, 64, 116, 0.22);
+  background: var(--pdh-plum-border);
 }
 
 .cart-step-dot {
@@ -1331,7 +1403,7 @@ nav[aria-label^="Fil d"] a::after {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 1px solid rgba(94, 64, 116, 0.28);
+  border: 1px solid var(--pdh-plum-border);
   font-size: 11px;
   font-weight: 600;
 }
@@ -1348,13 +1420,13 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 .cart-steps li[data-state="done"] .cart-step-dot {
-  background: rgba(94, 64, 116, 0.12);
+  background: var(--pdh-plum-tint);
   border-color: transparent;
   color: var(--pdh-plum);
 }
 
 .field-input {
-  border: 1px solid rgba(94, 64, 116, 0.22);
+  border: 1px solid var(--pdh-plum-border);
   background: var(--pdh-sand);
   outline: none;
   color: var(--pdh-ink);
@@ -1363,7 +1435,7 @@ nav[aria-label^="Fil d"] a::after {
 .field-input:focus {
   border-color: var(--pdh-teal);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(0, 138, 165, 0.1);
+  box-shadow: 0 0 0 4px rgba(var(--pdh-teal-rgb), 0.1);
 }
 
 .search-input {
@@ -1541,12 +1613,12 @@ nav[aria-label^="Fil d"] a::after {
 
 .pdh-skeleton {
   display: block;
-  background-color: rgba(94, 64, 116, 0.07);
+  background-color: var(--pdh-plum-tint);
   background-image: linear-gradient(
     90deg,
-    rgba(94, 64, 116, 0) 0%,
-    rgba(94, 64, 116, 0.09) 50%,
-    rgba(94, 64, 116, 0) 100%
+    rgba(var(--pdh-plum-rgb), 0) 0%,
+    var(--pdh-plum-tint) 50%,
+    rgba(var(--pdh-plum-rgb), 0) 100%
   );
   background-size: 200% 100%;
   background-repeat: no-repeat;
@@ -1618,7 +1690,7 @@ nav[aria-label^="Fil d"] a::after {
   border-radius: 18px;
   overflow: hidden;
   background: var(--pdh-sand);
-  border: 1px solid rgba(94, 64, 116, 0.12);
+  border: 1px solid var(--pdh-plum-tint);
   scroll-snap-align: center;
   /* Width, and it has to be: this card is a horizontal accordion whose
      neighbours must yield the space it takes. A transform would scale the
@@ -1710,7 +1782,7 @@ nav[aria-label^="Fil d"] a::after {
   grid-template-columns: 1fr;
   gap: 0;
   margin-top: clamp(18px, 2vw, 26px);
-  border: 1px solid rgba(94, 64, 116, 0.12);
+  border: 1px solid var(--pdh-plum-tint);
   border-radius: 20px;
   overflow: hidden;
   background: var(--pdh-sand);
@@ -1742,7 +1814,7 @@ nav[aria-label^="Fil d"] a::after {
   list-style: none;
   margin: clamp(22px, 2.6vw, 34px) 0 0;
   padding: clamp(16px, 1.8vw, 22px) clamp(16px, 2vw, 26px);
-  border: 1px solid rgba(94, 64, 116, 0.12);
+  border: 1px solid var(--pdh-plum-tint);
   border-radius: 16px;
   background: #fff;
 }
@@ -1767,7 +1839,7 @@ nav[aria-label^="Fil d"] a::after {
 .cat-advice {
   display: grid;
   grid-template-columns: 1fr;
-  border: 1px solid rgba(94, 64, 116, 0.14);
+  border: 1px solid var(--pdh-plum-tint);
   border-radius: 20px;
   overflow: hidden;
   background: var(--pdh-sand);
@@ -1824,7 +1896,7 @@ nav[aria-label^="Fil d"] a::after {
   min-height: 88px;
   padding: 14px 18px;
   container-type: inline-size;
-  border: 1px solid rgba(94, 64, 116, 0.14);
+  border: 1px solid var(--pdh-plum-tint);
   border-radius: 14px;
   background: #fff;
   color: var(--pdh-ink);
@@ -1833,7 +1905,7 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 .cat-brand:hover {
-  border-color: rgba(94, 64, 116, 0.4);
+  border-color: var(--pdh-plum-divider);
   color: var(--pdh-plum);
 }
 
@@ -1887,7 +1959,7 @@ nav[aria-label^="Fil d"] a::after {
   border-radius: 16px;
   overflow: hidden;
   background: var(--pdh-sand);
-  border: 1px solid rgba(94, 64, 116, 0.12);
+  border: 1px solid var(--pdh-plum-tint);
   transition: flex-grow 0.6s cubic-bezier(0.22, 0.68, 0.24, 1), opacity 0.5s ease, transform 0.5s ease;
 }
 
@@ -2015,6 +2087,23 @@ nav[aria-label^="Fil d"] a::after {
 .chrome-footer-link {
   color: var(--chrome-footer-link, inherit);
   transition: color 0.2s ease, opacity 0.2s ease;
+  /* WCAG 2.2 2.5.8 (Target Size Minimum, AA): these links are 12.5px type on a
+     17px line, so their hit box was 17px tall — seven short of the 24px floor,
+     sixteen times over in the footer.
+
+     The padding is deliberately asymmetric-free and applied to an *inline*
+     element: vertical padding on an inline box grows the hit area and the
+     background without touching line layout, so the footer's 34px pitch is
+     unchanged and nothing moves on screen. The class paints colour only — no
+     background, no border, no underline — so there is nothing for the padding
+     to visibly displace.
+
+     3.5px a side takes 17px to 24px exactly, spending 7px of the 17px gap
+     between neighbours and leaving 10px of dead space between adjacent hit
+     areas. Going for the 44px comfort target instead would need 27px and make
+     every link in a column overlap the next, so the AA floor is the ceiling
+     here — the fix has to stay smaller than the space it has. */
+  padding-block: 3.5px;
 }
 .chrome-footer-link:hover {
   color: var(--chrome-footer-hover, inherit);
@@ -2051,8 +2140,8 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 .footer-social:hover {
-  border-color: rgba(247, 238, 229, 0.5) !important;
-  background: rgba(247, 238, 229, 0.08);
+  border-color: rgba(var(--pdh-cream-rgb), 0.5) !important;
+  background: rgba(var(--pdh-cream-rgb), 0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2145,15 +2234,15 @@ nav[aria-label^="Fil d"] a::after {
   container-type: inline-size;
   padding: 22px 16px 18px;
   text-align: center;
-  border: 1px solid rgba(94, 64, 116, 0.14);
+  border: 1px solid var(--pdh-plum-tint);
   border-radius: 14px;
   background: #fff;
   color: var(--pdh-ink);
   transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
 }
 .brand-tile:hover {
-  border-color: rgba(94, 64, 116, 0.4) !important;
-  box-shadow: 0 14px 28px -22px rgba(55, 48, 32, 0.55);
+  border-color: var(--pdh-plum-divider) !important;
+  box-shadow: 0 14px 28px -22px rgba(var(--pdh-ink-rgb), 0.55);
   transform: translateY(-2px);
 }
 
@@ -2163,10 +2252,10 @@ nav[aria-label^="Fil d"] a::after {
 .brand-tile--soon {
   background: var(--pdh-sand);
   border-style: dashed;
-  border-color: rgba(94, 64, 116, 0.16);
+  border-color: var(--pdh-plum-tint);
 }
 .brand-tile--soon:hover {
-  border-color: rgba(94, 64, 116, 0.16) !important;
+  border-color: var(--pdh-plum-tint) !important;
   box-shadow: none;
   transform: none;
 }
@@ -2362,7 +2451,7 @@ nav[aria-label^="Fil d"] a::after {
   margin-top: auto;
   padding: 12px 2px 0;
   border: none;
-  border-top: 1px solid rgba(94, 64, 116, 0.16);
+  border-top: 1px solid var(--pdh-plum-tint);
   background: none;
   color: var(--pdh-plum);
   font-family: var(--font-poppins);
@@ -2413,8 +2502,8 @@ nav[aria-label^="Fil d"] a::after {
   height: 30px;
   border-radius: 50%;
   background: #fff;
-  border: 1px solid rgba(94, 64, 116, 0.16);
-  box-shadow: 0 2px 6px -2px rgba(55, 48, 32, 0.28);
+  border: 1px solid var(--pdh-plum-tint);
+  box-shadow: 0 2px 6px -2px rgba(var(--pdh-ink-rgb), 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2728,6 +2817,16 @@ nav[aria-label^="Fil d"] a::after {
     display: none !important;
   }
 
+  /* ...except the pause control, which stays.
+     The arrows go because a phone swipes instead of aiming at a 38px target.
+     There is no swipe equivalent for "stop", and WCAG 2.2.2 (Pause, Stop,
+     Hide) does not stop applying at 767px — least of all here, where most of
+     the traffic arrives from Instagram on a phone. The `.hero-nav-btn` rule
+     above it still supplies the 44px touch minimum. */
+  .hero-pause-btn {
+    display: flex !important;
+  }
+
   .mobile-rail-section {
     padding: 26px 14px !important;
   }
@@ -2923,10 +3022,10 @@ nav[aria-label^="Fil d"] a::after {
     grid-template-columns: 82px minmax(0, 1fr) 44px;
     gap: 12px !important;
     padding: 14px !important;
-    border: 1px solid rgba(94, 64, 116, 0.12) !important;
+    border: 1px solid var(--pdh-plum-tint) !important;
     border-radius: 16px;
     background: #fff;
-    box-shadow: 0 18px 36px -32px rgba(55, 48, 32, 0.45);
+    box-shadow: 0 18px 36px -32px rgba(var(--pdh-ink-rgb), 0.45);
   }
 
   .cart-line-image {
@@ -2968,9 +3067,9 @@ nav[aria-label^="Fil d"] a::after {
     margin: 0;
     padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
     background: #fff;
-    border-top: 1px solid rgba(94, 64, 116, 0.12);
+    border-top: 1px solid var(--pdh-plum-tint);
     border-radius: 18px 18px 0 0;
-    box-shadow: 0 -18px 42px -30px rgba(55, 48, 32, 0.55);
+    box-shadow: 0 -18px 42px -30px rgba(var(--pdh-ink-rgb), 0.55);
   }
 
   body.sticky-cart-active {
@@ -3092,14 +3191,14 @@ nav[aria-label^="Fil d"] a::after {
   place-items: center;
   /* A hairline ring so a pale packshot does not dissolve into the page,
      without drawing a heavy border around every tile. */
-  box-shadow: inset 0 0 0 1px rgba(55, 48, 32, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(var(--pdh-ink-rgb), 0.1);
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
 }
 
 @media (hover: hover) {
   .cat-tile:hover .cat-tile-disc {
     transform: translateY(-3px);
-    box-shadow: inset 0 0 0 1px rgba(55, 48, 32, 0.16), 0 10px 22px -12px rgba(55, 48, 32, 0.5);
+    box-shadow: inset 0 0 0 1px rgba(var(--pdh-ink-rgb), 0.16), 0 10px 22px -12px rgba(var(--pdh-ink-rgb), 0.5);
   }
 
   .cat-tile:hover .cat-tile-label {
@@ -3175,14 +3274,30 @@ nav[aria-label^="Fil d"] a::after {
    interval; the commercial core additionally carries a tint so
    it holds the eye above the editorial tail. */
 
-.home-movement {
-  /* Collapse the seam between two movements into ONE loose gap
-     instead of stacking both sections' own padding on top of it. */
-  --sec-y: clamp(28px, 3.6vw, 48px);
-}
-
 .home-movement + .home-movement {
   margin-top: var(--sec-y-loose);
+}
+
+/* The seam owns the whole interval between two movements, so the sections
+   on either side of it must not add their own padding on top.
+
+   This used to apply to `.home-movement--core` alone, which is exactly why
+   the boundaries were uneven: a seam next to the core measured 144px (its
+   72px margin plus the band's own 72px padding), and every other seam
+   measured 72px. Zeroing the outer edge of EVERY movement makes all of
+   them pay `--sec-y-loose` once, and nothing else. */
+.home-movement > :first-child {
+  --sec-pt: 0px;
+}
+
+.home-movement > :last-child {
+  --sec-pb: 0px;
+}
+
+/* Nothing follows the final movement but the footer, so the interval it
+   would have got from a seam has to be paid here instead. */
+.home-movement:last-child {
+  padding-bottom: var(--sec-y-loose);
 }
 
 /* Several sections decide at render time that they have nothing to show
@@ -3206,27 +3321,15 @@ nav[aria-label^="Fil d"] a::after {
      1280px measure, so this stays full-bleed with no negative-margin
      trick — which also keeps the 100vw/scrollbar overflow away. */
   background: #fff;
-  padding-block: var(--sec-y-loose);
+  /* No padding-block. It used to add a second loose interval on top of the
+     seam margin, which is what made this band's boundaries twice as wide
+     as every other one. The seam above handles the whole gap now. */
+
   /* Kept, and still load-bearing: without them these two fall back to the
      cream/sand root values, which would put tinted cards on the now-white
      band — the inverse of the problem the tint was removed to solve. */
   --surface-card: #fff;
   --surface-panel: #fff;
-}
-
-/* A movement supplies its own outer breathing room, so the first
-   and last section inside it must not add theirs on top.
-
-   These set --sec-pt/--sec-pb rather than padding: the sections carry
-   their padding in an inline style, which no stylesheet rule can
-   outrank. The inline value reads those two custom properties, so the
-   cascade retunes the padding without fighting specificity. */
-.home-movement--core > :first-child {
-  --sec-pt: 0px;
-}
-
-.home-movement--core > :last-child {
-  --sec-pb: 0px;
 }
 
 /* A rail and its own editorial block are ONE unit. Without this
@@ -3393,7 +3496,7 @@ section.rail-editorial {
   /* Opaque, not translucent: this button sits on a photograph, and a
      see-through chip over a light image is a control you have to hunt for. */
   background: #fff;
-  box-shadow: 0 2px 10px -4px rgba(55, 48, 32, 0.5);
+  box-shadow: 0 2px 10px -4px rgba(var(--pdh-ink-rgb), 0.5);
 }
 
 .promo-modal-close:hover {
@@ -3478,7 +3581,7 @@ section.rail-editorial {
   display: inline-flex;
   align-items: center;
   padding: 12px 22px;
-  border: 1px dashed rgba(94, 64, 116, 0.45);
+  border: 1px dashed rgba(var(--pdh-plum-rgb), 0.45);
   border-radius: 10px;
   font-family: var(--font-poppins), sans-serif;
   font-size: 14px;
@@ -3632,9 +3735,9 @@ section.rail-editorial {
 
 @media (hover: hover) {
   .bundle-card:hover {
-    border-color: rgba(55, 48, 32, 0.2);
+    border-color: rgba(var(--pdh-ink-rgb), 0.2);
     /* Offset and blur, so the card lifts off the page rather than glowing. */
-    box-shadow: 0 6px 20px -8px rgba(55, 48, 32, 0.28);
+    box-shadow: 0 6px 20px -8px rgba(var(--pdh-ink-rgb), 0.28);
     transform: translateY(-2px);
   }
 }
@@ -3714,7 +3817,7 @@ section.rail-editorial {
   width: 24px;
   height: 24px;
   margin: 0;
-  border: 1.5px solid rgba(55, 48, 32, 0.3);
+  border: 1.5px solid rgba(var(--pdh-ink-rgb), 0.3);
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.94);
   display: flex;
@@ -3846,7 +3949,7 @@ section.rail-editorial {
   align-items: center;
   justify-content: center;
   width: clamp(22px, 2.6vw, 34px);
-  color: rgba(55, 48, 32, 0.34);
+  color: rgba(var(--pdh-ink-rgb), 0.34);
 }
 
 /* ---- summary ------------------------------------------------------ */
@@ -3886,7 +3989,7 @@ section.rail-editorial {
 .bundle-figures {
   margin: 16px 0 0;
   padding: 14px 0 0;
-  border-top: 1px solid rgba(55, 48, 32, 0.13);
+  border-top: 1px solid rgba(var(--pdh-ink-rgb), 0.13);
 }
 
 .bundle-fig {
@@ -3920,7 +4023,7 @@ section.rail-editorial {
 .bundle-fig--total {
   margin-top: 13px;
   padding-top: 13px;
-  border-top: 1px solid rgba(55, 48, 32, 0.13);
+  border-top: 1px solid rgba(var(--pdh-ink-rgb), 0.13);
   font-family: var(--font-alta);
   font-size: 15px;
   color: var(--pdh-ink);
@@ -4045,7 +4148,7 @@ section.rail-editorial {
   gap: 11px;
   padding: 12px 13px;
   background: #fff;
-  border: 1px solid rgba(55, 48, 32, 0.13);
+  border: 1px solid rgba(var(--pdh-ink-rgb), 0.13);
   border-radius: 12px;
   cursor: pointer;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
@@ -4053,7 +4156,7 @@ section.rail-editorial {
 
 @media (hover: hover) {
   .pay-option:hover {
-    border-color: rgba(55, 48, 32, 0.24);
+    border-color: rgba(var(--pdh-ink-rgb), 0.24);
   }
 }
 
@@ -4074,7 +4177,7 @@ section.rail-editorial {
   width: 20px;
   height: 20px;
   margin: 1px 0 0;
-  border: 1.5px solid rgba(55, 48, 32, 0.32);
+  border: 1.5px solid rgba(var(--pdh-ink-rgb), 0.32);
   border-radius: 50%;
   background: #fff;
   display: grid;
@@ -4139,7 +4242,7 @@ section.rail-editorial {
   margin: 20px auto 0;
   padding: 18px;
   background: #fff;
-  border: 1px solid rgba(55, 48, 32, 0.12);
+  border: 1px solid rgba(var(--pdh-ink-rgb), 0.12);
   border-radius: 14px;
 }
 
@@ -4191,7 +4294,7 @@ section.rail-editorial {
 .pay-bank-row--ref {
   margin-top: 4px;
   padding-top: 11px;
-  border-top: 1px solid rgba(55, 48, 32, 0.12);
+  border-top: 1px solid rgba(var(--pdh-ink-rgb), 0.12);
 }
 
 .pay-bank-row--ref dd {
