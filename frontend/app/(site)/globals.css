@@ -3257,7 +3257,24 @@ nav[aria-label^="Fil d"] a::after {
   flex-direction: column;
   align-items: center;
   gap: 9px;
-  width: var(--tile);
+  /* The tile is as wide as the wider of its two parts, not as wide as the
+     disc.
+
+     It used to be a flat `width: var(--tile)`, which at the clamp's floor is
+     58px — narrower than several of the labels under it. A single word cannot
+     wrap, so `line-clamp` never helped: "Compléments" measured 79px and spilled
+     21px out of its tile, "Maquillage" 61px and spilled 3, and with an 11.5px
+     column gap the two of them met at exactly 0px apart. That is the labels
+     touching in the strip.
+
+     `min-width` keeps every tile at least a disc wide so the row stays evenly
+     spaced when the labels are short, and the disc has its own width/height so
+     it stays a circle whatever the tile does. The max-width is what still
+     makes a long label wrap instead of stretching one tile across the strip —
+     at 1.7x it clears "Compléments" on one line and folds "Compléments
+     alimentaires" onto two. */
+  min-width: var(--tile);
+  max-width: calc(var(--tile) * 1.7);
   /* In a nowrap row a tile would otherwise give up width to its neighbours
      and squash every disc into an oval. */
   flex: 0 0 auto;
