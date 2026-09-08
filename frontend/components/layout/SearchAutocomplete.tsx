@@ -3,6 +3,7 @@
 import { ArrowRight, Loader2, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CloudinaryImage, PRODUCT_PLACEHOLDER } from "@/components/CloudinaryImage";
 import { routes } from "@/lib/routes";
 
@@ -38,6 +39,7 @@ export function SearchAutocomplete({
   autoFocus = false,
   variant = "header",
   onPanelChange,
+  panelTarget,
 }: {
   value: string;
   onValueChange: (v: string) => void;
@@ -49,6 +51,18 @@ export function SearchAutocomplete({
   /** Fires whenever the suggestions panel opens or closes, so the header can
    * keep its own hover menus out of the way while it is up. */
   onPanelChange?: (open: boolean) => void;
+  /** Where to render the results.
+   *
+   * The header wants them as a dropdown hanging off the input, which is what
+   * happens when this is absent. The mobile overlay wants them to fill the
+   * screen, and they cannot do that from inside the search row: the panel is
+   * positioned against the input, so it inherited the row's width and left
+   * 69% of a phone blank underneath a floating card. Given an element, the
+   * panel renders into it instead and drops the dropdown chrome.
+   *
+   * `aria-controls` still points at the same listbox id, so moving it in the
+   * DOM does not break the combobox relationship. */
+  panelTarget?: HTMLElement | null;
 }) {
   const router = useRouter();
   const listId = useId();
@@ -148,6 +162,9 @@ export function SearchAutocomplete({
     onPanelChange?.(showPanel);
   }, [showPanel, onPanelChange]);
 
+  /** Into the caller's container when it gave us one, otherwise in place. */
+  const renderPanel = (panel: React.ReactNode) => (panelTarget ? createPortal(panel, panelTarget) : panel);
+
   return (
     <div ref={rootRef} style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", alignItems: "center" }}>
       <Search
@@ -197,29 +214,38 @@ export function SearchAutocomplete({
         />
       )}
 
-      {showPanel && (
+      {showPanel && renderPanel(
         <div
           id={listId}
           role="listbox"
           aria-label="Suggestions de recherche"
-          style={{
-            position: "absolute",
-            top: "calc(100% + 8px)",
-            left: 0,
-            right: 0,
-            // Above the mega-menu (70). This panel belongs to the control the
-            // visitor is actually typing into, so nothing in the header may
-            // paint over it; at 60 the hover menu cut a band straight through
-            // the middle of the results.
-            zIndex: 80,
-            background: "#fff",
-            border: "1px solid var(--pdh-plum-tint)",
-            borderRadius: 16,
-            boxShadow: "0 24px 48px -28px rgba(var(--pdh-ink-rgb), 0.5)",
-            maxHeight: "min(70vh, 460px)",
-            overflowY: "auto",
-            overscrollBehavior: "contain",
-          }}
+          style={
+            panelTarget
+              ? {
+                  // Filling a region someone else sized: no floating chrome, no
+                  // height cap, no z-index race. The container scrolls.
+                  background: "#fff",
+                  minHeight: "100%",
+                }
+              : {
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  left: 0,
+                  right: 0,
+                  // Above the mega-menu (70). This panel belongs to the control
+                  // the visitor is actually typing into, so nothing in the
+                  // header may paint over it; at 60 the hover menu cut a band
+                  // straight through the middle of the results.
+                  zIndex: 80,
+                  background: "#fff",
+                  border: "1px solid var(--pdh-plum-tint)",
+                  borderRadius: 16,
+                  boxShadow: "0 24px 48px -28px rgba(var(--pdh-ink-rgb), 0.5)",
+                  maxHeight: "min(70vh, 460px)",
+                  overflowY: "auto",
+                  overscrollBehavior: "contain",
+                }
+          }
         >
           {!hasResults ? (
             <p style={{ margin: 0, padding: "18px", fontSize: 13, opacity: 0.6 }}>
@@ -327,7 +353,7 @@ export function SearchAutocomplete({
               </button>
             </>
           )}
-        </div>
+        </div>,
       )}
     </div>
   );

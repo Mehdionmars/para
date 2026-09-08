@@ -408,7 +408,7 @@ export function Header({
       </nav>
 
       {mobileNavOpen && <MobileNavDrawer onClose={() => setMobileNavOpen(false)} navItems={navItems} megaMenu={megaMenu} />}
-      {mobileSearchOpen && <MobileSearchOverlay onClose={() => setMobileSearchOpen(false)} />}
+      {mobileSearchOpen && <MobileSearchOverlay onClose={() => setMobileSearchOpen(false)} navItems={navItems} />}
     </header>
   );
 }
