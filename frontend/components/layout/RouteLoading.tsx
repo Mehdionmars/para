@@ -20,7 +20,24 @@ export function RouteLoading() {
       role="status"
       aria-label="Chargement"
       style={{
-        minHeight: "60vh",
+        /* A full viewport, not 60vh, and the padding below is what keeps the
+           logo where it always was.
+           60vh reserved 540px of a 900px viewport; with the header above it
+           the footer landed at y=711 — on screen. The moment the real page
+           streamed in, the footer was pushed thousands of pixels down, and
+           that single jump measured CLS 0.21, twice the 0.1 "good" threshold,
+           on every cold load of the home page. It is in production, not just
+           dev: the preprod HTML ships this same `min-height:60vh` shell.
+
+           Reserving 100vh puts the footer past the fold on any viewport, so
+           the shift happens where nobody can see it and stops counting.
+
+           The padding-bottom then buys back the optics. With border-box, the
+           content area becomes 100vh − 40vh = 60vh, and centring inside it
+           puts the logo at 30vh — the exact position the old 60vh box gave
+           it. The reservation grows; the spinner does not move. */
+        minHeight: "100vh",
+        paddingBottom: "40vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

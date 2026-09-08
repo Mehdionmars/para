@@ -27,7 +27,7 @@ function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
           gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))",
           gap: "clamp(20px,2.8vw,40px)",
           alignItems: "center",
-          boxShadow: "0 20px 40px -34px rgba(55,48,32,.5)",
+          boxShadow: "0 20px 40px -34px rgba(var(--pdh-ink-rgb), 0.5)",
         }}
       >
         <div style={{ aspectRatio: "1/1", borderRadius: 22, position: "relative", overflow: "hidden" }}>
@@ -70,6 +70,20 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
   const railRef = useRef<RailHandle>(null);
   const badgeLabel = BADGE_LABEL[rail.badgeStyle];
 
+  // A rail resolves its products live on every request, so a rail whose
+  // query matches nothing — a category that has been emptied, a filter no
+  // product satisfies yet — used to render its eyebrow, title, subtitle,
+  // "Voir tout" link and two scroll arrows above an empty track: ~180px of
+  // furniture promising products that are not there, and two arrows that
+  // scroll nothing. Three of the four configured rails are in that state
+  // right now.
+  //
+  // Returning nothing instead is what the rest of the page already expects:
+  // several sections opt out at render time the same way, and
+  // `.home-movement:empty` exists precisely so a movement left with no
+  // surviving section stops contributing a movement-sized gap.
+  if (products.length === 0) return null;
+
   return (
     <>
       <section className="mobile-rail-section" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
@@ -88,7 +102,7 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
                     letterSpacing: ".08em",
                     textTransform: "uppercase",
                     color: "var(--pdh-plum)",
-                    background: "rgba(94,64,116,.1)",
+                    background: "var(--pdh-plum-tint)",
                     padding: "3px 9px",
                     borderRadius: 999,
                   }}
@@ -113,7 +127,7 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
                 letterSpacing: ".12em",
                 textTransform: "uppercase",
                 color: "var(--pdh-plum)",
-                borderBottom: "1px solid rgba(94,64,116,.35)",
+                borderBottom: "1px solid var(--pdh-plum-divider)",
                 paddingBottom: 3,
               }}
             >
