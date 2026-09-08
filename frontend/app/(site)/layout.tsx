@@ -15,6 +15,7 @@ import { chromeAppearanceCss } from "@/lib/chromeAppearance";
 import { SITE_DIR, SITE_LOCALE } from "@/lib/locale";
 import { THEME } from "@/data/theme";
 import { MEGA_MENU, NAV_ITEMS } from "@/data/nav";
+import { DEFAULT_NAV_ITEMS } from "@/lib/storefront/navDefaults";
 import {
   fetchLiveNavigation,
   fetchLiveSiteChrome,
@@ -192,7 +193,25 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const footerColumns = chrome?.footerColumns ?? FOOTER_COLUMNS;
   // Off unless the CMS says otherwise — a popup nobody configured must not appear.
   const promoModal = chrome?.promoModal;
-  const navItems = navigation?.navItems ?? NAV_ITEMS;
+  // Three states, three answers — `??` only ever handled two of them.
+  //
+  // A reachable CMS with nothing configured returns `items: []`, and an empty
+  // array is not null, so it sailed straight through `??` and the header
+  // rendered an empty <ul role="menubar">. That is not hypothetical: preprod
+  // served a menu bar with zero items for as long as its `navigation` table
+  // had no row, while the category strip beside it looked fine because
+  // CategoryTiles already had a code-level default for the same situation.
+  //
+  // Unreachable and unconfigured are deliberately not collapsed together. When
+  // the CMS is down the synced snapshot is the best copy of the real menu we
+  // have; when the CMS answers and has no menu, the snapshot may itself have
+  // been synced from that same empty CMS, so the hardcoded default is what
+  // holds.
+  const navItems = navigation
+    ? navigation.navItems.length > 0
+      ? navigation.navItems
+      : DEFAULT_NAV_ITEMS
+    : NAV_ITEMS;
   const megaMenu = navigation?.megaMenu ?? MEGA_MENU;
   // The mobile category strip used to render here, under the header on every
   // page. It belongs to the home page now — above the hero, which is the only
