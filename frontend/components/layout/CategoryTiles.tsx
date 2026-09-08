@@ -28,12 +28,17 @@ type Tile = StripConfig["items"][number] & { isAll?: boolean };
  * safe center` is what lets one rule do both: plain `center` on a scroller
  * that overflows puts the first chip off the left edge, unreachable.
  *
- * ## Every width, now
+ * ## Only while there is no menu bar
  *
- * This used to be phones-only, on the reasoning that the main menu already
- * carries the same links from tablet up. It is shown everywhere now because
- * a row of photographs is a different instrument from a text menu: it sells
- * the range, where the menu only lists it. The duplication is deliberate.
+ * It was shown at every width for a while, on the reasoning that a row of
+ * photographs is a different instrument from a text menu: it sells the range
+ * where the menu only lists it. That duplication is no longer wanted, so
+ * `.cat-tiles` is hidden from 1024px up — the width at which `.nav-desktop`
+ * stops being `display: none` and takes the job over.
+ *
+ * The cut is at 1024 rather than the 767px this project usually calls mobile
+ * because the menu bar does not appear at 768: a tablet hidden at 767 would
+ * have had neither navigation on screen. See globals.css `.cat-tiles`.
  *
  * ## The circle always has something in it
  *

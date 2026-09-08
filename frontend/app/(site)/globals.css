@@ -3109,9 +3109,20 @@ nav[aria-label^="Fil d"] a::after {
    people miss. Centring is what lets four tiles and twelve tiles both look
    composed, with no empty tracks trailing off to the right.
 
-   Shown at every width. The main menu carries the same destinations from
-   tablet up, and that duplication is intended — a row of photographs sells
-   the range where a text menu only lists it.
+   Below 1024px only. It was shown at every width for a while, on the argument
+   that a row of photographs sells the range where a text menu only lists it —
+   but once `.nav-desktop` is on screen it carries the same destinations, and
+   two navigations stacked one above the other is a choice the visitor has to
+   make before they have seen anything. Under that width the menu bar is not
+   rendered at all and the strip is the only visible way into an aisle, which
+   is where it earns its place.
+
+   Hidden in CSS rather than dropped from the render on purpose: the
+   breakpoint has to be live on resize, and deciding it in JavaScript would
+   either mismatch on hydration or shift the layout once it corrected itself.
+   `display: none` also stops the tile images loading — they are lazy, and a
+   lazy image inside a hidden box is never fetched — so a desktop visitor pays
+   nothing but the markup.
 
    No background of its own: it sits on the page's white ground. */
 .cat-tiles {
@@ -3122,6 +3133,18 @@ nav[aria-label^="Fil d"] a::after {
   max-width: 1280px;
   margin: 0 auto;
   padding: clamp(18px, 2.4vw, 32px) var(--sec-pad-x) clamp(12px, 1.8vw, 22px);
+}
+
+/* 1024px, not the 767px the rest of this file calls mobile, because that is
+   where `.nav-desktop` actually turns on — it is `display: none` by default
+   and only appears in the `min-width: 1024px` block above. Cutting the strip
+   at 768px would leave every tablet between 768 and 1023 with no menu bar and
+   no strip either, navigable only through the burger. Hiding it here removes
+   the duplication on exactly the widths that have it, and nowhere else. */
+@media (min-width: 1024px) {
+  .cat-tiles {
+    display: none;
+  }
 }
 
 /* One line, always — it scrolls rather than wrapping.
