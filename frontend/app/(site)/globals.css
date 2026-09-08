@@ -2131,12 +2131,18 @@ nav[aria-label^="Fil d"] a::after {
      background, no border, no underline — so there is nothing for the padding
      to visibly displace.
 
-     3.5px a side takes 17px to 24px exactly, spending 7px of the 17px gap
-     between neighbours and leaving 10px of dead space between adjacent hit
-     areas. Going for the 44px comfort target instead would need 27px and make
-     every link in a column overlap the next, so the AA floor is the ceiling
-     here — the fix has to stay smaller than the space it has. */
-  padding-block: 3.5px;
+     4px a side, not the 3.5 this first shipped with. The line box is 16.8px,
+     not the 17 the rounded measurement suggested, so 3.5 produced 23.8 — two
+     tenths under the floor, and I reported it as 24 because the check rounded
+     before comparing. 4px gives 24.8 and stops the result depending on how a
+     browser rounds a line box.
+
+     It spends 8px of the 17px gap between neighbours and leaves 9px of dead
+     space between adjacent hit areas. Going for the 44px comfort target
+     instead would need 27px and make every link in a column overlap the next,
+     so the AA floor is the ceiling here — the fix has to stay smaller than the
+     space it has. */
+  padding-block: 4px;
 }
 .chrome-footer-link:hover {
   color: var(--chrome-footer-hover, inherit);
@@ -4202,8 +4208,14 @@ section.rail-editorial {
     margin-bottom: 0;
   }
 
+  /* 24, not 0. The 36px reserve above is a desktop device — it keeps two-line
+     and one-line names on a common baseline in a wide card — and it is far too
+     tall once the card is a 92px thumbnail beside its text. Zeroing it left the
+     link at 17.8px though, under the 24px WCAG 2.2 2.5.8 floor, which is what a
+     sweep of the site at 375px turned up. 24 releases the desktop reserve and
+     still clears the floor. */
   .bundle-name {
-    min-height: 0;
+    min-height: 24px;
   }
 
   .bundle-plus {
