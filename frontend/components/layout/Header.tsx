@@ -218,7 +218,9 @@ export function Header({
           </button>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", gap: "clamp(14px,1.8vw,26px)", flex: "none" }}>
+        {/* Gap in globals.css, not here: it has to change when the labels are
+            hidden, and an inline value would outrank the media query. */}
+        <div className="header-utils" style={{ display: "flex", alignItems: "center", flex: "none" }}>
           {servicesAction && (
             <Link
               href={servicesAction.href || "/services"}

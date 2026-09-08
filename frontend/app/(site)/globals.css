@@ -845,9 +845,42 @@ button {
 .header-util-label {
   display: inline;
 }
+
+.header-utils {
+  gap: clamp(14px, 1.8vw, 26px);
+}
+
 @media (max-width: 1100px) {
   .header-util-label {
     display: none;
+  }
+
+  /* With the words gone, the row is two bare 20px glyphs followed by two 44px
+     icon buttons, and a single flex gap cannot serve both. Measured at 1024:
+     the optical distance between glyphs ran 18px, then 29.5, then 41 — the
+     icon buttons carry ~12px of their own padding a side, so every gap that
+     touched one was wider than the gap that did not. Read as a set, they look
+     like they are drifting apart.
+
+     Giving the two links the same 44px box makes the padding uniform, and the
+     group gap then only has to cover what the boxes do not: 2px of track
+     between them reads as an even ~26px between glyphs.
+
+     The group keeps the width it already had — 4x44 + 3x2 = 182, against
+     20 + 20 + 44 + 44 + 3x18 = 182 — so nothing else in the header moves.
+
+     It also takes these two from a 20x20 target to 44x44. They were under the
+     24px WCAG 2.2 2.5.8 floor at every width where they are visible, which
+     the earlier target-size pass missed: it measured at 375px, and below
+     768px these are display:none. */
+  .header-utils {
+    gap: 2px;
+  }
+
+  .header-secondary-link {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
   }
 }
 
