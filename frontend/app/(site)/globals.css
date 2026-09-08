@@ -2135,6 +2135,45 @@ nav[aria-label^="Fil d"] a::after {
   }
 }
 
+/* The link columns on one row.
+
+   They were sized by `auto-fit` from a 140px floor, and four of them plus
+   their gaps need about 674px — which the right-hand track of `.footer-grid`
+   only clears at roughly 1200px of viewport. At 1200 exactly it fitted with
+   nothing to spare, so a scrollbar was enough to tip it: "Services" dropped
+   to a second row under "À propos" and read as an afterthought rather than as
+   the fourth of four.
+
+   Asking for the tracks by count instead of by width removes the cliff. The
+   columns hold one row for the whole range where the footer is in its
+   two-track desktop layout, and the count comes from the CMS through
+   `--footer-col-count` rather than a hardcoded 4.
+
+   The base value is here rather than inline on the element, which is what
+   made the first attempt at this silently do nothing: an inline
+   `grid-template-columns` outranks any stylesheet rule short of !important,
+   so the media query below could never win while the element carried its own.
+
+   1000px, not the 901 at which `.footer-grid` stops being two tracks. Four
+   columns are only worth having when they are wide enough for the longest
+   link: at 902 they come out 107px while "Conseils pharmaceutiques" measures
+   113, and the word spilled into the gutter. The right-hand track gains about
+   0.12px per pixel of viewport, which clears that comfortably past 1000.
+   Between 901 and 999 the auto-fit base keeps exactly the behaviour it has
+   today; under 901 the footer stacks and the links take the full width, where
+   four tracks on a phone would be slivers. */
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: clamp(20px, 2.6vw, 36px);
+}
+
+@media (min-width: 1000px) {
+  .footer-cols {
+    grid-template-columns: repeat(var(--footer-col-count, 4), minmax(0, 1fr));
+  }
+}
+
 .footer-social {
   transition: border-color 0.2s ease, background 0.2s ease;
 }

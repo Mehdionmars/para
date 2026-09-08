@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { PaymentBadges } from "@/components/layout/PaymentBadges";
 import { INSTAGRAM_SECTION } from "@/data/home";
@@ -184,11 +185,14 @@ export function Footer({ columns = FOOTER_COLUMNS }: { columns?: FooterColumn[] 
         </div>
 
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,140px),1fr))",
-            gap: "clamp(20px,2.6vw,36px)",
-          }}
+          className="footer-cols"
+          // display, grid-template-columns and gap live in globals.css, not
+          // here: an inline `grid-template-columns` outranks any stylesheet
+          // rule short of !important, so the responsive rule for this grid
+          // could never win while the base value was set on the element.
+          // Only the column count is passed, and only because CSS cannot
+          // count children.
+          style={{ "--footer-col-count": columns.length } as CSSProperties}
         >
           {columns.map((col) => (
             <div key={col.title}>
