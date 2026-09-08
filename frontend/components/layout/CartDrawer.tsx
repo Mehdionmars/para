@@ -54,7 +54,7 @@ export function CartDrawer() {
         <div
           style={{
             padding: "24px 26px",
-            borderBottom: "1px solid rgba(94,64,116,.12)",
+            borderBottom: "1px solid var(--pdh-plum-tint)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -80,16 +80,16 @@ export function CartDrawer() {
               href="/panier"
               onClick={cart.closeCart}
               className="link-hover"
-              style={{ fontSize: 12, letterSpacing: ".06em", color: "var(--pdh-plum)", borderBottom: "1px solid rgba(94,64,116,.35)", paddingBottom: 2 }}
+              style={{ fontSize: 12, letterSpacing: ".06em", color: "var(--pdh-plum)", borderBottom: "1px solid var(--pdh-plum-divider)", paddingBottom: 2 }}
             >
               Voir la page complète du panier →
             </Link>
           </div>
         )}
 
-        <div style={{ padding: "16px 26px", background: "var(--pdh-sand)", borderBottom: "1px solid rgba(94,64,116,.1)" }}>
+        <div style={{ padding: "16px 26px", background: "var(--pdh-sand)", borderBottom: "1px solid var(--pdh-plum-tint)" }}>
           <div style={{ fontSize: 12, marginBottom: 8 }}>{cart.freeShippingMessage}</div>
-          <div style={{ height: 6, borderRadius: 999, background: "rgba(94,64,116,.15)", overflow: "hidden" }}>
+          <div style={{ height: 6, borderRadius: 999, background: "var(--pdh-plum-tint)", overflow: "hidden" }}>
             <div
               style={{
                 height: "100%",
@@ -124,7 +124,7 @@ export function CartDrawer() {
                       display: "flex",
                       gap: 14,
                       padding: "18px 0",
-                      borderBottom: "1px solid rgba(94,64,116,.1)",
+                      borderBottom: "1px solid var(--pdh-plum-tint)",
                     }}
                   >
                     <div
@@ -157,7 +157,7 @@ export function CartDrawer() {
                             display: "flex",
                             alignItems: "center",
                             gap: 12,
-                            border: "1px solid rgba(94,64,116,.22)",
+                            border: "1px solid var(--pdh-plum-border)",
                             borderRadius: 999,
                             padding: "5px 12px",
                           }}
@@ -207,7 +207,7 @@ export function CartDrawer() {
           )}
         </div>
 
-        <div style={{ padding: "22px 26px", borderTop: "1px solid rgba(94,64,116,.12)" }}>
+        <div style={{ padding: "22px 26px", borderTop: "1px solid var(--pdh-plum-tint)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, opacity: 0.7, marginBottom: 6 }}>
             <span>Sous-total</span>
             <span>{cart.money(cart.subtotal)}</span>

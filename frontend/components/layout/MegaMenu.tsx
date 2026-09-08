@@ -173,11 +173,11 @@ export function MegaMenu({
               }}
             >
               {promo.img && <CloudinaryImage preset="thumb" src={promo.img} alt="" fill sizes="280px" style={{ objectFit: "cover" }} />}
-              <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(55,48,32,0) 40%,rgba(47,31,61,.82) 100%)" }} />
+              <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 40%,rgba(47,31,61,.82) 100%)" }} />
               <div style={{ position: "relative", zIndex: 3, padding: 18, color: "var(--pdh-cream)" }}>
                 <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 17, lineHeight: 1.15 }}>{promo.title}</div>
                 {promo.description && (
-                  <div style={{ fontSize: 11.5, color: "rgba(247,238,229,.82)", marginTop: 5, lineHeight: 1.5 }}>{promo.description}</div>
+                  <div style={{ fontSize: 11.5, color: "rgba(var(--pdh-cream-rgb), 0.82)", marginTop: 5, lineHeight: 1.5 }}>{promo.description}</div>
                 )}
                 {promo.ctaLabel && (
                   <div style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", marginTop: 10 }}>{promo.ctaLabel} →</div>

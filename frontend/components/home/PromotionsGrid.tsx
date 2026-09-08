@@ -112,7 +112,7 @@ export function PromotionsGrid({
                   cursor: "pointer",
                   background: isActive ? "var(--pdh-plum)" : "#fff",
                   color: isActive ? "var(--pdh-cream)" : "var(--pdh-ink)",
-                  border: `1px solid ${isActive ? "var(--pdh-plum)" : "rgba(94,64,116,.22)"}`,
+                  border: `1px solid ${isActive ? "var(--pdh-plum)" : "var(--pdh-plum-border)"}`,
                   transition: "background .25s ease, color .25s ease, border-color .25s ease",
                 }}
               >
@@ -124,7 +124,7 @@ export function PromotionsGrid({
                     fontVariantNumeric: "tabular-nums",
                     padding: "1px 6px",
                     borderRadius: 999,
-                    background: isActive ? "rgba(247,238,229,.22)" : "rgba(94,64,116,.09)",
+                    background: isActive ? "rgba(var(--pdh-cream-rgb), 0.22)" : "var(--pdh-plum-tint)",
                     color: "inherit",
                   }}
                 >
@@ -157,7 +157,7 @@ export function PromotionsGrid({
             display: "inline-block",
             padding: "13px 28px",
             borderRadius: 999,
-            border: "1px solid rgba(94,64,116,.28)",
+            border: "1px solid var(--pdh-plum-border)",
             fontSize: 11.5,
             fontWeight: 600,
             letterSpacing: ".12em",

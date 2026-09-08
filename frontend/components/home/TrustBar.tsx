@@ -11,7 +11,7 @@ export function TrustBar({ badges }: { badges?: TrustBadge[] } = {}) {
         className="trust-bar"
         role="list"
         style={{
-          border: "1px solid rgba(94,64,116,.1)",
+          border: "1px solid var(--pdh-plum-tint)",
           borderRadius: 18,
           padding: "16px 24px",
           display: "grid",
@@ -22,7 +22,7 @@ export function TrustBar({ badges }: { badges?: TrustBadge[] } = {}) {
       >
         {items.map((badge) => (
           <div className="trust-badge" key={badge.title} role="listitem" style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
-            <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(94,64,116,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
+            <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--pdh-plum-tint)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
               <badge.icon aria-hidden="true" size={16} strokeWidth={1.6} />
             </div>
             <div>

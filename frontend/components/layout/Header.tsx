@@ -138,7 +138,7 @@ export function Header({
         zIndex: 60,
         background: "var(--chrome-header-bg, rgba(255,255,255,.93))",
         backdropFilter: "blur(14px)",
-        borderBottom: "1px solid var(--chrome-header-border, rgba(94,64,116,.12))",
+        borderBottom: "1px solid var(--chrome-header-border, var(--pdh-plum-tint))",
       }}
     >
       <div
@@ -325,7 +325,7 @@ export function Header({
           // between two links inside them.
           if (!navRef.current?.contains(e.relatedTarget as Node | null)) setActiveNav(null);
         }}
-        style={{ borderTop: "1px solid var(--chrome-header-border, rgba(94,64,116,.08))", position: "relative" }}
+        style={{ borderTop: "1px solid var(--chrome-header-border, var(--pdh-plum-tint))", position: "relative" }}
       >
         <ul
           role="menubar"

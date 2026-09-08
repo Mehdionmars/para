@@ -25,7 +25,7 @@ export function ProductReassurance() {
         listStyle: "none",
         margin: "26px 0 0",
         padding: "18px 20px",
-        border: "1px solid rgba(94,64,116,.14)",
+        border: "1px solid var(--pdh-plum-tint)",
         borderRadius: 16,
         background: "var(--pdh-cream)",
         display: "grid",

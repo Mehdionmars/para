@@ -133,7 +133,7 @@ export function CouponField({
             height: 42,
             padding: "0 14px",
             borderRadius: 12,
-            border: `1px solid ${error ? "rgba(154,59,59,.5)" : "rgba(94,64,116,.22)"}`,
+            border: `1px solid ${error ? "rgba(154,59,59,.5)" : "var(--pdh-plum-border)"}`,
             fontSize: 13,
             textTransform: "uppercase",
             background: "#fff",

@@ -331,7 +331,7 @@ export function CatalogueView({
         ref={gridRef}
         style={{
           alignItems: "center",
-          borderBottom: "1px solid rgba(94,64,116,.12)",
+          borderBottom: "1px solid var(--pdh-plum-tint)",
           display: "flex",
           flexWrap: "wrap",
           gap: 16,
@@ -356,7 +356,7 @@ export function CatalogueView({
             }}
             style={{
               alignItems: "center",
-              border: "1px solid rgba(94,64,116,.28)",
+              border: "1px solid var(--pdh-plum-border)",
               borderRadius: 999,
               color: "var(--pdh-ink)",
               cursor: "pointer",
@@ -384,7 +384,7 @@ export function CatalogueView({
               }}
               style={{
                 background: "#fff",
-                border: "1px solid rgba(94,64,116,.28)",
+                border: "1px solid var(--pdh-plum-border)",
                 borderRadius: 999,
                 color: "var(--pdh-ink)",
                 cursor: "pointer",
@@ -469,7 +469,7 @@ export function CatalogueView({
                 }}
                 style={{
                   background: "#fff",
-                  border: "1px solid rgba(94,64,116,.28)",
+                  border: "1px solid var(--pdh-plum-border)",
                   borderRadius: 999,
                   color: "var(--pdh-ink)",
                   cursor: loading ? "wait" : "pointer",

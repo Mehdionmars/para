@@ -31,7 +31,7 @@ function AccordionSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div style={{ borderBottom: "1px solid rgba(94,64,116,.12)" }}>
+    <div style={{ borderBottom: "1px solid var(--pdh-plum-tint)" }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -68,7 +68,7 @@ function CheckRow({ checked, onClick, label, count }: { checked: boolean; onClic
           width: 16,
           height: 16,
           borderRadius: 4,
-          border: `1.5px solid ${checked ? "var(--pdh-plum)" : "rgba(94,64,116,.35)"}`,
+          border: `1.5px solid ${checked ? "var(--pdh-plum)" : "var(--pdh-plum-divider)"}`,
           background: checked ? "var(--pdh-plum)" : "transparent",
           display: "flex",
           alignItems: "center",
@@ -104,7 +104,7 @@ export function Filters({
 }: Props) {
   return (
     <aside style={{ flex: "0 1 240px", minWidth: 210, position: "sticky", top: 150 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, padding: "0 2px 14px", borderBottom: "1px solid rgba(94,64,116,.14)" }}>Filtrer</div>
+      <div style={{ fontSize: 13, fontWeight: 600, padding: "0 2px 14px", borderBottom: "1px solid var(--pdh-plum-tint)" }}>Filtrer</div>
 
       <AccordionSection title="Catégories" defaultOpen>
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
@@ -159,7 +159,7 @@ export function Filters({
                     whiteSpace: "nowrap",
                     background: active ? "var(--pdh-plum)" : "transparent",
                     color: active ? "var(--pdh-cream)" : "var(--pdh-ink)",
-                    border: `1px solid ${active ? "var(--pdh-plum)" : "rgba(94,64,116,.2)"}`,
+                    border: `1px solid ${active ? "var(--pdh-plum)" : "var(--pdh-plum-border)"}`,
                   }}
                 >
                   {label}

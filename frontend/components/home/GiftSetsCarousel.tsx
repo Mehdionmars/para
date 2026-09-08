@@ -26,7 +26,7 @@ function CoffretCard({ c }: { c: Coffret }) {
         borderRadius: 20,
         overflow: "hidden",
         cursor: "pointer",
-        border: "1px solid rgba(94,64,116,.1)",
+        border: "1px solid var(--pdh-plum-tint)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
@@ -34,7 +34,7 @@ function CoffretCard({ c }: { c: Coffret }) {
       }}
     >
       <CloudinaryImage preset="category" src={c.img} alt={c.title} fill sizes="380px" style={{ objectFit: "cover" }} />
-      <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(55,48,32,0) 26%,rgba(55,48,32,.62) 58%,rgba(38,32,20,.9) 100%)" }} />
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 26%,rgba(var(--pdh-ink-rgb), 0.62) 58%,rgba(38,32,20,.9) 100%)" }} />
       <div style={{ position: "relative", zIndex: 3, padding: 26 }}>
         {c.tag && (
           <span style={{ display: "inline-block", background: "var(--pdh-cream)", color: "var(--pdh-plum)", fontSize: 10, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 999 }}>
@@ -44,13 +44,13 @@ function CoffretCard({ c }: { c: Coffret }) {
         <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 24, lineHeight: 1.15, margin: "12px 0 6px", maxWidth: 280, color: "var(--pdh-cream)", textShadow: "0 1px 12px rgba(30,24,14,.5)" }}>
           {c.title}
         </div>
-        <div style={{ fontSize: 12.5, color: "rgba(247,238,229,.82)", maxWidth: 280, lineHeight: 1.6 }}>{c.sub}</div>
+        <div style={{ fontSize: 12.5, color: "rgba(var(--pdh-cream-rgb), 0.82)", maxWidth: 280, lineHeight: 1.6 }}>{c.sub}</div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 16 }}>
           <span style={{ fontFamily: "var(--font-alta)", fontSize: 21, color: "var(--pdh-cream)", whiteSpace: "nowrap" }}>
             {c.priceFrom ? "Dès " : ""}
             {money(c.price)}
           </span>
-          <span className="link-hover" style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--pdh-cream)", borderBottom: "1px solid rgba(247,238,229,.5)", paddingBottom: 2, whiteSpace: "nowrap" }}>
+          <span className="link-hover" style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--pdh-cream)", borderBottom: "1px solid rgba(var(--pdh-cream-rgb), 0.5)", paddingBottom: 2, whiteSpace: "nowrap" }}>
             {c.ctaLabel} →
           </span>
         </div>
@@ -85,7 +85,7 @@ export function GiftSetsCarousel({ coffrets, copy: copyProp }: { coffrets?: Coff
           <Link
             href={copy.ctaUrl || "/collections"}
             className="link-hover"
-            style={{ flex: "none", whiteSpace: "nowrap", fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)", borderBottom: "1px solid rgba(94,64,116,.35)", paddingBottom: 3 }}
+            style={{ flex: "none", whiteSpace: "nowrap", fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)", borderBottom: "1px solid var(--pdh-plum-divider)", paddingBottom: 3 }}
           >
             {copy.ctaLabel || "Tous les coffrets"}
           </Link>

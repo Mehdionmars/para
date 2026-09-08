@@ -19,12 +19,12 @@ type Props = {
 
 export function PaymentBadges({ tone = "light", showLabel = true }: Props) {
   const isFooter = tone === "footer";
-  const labelColor = isFooter ? "rgba(247,238,229,.55)" : "var(--pdh-muted)";
+  const labelColor = isFooter ? "rgba(var(--pdh-cream-rgb), 0.55)" : "var(--pdh-muted)";
   // No chip background: the CMI logo is already a self-contained lockup on
   // white, and boxing it (plus the cash-on-delivery pill) added two floating
   // rectangles that read as clutter against the footer. Only the logo keeps
   // a light plate, because its artwork needs one to stay legible on dark.
-  const codColor = isFooter ? "rgba(247,238,229,.82)" : "var(--pdh-plum)";
+  const codColor = isFooter ? "rgba(var(--pdh-cream-rgb), 0.82)" : "var(--pdh-plum)";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

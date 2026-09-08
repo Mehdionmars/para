@@ -33,7 +33,7 @@ export function ServicesTeaser({ cards: cardsProp, copy: copyProp }: { cards?: S
           <Link
             href="/services"
             className="link-hover"
-            style={{ flex: "none", whiteSpace: "nowrap", fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)", borderBottom: "1px solid rgba(94,64,116,.35)", paddingBottom: 3 }}
+            style={{ flex: "none", whiteSpace: "nowrap", fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)", borderBottom: "1px solid var(--pdh-plum-divider)", paddingBottom: 3 }}
           >
             Tous nos services
           </Link>
@@ -47,7 +47,7 @@ export function ServicesTeaser({ cards: cardsProp, copy: copyProp }: { cards?: S
               className="card-hover"
               style={{
                 background: "#fff",
-                border: "1px solid rgba(94,64,116,.1)",
+                border: "1px solid var(--pdh-plum-tint)",
                 borderRadius: 18,
                 padding: 24,
                 display: "flex",
@@ -56,7 +56,7 @@ export function ServicesTeaser({ cards: cardsProp, copy: copyProp }: { cards?: S
                 color: "inherit",
               }}
             >
-              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(94,64,116,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)" }}>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--pdh-plum-tint)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)" }}>
                 <c.icon aria-hidden="true" size={20} strokeWidth={1.5} />
               </div>
               <div style={{ fontSize: 14.5, fontWeight: 600 }}>{c.title}</div>

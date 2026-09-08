@@ -55,7 +55,7 @@ export function Newsletter({ copy: copyProp }: { copy?: NewsletterCopy } = {}) {
   const logoSize = copy.logoSize || 76;
   const backgroundColor = copy.backgroundColor || "var(--pdh-plum)";
   const textColor = copy.textColor || "#FFFFFF";
-  const ctaColor = copy.ctaColor || "#008AA5";
+  const ctaColor = copy.ctaColor || "var(--pdh-teal)";
   const borderRadius = copy.borderRadius ?? 26;
   const particlesEnabled = copy.particlesEnabled !== false;
   const particlesOpacity = copy.particlesOpacity ?? 0.18;

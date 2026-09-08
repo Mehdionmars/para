@@ -94,7 +94,7 @@ export function FeaturedWithPromo({
               letterSpacing: ".12em",
               textTransform: "uppercase",
               color: "var(--pdh-plum)",
-              borderBottom: "1px solid rgba(94,64,116,.35)",
+              borderBottom: "1px solid var(--pdh-plum-divider)",
               paddingBottom: 3,
             }}
           >

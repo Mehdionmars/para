@@ -34,7 +34,7 @@ export function ProductReviews({ product }: { product: Product }) {
               width: 52,
               height: 52,
               borderRadius: "50%",
-              background: "rgba(94,64,116,.1)",
+              background: "var(--pdh-plum-tint)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

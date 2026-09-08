@@ -128,7 +128,7 @@ export function UniverseCarousel({
               style={{
                 alignItems: "center",
                 background: "#fff",
-                border: "1px solid rgba(94,64,116,.24)",
+                border: "1px solid var(--pdh-plum-border)",
                 borderRadius: "50%",
                 cursor: disabled ? "default" : "pointer",
                 display: "flex",
@@ -204,7 +204,7 @@ export function UniverseCarousel({
                     style={{
                       alignItems: "center",
                       background: "linear-gradient(160deg, var(--pdh-sand) 0%, #efe7dc 100%)",
-                      color: "rgba(94,64,116,.16)",
+                      color: "var(--pdh-plum-tint)",
                       display: "flex",
                       fontFamily: "var(--font-alta)",
                       fontSize: "clamp(64px,9vw,120px)",
@@ -234,7 +234,7 @@ export function UniverseCarousel({
                   <span className="univers-detail">
                     <span
                       style={{
-                        color: universe.image ? "rgba(255,255,255,.88)" : "rgba(55,48,32,.7)",
+                        color: universe.image ? "rgba(255,255,255,.88)" : "rgba(var(--pdh-ink-rgb), 0.7)",
                         display: "block",
                         fontSize: 12.5,
                         lineHeight: 1.6,
@@ -244,7 +244,7 @@ export function UniverseCarousel({
                     </span>
                     <span
                       style={{
-                        color: universe.image ? "rgba(255,255,255,.72)" : "rgba(55,48,32,.55)",
+                        color: universe.image ? "rgba(255,255,255,.72)" : "rgba(var(--pdh-ink-rgb), 0.55)",
                         display: "block",
                         fontSize: 11,
                         letterSpacing: ".12em",

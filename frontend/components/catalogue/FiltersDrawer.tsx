@@ -46,7 +46,7 @@ export function FiltersDrawer({
         animation: "rise .3s cubic-bezier(.22,1,.36,1) both",
       }}
     >
-      <div className="mobile-sheet-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid rgba(94,64,116,.12)" }}>
+      <div className="mobile-sheet-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid var(--pdh-plum-tint)" }}>
         <span style={{ fontFamily: "var(--font-alta)", fontSize: 18, fontWeight: 500, color: "var(--pdh-ink)" }}>Filtrer</span>
         <button type="button" onClick={onClose} aria-label="Fermer les filtres" className="icon-btn" style={{ color: "var(--pdh-plum)" }}>
           <X aria-hidden="true" size={22} />
@@ -59,7 +59,7 @@ export function FiltersDrawer({
         </div>
       </div>
 
-      <div className="mobile-sheet-action" style={{ padding: 16, borderTop: "1px solid rgba(94,64,116,.12)" }}>
+      <div className="mobile-sheet-action" style={{ padding: 16, borderTop: "1px solid var(--pdh-plum-tint)" }}>
         <button
           type="button"
           onClick={onClose}

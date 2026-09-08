@@ -37,8 +37,8 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
   return (
     <section
       style={{
-        background: copy.bg || "#F7EEE5",
-        color: copy.textColor || "#373020",
+        background: copy.bg || "var(--pdh-cream)",
+        color: copy.textColor || "var(--pdh-ink)",
         padding: "clamp(48px,7vw,88px) var(--sec-pad-x)",
         marginBottom: "var(--sec-y)",
       }}
@@ -104,7 +104,7 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
             style={{
               marginTop: "clamp(6px,1vw,12px)",
               display: "inline-block",
-              background: copy.ctaColor || "#5E4074",
+              background: copy.ctaColor || "var(--pdh-plum)",
               color: "#FFFFFF",
               padding: "14px 34px",
               borderRadius: 999,

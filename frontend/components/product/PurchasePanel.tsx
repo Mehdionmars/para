@@ -242,7 +242,7 @@ export function PurchasePanel({
                     cursor: "pointer",
                     background: isActive ? "var(--pdh-plum)" : "#fff",
                     color: isActive ? "var(--pdh-cream)" : soldOut ? "#6f6a63" : "var(--pdh-ink)",
-                    border: `1.5px solid ${isActive ? "var(--pdh-plum)" : "rgba(94,64,116,.22)"}`,
+                    border: `1.5px solid ${isActive ? "var(--pdh-plum)" : "var(--pdh-plum-border)"}`,
                     textDecoration: soldOut ? "line-through" : undefined,
                     transition: "all .25s",
                   }}
@@ -301,7 +301,7 @@ export function PurchasePanel({
       </div>
 
       <div className="pdp-buy-row" style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 18 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, border: "1px solid rgba(94,64,116,.25)", borderRadius: 999, padding: "2px 4px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, border: "1px solid var(--pdh-plum-border)", borderRadius: 999, padding: "2px 4px" }}>
           <button
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -342,11 +342,11 @@ export function PurchasePanel({
         Acheter maintenant
       </button>
 
-      <div style={{ borderTop: "1px solid rgba(94,64,116,.15)" }}>
+      <div style={{ borderTop: "1px solid var(--pdh-plum-tint)" }}>
         {accordionsFor(product).map((a, i) => {
           const isOpen = openAccordion === i;
           return (
-            <div key={a.title} style={{ borderBottom: "1px solid rgba(94,64,116,.15)" }}>
+            <div key={a.title} style={{ borderBottom: "1px solid var(--pdh-plum-tint)" }}>
               <button
                 type="button"
                 onClick={() => setOpenAccordion(isOpen ? null : i)}
@@ -392,8 +392,8 @@ export function PurchasePanel({
         bottom: 0,
         zIndex: 95,
         background: "#fff",
-        borderTop: "1px solid rgba(94,64,116,.15)",
-        boxShadow: "0 -8px 24px -12px rgba(55,48,32,.25)",
+        borderTop: "1px solid var(--pdh-plum-tint)",
+        boxShadow: "0 -8px 24px -12px rgba(var(--pdh-ink-rgb), 0.25)",
         padding: "10px 16px calc(10px + env(safe-area-inset-bottom,0px))",
         display: stickyVisible ? "flex" : "none",
         alignItems: "center",

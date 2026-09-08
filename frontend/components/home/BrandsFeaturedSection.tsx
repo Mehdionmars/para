@@ -55,7 +55,7 @@ export function BrandsFeaturedSection({ brands, copy: copyProp }: { brands: Bran
                 display: "block",
                 borderRadius: 20,
                 overflow: "hidden",
-                border: "1px solid rgba(94,64,116,.12)",
+                border: "1px solid var(--pdh-plum-tint)",
                 background: "#fff",
                 animation: "rise .5s both",
                 animationDelay: `${i * 60}ms`,

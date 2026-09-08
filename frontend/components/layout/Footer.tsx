@@ -168,7 +168,7 @@ export function Footer({ columns = FOOTER_COLUMNS }: { columns?: FooterColumn[] 
                 marginTop: 22,
                 padding: "9px 16px 9px 13px",
                 borderRadius: 999,
-                border: "1px solid rgba(247,238,229,.22)",
+                border: "1px solid rgba(var(--pdh-cream-rgb), 0.22)",
                 fontSize: 12,
                 letterSpacing: ".04em",
               }}
@@ -225,7 +225,7 @@ export function Footer({ columns = FOOTER_COLUMNS }: { columns?: FooterColumn[] 
           maxWidth: "min(1280px,100%)",
           margin: "clamp(34px,4vw,48px) auto 0",
           padding: "18px clamp(14px,3.4vw,32px) 0",
-          borderTop: "1px solid var(--chrome-footer-border, rgba(247,238,229,.15))",
+          borderTop: "1px solid var(--chrome-footer-border, rgba(var(--pdh-cream-rgb), 0.15))",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",

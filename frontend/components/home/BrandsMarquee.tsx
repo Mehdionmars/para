@@ -30,7 +30,7 @@ export function BrandsMarquee({ brands }: { brands?: string[] } = {}) {
           fontWeight: 300,
           fontSize: 24,
           letterSpacing: ".16em",
-          color: "rgba(94,64,116,.5)",
+          color: "rgba(var(--pdh-plum-rgb), 0.5)",
         }}
       >
         {[...items, ...items].map((b, i) => (

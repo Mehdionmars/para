@@ -223,7 +223,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
               width: 56,
               height: 56,
               borderRadius: "50%",
-              background: "rgba(0,138,165,.12)",
+              background: "rgba(var(--pdh-teal-rgb), 0.12)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -333,7 +333,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
               width: 56,
               height: 56,
               borderRadius: "50%",
-              background: "rgba(94,64,116,.1)",
+              background: "var(--pdh-plum-tint)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -362,7 +362,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
           <div style={{ flex: "999 1 420px", minWidth: 0 }}>
             <div style={{ padding: "16px 20px", background: "var(--pdh-sand)", borderRadius: 16, marginBottom: 18 }}>
               <div style={{ fontSize: 12.5, marginBottom: 8 }}>{cart.freeShippingMessage}</div>
-              <div style={{ height: 6, borderRadius: 999, background: "rgba(94,64,116,.15)", overflow: "hidden" }}>
+              <div style={{ height: 6, borderRadius: 999, background: "var(--pdh-plum-tint)", overflow: "hidden" }}>
                 <div
                   className="bar-fill"
                   style={{
@@ -373,7 +373,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
               </div>
             </div>
 
-            <ul className="cart-line-list" style={{ listStyle: "none", margin: 0, padding: 0, border: "1px solid rgba(94,64,116,.12)", borderRadius: 18, overflow: "hidden" }}>
+            <ul className="cart-line-list" style={{ listStyle: "none", margin: 0, padding: 0, border: "1px solid var(--pdh-plum-tint)", borderRadius: 18, overflow: "hidden" }}>
               {cart.lines.map((line, i) => {
                 // Everything below is the line's own snapshot, taken when it
                 // was added. Reading it back out of the catalogue is what let
@@ -387,7 +387,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
                       display: "flex",
                       gap: 18,
                       padding: "20px 22px",
-                      borderBottom: i === cart.lines.length - 1 ? "none" : "1px solid rgba(94,64,116,.1)",
+                      borderBottom: i === cart.lines.length - 1 ? "none" : "1px solid var(--pdh-plum-tint)",
                     }}
                   >
                     <Link
@@ -423,7 +423,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
                             display: "flex",
                             alignItems: "center",
                             gap: 14,
-                            border: "1px solid rgba(94,64,116,.22)",
+                            border: "1px solid var(--pdh-plum-border)",
                             borderRadius: 999,
                             padding: "6px 14px",
                           }}
@@ -484,7 +484,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
               maxWidth: 380,
               position: "sticky",
               top: 100,
-              border: "1px solid rgba(94,64,116,.12)",
+              border: "1px solid var(--pdh-plum-tint)",
               borderRadius: 18,
               padding: "clamp(20px,2.4vw,28px)",
               background: "#fff",
@@ -562,7 +562,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
                     alignItems: "baseline",
                     marginBottom: 20,
                     paddingTop: 14,
-                    borderTop: "1px solid rgba(94,64,116,.12)",
+                    borderTop: "1px solid var(--pdh-plum-tint)",
                   }}
                 >
                   <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" }}>Total</span>
@@ -590,7 +590,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
                 </button>
                 </div>
 
-                <div className="cart-summary-reassurance" style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid rgba(94,64,116,.12)" }}>
+                <div className="cart-summary-reassurance" style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid var(--pdh-plum-tint)" }}>
                   <PaymentBadges />
                 </div>
               </>
@@ -722,7 +722,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
                     justifyContent: "space-between",
                     alignItems: "baseline",
                     paddingTop: 10,
-                    borderTop: "1px solid rgba(94,64,116,.12)",
+                    borderTop: "1px solid var(--pdh-plum-tint)",
                   }}
                 >
                   <span style={{ fontSize: 12.5, opacity: 0.7 }}>

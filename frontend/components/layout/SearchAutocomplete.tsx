@@ -213,9 +213,9 @@ export function SearchAutocomplete({
             // the middle of the results.
             zIndex: 80,
             background: "#fff",
-            border: "1px solid rgba(94,64,116,.14)",
+            border: "1px solid var(--pdh-plum-tint)",
             borderRadius: 16,
-            boxShadow: "0 24px 48px -28px rgba(55,48,32,.5)",
+            boxShadow: "0 24px 48px -28px rgba(var(--pdh-ink-rgb), 0.5)",
             maxHeight: "min(70vh, 460px)",
             overflowY: "auto",
             overscrollBehavior: "contain",
@@ -313,7 +313,7 @@ export function SearchAutocomplete({
                   justifyContent: "space-between",
                   width: "100%",
                   padding: "13px 18px",
-                  borderTop: "1px solid rgba(94,64,116,.1)",
+                  borderTop: "1px solid var(--pdh-plum-tint)",
                   background: "var(--pdh-sand)",
                   fontSize: 12.5,
                   fontWeight: 600,
@@ -383,7 +383,7 @@ function Row({
         gap: 11,
         padding: "8px 18px",
         cursor: "pointer",
-        background: active ? "rgba(94,64,116,.07)" : "transparent",
+        background: active ? "var(--pdh-plum-tint)" : "transparent",
       }}
     >
       {children}

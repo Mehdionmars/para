@@ -105,7 +105,7 @@ export function EditorialPair() {
 
       <section className="cat-routine">
         <div style={{ padding: "clamp(24px,2.6vw,38px)", position: "relative" }}>
-          <div style={{ color: "rgba(247,238,229,.72)", fontFamily: "var(--font-poppins)", fontSize: 10, letterSpacing: ".24em", textTransform: "uppercase" }}>
+          <div style={{ color: "rgba(var(--pdh-cream-rgb), 0.72)", fontFamily: "var(--font-poppins)", fontSize: 10, letterSpacing: ".24em", textTransform: "uppercase" }}>
             Routine personnalisée
           </div>
           <h2
@@ -120,7 +120,7 @@ export function EditorialPair() {
           >
             Trouvez votre routine idéale
           </h2>
-          <p style={{ color: "rgba(247,238,229,.78)", fontSize: 13, lineHeight: 1.7, margin: "0 0 22px", maxWidth: 320 }}>
+          <p style={{ color: "rgba(var(--pdh-cream-rgb), 0.78)", fontSize: 13, lineHeight: 1.7, margin: "0 0 22px", maxWidth: 320 }}>
             Trois questions sur votre peau, et nos pharmaciens vous recommandent les produits adaptés.
           </p>
           <Link
@@ -181,7 +181,7 @@ export function BrandsRail({ brands }: { brands: { logo: string | null; name: st
               style={{
                 alignItems: "center",
                 background: "#fff",
-                border: "1px solid rgba(94,64,116,.24)",
+                border: "1px solid var(--pdh-plum-border)",
                 borderRadius: "50%",
                 cursor: "pointer",
                 display: "flex",

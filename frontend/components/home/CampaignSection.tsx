@@ -42,7 +42,7 @@ export function CampaignSection({
             sizes="480px"
             style={{ objectFit: "cover", objectPosition: framingToObjectPosition(copy.imageFraming) }}
           />
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(55,48,32,0) 34%,rgba(47,31,61,.72) 100%)" }} />
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 34%,rgba(47,31,61,.72) 100%)" }} />
           <div className="overlay-card-content" style={{ position: "relative", zIndex: 3, padding: "clamp(22px,3vw,34px)", color: "var(--pdh-cream)" }}>
             {copy.eyebrow && (
               <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.85 }}>{copy.eyebrow}</div>
@@ -51,7 +51,7 @@ export function CampaignSection({
               {copy.title}
             </div>
             {copy.description && (
-              <p className="overlay-card-text" style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(247,238,229,.82)", margin: "0 0 18px", maxWidth: 360 }}>{copy.description}</p>
+              <p className="overlay-card-text" style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(var(--pdh-cream-rgb), 0.82)", margin: "0 0 18px", maxWidth: 360 }}>{copy.description}</p>
             )}
             <div className="overlay-card-actions" data-cta-align={toCtaAlign(copy.ctaAlign)}>
               <Link

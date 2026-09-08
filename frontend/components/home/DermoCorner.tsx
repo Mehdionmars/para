@@ -109,7 +109,7 @@ export function DermoCorner({
                 letterSpacing: ".12em",
                 textTransform: "uppercase",
                 color: "var(--pdh-plum)",
-                borderBottom: "1px solid rgba(94,64,116,.35)",
+                borderBottom: "1px solid var(--pdh-plum-divider)",
                 paddingBottom: 3,
               }}
             >
@@ -170,7 +170,7 @@ export function DermoCorner({
                     borderRadius: 999,
                     border: "none",
                     padding: 0,
-                    background: i === activeDot ? "var(--pdh-plum)" : "rgba(94,64,116,.25)",
+                    background: i === activeDot ? "var(--pdh-plum)" : "var(--pdh-plum-border)",
                     // Width, deliberately, not a transform: the dot grows into
                     // a pill, and scaleX on a 6px box with a 999px radius
                     // squashes its end caps into ellipses. Six 6px dots are

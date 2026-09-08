@@ -72,7 +72,7 @@ export function ProductGallery({
               key={src + i}
               onClick={() => setActive(i)}
               style={{
-                borderColor: active === i ? "var(--pdh-plum)" : "rgba(94,64,116,.12)",
+                borderColor: active === i ? "var(--pdh-plum)" : "var(--pdh-plum-tint)",
               }}
               type="button"
             >

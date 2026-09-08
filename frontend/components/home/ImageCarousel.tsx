@@ -38,7 +38,7 @@ export function ImageCarousel({
       <div style={{ display: "grid", gridTemplateColumns: "minmax(280px,38%) 1fr", gap: "clamp(18px,2.4vw,28px)", alignItems: "stretch" }} className="image-carousel-grid">
         <div style={{ position: "relative", minHeight: 360, borderRadius: "clamp(16px,2vw,24px)", overflow: "hidden", display: "flex", alignItems: "flex-end" }}>
           <CloudinaryImage preset="editorial" src={copy.img} alt={copy.title || "Sélection"} fill sizes="(max-width: 768px) 100vw, 480px" style={{ objectFit: "cover" }} />
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(55,48,32,0) 34%,rgba(47,31,61,.72) 100%)" }} />
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 34%,rgba(47,31,61,.72) 100%)" }} />
           <div style={{ position: "relative", zIndex: 3, padding: "clamp(22px,3vw,34px)", color: "var(--pdh-cream)" }}>
             {copy.eyebrow && (
               <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.85 }}>{copy.eyebrow}</div>
@@ -47,7 +47,7 @@ export function ImageCarousel({
               {copy.title}
             </div>
             {copy.subtitle && (
-              <p style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(247,238,229,.82)", margin: "0 0 18px", maxWidth: 360 }}>{copy.subtitle}</p>
+              <p style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(var(--pdh-cream-rgb), 0.82)", margin: "0 0 18px", maxWidth: 360 }}>{copy.subtitle}</p>
             )}
             <Link
               href={copy.ctaUrl || "/catalogue"}

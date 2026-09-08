@@ -305,7 +305,7 @@ function ActBand({ act, tint, copy, speed }: { act: Act; tint: boolean; copy: Co
       ref={bandRef}
       onMouseEnter={() => (pausedRef.current = true)}
       onMouseLeave={() => (pausedRef.current = false)}
-      style={{ background: tint ? "rgba(0,138,165,.06)" : "transparent" }}
+      style={{ background: tint ? "rgba(var(--pdh-teal-rgb), 0.06)" : "transparent" }}
     >
       <div
         className="summer-act-grid"
@@ -336,7 +336,7 @@ function ActBand({ act, tint, copy, speed }: { act: Act; tint: boolean; copy: Co
             {act.title}
           </h3>
           {act.description && <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: 0.68, margin: "0 0 20px", maxWidth: 300 }}>{act.description}</p>}
-          <div style={{ height: 1, width: 44, background: "rgba(94,64,116,.25)" }} />
+          <div style={{ height: 1, width: 44, background: "var(--pdh-plum-border)" }} />
         </div>
 
         <div style={{ minWidth: 0 }}>
@@ -356,7 +356,7 @@ function ActBand({ act, tint, copy, speed }: { act: Act; tint: boolean; copy: Co
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 12, marginTop: 18 }}>
             {showProgress && (
-              <div style={{ flex: "1 1 auto", maxWidth: 120, height: 2, borderRadius: 999, background: "rgba(94,64,116,.14)", overflow: "hidden" }}>
+              <div style={{ flex: "1 1 auto", maxWidth: 120, height: 2, borderRadius: 999, background: "var(--pdh-plum-tint)", overflow: "hidden" }}>
                 <div
                   className="bar-fill"
                   style={{

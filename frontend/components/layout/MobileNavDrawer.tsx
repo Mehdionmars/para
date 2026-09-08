@@ -76,7 +76,7 @@ export function MobileNavDrawer({
           alignItems: "center",
           justifyContent: "space-between",
           padding: "18px 20px",
-          borderBottom: "1px solid rgba(94,64,116,.12)",
+          borderBottom: "1px solid var(--pdh-plum-tint)",
         }}
       >
         <span style={{ fontFamily: "var(--font-alta)", fontSize: 18, fontWeight: 500, color: "var(--pdh-ink)" }}>Menu</span>
@@ -93,7 +93,7 @@ export function MobileNavDrawer({
 
             if (!columns || columns.length === 0) {
               return (
-                <li key={item.label} role="none" style={{ borderBottom: "1px solid rgba(94,64,116,.1)" }}>
+                <li key={item.label} role="none" style={{ borderBottom: "1px solid var(--pdh-plum-tint)" }}>
                   <div
                     role="menuitem"
                     tabIndex={0}
@@ -117,7 +117,7 @@ export function MobileNavDrawer({
             }
 
             return (
-              <li key={item.label} role="none" style={{ borderBottom: "1px solid rgba(94,64,116,.1)" }}>
+              <li key={item.label} role="none" style={{ borderBottom: "1px solid var(--pdh-plum-tint)" }}>
                 <button
                   type="button"
                   onClick={() => setOpenItem(isOpen ? null : item.label)}
@@ -184,7 +184,7 @@ export function MobileNavDrawer({
 
       <div
         style={{
-          borderTop: "1px solid rgba(94,64,116,.12)",
+          borderTop: "1px solid var(--pdh-plum-tint)",
           padding: "12px 20px calc(16px + env(safe-area-inset-bottom,0px))",
           display: "flex",
           flexDirection: "column",
