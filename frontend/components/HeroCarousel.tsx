@@ -1,13 +1,59 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { HERO_SLIDES, type HeroSlide } from "@/data/home";
 import { SnowParticles } from "./SnowParticles";
 
 const AUTOPLAY_MS = 5500;
+
+const REDUCE_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCE_MOTION_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function subscribePageVisible(onChange: () => void) {
+  document.addEventListener("visibilitychange", onChange);
+  return () => document.removeEventListener("visibilitychange", onChange);
+}
+
+/**
+ * Whether the visitor asked their OS for less motion.
+ *
+ * SnowParticles reads the same query imperatively, which is right for a canvas
+ * loop but wrong here: this value decides what gets *rendered* (the pause
+ * button, the live-region politeness), so it has to be state. It is external
+ * browser state that can flip while the page is open, so useSyncExternalStore
+ * is the tool — reading it into useState from an effect is the cascade
+ * `react-hooks/set-state-in-effect` exists to catch.
+ *
+ * The server snapshot is `false`: the server cannot know, so the markup is
+ * built as if motion is allowed and corrects itself on hydration. Erring the
+ * other way would ship a paused carousel to everyone.
+ */
+function useReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCE_MOTION_QUERY).matches,
+    () => false,
+  );
+}
+
+/** A carousel advancing in a tab nobody is looking at burns a timer, spends
+ * mobile battery, and — because `activate` also mounts the next slide — can
+ * quietly pull images for slides the visitor never sees. */
+function usePageVisible() {
+  return useSyncExternalStore(
+    subscribePageVisible,
+    () => !document.hidden,
+    () => true,
+  );
+}
 
 export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
   const heroSlides = slides && slides.length > 0 ? slides : HERO_SLIDES;
@@ -20,10 +66,27 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
   // from landing on an empty frame: a slide mounted only at transition time
   // starts fetching then, and shows its bare background for a beat.
   const [mountedSlides, setMountedSlides] = useState<Set<number>>(() => new Set([0, 1]));
-  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  // Mirrors `active` for the autoplay interval, which needs the current
-  // index without re-creating the timer on every slide change.
+
+  const reducedMotion = useReducedMotion();
+  const pageVisible = usePageVisible();
+  /** Sticky: set by the pause button and only cleared by the same button.
+   * Hovering away must not silently restart something the visitor stopped. */
+  const [userPaused, setUserPaused] = useState(false);
+  /** Transient: the pointer is over the hero, or focus is somewhere inside it.
+   * Advancing the slide under a visitor who is reading it — or who is tabbing
+   * through its link — is the behaviour that makes carousels hostile. */
+  const [engaged, setEngaged] = useState(false);
+  /** Bumped on every manual navigation to restart the interval, so clicking
+   * "next" gives the new slide a full turn rather than whatever was left of
+   * the previous one's. */
+  const [cycle, setCycle] = useState(0);
+  /** Mirrors `active` for the autoplay interval, which needs the current index
+   * without being torn down and rebuilt on every slide change. */
   const activeRef = useRef(0);
+
+  // One slide is not a carousel: no timer, no arrows, no pause control.
+  const isCarousel = heroSlides.length > 1;
+  const autoplaying = isCarousel && !reducedMotion && !userPaused && !engaged && pageVisible;
 
   /** The one place the slide changes. Marks the target mounted at the same
    * time, so mounting is driven by the transition itself rather than by an
@@ -43,21 +106,26 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
     [heroSlides.length],
   );
 
-  const restartAutoplay = useCallback(() => {
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
+  // The whole autoplay lifecycle, expressed as one condition. Every reason to
+  // stop — reduced motion, the pause button, hover, focus, a hidden tab, a
+  // lone slide — clears the interval by flipping `autoplaying`, and no reason
+  // needs its own teardown path.
+  //
+  // The interval is deliberately not re-created when `active` changes, so it
+  // reads the current index from the ref `activate` keeps in step. Deriving it
+  // from a `setActive` updater instead would mean mounting the next slide from
+  // inside that updater, and updaters have to stay pure.
+  useEffect(() => {
+    if (!autoplaying) return;
+    const id = setInterval(() => {
       activate((activeRef.current + 1) % heroSlides.length);
     }, AUTOPLAY_MS);
-  }, [activate, heroSlides.length]);
-
-  useEffect(() => {
-    restartAutoplay();
-    return () => clearInterval(timerRef.current);
-  }, [restartAutoplay]);
+    return () => clearInterval(id);
+  }, [autoplaying, cycle, activate, heroSlides.length]);
 
   function goTo(index: number) {
     activate(index);
-    restartAutoplay();
+    setCycle((c) => c + 1);
   }
 
   return (
@@ -65,6 +133,18 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
       className="home-hero"
       aria-roledescription="carousel"
       aria-label="Mises en avant"
+      // While the carousel rotates on its own, announcing each slide would
+      // interrupt a screen-reader user mid-sentence every 5.5s; once it is
+      // stopped, a slide change is something the visitor asked for and should
+      // hear. This is the ARIA carousel pattern's live-region rule.
+      aria-live={autoplaying ? "off" : "polite"}
+      // Mouse, not pointer: `pointerenter` fires on touch and would leave the
+      // carousel stuck paused after a tap on a phone, where there is no
+      // corresponding leave. Focus covers the keyboard path.
+      onMouseEnter={() => setEngaged(true)}
+      onMouseLeave={() => setEngaged(false)}
+      onFocus={() => setEngaged(true)}
+      onBlur={() => setEngaged(false)}
       style={{
         position: "relative",
         height: "clamp(430px,44vw,520px)",
@@ -84,6 +164,51 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
         // the page a different title every five seconds, and the crawler
         // only ever sees the first frame anyway.
         const Title = i === 0 ? "h1" : "h2";
+
+        // The photograph dissolves; the card is sequenced.
+        //
+        // Both used to ride on one opacity on this wrapper, which is why the
+        // headlines mixed: at the midpoint of a crossfade the outgoing and
+        // incoming cards were each ~50% opaque, stacked on the same rect, and
+        // the two titles were legible through one another for about a second.
+        // Photographs may dissolve — nothing is lost when two images overlap —
+        // but two blocks of text at the same coordinates never may. So the
+        // photo keeps its own opacity here and the card gets a different one.
+        const photoTransition = reducedMotion
+          ? "none"
+          : isActive
+            ? "opacity 900ms ease"
+            : // Hold at full opacity underneath and drop only once the incoming
+              // photo has fully covered it. Fading both at once would let the
+              // hero's dark ground show through at the midpoint and dip the
+              // whole frame darker — a flicker the eye reads as a fault.
+              "opacity 0ms 900ms";
+
+        // The 260ms delay IS the sequencing: the incoming card cannot start
+        // until the outgoing one has finished leaving at 200ms. Exit is faster
+        // than entrance, and leaves in place — a card that slides as it goes
+        // pulls the eye toward what is departing rather than what is arriving.
+        const copyFadeTransition = reducedMotion
+          ? "none"
+          : isActive
+            ? "opacity 420ms cubic-bezier(.16,1,.3,1) 260ms"
+            : "opacity 200ms ease-in";
+
+        // The lift belongs to the card, the fade to its wrapper, so neither
+        // inherits the other's delay. `transform 0ms 200ms` waits out the fade
+        // and then silently resets the offset, giving the next entrance
+        // somewhere to rise from without ever animating it visibly.
+        const copyLiftTransition = reducedMotion
+          ? "none"
+          : isActive
+            ? "transform 520ms cubic-bezier(.16,1,.3,1) 260ms"
+            : "transform 0ms 200ms";
+
+        // Snap the Ken Burns push back once the slide is hidden instead of
+        // easing an invisible layer for six seconds; on a two-slide carousel
+        // the old behaviour re-entered part-way through its own zoom.
+        const photoScaleTransition = reducedMotion ? "none" : isActive ? "transform 6s ease-out" : "transform 0ms 900ms";
+
         return (
           <div
             key={slide.title}
@@ -91,14 +216,24 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
             style={{
               position: "absolute",
               inset: 0,
-              opacity: isActive ? 1 : 0,
-              transition: "opacity 1s cubic-bezier(.22,1,.36,1)",
+              // The active layer sits on top so its photo fades in *over* the
+              // outgoing one rather than both meeting in the middle.
+              zIndex: isActive ? 2 : 1,
               display: "flex",
               alignItems: "center",
               overflow: "hidden",
               pointerEvents: isActive ? "auto" : "none",
             }}
           >
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                opacity: isActive ? 1 : 0,
+                transition: photoTransition,
+              }}
+            >
             {/* Slides past the first mount only once they've been shown, so
                 a 5-slide carousel doesn't fetch 5 heroes on first paint.
                 Slide 0 is always mounted and carries `priority` — it is the
@@ -121,7 +256,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                   style={{
                     objectFit: "cover",
                     transform: `scale(${isActive ? 1.06 : 1})`,
-                    transition: "transform 6s ease-out",
+                    transition: photoScaleTransition,
                   }}
                 />
                 {slide.mobileImg && (
@@ -155,6 +290,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                 }}
               />
             )}
+            </div>
             <div
               className="home-hero-copy-wrap"
               style={{
@@ -163,6 +299,8 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                 display: "flex",
                 justifyContent: slide.align === "left" ? "flex-start" : "flex-end",
                 padding: "0 clamp(72px,6vw,88px)",
+                opacity: isActive ? 1 : 0,
+                transition: copyFadeTransition,
               }}
             >
               <div
@@ -175,7 +313,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                   boxShadow: "0 24px 50px -30px rgba(30,24,14,.5)",
                   color: "var(--pdh-ink)",
                   transform: `translateY(${isActive ? 0 : 18}px)`,
-                  transition: "all 1s cubic-bezier(.22,1,.36,1)",
+                  transition: copyLiftTransition,
                 }}
               >
                 <span
@@ -186,7 +324,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
                     fontSize: 10.5,
                     letterSpacing: ".24em",
                     textTransform: "uppercase",
-                    border: "1px solid rgba(94,64,116,.3)",
+                    border: "1px solid var(--pdh-plum-border)",
                     color: "var(--pdh-plum)",
                     padding: "6px 14px",
                     borderRadius: 999,
@@ -254,56 +392,97 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
         );
       })}
 
-      <button
-        type="button"
-        onClick={() => goTo((active - 1 + heroSlides.length) % heroSlides.length)}
-        aria-label="Diapositive précédente"
-        className="hero-nav-btn"
-        style={{
-          position: "absolute",
-          insetInlineStart: 18,
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: 38,
-          height: 38,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,.82)",
-          border: "1px solid rgba(94,64,116,.14)",
-          color: "var(--pdh-plum)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          zIndex: 4,
-        }}
-      >
-        <ChevronLeft aria-hidden="true" size={18} />
-      </button>
-      <button
-        type="button"
-        onClick={() => goTo((active + 1) % heroSlides.length)}
-        aria-label="Diapositive suivante"
-        className="hero-nav-btn"
-        style={{
-          position: "absolute",
-          insetInlineEnd: 18,
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: 38,
-          height: 38,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,.82)",
-          border: "1px solid rgba(94,64,116,.14)",
-          color: "var(--pdh-plum)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          zIndex: 4,
-        }}
-      >
-        <ChevronRight aria-hidden="true" size={18} />
-      </button>
+      {/* Controls only exist when there is something to control. A single
+          configured slide gets a still image, not a carousel with dead arrows
+          and a pause button for a timer that never runs. */}
+      {isCarousel && (
+        <>
+          {/* WCAG 2.2.2 (Pause, Stop, Hide, level A): content that moves on its
+              own for more than five seconds needs a way to stop it. The arrows
+              navigate but never stop the timer, so before this they did not
+              satisfy it. Hidden under reduced motion, where nothing autoplays
+              and a pause button would be a control for nothing. */}
+          {!reducedMotion && (
+            <button
+              type="button"
+              onClick={() => setUserPaused((paused) => !paused)}
+              aria-label={userPaused ? "Reprendre le défilement automatique" : "Mettre en pause le défilement automatique"}
+              // Both classes on purpose: `hero-nav-btn` carries the shared hit
+              // area and the 44px mobile minimum, `hero-pause-btn` is what lets
+              // this one survive the rule that hides the arrows under 768px.
+              className="hero-nav-btn hero-pause-btn"
+              style={{
+                position: "absolute",
+                insetInlineEnd: 18,
+                top: 18,
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,.82)",
+                border: "1px solid var(--pdh-plum-tint)",
+                color: "var(--pdh-plum)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                zIndex: 4,
+              }}
+            >
+              {userPaused ? <Play aria-hidden="true" size={16} /> : <Pause aria-hidden="true" size={16} />}
+            </button>
+          )}
+              <button
+            type="button"
+            onClick={() => goTo((active - 1 + heroSlides.length) % heroSlides.length)}
+            aria-label="Diapositive précédente"
+            className="hero-nav-btn"
+            style={{
+              position: "absolute",
+              insetInlineStart: 18,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 38,
+              height: 38,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,.82)",
+              border: "1px solid var(--pdh-plum-tint)",
+              color: "var(--pdh-plum)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              zIndex: 4,
+            }}
+          >
+            <ChevronLeft aria-hidden="true" size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={() => goTo((active + 1) % heroSlides.length)}
+            aria-label="Diapositive suivante"
+            className="hero-nav-btn"
+            style={{
+              position: "absolute",
+              insetInlineEnd: 18,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 38,
+              height: 38,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,.82)",
+              border: "1px solid var(--pdh-plum-tint)",
+              color: "var(--pdh-plum)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              zIndex: 4,
+            }}
+          >
+            <ChevronRight aria-hidden="true" size={18} />
+          </button>
+        </>
+      )}
 
       <SnowParticles density={36} opacity={0.8} />
     </section>
