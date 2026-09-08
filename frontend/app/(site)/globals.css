@@ -2950,26 +2950,13 @@ nav[aria-label^="Fil d"] a::after {
     margin-bottom: 5px;
   }
 
+  /* Only the size. The two-line reserve that briefly lived here as an
+     `!important` is gone: ProductCard now computes two lines itself, at every
+     width, so there is one source for it instead of an inline value and a
+     media query fighting over the same property. Its 42px (two lines at 15px)
+     still clears two lines of the 14px this rule sets, so nothing misaligns. */
   .pdh-name {
     font-size: 14px !important;
-    /* Two lines of reserve, not three.
-
-       ProductCard sets `minHeight: 63` inline — three lines at the 1.4 leading,
-       derived for the 15px this file then overrides to 14px, so on a phone the
-       reserve was not even the number it was calculated to be. Counted against
-       production at 375px: on the home rails 10 of 11 names occupy one line and
-       one occupies two, none three; in the catalogue 13 of 24 take one line, 10
-       take two, and exactly one takes three. Twenty-three cards were carrying
-       ~23px of air to keep one company.
-
-       The clamp stays at three lines, so that one name is still shown whole —
-       truncating it would cut "75ml" off an exfoliant, and the same rule is why
-       sunscreen names keep their SPF. It simply sits taller than its row-mate
-       now, which is the one row that pays instead of all of them.
-
-       `!important` because the value it beats is an inline style, and only that
-       outranks it. 39.2px is two lines at 14px; 40 rounds it up. */
-    min-height: 40px !important;
   }
 
   .pdh-price {

@@ -171,11 +171,22 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
           href={href}
           style={{
             fontSize: config.large ? 16 : variant === "dermo" ? 14 : 15,
-            // Three lines at the 1.4 leading the class sets, rounded up:
-            // 16→67, 15→63, 14→59. Derived rather than eyeballed, because
-            // this is the number that keeps every price in a row on the same
-            // baseline no matter how long a neighbour's name runs.
-            minHeight: config.large ? 67 : variant === "dermo" ? 59 : 63,
+            // Two lines at the 1.4 leading the class sets, rounded up:
+            // 16→45, 15→42, 14→40. Still derived rather than eyeballed — this
+            // is what keeps every price in a row on the same baseline no
+            // matter how long a neighbour's name runs.
+            //
+            // It reserved three. Counted against production: at 1440 not one
+            // name reaches a third line — 0 of 24 in the catalogue, 0 of 11 on
+            // the home page — because a card is 221–289px wide there. At 375
+            // exactly one of those 24 does. Every card at every width was
+            // holding ~22px of air for a case that occurs once in the shop.
+            //
+            // The clamp stays at three lines, so that one name is still shown
+            // whole; cutting it would drop "75ml" from an exfoliant, the same
+            // reason sunscreen names keep their SPF. It simply runs taller
+            // than its row-mate — one row pays instead of every card.
+            minHeight: config.large ? 45 : variant === "dermo" ? 40 : 42,
           }}
         >
           {product.name}
