@@ -2481,6 +2481,18 @@ nav[aria-label^="Fil d"] a::after {
 /* Not var(--pdh-muted): the theme's grey is 4.2:1 on white, which is under
    the minimum for text this size — and the contenance on this line is a
    figure shoppers compare, not decoration. */
+/* A row that has nothing in it takes no room.
+   `min-height` below reserves 17px, and with its 6px margin that is 23px on
+   every card — held so a card carrying a volume or a rating lines up with one
+   that does not. Measured against production, nothing carries either: the line
+   is `:empty` on 11 of 11 cards on the home page and 24 of 24 in the
+   catalogue, so the reservation was protecting an alignment that never had
+   anything to align. `:empty` is exact — no children, no text — so the moment
+   a card does carry meta, it gets its space back and the alignment with it. */
+.pdh-metaline:empty {
+  display: none;
+}
+
 .pdh-metaline {
   display: flex;
   align-items: center;
@@ -2940,6 +2952,24 @@ nav[aria-label^="Fil d"] a::after {
 
   .pdh-name {
     font-size: 14px !important;
+    /* Two lines of reserve, not three.
+
+       ProductCard sets `minHeight: 63` inline — three lines at the 1.4 leading,
+       derived for the 15px this file then overrides to 14px, so on a phone the
+       reserve was not even the number it was calculated to be. Counted against
+       production at 375px: on the home rails 10 of 11 names occupy one line and
+       one occupies two, none three; in the catalogue 13 of 24 take one line, 10
+       take two, and exactly one takes three. Twenty-three cards were carrying
+       ~23px of air to keep one company.
+
+       The clamp stays at three lines, so that one name is still shown whole —
+       truncating it would cut "75ml" off an exfoliant, and the same rule is why
+       sunscreen names keep their SPF. It simply sits taller than its row-mate
+       now, which is the one row that pays instead of all of them.
+
+       `!important` because the value it beats is an inline style, and only that
+       outranks it. 39.2px is two lines at 14px; 40 rounds it up. */
+    min-height: 40px !important;
   }
 
   .pdh-price {
