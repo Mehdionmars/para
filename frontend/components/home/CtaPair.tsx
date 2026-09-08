@@ -17,10 +17,10 @@ export function CtaPair({ tiles, height }: { tiles: CtaTile[]; height: number })
         maxWidth: "min(1280px,100%)",
         margin: "0 auto",
         padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))",
-        display: "grid",
-        // Columns live in globals.css (.cta-pair-grid): two on a phone, and
-        // an inline template cannot hold the media query that says so.
-        gap: "clamp(14px,2vw,24px)",
+        // `display`, the columns and the gap all live in globals.css
+        // (.cta-pair-grid). `display` moved there when the section had to be
+        // hidden on phones: an inline `display: grid` outranks any stylesheet
+        // rule short of !important, so the media query could not turn it off.
       }}
     >
       {tiles.map((tile) => (

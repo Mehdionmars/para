@@ -4533,52 +4533,34 @@ section.rail-editorial {
 }
 
 
-/* The CTA pair: two across at every width.
+/* The CTA pair: two across, and not on phones at all.
 
-   Desktop sizes its own tracks; a phone is told to use two, because the
-   auto-fit minimum that used to govern here could not fit twice into a
-   phone's content width and quietly produced one column. Same failure the
-   product grids had, in a third place. */
+   Hidden below 768px by request. The two-column rule below it stays as the
+   base because it is still the right answer for the widths where the section
+   renders, and because it is what an unhide would need: the auto-fit minimum
+   that used to govern here could not fit twice into a phone's content width
+   and quietly produced one column — the same failure the product grids had,
+   in a third place.
+
+   The block of phone-sized copy that used to follow (a 15px title, an 8.5px
+   eyebrow, a 42px CTA, all tuned for a 174px-wide tile) is gone with it. It
+   could no longer apply to anything, and `git show` on this commit has it if
+   the section ever comes back to mobile. */
 .cta-pair-grid {
+  display: grid;
+  gap: clamp(14px, 2vw, 24px);
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .cta-pair-grid {
+    display: none;
+  }
 }
 
 @media (min-width: 768px) {
   .cta-pair-grid {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-  }
-}
-
-/* Copy scaled to half a phone's width.
-
-   These sizes were set for a full-width tile; at 174px the 21px title ran
-   past the card and the eyebrow's 0.2em tracking broke mid-word. Scoped to
-   the CTA pair so the marketing banner, which is still full width on a
-   phone, keeps the sizes it was tuned for. */
-@media (max-width: 767px) {
-  .cta-pair-grid .overlay-card-content {
-    padding: 10px 12px 12px !important;
-  }
-
-  .cta-pair-grid .overlay-card-eyebrow {
-    font-size: 8.5px !important;
-    letter-spacing: 0.14em !important;
-    margin-bottom: 4px !important;
-  }
-
-  .cta-pair-grid .overlay-card-title {
-    font-size: 15px !important;
-    line-height: 1.16 !important;
-    margin: 0 0 8px !important;
-  }
-
-  .cta-pair-grid .overlay-card-cta {
-    padding: 10px 14px !important;
-    font-size: 9.5px !important;
-    letter-spacing: 0.1em !important;
-    /* Still a real target: 42px of height, and the tile itself is the link,
-       so the whole card is tappable either way. */
-    min-height: 42px;
   }
 }
 
