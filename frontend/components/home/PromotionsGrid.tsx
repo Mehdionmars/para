@@ -80,11 +80,8 @@ export function PromotionsGrid({
     <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 22, gap: 16, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-            {copy.eyebrow || "Promotions"}
-          </div>
-          <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0" }}>{copy.title}</h2>
-          {copy.subtitle && <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6 }}>{copy.subtitle}</div>}
+          <h2 className="sec-title">{copy.title}</h2>
+          {copy.subtitle && <div className="sec-deck">{copy.subtitle}</div>}
         </div>
         {/* Toggle buttons in a labelled group, not role="tablist".
             The previous markup claimed tab semantics without a tabpanel,

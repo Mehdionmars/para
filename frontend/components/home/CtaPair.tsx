@@ -51,10 +51,7 @@ export function CtaPair({ tiles, height }: { tiles: CtaTile[]; height: number })
               bottom-up in CSS to sit under it instead. */}
           <div className="overlay-card-scrim scrim-side" aria-hidden="true" style={{ position: "absolute", inset: 0 }} />
           <div className="overlay-card-content" style={{ position: "relative", zIndex: 3, padding: 32, color: "var(--pdh-cream)", maxWidth: "min(320px,56%)" }}>
-            <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.85 }}>
-              {tile.eyebrow}
-            </div>
-            <div className="overlay-card-title" style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", lineHeight: 1.1, margin: "8px 0 16px" }}>
+            <div className="overlay-card-title" style={{ marginBottom: 16 }}>
               {tile.title}
             </div>
             {/* The tile itself is the link, so this stays a <span>: a real

@@ -101,21 +101,14 @@ export function Newsletter({ copy: copyProp }: { copy?: NewsletterCopy } = {}) {
           </span>
         )}
 
-        <h2
-          id="newsletter-title"
-          style={{
-            fontFamily: "var(--font-alta)",
-            fontWeight: 200,
-            fontSize: "clamp(24px,3.2vw,36px)",
-            lineHeight: 1.08,
-            margin: 0,
-            textWrap: "balance",
-          }}
-        >
+        <h2 className="sec-title" id="newsletter-title">
           {copy.title || "Recevez nos conseils & nouveautés"}
         </h2>
 
-        <p style={{ fontSize: 14, opacity: 0.78, margin: 0, maxWidth: "34em", lineHeight: 1.6, textWrap: "pretty" }}>
+        {/* --on-dark: this panel's ground is the plum, and the deck's default
+            ink would land at 2.46:1 on it. Tinted from the cream it sits in
+            rather than dropped to a grey. */}
+        <p className="sec-deck sec-deck--on-dark" style={{ margin: 0, maxWidth: "34em", textWrap: "pretty" }}>
           {copy.subtitle || "Inscrivez-vous pour découvrir nos conseils pharmaceutiques, nouveautés et offres exclusives."}
         </p>
 

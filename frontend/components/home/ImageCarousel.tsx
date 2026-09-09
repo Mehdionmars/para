@@ -40,15 +40,10 @@ export function ImageCarousel({
           <CloudinaryImage preset="editorial" src={copy.img} alt={copy.title || "Sélection"} fill sizes="(max-width: 768px) 100vw, 480px" style={{ objectFit: "cover" }} />
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 34%,rgba(47,31,61,.72) 100%)" }} />
           <div style={{ position: "relative", zIndex: 3, padding: "clamp(22px,3vw,34px)", color: "var(--pdh-cream)" }}>
-            {copy.eyebrow && (
-              <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.85 }}>{copy.eyebrow}</div>
-            )}
-            <div style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(26px,3vw,36px)", lineHeight: 1.1, margin: "10px 0 8px", maxWidth: 340 }}>
+            <div className="overlay-card-title" style={{ maxWidth: 340 }}>
               {copy.title}
             </div>
-            {copy.subtitle && (
-              <p style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(var(--pdh-cream-rgb), 0.82)", margin: "0 0 18px", maxWidth: 360 }}>{copy.subtitle}</p>
-            )}
+            {copy.subtitle && <p className="overlay-card-text" style={{ maxWidth: 360 }}>{copy.subtitle}</p>}
             <Link
               href={copy.ctaUrl || "/catalogue"}
               style={{ display: "inline-block", background: "var(--pdh-cream)", color: "var(--pdh-ink)", padding: "13px 28px", borderRadius: 999, fontSize: 11.5, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase" }}
@@ -60,9 +55,7 @@ export function ImageCarousel({
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0, justifyContent: "center" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
-            <h3 style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: "clamp(19px,2.2vw,24px)", margin: 0, color: "var(--pdh-ink)" }}>
-              {copy.picksTitle || "Notre sélection"}
-            </h3>
+            <h3 className="card-title">{copy.picksTitle || "Notre sélection"}</h3>
             <div style={{ display: "flex", gap: 8, flex: "none" }}>
               <button type="button" onClick={() => railRef.current?.scrollPrev()} aria-label="Produits précédents" className="circle-btn">
                 <ChevronLeft aria-hidden="true" size={16} />

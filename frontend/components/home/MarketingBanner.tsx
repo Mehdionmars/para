@@ -48,21 +48,14 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
           {banner.badgeLabel && <BannerBadge label={banner.badgeLabel} />}
 
           <div className="overlay-card-content" style={{ position: "relative", zIndex: 2, padding: "clamp(24px,3.6vw,48px)", maxWidth: 560, color: "#fff" }}>
-            {banner.eyebrow && (
-              <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.9, marginBottom: 10 }}>
-                {banner.eyebrow}
-              </div>
-            )}
             {banner.title && (
-              <h2
-                className="overlay-card-title"
-                style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,4vw,44px)", lineHeight: 1.08, margin: "0 0 14px", letterSpacing: "-.01em" }}
-              >
-                {banner.title}
-              </h2>
+              <h2 className="overlay-card-title overlay-card-title--feature">{banner.title}</h2>
             )}
             {banner.description && (
-              <p className="overlay-card-text" style={{ fontSize: 14.5, lineHeight: 1.7, opacity: 0.92, margin: "0 0 22px", maxWidth: 460 }}>
+              /* The one overlay text that is not tinted from cream: this
+                 banner's copy is #fff on an editor-chosen photograph, and
+                 the scrim behind it is what carries the contrast. */
+              <p className="overlay-card-text" style={{ color: "rgba(255,255,255,.92)", maxWidth: 460 }}>
                 {banner.description}
               </p>
             )}
