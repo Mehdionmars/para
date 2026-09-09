@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOrManager, canEditContent, staffOnlyInAdmin } from '../access/roles'
 import { slugField } from '../lib/slugField'
+import { revalidateStorefront } from '../lib/revalidateStorefront'
 
 export const SERVICE_ICON_OPTIONS = ['Baby', 'Feather', 'Palette', 'ScanFace', 'Scissors', 'Droplet'] as const
 
@@ -17,6 +18,25 @@ export const Services: CollectionConfig = {
   admin: {
     defaultColumns: ['title', 'price', 'duration', 'expert'],
     useAsTitle: 'title',
+  },
+  hooks: {
+    // The storefront caches this behind the 'services' tag, and nothing was
+    // purging it — The services teaser on the home page and /services both read this. An edit therefore
+    // waited for the cache to expire on its own rather than appearing on the
+    // next request, which is the whole reason the tag exists.
+    //
+    // afterDelete as well as afterChange: removing one is as visible as
+    // editing one.
+    afterChange: [
+      async ({ req }) => {
+  await revalidateStorefront(req.payload, ['services'])
+      },
+    ],
+    afterDelete: [
+      async ({ req }) => {
+  await revalidateStorefront(req.payload, ['services'])
+      },
+    ],
   },
   fields: [
     {

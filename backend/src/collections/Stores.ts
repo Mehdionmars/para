@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOrManager, canEditContent, staffOnlyInAdmin } from '../access/roles'
+import { revalidateStorefront } from '../lib/revalidateStorefront'
 
 export const Stores: CollectionConfig = {
   slug: 'stores',
@@ -15,6 +16,25 @@ export const Stores: CollectionConfig = {
     defaultColumns: ['name', 'address', 'phone'],
     description: 'Physical parapharmacie locations shown on the services page.',
     useAsTitle: 'name',
+  },
+  hooks: {
+    // The storefront caches this behind the 'stores' tag, and nothing was
+    // purging it — A store's address, hours and phone are what /contact exists to publish. An edit therefore
+    // waited for the cache to expire on its own rather than appearing on the
+    // next request, which is the whole reason the tag exists.
+    //
+    // afterDelete as well as afterChange: removing one is as visible as
+    // editing one.
+    afterChange: [
+      async ({ req }) => {
+  await revalidateStorefront(req.payload, ['stores'])
+      },
+    ],
+    afterDelete: [
+      async ({ req }) => {
+  await revalidateStorefront(req.payload, ['stores'])
+      },
+    ],
   },
   fields: [
     {
