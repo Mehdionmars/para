@@ -72,13 +72,8 @@ export function FeaturedWithPromo({
     <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 22, gap: 16, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-            {copy.eyebrow}
-          </div>
-          <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0", letterSpacing: "-.01em" }}>
-            {copy.title}
-          </h2>
-          {copy.subtitle && <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, maxWidth: 620 }}>{copy.subtitle}</div>}
+          <h2 className="sec-title">{copy.title}</h2>
+          {copy.subtitle && <div className="sec-deck">{copy.subtitle}</div>}
         </div>
         {copy.ctaLabel && (
           <Link
@@ -114,10 +109,7 @@ export function FeaturedWithPromo({
             </span>
           )}
           <span className="featured-promo-tile-body">
-            <span style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.75 }}>
-              {copy.promoEyebrow}
-            </span>
-            <span style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: "clamp(20px,2.2vw,26px)", lineHeight: 1.15, letterSpacing: "-.01em" }}>
+            <span className="card-title" style={{ color: "inherit", letterSpacing: "-.01em" }}>
               {copy.promoTitle}
             </span>
             <span className="featured-promo-cta">

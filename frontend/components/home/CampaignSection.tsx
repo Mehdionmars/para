@@ -44,15 +44,10 @@ export function CampaignSection({
           />
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 34%,rgba(47,31,61,.72) 100%)" }} />
           <div className="overlay-card-content" style={{ position: "relative", zIndex: 3, padding: "clamp(22px,3vw,34px)", color: "var(--pdh-cream)" }}>
-            {copy.eyebrow && (
-              <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.85 }}>{copy.eyebrow}</div>
-            )}
-            <div className="overlay-card-title" style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(26px,3vw,36px)", lineHeight: 1.1, margin: "10px 0 8px", maxWidth: 340 }}>
+            <div className="overlay-card-title" style={{ maxWidth: 340 }}>
               {copy.title}
             </div>
-            {copy.description && (
-              <p className="overlay-card-text" style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(var(--pdh-cream-rgb), 0.82)", margin: "0 0 18px", maxWidth: 360 }}>{copy.description}</p>
-            )}
+            {copy.description && <p className="overlay-card-text" style={{ maxWidth: 360 }}>{copy.description}</p>}
             <div className="overlay-card-actions" data-cta-align={toCtaAlign(copy.ctaAlign)}>
               <Link
                 href={copy.ctaUrl || "/catalogue"}
@@ -68,13 +63,7 @@ export function CampaignSection({
         <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
             <div>
-              {/* The CMS has carried this string all along (campaign.eyebrow);
-                  the component was printing its own literal over the top of
-                  it, so editing it in the builder changed nothing. */}
-              <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-                {copy.eyebrow || "La sélection"}
-              </div>
-              <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(24px,2.8vw,32px)", margin: "8px 0 0" }}>{railTitle}</h2>
+              <h2 className="sec-title">{railTitle}</h2>
             </div>
             <div style={{ display: "flex", gap: 8, flex: "none" }}>
               <button type="button" onClick={() => railRef.current?.scrollPrev()} aria-label="Produits précédents" className="circle-btn">

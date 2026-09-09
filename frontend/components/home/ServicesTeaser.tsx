@@ -24,11 +24,8 @@ export function ServicesTeaser({ cards: cardsProp, copy: copyProp }: { cards?: S
       <div style={{ background: "var(--surface-panel)", borderRadius: "clamp(16px,2vw,24px)", padding: "clamp(24px,3.2vw,40px)" }}>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 22, gap: 16, flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-              {copy.eyebrow}
-            </div>
-            <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0" }}>{copy.title}</h2>
-            {copy.subtitle && <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6 }}>{copy.subtitle}</div>}
+            <h2 className="sec-title">{copy.title}</h2>
+            {copy.subtitle && <div className="sec-deck">{copy.subtitle}</div>}
           </div>
           <Link
             href="/services"
@@ -59,8 +56,8 @@ export function ServicesTeaser({ cards: cardsProp, copy: copyProp }: { cards?: S
               <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--pdh-plum-tint)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)" }}>
                 <c.icon aria-hidden="true" size={20} strokeWidth={1.5} />
               </div>
-              <div style={{ fontSize: 14.5, fontWeight: 600 }}>{c.title}</div>
-              <div style={{ fontSize: 12.5, lineHeight: 1.65, opacity: 0.65 }}>{c.sub}</div>
+              <div style={{ fontSize: 15, fontWeight: 600 }}>{c.title}</div>
+              <div className="sec-deck" style={{ margin: 0 }}>{c.sub}</div>
               <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-teal-text)", marginTop: "auto" }}>{c.cta} →</div>
             </Link>
           ))}

@@ -81,26 +81,10 @@ export function DermoCorner({
             {copy.img && <CloudinaryImage preset="editorial" src={copy.img} alt="" fill sizes="(max-width: 768px) 100vw, 420px" style={{ objectFit: "cover" }} />}
           </div>
           <div>
-            <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-              {copy.eyebrow}
-            </div>
-            <h2
-              style={{
-                fontFamily: "var(--font-alta)",
-                fontWeight: 200,
-                fontSize: "clamp(28px,3.6vw,42px)",
-                lineHeight: 1.08,
-                letterSpacing: "-.01em",
-                margin: "14px 0 16px",
-                maxWidth: 440,
-                color: "var(--pdh-ink)",
-              }}
-            >
+            <h2 className="sec-title sec-title--feature" style={{ maxWidth: 440, color: "var(--pdh-ink)" }}>
               {copy.title}
             </h2>
-            {copy.subtitle && (
-              <p style={{ fontSize: 14, lineHeight: 1.8, opacity: 0.68, margin: "0 0 26px", maxWidth: 440 }}>{copy.subtitle}</p>
-            )}
+            {copy.subtitle && <p className="sec-deck" style={{ margin: "16px 0 26px", maxWidth: 440 }}>{copy.subtitle}</p>}
             <Link
               href={copy.ctaUrl || "/catalogue"}
               className="link-hover"
@@ -133,10 +117,10 @@ export function DermoCorner({
         >
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
             <div>
-              <h3 style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: "clamp(19px,2.2vw,24px)", margin: 0, color: "var(--pdh-ink)" }}>
-                {copy.picksTitle}
-              </h3>
-              <div style={{ fontSize: 12.5, opacity: 0.6, marginTop: 4 }}>{items.length} produits sélectionnés par nos pharmaciens</div>
+              <h3 className="card-title">{copy.picksTitle}</h3>
+              <div className="sec-deck" style={{ marginTop: 4 }}>
+                {items.length} produits sélectionnés par nos pharmaciens
+              </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <button type="button" onClick={() => railRef.current?.scrollPrev()} aria-label="Produits précédents" className="circle-btn">

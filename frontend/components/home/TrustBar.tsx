@@ -26,8 +26,13 @@ export function TrustBar({ badges }: { badges?: TrustBadge[] } = {}) {
               <badge.icon aria-hidden="true" size={16} strokeWidth={1.6} />
             </div>
             <div>
-              <div style={{ fontSize: 12.5, fontWeight: 500 }}>{badge.title}</div>
-              <div style={{ fontSize: 10.5, opacity: 0.55 }}>{badge.sub}</div>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>{badge.title}</div>
+              {/* Was 10.5px at opacity .55 — measured 3.30:1 on this bar's own
+                  white ground, the worst text on the home page. The claims
+                  underneath these four icons (livraison, paiement, circuit
+                  pharmaceutique, pharmaciens 7j/7) are the page's proof that
+                  the shop is real; they were the least legible thing on it. */}
+              <div style={{ fontSize: 12, color: "var(--pdh-ink-soft)", marginTop: 1 }}>{badge.sub}</div>
             </div>
           </div>
         ))}
