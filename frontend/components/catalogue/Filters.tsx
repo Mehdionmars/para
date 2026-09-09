@@ -124,13 +124,16 @@ export function Filters({
             // the worst on the site, and a MutationObserver put it at 367ms:
             // "Catégories" going from empty to filled.
             //
-            // 215px is seven rows at 23px with six 9px gaps, which is what
-            // these pages actually render (the nine broad categories minus the
-            // ones with nothing in them). /catalogue does not shift at all, so
-            // it is not the case being sized for. The reservation disappears
-            // the moment there is content, so nothing is left holding empty
-            // space once loaded.
-            minHeight: facets.categories.length === 0 ? 215 : undefined,
+            // 279px is nine rows at 23px with eight 9px gaps — the nine broad
+            // categories, which is what these pages render. It was first set
+            // to 215 for seven, counted off a screen probe that had only seen
+            // part of the column; the DOM has nine, and those two unaccounted
+            // rows were the whole of the 0.0052 left over. /catalogue does not
+            // shift at all, so it is not the case being sized for.
+            //
+            // The reservation disappears the moment there is content, so
+            // nothing is left holding empty space once loaded.
+            minHeight: facets.categories.length === 0 ? 279 : undefined,
           }}
         >
           {facets.categories.map(({ value, count }) => (
