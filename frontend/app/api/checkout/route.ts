@@ -23,12 +23,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
   }
 
+  // Forwarded, not generated here. A key minted in this proxy would be a new
+  // one on every attempt — including the retry it is supposed to recognise —
+  // so it has to come from the browser, which is the only place that knows
+  // "this is the same checkout I already tried". Dropping it (which this
+  // route did until now) left the backend's whole idempotency layer inert:
+  // the mechanism was there, correct, and nothing ever exercised it.
+  //
+  // Validated rather than passed through: the header reaches a database
+  // column and a log line, and this is the boundary where an arbitrary
+  // client string stops being arbitrary. Same rule as the backend's
+  // isValidKey, applied early so a malformed one is simply not forwarded
+  // instead of turning a real order into a 400.
+  const clientKey = request.headers.get("idempotency-key");
+  const idempotencyKey =
+    clientKey && /^[A-Za-z0-9_.:-]{8,200}$/.test(clientKey) ? clientKey : null;
+
   let res: Response;
   try {
     res = await fetch(`${CMS_URL}/api/checkout`, {
       body: JSON.stringify(body),
       cache: "no-store",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
+      },
       method: "POST",
     });
   } catch {

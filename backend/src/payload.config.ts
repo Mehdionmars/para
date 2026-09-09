@@ -18,6 +18,7 @@ import { Inventory } from './collections/Inventory'
 import { Media, MAX_UPLOAD_BYTES } from './collections/Media'
 import { Notifications } from './collections/Notifications'
 import { OrderStatusHistory } from './collections/OrderStatusHistory'
+import { PaymentEvents } from './collections/PaymentEvents'
 import { Orders } from './collections/Orders'
 import { PushSubscriptions } from './collections/PushSubscriptions'
 import { Products } from './collections/Products'
@@ -152,6 +153,7 @@ export default buildConfig({
     OrderStatusHistory,
     Notifications,
     PushSubscriptions,
+    PaymentEvents,
   ],
 
   cors: corsOrigins,

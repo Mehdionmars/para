@@ -2,11 +2,16 @@ import configPromise from '@payload-config'
 import { getPayload, type Payload } from 'payload'
 
 import { serverError } from '../../../../lib/apiError'
-import { IDEMPOTENCY_TTL_HOURS } from '../../../../lib/idempotency'
 import { emailProvider, pushProvider, whatsappProvider } from '../../../../lib/notifications/providers'
 import { MAX_ATTEMPTS, retryNotificationDelivery } from '../../../../lib/notifications/retry'
 
 export const maxDuration = 60
+
+/** Rows deleted per statement, and how many statements one tick will run.
+ * 1000 x 20 clears 20 000 expired keys per tick without ever holding a long
+ * lock on a table the checkout path is inserting into. */
+const PURGE_BATCH_SIZE = 1000
+const PURGE_MAX_BATCHES = 20
 
 /**
  * The background worker, as an endpoint.
@@ -166,13 +171,32 @@ async function purge(payload: Payload): Promise<TickResult['purged']> {
     // Anything older than one window can never be read again: the bucket key
     // includes its own window start.
     const limits = await client.query(`DELETE FROM rate_limits WHERE window_start < now() - interval '1 hour'`)
-    const keys = await client.query(
-      `DELETE FROM idempotency_keys WHERE created_at < now() - ($1 || ' hours')::interval`,
-      [IDEMPOTENCY_TTL_HOURS],
-    )
+    // Batched, and driven by the row's own `expires_at` rather than a TTL
+    // constant this function has to keep in step with every caller.
+    //
+    // One unbounded DELETE was fine while the table was small, and stops
+    // being fine exactly when it matters: after an outage or a traffic spike
+    // the backlog is largest, and a single statement then takes a long lock
+    // on the table the checkout path needs to INSERT into. A capped loop
+    // gives that lock back between batches, and what it does not finish this
+    // tick it finishes on the next one.
+    let idempotencyKeys = 0
+    for (let batch = 0; batch < PURGE_MAX_BATCHES; batch += 1) {
+      const deleted = await client.query(
+        `DELETE FROM idempotency_keys
+          WHERE ctid IN (
+            SELECT ctid FROM idempotency_keys WHERE expires_at < now() LIMIT $1
+          )`,
+        [PURGE_BATCH_SIZE],
+      )
+      const n = deleted.rowCount ?? 0
+      idempotencyKeys += n
+      if (n < PURGE_BATCH_SIZE) break
+    }
+
     return {
       apiLogs: logs.rowCount ?? 0,
-      idempotencyKeys: keys.rowCount ?? 0,
+      idempotencyKeys,
       rateLimits: limits.rowCount ?? 0,
     }
   } catch (err) {

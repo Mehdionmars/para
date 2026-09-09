@@ -137,11 +137,18 @@ async function handlePOST(request: Request) {
   // or a retry after a dropped response, must not decrement stock twice and
   // create two orders — and the transaction below cannot prevent that on its
   // own, because both requests are individually valid. See lib/idempotency.ts.
+  // Scoped to the shopper, not just the endpoint. Two clients can pick the
+  // same Idempotency-Key — they are client-generated — and without a scope
+  // the second one to arrive would be handed the first one's order number and
+  // total. The email is the only identity a guest checkout has; it is hashed
+  // before it is stored or logged, so this does not turn the idempotency
+  // table into a list of customer addresses. See lib/idempotency.ts.
   const claim = await claimIdempotencyKey({
     body,
     endpoint: '/api/checkout',
     key: request.headers.get('idempotency-key'),
     payload,
+    scope: typeof body?.email === 'string' ? body.email : null,
   })
   if (claim.outcome === 'replay') return claim.response
   if (claim.outcome === 'in_progress') return inProgressResponse()
@@ -624,6 +631,7 @@ async function handlePOST(request: Request) {
     // reservations. Errors here are logged as a movement of their own so the
     // discrepancy is never silent.
     const compensation = await pool.connect()
+    let stockRestored = false
     try {
       await compensation.query('BEGIN')
       for (const v of variantDecrements) {
@@ -639,6 +647,7 @@ async function handlePOST(request: Request) {
         ])
       }
       await compensation.query('COMMIT')
+      stockRestored = true
     } catch {
       await compensation.query('ROLLBACK').catch(() => {})
     } finally {
@@ -647,8 +656,28 @@ async function handlePOST(request: Request) {
 
     payload.logger.error(
       { err },
-      'Checkout: création de commande échouée, stock restauré pour ' + movements.length + ' ligne(s)',
+      stockRestored
+        ? 'Checkout: création de commande échouée, stock restauré pour ' + movements.length + ' ligne(s)'
+        : 'Checkout: création de commande échouée ET restitution du stock échouée pour ' +
+          movements.length +
+          ' ligne(s) — intervention manuelle requise',
     )
+
+    // Which of the two the key gets depends on whether the attempt actually
+    // left nothing behind.
+    //
+    // Compensation succeeded: the stock is back, no order exists, the world
+    // is as it was — so release the key and let the shopper retry with it.
+    //
+    // Compensation failed: units are decremented for an order that does not
+    // exist. Releasing the key would invite a retry that decrements them
+    // again on top. The key is marked spent instead, so the retry is refused
+    // and the discrepancy is dealt with once, by a human, rather than
+    // multiplied.
+    if (!stockRestored && claim.outcome === 'claimed') {
+      await claim.markFailed('Restitution du stock échouée après un échec de création de commande.')
+      return Response.json({ error: 'Impossible de créer la commande.' }, { status: 502 })
+    }
     return fail(Response.json({ error: 'Impossible de créer la commande.' }, { status: 502 }))
   }
 }

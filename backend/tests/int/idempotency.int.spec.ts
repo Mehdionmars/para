@@ -81,6 +81,28 @@ async function checkout(qty: number, key?: string, ip = nextClientIp()) {
   }
 }
 
+/** Same request, a different customer. The key is scoped to the shopper, so
+ * this is what proves a collision on the key cannot leak an order across
+ * two people. */
+async function checkoutAs(qty: number, key: string, email: string, ip = nextClientIp()) {
+  const res = await fetch(`${BASE}/api/checkout`, {
+    body: JSON.stringify({
+      address: '1 rue du Test',
+      city: 'Casablanca',
+      email,
+      lines: [{ id: productId, qty }],
+      name: 'Autre Client',
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': key,
+      'X-Forwarded-For': ip,
+    },
+    method: 'POST',
+  })
+  return { body: await res.json().catch(() => ({})), status: res.status }
+}
+
 async function stockOf(id: number): Promise<number> {
   const doc = await payload.findByID({ collection: 'products', depth: 0, id })
   return Number((doc as { stock?: number }).stock ?? 0)
@@ -181,8 +203,32 @@ describe('checkout idempotency', () => {
 
     // Same key, different quantity — a client bug. Replaying the first
     // response here would tell the shopper an order was placed that never was.
+    //
+    // 409, not the 422 this asserted before. 422 frames a reused key as a
+    // validation problem with the cart, and the cart may be perfectly valid;
+    // the conflict is with a request that already exists under this key.
     const reused = await checkout(3, key, ip)
-    expect(reused.status).toBe(422)
+    expect(reused.status).toBe(409)
+    expect(reused.body.code).toBe('idempotency_key_conflict')
+  })
+
+  it('does not hand one shopper’s order to another who reuses the key', async () => {
+    const key = `test-crossuser-${Date.now()}`
+
+    const mine = await checkout(1, key, nextClientIp())
+    expect(mine.status).toBe(200)
+    expect(mine.body.orderNumber).toBeTruthy()
+
+    // Same key, same cart, different customer. Keys are client-generated, so
+    // a collision is not exotic — and before the scope column the second
+    // shopper was handed the first one's order number and total, because the
+    // body hash matched.
+    const theirs = await checkoutAs(1, key, 'quelquun.dautre@example.test')
+
+    expect(theirs.status).toBe(409)
+    expect(theirs.body.code).toBe('idempotency_key_conflict')
+    // The decisive assertion: nothing of the first order crossed over.
+    expect(JSON.stringify(theirs.body)).not.toContain(mine.body.orderNumber)
   })
 
   it('still works with no key at all', async () => {

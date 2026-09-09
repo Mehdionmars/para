@@ -3,7 +3,7 @@
 import { CheckCircle2, Copy, Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ShippingOption } from "@/app/api/shipping-rules/route";
 import { CheckoutField } from "@/components/cart/CheckoutField";
 import type { PaymentMethodCode, PaymentSettings } from "@/lib/storefront/paymentSettings";
@@ -15,9 +15,29 @@ import { routes } from "@/lib/routes";
 
 type Step = "cart" | "form" | "success";
 
+/**
+ * An opaque token identifying one checkout attempt.
+ *
+ * `crypto.randomUUID` is available in every browser that can run this app,
+ * but it is only exposed on secure origins — so a shop opened over plain
+ * http on a LAN address during testing would throw here rather than place an
+ * order. The fallback is not cryptography: this value has to be unique among
+ * this shop's in-flight checkouts, not unguessable, and the server scopes it
+ * to the customer's email anyway.
+ */
+function newIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `pdh-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
 export function CartView({ payment }: { payment: PaymentSettings }) {
   const cart = useCart();
   const [step, setStep] = useState<Step>("cart");
+  // A ref, not state: changing it must never re-render, and the submit
+  // handler needs to read the value it just wrote in the same tick.
+  const idempotencyKeyRef = useRef<string | null>(null);
   // Seeded from what the shop offers rather than a hardcoded default: if the
   // merchant ever turns cash off, the first real option is preselected.
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodCode>(
@@ -165,6 +185,21 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
     setSubmitting(true);
     setFormError("");
     try {
+      // One key per checkout attempt, minted here and kept until an order
+      // actually goes through.
+      //
+      // The point is that a *retry* carries the same key: a double-clicked
+      // button, a resubmit after a dropped response, a phone that reconnected
+      // and replayed the POST. The server recognises the key and replays the
+      // first response instead of placing a second order and taking the stock
+      // twice — see backend/src/lib/idempotency.ts.
+      //
+      // Minted in the browser rather than in the API proxy because only the
+      // browser knows that two requests are the same attempt; a key generated
+      // server-side would be new on every call, including the retry it exists
+      // to catch. Cleared on success so the next order gets its own.
+      if (!idempotencyKeyRef.current) idempotencyKeyRef.current = newIdempotencyKey();
+
       const res = await fetch("/api/checkout", {
         body: JSON.stringify({
           address,
@@ -178,11 +213,15 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
           paymentMethod,
           phone,
         }),
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKeyRef.current,
+        },
         method: "POST",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Impossible de créer la commande.");
+      idempotencyKeyRef.current = null;
       setOrderNumber(data.orderNumber);
       setPlacedMethod((data.paymentMethod as PaymentMethodCode) || "cash_on_delivery");
       persistedCheckout.clear();
