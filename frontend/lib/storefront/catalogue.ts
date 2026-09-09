@@ -204,7 +204,27 @@ async function fetchFacets(): Promise<FacetsResponse> {
  */
 export async function fetchCategoryCounts(): Promise<Map<Category, number>> {
   const facets = await fetchFacets();
-  return new Map((facets.categories || []).map((c) => [c.value as Category, Number(c.count) || 0]));
+  const rows = facets.categories || [];
+
+  // An empty answer is a *failed* answer, and it has to stay
+  // indistinguishable from one — the caller shows every chip when the map is
+  // empty, which is how a facets outage degrades to the old behaviour instead
+  // of blanking the category browser.
+  if (rows.length === 0) return new Map();
+
+  // Seeded at zero for all nine, then overlaid.
+  //
+  // The CMS returns *only the categories that have products* — measured on
+  // preprod, the response is `Visage=73, Corps=25, Cheveux=24, Solaire=17` and
+  // the five empty ones are simply absent. Mapping the response directly left
+  // `counts.get("Maquillage")` undefined, which hasProductsBehind reads as
+  // "unknown, show it" — so the fail-open branch fired on exactly the chips it
+  // was written to hide, and the dead tiles stayed on the home page.
+  //
+  // Absent now means a known zero, and only a failed request means unknown.
+  const counts = new Map<Category, number>(CATALOGUE_CATEGORIES.map((c) => [c, 0]));
+  for (const row of rows) counts.set(row.value as Category, Number(row.count) || 0);
+  return counts;
 }
 
 /** Payload's `sort`, from the UI's sort value. "pertinence" is rating then
