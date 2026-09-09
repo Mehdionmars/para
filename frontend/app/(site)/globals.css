@@ -3280,9 +3280,19 @@ nav[aria-label^="Fil d"] a::after {
    at 768px would leave every tablet between 768 and 1023 with no menu bar and
    no strip either, navigable only through the burger. Hiding it here removes
    the duplication on exactly the widths that have it, and nowhere else. */
+/* Shown at every width again.
+
+   It was hidden from 1024px up because a row of photographs duplicated the
+   text menu that appears at that width. What changed is the job: the strip
+   now carries two rows of shelves that actually have stock behind them, and
+   the menu bar lists eighty slugs of which most are aisles. They are no
+   longer the same instrument — one sells the range, the other indexes it.
+
+   The cut stays available: set `display: none` here again and nothing else
+   in this file depends on the strip existing. */
 @media (min-width: 1024px) {
   .cat-tiles {
-    display: none;
+    justify-content: center;
   }
 }
 
@@ -4832,5 +4842,259 @@ section.rail-editorial {
   .featured-promo-grid,
   .promotions-grid {
     scroll-snap-type: none;
+  }
+}
+
+/* ---- The brand wall -------------------------------------------------
+   Two rows that scroll sideways, with the arrows outside the track.
+
+   `grid-auto-flow: column` is what makes the height fixed: the grid fills
+   row 1 then row 2 then starts a new column, so eight brands and twenty-three
+   brands are both two rows tall. `flex-wrap` would have made the section grow
+   a row every time an editor added a mark. */
+.brand-wall {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-wall-track {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 1fr);
+  grid-auto-columns: minmax(132px, 1fr);
+  gap: clamp(10px, 1.6vw, 22px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* Room for the focus ring on the first and last cells, which a scroll
+     container would otherwise clip. */
+  padding: 4px;
+}
+.brand-wall-track::-webkit-scrollbar {
+  display: none;
+}
+
+.brand-wall-cell {
+  position: relative;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 78px;
+  padding: 14px 18px;
+  border: 1px solid var(--pdh-plum-tint);
+  border-radius: 14px;
+  background: #fff;
+  transition: border-color 0.2s, transform 0.2s;
+}
+a.brand-wall-cell:hover {
+  border-color: var(--pdh-plum-border);
+  transform: translateY(-2px);
+}
+
+/* The fallback, and it has to read as a considered state rather than as a
+   missing image — most brands in this shop have no logo uploaded yet. */
+.brand-wall-name {
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--pdh-plum);
+}
+
+.brand-wall-nav {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--pdh-plum-divider);
+  background: #fff;
+  color: var(--pdh-plum);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.brand-wall-nav:hover {
+  background: var(--pdh-plum-tint);
+}
+
+/* On touch the scroll gesture is the affordance; a pair of 34px buttons
+   beside it is one more thing to mis-tap, and it steals width the logos
+   need. */
+@media (max-width: 767px) {
+  .brand-wall-nav {
+    display: none;
+  }
+  .brand-wall-cell {
+    min-height: 66px;
+    padding: 10px 12px;
+  }
+}
+
+/* ---- Category circles: two rows, and the arrows beside them ---------
+   Same grid trick as .brand-wall-track, and for the same reason: with
+   `grid-auto-flow: column` the strip fills row 1 then row 2 then starts a new
+   column, so its height is a property of the design rather than of how many
+   aisles an editor has configured. Wrapping made eight chips two rows and
+   nine chips three, and the hero below moved every time.
+
+   One row until there are eight chips — [data-rows="1"] is the default and
+   this only overrides it — because four chips laid out two-and-two reads as
+   a grid that failed to fill, not as a browser. */
+.cat-tiles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-tiles[data-rows="2"] .cat-tiles-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: max-content;
+  row-gap: 18px;
+  /* `safe center` does not apply to a grid the way it does to the flex row
+     this replaces, and a centred overflowing grid puts its first column off
+     the left edge where no scroll reaches it. */
+  justify-content: start;
+}
+
+.cat-tiles-nav {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--pdh-plum-divider);
+  background: #fff;
+  color: var(--pdh-plum);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cat-tiles-nav:hover {
+  background: var(--pdh-plum-tint);
+}
+
+/* Touch scrolls; the buttons only take width the discs need. Matches the
+   brand wall, so the two scrollers on this page behave identically. */
+@media (max-width: 767px) {
+  .cat-tiles-nav {
+    display: none;
+  }
+}
+
+/* ---- The offers band ------------------------------------------------
+   One coloured stripe, edge to edge, holding the promotions grid.
+
+   No negative margin is needed to reach the edges: `<main>` is unconstrained
+   and it is each *section* that centres itself with `max-width: min(1280px,
+   100%); margin: 0 auto`. This section simply declines to do that, so it is
+   full width already, and .promo-band-inner re-establishes the column for its
+   contents. A `calc(50% - 50vw)` pull here would have double-counted and
+   overflowed by a scrollbar's width.
+
+   --promo-band is the only thing to change to make this louder. It is warm
+   sand by default — the tone this storefront already uses for panels, so the
+   band reads as an interruption rather than as a second brand. The reference
+   this was modelled on uses a saturated yellow; that is one value away, and
+   it is deliberately a decision rather than a default, because "le comptoir
+   en plein jour" and "la parapharmacie discount" are a few hundred nanometres
+   apart on this axis. */
+:root {
+  --promo-band: #faf5ea;
+}
+
+.promo-band {
+  background: var(--promo-band);
+  padding-block: clamp(30px, 4vw, 52px);
+}
+
+/* `<main>` is unconstrained and each section centres itself, so the band has
+   to re-establish the column its contents sit in. */
+.promo-band-inner {
+  max-width: min(1280px, 100%);
+  margin: 0 auto;
+  padding-inline: var(--sec-pad-x);
+}
+
+.promo-tab {
+  font-family: var(--font-poppins);
+  letter-spacing: 0.01em;
+}
+.promo-tab:hover {
+  color: var(--pdh-ink);
+}
+
+/* The band is the one place on the page where product cards sit on a tint
+   rather than on white. Their photography is shot on white, so without this
+   every packshot would carry a visible square edge against the band. */
+.promo-band .pdh-shot-wrap {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ---- The banner mosaic ----------------------------------------------
+   What .cta-pair-grid becomes at four tiles or more: pairs, with every third
+   running full width.
+
+   Strict two columns rather than the `auto-fit, minmax(320px, 1fr)` the pair
+   uses above. auto-fit is right for two tiles that should sit side by side or
+   stack; it is wrong here, because a mosaic whose column count changes with
+   the viewport puts the wide tile in a different place at every width, and
+   the rhythm — pair, pair, wide — is the whole point of the arrangement. */
+.cta-mosaic {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .cta-mosaic {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.cta-mosaic > [data-wide="true"] {
+  grid-column: 1 / -1;
+  /* A tile at twice the width needs more than a card's height or it reads as
+     a letterbox. The component sets min-height from its `height` prop; this
+     raises it for the wide ones only. */
+  min-height: clamp(200px, 30vw, 340px);
+}
+
+/* The pair stays hidden on phones — that was a deliberate request, and two
+   large tiles above the fold pushed the products down.
+
+   The mosaic does not. It is a different block doing a different job: it is
+   the category browser for a visitor who arrived from Instagram, it is the
+   layout that was asked for on a phone, and its tiles are half-width rather
+   than full. Re-enabled here rather than by loosening the rule above, so the
+   pair's behaviour is untouched. */
+@media (max-width: 767px) {
+  .cta-mosaic {
+    display: grid;
+    gap: 10px;
+  }
+  /* The wide tile keeps its own ratio.
+
+     .overlay-card-tile gives every card `aspect-ratio: 3 / 4` on phones,
+     which is right for a tile in a two-up row: at 169px wide it lands on
+     225px tall. Applied to a tile that spans both columns it lands on 463 —
+     measured, 347 / 462.66 is exactly 3:4 — a single banner taking more than
+     half the viewport before anything else is read.
+
+     A landscape ratio is what the shape is actually for; 2:1 is roughly what
+     the reference uses for its full-width tile. `height: auto` has to come
+     with it or the !important above still governs the free axis. */
+  .cta-mosaic > [data-wide="true"] {
+    aspect-ratio: 2 / 1;
+    height: auto;
+    min-height: clamp(150px, 42vw, 230px);
   }
 }

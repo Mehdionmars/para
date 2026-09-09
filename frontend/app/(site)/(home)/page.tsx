@@ -37,6 +37,7 @@ import { fetchLiveHomeContent, fetchPublishedHomeContent } from "@/lib/storefron
 import { fetchLiveNavigation, fetchPublishedNavigation } from "@/lib/storefront/siteChromeContent";
 import { fetchInstagramPosts } from "@/lib/storefront/instagram";
 import { fetchDiscountedProducts, fetchFeaturedProducts, fetchRailProducts } from "@/lib/storefront/products";
+import { fetchCategoryCounts } from "@/lib/storefront/catalogue";
 
 // Used only if the CMS's `sections` field is ever empty (e.g. before the
 // Storefront Builder's first save) — mirrors the current default homepage
@@ -230,13 +231,18 @@ export default async function HomePage() {
   // Rail copy/config is synced content (data/home.ts, or live draft above);
   // the actual products shown are resolved live against Payload/Postgres on
   // every request either way — a product with stock 0 never appears here.
-  const [railProducts, instagramPosts, promotionProducts, featuredProducts] = await Promise.all([
+  const [railProducts, instagramPosts, promotionProducts, featuredProducts, categoryCounts] = await Promise.all([
     Promise.all(rails.map((rail) => fetchRailProducts(rail))),
     fetchInstagramPosts(instagramSection.postCount),
     // Same live resolution as the rails: an offer edited in the admin is
     // correct on the next request, not at the next sync-cms.
     fetchDiscountedProducts(promotionsGridCopy?.limit || 8).catch(() => null),
     fetchFeaturedProducts(featuredPromoCopy?.limit || 3).catch(() => []),
+    // Only so the category strip can stop offering a shelf with nothing on
+    // it. Shares the catalogue's own 120-second cached facets request, so it
+    // adds no round trip the shop was not already making; a failure returns
+    // an empty map and every chip is shown, exactly as before.
+    fetchCategoryCounts().catch(() => new Map()),
   ]);
   const railProductsByKey = new Map(rails.map((rail, i) => [rail.key, railProducts[i]]));
   const activeBanner = pickActiveMarketingBanner(marketingBanners, Date.now());
@@ -290,7 +296,7 @@ export default async function HomePage() {
     <>
       {/* Deliberately the first thing under the header: a returning shopper
           wants the aisle before the campaign. */}
-      <CategoryTiles strip={categoryStrip} />
+      <CategoryTiles categoryCounts={categoryCounts} strip={categoryStrip} />
 
       {movements.map((run, i) => {
         // classifyMovements has already demoted any stranded rail, so a run

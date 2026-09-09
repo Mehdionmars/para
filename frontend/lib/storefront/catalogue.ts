@@ -187,6 +187,26 @@ async function fetchFacets(): Promise<FacetsResponse> {
   }
 }
 
+/**
+ * How many published, sellable products sit in each broad category.
+ *
+ * Exported so the home page can stop offering a shelf that is empty. Five of
+ * the nine categories currently have zero products behind them, and three of
+ * them are tiles on the home page — a cold visitor arriving from Instagram
+ * has a coin-flip chance of tapping one and landing on "0 produits", which is
+ * the single worst thing this page does.
+ *
+ * Reuses the same 120-second cached facets request the catalogue already
+ * makes, so this costs the home page nothing it was not already paying on
+ * /catalogue. A failed request returns an empty map, and the caller treats
+ * "unknown" as "show it" — degrading to today's behaviour rather than
+ * blanking the strip.
+ */
+export async function fetchCategoryCounts(): Promise<Map<Category, number>> {
+  const facets = await fetchFacets();
+  return new Map((facets.categories || []).map((c) => [c.value as Category, Number(c.count) || 0]));
+}
+
 /** Payload's `sort`, from the UI's sort value. "pertinence" is rating then
  * review count, the same two-key ordering the in-memory version applied. */
 function sortParam(sort: CatalogueQuery["sort"]): string {
