@@ -13,6 +13,11 @@
 
 export type RailEditorial = {
   image: string;
+  /** The upload's own dimensions, so the frame can take the picture's shape
+   * instead of cropping it to a square. Absent when the CMS returned a bare
+   * media id — the caller falls back to 1/1. */
+  imageWidth?: number;
+  imageHeight?: number;
   eyebrow?: string;
   title?: string;
   description?: string;
@@ -32,6 +37,8 @@ export const RAIL_EDITORIAL_DEFAULTS = {
 
 export type ResolvedRailEditorial = {
   image: string;
+  imageWidth?: number;
+  imageHeight?: number;
   eyebrow: string;
   title: string;
   description: string;
@@ -67,6 +74,8 @@ export function hasOwnEditorialCopy(editorial: RailEditorial | undefined): boole
 export function resolveRailEditorial(editorial: RailEditorial): ResolvedRailEditorial {
   return {
     image: editorial.image,
+    imageWidth: editorial.imageWidth,
+    imageHeight: editorial.imageHeight,
     eyebrow: editorial.eyebrow?.trim() || RAIL_EDITORIAL_DEFAULTS.eyebrow,
     title: editorial.title?.trim() || RAIL_EDITORIAL_DEFAULTS.title,
     description: editorial.description?.trim() || RAIL_EDITORIAL_DEFAULTS.description,

@@ -16,6 +16,11 @@ function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
   // supplies them now; blanks fall back to what the JSX used to say.
   const copy = resolveRailEditorial(editorial);
 
+  // Falls back to the square this frame has always been when the CMS did not
+  // resolve the media document and the dimensions are unknown.
+  const shotRatio =
+    copy.imageWidth && copy.imageHeight ? `${copy.imageWidth} / ${copy.imageHeight}` : "1 / 1";
+
   return (
     <section className="rail-editorial" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div
@@ -27,14 +32,31 @@ function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
           gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))",
           gap: "clamp(20px,2.8vw,40px)",
           alignItems: "center",
-          boxShadow: "0 20px 40px -34px rgba(var(--pdh-ink-rgb), 0.5)",
+          // No shadow. The card already separates itself from the page with a
+          // surface and a radius; a drop shadow under a block whose left half
+          // is a photograph reads as a shadow on the photograph, which is the
+          // one thing it must not look like.
         }}
       >
-        <div style={{ aspectRatio: "1/1", borderRadius: 22, position: "relative", overflow: "hidden" }}>
+        {/* The frame takes the picture's shape rather than imposing one.
+
+            It was a hard `aspectRatio: 1/1` with `object-fit: cover`, which is
+            right for a product packshot and wrong for anything else. Editors
+            put composed banners here — artwork with the offer, the products
+            and the copy already laid out in it — and a 2.24:1 banner cropped
+            to a square keeps the middle 45% of its width: the headline on one
+            side and half the products on the other are simply gone.
+
+            With the image's own ratio there is nothing to crop. `contain` and
+            crop="limit" are the guard for the case Payload returned a bare
+            media id and the dimensions did not come through: the frame falls
+            back to the square it always was, and the picture letterboxes
+            inside it rather than losing its edges. */}
+        <div style={{ aspectRatio: shotRatio, borderRadius: 22, position: "relative", overflow: "hidden" }}>
           {/* The alt describes this rail's own block rather than a generic
               "Rituel Para d'Hiver", now that each one can say something
               different. */}
-          <CloudinaryImage preset="editorial" src={copy.image} alt={copy.title} fill sizes="480px" style={{ objectFit: "cover" }} />
+          <CloudinaryImage preset="editorial" src={copy.image} alt={copy.title} crop="limit" fill sizes="480px" style={{ objectFit: "contain" }} />
         </div>
         <div>
           <h2 className="sec-title sec-title--feature">{copy.title}</h2>

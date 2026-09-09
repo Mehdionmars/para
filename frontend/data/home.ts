@@ -86,7 +86,7 @@ export type RailDef = {
   ctaLabel: string;
   ctaUrl: string;
   badgeStyle: RailBadgeStyle;
-  editorial?: { image: string };
+  editorial?: { image: string; imageWidth?: number; imageHeight?: number };
 };
 
 export type BrandFeatured = { name: string; slug: string; phrase: string; img: string; ctaLabel: string };

@@ -24,7 +24,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { CMS_URL } from "@/lib/dashboard/constants";
-import { fetchProductsByIds, resolveMediaUrl, type LiveProduct, type PayloadMediaRef } from "@/lib/storefront/products";
+import { fetchProductsByIds, resolveMediaSize, resolveMediaUrl, type LiveProduct, type PayloadMediaRef } from "@/lib/storefront/products";
 import type { BrandFeatured, RailDef, SectionEntryKey } from "@/data/home";
 
 const ICONS: Record<string, LucideIcon> = { BadgeCheck, Gift, Headset, Heart, LifeBuoy, MessageCircleQuestion, ScanLine, ShieldCheck, Sparkles, Truck };
@@ -164,6 +164,10 @@ export type LiveHomeContent = {
   marketingBanners: {
     campaign: string;
     imageMode: "overlay" | "imageOnly";
+    /** The desktop image's own dimensions, for an imageOnly banner whose copy
+     * is baked into the artwork and so must never be cropped. */
+    imgWidth?: number;
+    imgHeight?: number;
     eyebrow: string;
     title: string;
     description: string;
@@ -305,6 +309,14 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       ? {
           editorial: {
             image: resolveMediaUrl(r.editorialImage),
+            // The picture's own shape, so the frame can take it rather than
+            // impose a square. Absent when Payload returned a bare id.
+            ...(resolveMediaSize(r.editorialImage)
+              ? {
+                  imageWidth: resolveMediaSize(r.editorialImage)!.width,
+                  imageHeight: resolveMediaSize(r.editorialImage)!.height,
+                }
+              : {}),
             eyebrow: r.editorialEyebrow || "",
             title: r.editorialTitle || "",
             description: r.editorialDescription || "",
@@ -429,6 +441,9 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       // with, so a stale or empty value can never break the card.
       ctaAlign: toCtaAlign(b.ctaAlign),
       imageFraming: toImageFraming(b.imageFraming),
+      ...(resolveMediaSize(b.image)
+        ? { imgWidth: resolveMediaSize(b.image)!.width, imgHeight: resolveMediaSize(b.image)!.height }
+        : {}),
       badgeLabel: b.badgeLabel || "",
       active: b.active !== false,
       startDate: b.startDate || "",
