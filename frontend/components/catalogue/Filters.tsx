@@ -60,7 +60,23 @@ function AccordionSection({
 
 function CheckRow({ checked, onClick, label, count }: { checked: boolean; onClick: () => void; label: string; count?: number }) {
   return (
-    <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontSize: 12.5, color: checked ? "var(--pdh-plum)" : "var(--pdh-ink)" }}>
+    <label
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        cursor: "pointer",
+        fontSize: 12.5,
+        color: checked ? "var(--pdh-plum)" : "var(--pdh-ink)",
+        // The label is the target: the checkbox itself is 1x1 and visually
+        // hidden, so what a finger lands on is this row. At 12.5px type it came
+        // out 18.8px tall, under the 24px WCAG 2.2 2.5.8 floor — nine of them
+        // in the mobile filter drawer, which is the primary way to narrow the
+        // catalogue on a phone. The 9px column gap stays untouched, so rows
+        // still have clear space between them.
+        minHeight: 24,
+      }}
+    >
       <input type="checkbox" checked={checked} onChange={onClick} style={{ position: "absolute", width: 1, height: 1, opacity: 0 }} />
       <span
         aria-hidden="true"
@@ -124,11 +140,14 @@ export function Filters({
             // the worst on the site, and a MutationObserver put it at 367ms:
             // "Catégories" going from empty to filled.
             //
-            // 241px, and this one is measured rather than derived: the loaded
-            // body settles at 240.75px on /shop/visage, /shop/cheveux and
-            // /marques/dcp alike — nine rows of 18.75px with eight 9px gaps.
-            // The list is always the nine broad categories, including the ones
-            // at count 0, so one number serves every page that shifts.
+            // 288px, measured rather than derived: nine rows of 24px with
+            // eight 9px gaps. The list is always the nine broad categories,
+            // including the ones at count 0, so one number serves every page
+            // that shifts.
+            //
+            // It was 240.75 until CheckRow gained its 24px floor just above;
+            // the two numbers move together, and 288 was read off the live
+            // page with that min-height applied rather than multiplied out.
             //
             // Two earlier guesses bracketed it and both moved the column: 215
             // (seven rows, from a screen probe that had only seen part of the
@@ -140,7 +159,7 @@ export function Filters({
             // /catalogue does not shift at all and is not the case being sized
             // for. The reservation is conditional on the list being empty, so
             // nothing holds blank space once the facets land.
-            minHeight: facets.categories.length === 0 ? 241 : undefined,
+            minHeight: facets.categories.length === 0 ? 288 : undefined,
           }}
         >
           {facets.categories.map(({ value, count }) => (
