@@ -124,16 +124,23 @@ export function Filters({
             // the worst on the site, and a MutationObserver put it at 367ms:
             // "Catégories" going from empty to filled.
             //
-            // 279px is nine rows at 23px with eight 9px gaps — the nine broad
-            // categories, which is what these pages render. It was first set
-            // to 215 for seven, counted off a screen probe that had only seen
-            // part of the column; the DOM has nine, and those two unaccounted
-            // rows were the whole of the 0.0052 left over. /catalogue does not
-            // shift at all, so it is not the case being sized for.
+            // 241px, and this one is measured rather than derived: the loaded
+            // body settles at 240.75px on /shop/visage, /shop/cheveux and
+            // /marques/dcp alike — nine rows of 18.75px with eight 9px gaps.
+            // The list is always the nine broad categories, including the ones
+            // at count 0, so one number serves every page that shifts.
             //
-            // The reservation disappears the moment there is content, so
-            // nothing is left holding empty space once loaded.
-            minHeight: facets.categories.length === 0 ? 279 : undefined,
+            // Two earlier guesses bracketed it and both moved the column: 215
+            // (seven rows, from a screen probe that had only seen part of the
+            // sidebar) left 0.0052, and 279 (nine rows at an assumed 23px, a
+            // figure taken from a collapsing section *header*, not a row)
+            // overshot and pushed CLS up to 0.0076. Over-reserving shifts
+            // exactly as much as under-reserving, in the other direction.
+            //
+            // /catalogue does not shift at all and is not the case being sized
+            // for. The reservation is conditional on the list being empty, so
+            // nothing holds blank space once the facets land.
+            minHeight: facets.categories.length === 0 ? 241 : undefined,
           }}
         >
           {facets.categories.map(({ value, count }) => (
