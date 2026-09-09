@@ -157,10 +157,20 @@ export function CatalogueView({
         setProducts(data.products);
         setTotal(data.total);
         setFacets(data.facets);
-      } catch {
-        // The only expected rejection here is the abort fired by the cleanup
-        // below, which is not a failure and must not clear the grid.
-        if (controller.signal.aborted) return;
+      } catch (err) {
+        // An abort is not a failure and must not clear the grid.
+        //
+        // Two of them can arrive here, and the check used to catch only the
+        // first: the one this effect's own cleanup fires, where
+        // `signal.aborted` is true; and the one the *browser* fires when the
+        // page is navigated away from or hidden, where it is not — the
+        // request is killed by the platform, not by this controller. That
+        // second case fell through to the failure branch and emptied the grid
+        // and flipped `loading` on a view that was already leaving, which is
+        // both pointless work and, in dev, an error the overlay surfaces.
+        //
+        // Reading the rejection itself covers both, whatever aborted it.
+        if (controller.signal.aborted || (err as Error)?.name === "AbortError") return;
         setProducts([]);
       }
       setLoading(false);
