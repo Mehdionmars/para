@@ -42,7 +42,12 @@ export default async function ContactPage() {
           <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(30px,4.6vw,52px)", lineHeight: 1.02, margin: "14px 0 12px" }}>
             Nous contacter
           </h1>
-          <p style={{ fontSize: 14.5, lineHeight: 1.75, opacity: 0.8, margin: 0 }}>
+          {/* 62ch. Without the cap this ran the full 860px of its column —
+              94 characters a line at 1440, where the eye loses its place on
+              the return sweep. It is the only paragraph on the site that was
+              over the 65–75 measure; the rest are inside cards or columns
+              that already constrain them. */}
+          <p style={{ fontSize: 14.5, lineHeight: 1.75, opacity: 0.8, margin: 0, maxWidth: "62ch" }}>
             Une question sur un produit, une commande ou nos soins en institut ? Notre équipe vous répond avec plaisir.
           </p>
         </div>

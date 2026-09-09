@@ -107,7 +107,32 @@ export function Filters({
       <div style={{ fontSize: 13, fontWeight: 600, padding: "0 2px 14px", borderBottom: "1px solid var(--pdh-plum-tint)" }}>Filtrer</div>
 
       <AccordionSection title="Catégories" defaultOpen>
-        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 9,
+            // Hold the space this list is about to need, and only while it is
+            // empty.
+            //
+            // Facets arrive from a client fetch. This section is the first one
+            // and open by default, so for the ~360ms before they land it was a
+            // header with nothing under it, and when the rows appeared they
+            // pushed the four sections below — Marques, Prix, Disponibilité,
+            // Besoins, 50px of header each — down the column. That single
+            // reflow measured CLS 0.053 on every /shop/* and /marques/* page,
+            // the worst on the site, and a MutationObserver put it at 367ms:
+            // "Catégories" going from empty to filled.
+            //
+            // 215px is seven rows at 23px with six 9px gaps, which is what
+            // these pages actually render (the nine broad categories minus the
+            // ones with nothing in them). /catalogue does not shift at all, so
+            // it is not the case being sized for. The reservation disappears
+            // the moment there is content, so nothing is left holding empty
+            // space once loaded.
+            minHeight: facets.categories.length === 0 ? 215 : undefined,
+          }}
+        >
           {facets.categories.map(({ value, count }) => (
             <CheckRow key={value} checked={activeCategories.has(value)} onClick={() => onToggleCategory(value)} label={value} count={count} />
           ))}
