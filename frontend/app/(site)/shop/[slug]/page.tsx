@@ -4,6 +4,7 @@ import { CatalogueView } from "@/components/catalogue/CatalogueView";
 import { MEGA_MENU, NAV_ITEMS } from "@/data/nav";
 import type { Category } from "@/data/products";
 import { routes } from "@/lib/routes";
+import { REAL_CATEGORY_BY_SLUG } from "@/lib/storefront/shopTaxonomy";
 import { fetchAllBrandsWithCounts } from "@/lib/storefront/catalogue";
 
 /**
@@ -31,17 +32,7 @@ async function brandRedirect(slug: string): Promise<string | null> {
 // (NAV_ITEMS) — e.g. "solaire" has a real product filter and a working
 // /shop/solaire page but isn't a top-level nav entry, used instead as a
 // standalone link target (marketing banners, etc.).
-const REAL_CATEGORY_BY_SLUG: Record<string, Category> = {
-  "bebe-maman": "Baby & Mom",
-  "bucco-dentaire": "Bucco-Dentaire",
-  cheveux: "Cheveux",
-  "complements-alimentaires": "Compléments alimentaires",
-  corps: "Corps",
-  "hygiene": "Hygiène",
-  maquillage: "Maquillage",
-  solaire: "Solaire",
-  visage: "Visage",
-};
+// (moved to lib/storefront/shopTaxonomy.ts — the home page needs it too)
 
 /**
  * The aisle slugs that now have a real product filter of their own.

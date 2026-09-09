@@ -1,8 +1,13 @@
-import { LayoutGrid } from "lucide-react";
+"use client";
+
+import { ChevronLeft, ChevronRight, LayoutGrid } from "lucide-react";
 import Link from "next/link";
+import { useRef } from "react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { DEFAULT_CATEGORY_CHIPS } from "@/lib/storefront/categoryStripDefaults";
 import { routes } from "@/lib/routes";
+import { hasProductsBehind } from "@/lib/storefront/shopTaxonomy";
+import type { Category } from "@/data/products";
 import type { MobileCategoryStrip as StripConfig } from "@/lib/storefront/siteChromeContent";
 
 /** A configured chip, plus the synthetic "Tout" entry this file prepends. */
@@ -50,22 +55,60 @@ type Tile = StripConfig["items"][number] & { isAll?: boolean };
  * merchant may not have uploaded anything yet. A letter drawn from the label
  * is real data; a stock photograph standing in for "Solaire" would not be.
  */
-export function CategoryTiles({ strip }: { strip: StripConfig }) {
+export function CategoryTiles({
+  strip,
+  categoryCounts,
+}: {
+  strip: StripConfig;
+  /** How many products each broad category holds. Omitted (or empty) means
+   * "unknown", and every chip is shown — see hasProductsBehind. */
+  categoryCounts?: Map<Category, number>;
+}) {
+  const scroller = useRef<HTMLUListElement>(null);
+
   // An unconfigured strip falls back to the default aisles rather than
   // rendering nothing: the shop should ship with its sections reachable.
   const configured = strip.enabled && strip.items.length > 0;
   const items = configured ? strip.items : DEFAULT_CATEGORY_CHIPS;
 
-  const tiles: Tile[] =
+  const all: Tile[] =
     configured && strip.showAllChip
       ? [{ href: routes.catalogue(), label: strip.allChipLabel, isAll: true }, ...items]
       : items;
 
+  // A chip pointing at a shelf with nothing on it is worse than a missing
+  // chip. Measured on the live shop: three of the six tiles rendered here
+  // lead to "0 produits" — Bébé & Maman, Maquillage, Compléments — because
+  // five of the nine broad categories have no published product behind them.
+  // For a first-time visitor deciding whether this is a real parapharmacie,
+  // a coin-flip chance of landing on an empty page is the most expensive
+  // thing on the page.
+  //
+  // Only a *known* empty category is dropped: an aisle link, a brand link or
+  // a category whose count could not be fetched all stay, so a failed facets
+  // request degrades to today's behaviour instead of blanking the browser.
+  const counts = categoryCounts ?? new Map<Category, number>();
+  const tiles = all.filter((tile) => tile.isAll || hasProductsBehind(tile.href, counts));
+
   if (tiles.length === 0) return null;
 
+  // Two rows only once there are enough chips to fill them. Four chips laid
+  // out two-and-two reads as a broken grid; four chips in a line reads as a
+  // menu, which is what it is.
+  const rows = tiles.length >= 8 ? 2 : 1;
+
+  function page(direction: 1 | -1) {
+    const el = scroller.current;
+    if (!el) return;
+    el.scrollBy({ behavior: "smooth", left: direction * el.clientWidth * 0.8 });
+  }
+
   return (
-    <nav aria-label="Catégories" className="cat-tiles">
-      <ul className="cat-tiles-row">
+    <nav aria-label="Catégories" className="cat-tiles" data-rows={rows}>
+      <button aria-label="Catégories précédentes" className="cat-tiles-nav" onClick={() => page(-1)} type="button">
+        <ChevronLeft aria-hidden="true" size={18} strokeWidth={1.8} />
+      </button>
+      <ul className="cat-tiles-row" ref={scroller}>
         {tiles.map((tile) => (
           <li key={`${tile.label}-${tile.href}`}>
             <Link className="cat-tile" href={tile.href}>
@@ -95,6 +138,9 @@ export function CategoryTiles({ strip }: { strip: StripConfig }) {
           </li>
         ))}
       </ul>
+      <button aria-label="Catégories suivantes" className="cat-tiles-nav" onClick={() => page(1)} type="button">
+        <ChevronRight aria-hidden="true" size={18} strokeWidth={1.8} />
+      </button>
     </nav>
   );
 }
