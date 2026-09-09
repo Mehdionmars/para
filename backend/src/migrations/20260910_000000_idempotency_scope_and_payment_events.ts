@@ -140,9 +140,58 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
         ON DELETE SET NULL ON UPDATE NO ACTION;
     EXCEPTION WHEN duplicate_object THEN null; END $$;
   `)
+
+  // ----------------------------------------------------------------
+  // payload_locked_documents_rels
+  // ----------------------------------------------------------------
+  //
+  // The part a new collection makes easy to miss.
+  //
+  // Payload keeps one row per locked document and joins it to whatever
+  // collection the document belongs to, so `payload_locked_documents_rels`
+  // carries a nullable FK column *per registered collection*. Add a
+  // collection to payload.config.ts and every query through that table starts
+  // naming a column that has to exist — including the one Payload runs before
+  // any `update`, to check whether the document is locked by another editor.
+  //
+  // With `push: false` nothing creates it for us. Skipping it does not break
+  // payment-events; it breaks `orders`, `products` and every other update in
+  // the admin, with `42703 column ... does not exist` from a query nobody
+  // wrote by hand. Found exactly that way: the payment-events suite passed and
+  // sixteen order-lifecycle tests that have nothing to do with payments went
+  // red at once.
+  //
+  // Naming follows the columns already in that table (see
+  // payload_locked_documents_rels_push_subscriptions_fk) rather than the
+  // convention used for payment_events' own FK above — Payload generates the
+  // two differently, and this one has to match what Payload expects to find.
+  await db.execute(sql`
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD COLUMN IF NOT EXISTS "payment_events_id" integer;
+  `)
+
+  await db.execute(sql`
+    CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_payment_events_id_idx"
+      ON "payload_locked_documents_rels" ("payment_events_id");
+  `)
+
+  await db.execute(sql`
+    DO $$ BEGIN
+      ALTER TABLE "payload_locked_documents_rels"
+        ADD CONSTRAINT "payload_locked_documents_rels_payment_events_fk"
+        FOREIGN KEY ("payment_events_id") REFERENCES "public"."payment_events"("id")
+        ON DELETE CASCADE ON UPDATE NO ACTION;
+    EXCEPTION WHEN duplicate_object THEN null; END $$;
+  `)
 }
 
 export async function down({ db }: MigrateUpArgs | MigrateDownArgs): Promise<void> {
+  // Before the table it references.
+  await db.execute(sql`DROP INDEX IF EXISTS "payload_locked_documents_rels_payment_events_id_idx";`)
+  await db.execute(sql`
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN IF EXISTS "payment_events_id";
+  `)
+
   await db.execute(sql`DROP TABLE IF EXISTS "payment_events";`)
   await db.execute(sql`DROP TYPE IF EXISTS "public"."enum_payment_events_status";`)
   await db.execute(sql`DROP TYPE IF EXISTS "public"."enum_payment_events_provider";`)
