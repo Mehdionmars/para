@@ -1,4 +1,5 @@
 import { payloadFetch } from "./payload";
+import { mediaSrc } from "@/lib/mediaSrc";
 import { ORDER_TYPES, STOCK_TYPES, type NotificationRow, type Order, type OrderStatusHistoryEntry } from "./orders-types";
 
 export * from "./orders-types";
@@ -43,7 +44,17 @@ export async function getOrderItemImages(productIds: number[]): Promise<Map<numb
   const data = (await res.json()) as { docs?: { id: number; image?: { url?: string } | null }[] };
   const map = new Map<number, string>();
   for (const doc of data.docs ?? []) {
-    if (doc.image?.url) map.set(doc.id, doc.image.url);
+    // Through mediaSrc, not raw. Payload reports its own uploads as
+    // `/api/media/file/<name>`, which is a route on the *backend*; served to a
+    // browser against the dashboard's origin it is a 404, and the next/image
+    // optimiser wrapping it answers 400 — a broken-image icon on every order
+    // line. CloudinaryImage's `fallbackSrc` does not catch it either: that
+    // covers an empty src, not one that fails to load.
+    //
+    // Same fix, same reason, as /api/search/suggest — and it is invisible in
+    // local development, where the CMS and the app share an origin.
+    const src = mediaSrc(doc.image?.url);
+    if (src) map.set(doc.id, src);
   }
   return map;
 }

@@ -9,7 +9,8 @@ import { Collapsible } from "@/components/dashboard/ui/Collapsible";
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { requireRole } from "@/lib/dashboard/guard";
 import { getOrder, getOrderHistory, getOrderItemImages } from "@/lib/dashboard/orders";
-import { paymentMethodLabel, ORDER_STATUS_LABELS, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
+import { paymentMethodLabel, ORDER_STATUS_BADGE, ORDER_STATUS_LABELS, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
+import { Badge } from "@/components/dashboard/ui/Badge";
 import { canEditOrders, isStaffUser } from "@/lib/dashboard/roles";
 
 function money(n: number) {
@@ -68,9 +69,21 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
   const editable = canEditOrders(user);
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* ---------------------------------------------------------- header */}
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-3">
+    <div className="flex flex-col gap-5">
+      {/* ------------------------------------------------------- masthead
+          Identity, state and progress in one bordered object.
+
+          These were three things at three weights: the number on the page
+          ground, the status readable only as the first dot of a timeline five
+          panels down, and that timeline in a card of its own carrying one row
+          of dots. An operator opening an order asks "what state is this in"
+          before anything else, and the page answered it last.
+
+          It is also the only panel on this page with two zones, which is what
+          makes it read as the masthead rather than as the first of six equal
+          cards. */}
+      <header className="rounded-xl border border-gray-200 bg-white">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-3 p-4">
         <Link
           aria-label="Retour aux commandes"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
@@ -83,7 +96,17 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
             width, which is what keeps the actions on the same row down to
             320px instead of wrapping them under a half-empty line. */}
         <div className="min-w-0 grow basis-0">
-          <h1 className="truncate text-lg font-semibold text-gray-900">{order.orderNumber}</h1>
+          {/* The state, where the eye already is. It existed on this page only
+              as the colour of the first dot in the tracker below — legible if
+              you knew to decode it, invisible if you did not. The badge
+              vocabulary is the one the orders table already uses, so the state
+              a operator saw in the list is the state they see here. */}
+          <div className="flex items-center gap-2">
+            <h1 className="truncate text-lg font-semibold text-gray-900">{order.orderNumber}</h1>
+            <Badge className="shrink-0" variant={ORDER_STATUS_BADGE[order.status]}>
+              {ORDER_STATUS_LABELS[order.status]}
+            </Badge>
+          </div>
           {/* One metadata line instead of three separate blocks. */}
           <p className="mt-0.5 truncate text-xs text-gray-500">
             {new Date(order.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
@@ -103,6 +126,19 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           readOnly={!editable}
           status={order.status}
         />
+        </div>
+
+        {/* The tracker, as the masthead's second zone rather than a panel of
+            its own. It is the same information as the badge above, one level
+            finer — where the order is, not just what it is — so it belongs
+            attached to the number, not five sections down between the
+            addresses and the internal notes. */}
+        <div className="border-t border-gray-100 px-4 py-3.5">
+          <OrderTimelineCompact
+            entries={history.map((h) => ({ at: h.createdAt, status: h.toStatus }))}
+            status={order.status}
+          />
+        </div>
       </header>
 
       {/* --------------------------------------------- articles + résumé */}
@@ -186,9 +222,22 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
         </Panel>
       </div>
 
-      {/* ------------------------------------------- client + livraison */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Panel title="Client">
+      {/* --------------------------------------- destinataire + livraison
+          One panel, two columns, one border.
+
+          These were two cards side by side holding four short lines each. Who
+          the order is for and where it goes is one question an operator asks
+          once, while packing — splitting it across two bordered boxes spent
+          twice the chrome to say that these two things are unrelated, which
+          they are not. The divider does the same job for a tenth of the ink,
+          and it becomes a stacked pair on a phone where columns cannot hold. */}
+      <Panel title="Destinataire et livraison" bodyClassName="p-0">
+        <div className="grid grid-cols-1 divide-y divide-gray-100 md:grid-cols-2 md:divide-x md:divide-y-0">
+        <div className="p-4">
+          {/* The two words the merge took away. The panel title names the
+              domain; these name the columns inside it, so an operator still
+              scans to "the address" rather than to "the right-hand side". */}
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Client</p>
           <div className="flex flex-col gap-1 text-sm">
             <p className="font-medium text-gray-900">{order.customerName}</p>
             <a className="truncate text-violet-700 hover:underline" href={`mailto:${order.customerEmail}`}>
@@ -200,9 +249,10 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
               </a>
             )}
           </div>
-        </Panel>
+        </div>
 
-        <Panel title="Livraison">
+        <div className="p-4">
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Livraison</p>
           <div className="flex flex-col gap-1 text-sm">
             {order.shippingAddress ? (
               <p className="whitespace-pre-line break-words text-gray-700">{order.shippingAddress}</p>
@@ -215,19 +265,25 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
               {order.shipping ? money(order.shipping) : "Livraison offerte"}
             </p>
           </div>
-        </Panel>
-      </div>
-
-      {/* ------------------------------------------------------ timeline */}
-      <Panel title="Suivi de la commande">
-        <OrderTimelineCompact
-          entries={history.map((h) => ({ at: h.createdAt, status: h.toStatus }))}
-          status={order.status}
-        />
+        </div>
+        </div>
       </Panel>
 
-      {/* --------------------------------------- informations secondaires */}
-      <Panel bodyClassName="p-0" title="Informations supplémentaires">
+      {/* --------------------------------------- informations secondaires
+          No border, deliberately.
+
+          This block is collapsed by definition — it is what an operator opens
+          when something is unusual, not what they read to ship the order.
+          Giving it the same panel treatment as the articles said the opposite,
+          and it was the sixth identical card in a column of six, which is what
+          made the page read as a list of boxes rather than as a document with
+          a top and a tail. A rule and a label are enough to say "there is more
+          here"; the Collapsible rows bring their own dividers. */}
+      <section>
+        <h2 className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+          Informations supplémentaires
+        </h2>
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white/60">
         <Collapsible hint={`${history.length} entrée${history.length > 1 ? "s" : ""}`} title="Historique des statuts">
           {history.length === 0 ? (
             <p className="text-sm text-gray-500">Aucun changement enregistré.</p>
@@ -270,7 +326,8 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
             <p className="text-sm text-gray-500">Aucune note.</p>
           )}
         </Collapsible>
-      </Panel>
+        </div>
+      </section>
     </div>
   );
 }
