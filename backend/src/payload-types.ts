@@ -85,6 +85,7 @@ export interface Config {
     'order-status-history': OrderStatusHistory;
     notifications: Notification;
     'push-subscriptions': PushSubscription;
+    'payment-events': PaymentEvent;
     exports: Export;
     imports: Import;
     'api-request-logs': ApiRequestLog;
@@ -119,6 +120,7 @@ export interface Config {
     'order-status-history': OrderStatusHistorySelect<false> | OrderStatusHistorySelect<true>;
     notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     'push-subscriptions': PushSubscriptionsSelect<false> | PushSubscriptionsSelect<true>;
+    'payment-events': PaymentEventsSelect<false> | PaymentEventsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
     'api-request-logs': ApiRequestLogsSelect<false> | ApiRequestLogsSelect<true>;
@@ -931,6 +933,41 @@ export interface PushSubscription {
   createdAt: string;
 }
 /**
+ * Webhooks reçus des prestataires de paiement. Lecture seule.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-events".
+ */
+export interface PaymentEvent {
+  id: number;
+  provider: 'cmi' | 'manual' | 'other';
+  /**
+   * Identifiant de l’événement chez le prestataire. Unique par prestataire — c’est ce qui empêche un webhook rejoué d’être traité deux fois.
+   */
+  providerEventId: string;
+  /**
+   * Type déclaré par le prestataire (paiement confirmé, remboursement…).
+   */
+  eventType?: string | null;
+  status: 'received' | 'processed' | 'ignored' | 'failed';
+  /**
+   * Commande rattachée, si l’événement a pu être rapproché.
+   */
+  order?: (number | null) | Order;
+  /**
+   * SHA-256 du corps reçu. Permet de prouver que deux livraisons portaient le même contenu sans stocker le contenu.
+   */
+  payloadHash?: string | null;
+  /**
+   * Renseigné uniquement pour un événement en échec.
+   */
+  failureReason?: string | null;
+  receivedAt: string;
+  processedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exports".
  */
@@ -1210,6 +1247,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'push-subscriptions';
         value: number | PushSubscription;
+      } | null)
+    | ({
+        relationTo: 'payment-events';
+        value: number | PaymentEvent;
       } | null)
     | ({
         relationTo: 'api-request-logs';
@@ -1649,6 +1690,23 @@ export interface PushSubscriptionsSelect<T extends boolean = true> {
   auth?: T;
   userAgent?: T;
   lastUsedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-events_select".
+ */
+export interface PaymentEventsSelect<T extends boolean = true> {
+  provider?: T;
+  providerEventId?: T;
+  eventType?: T;
+  status?: T;
+  order?: T;
+  payloadHash?: T;
+  failureReason?: T;
+  receivedAt?: T;
+  processedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3875,6 +3933,7 @@ export interface TaskCreateCollectionExport {
       | 'order-status-history'
       | 'notifications'
       | 'push-subscriptions'
+      | 'payment-events'
       | 'exports'
       | 'imports';
     drafts?: ('yes' | 'no') | null;

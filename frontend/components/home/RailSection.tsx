@@ -16,6 +16,11 @@ function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
   // supplies them now; blanks fall back to what the JSX used to say.
   const copy = resolveRailEditorial(editorial);
 
+  // Falls back to the square this frame has always been when the CMS did not
+  // resolve the media document and the dimensions are unknown.
+  const shotRatio =
+    copy.imageWidth && copy.imageHeight ? `${copy.imageWidth} / ${copy.imageHeight}` : "1 / 1";
+
   return (
     <section className="rail-editorial" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div
@@ -27,23 +32,35 @@ function EditorialBlock({ editorial }: { editorial: RailEditorial }) {
           gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))",
           gap: "clamp(20px,2.8vw,40px)",
           alignItems: "center",
-          boxShadow: "0 20px 40px -34px rgba(var(--pdh-ink-rgb), 0.5)",
+          // No shadow. The card already separates itself from the page with a
+          // surface and a radius; a drop shadow under a block whose left half
+          // is a photograph reads as a shadow on the photograph, which is the
+          // one thing it must not look like.
         }}
       >
-        <div style={{ aspectRatio: "1/1", borderRadius: 22, position: "relative", overflow: "hidden" }}>
+        {/* The frame takes the picture's shape rather than imposing one.
+
+            It was a hard `aspectRatio: 1/1` with `object-fit: cover`, which is
+            right for a product packshot and wrong for anything else. Editors
+            put composed banners here — artwork with the offer, the products
+            and the copy already laid out in it — and a 2.24:1 banner cropped
+            to a square keeps the middle 45% of its width: the headline on one
+            side and half the products on the other are simply gone.
+
+            With the image's own ratio there is nothing to crop. `contain` and
+            crop="limit" are the guard for the case Payload returned a bare
+            media id and the dimensions did not come through: the frame falls
+            back to the square it always was, and the picture letterboxes
+            inside it rather than losing its edges. */}
+        <div style={{ aspectRatio: shotRatio, borderRadius: 22, position: "relative", overflow: "hidden" }}>
           {/* The alt describes this rail's own block rather than a generic
               "Rituel Para d'Hiver", now that each one can say something
               different. */}
-          <CloudinaryImage preset="editorial" src={copy.image} alt={copy.title} fill sizes="480px" style={{ objectFit: "cover" }} />
+          <CloudinaryImage preset="editorial" src={copy.image} alt={copy.title} crop="limit" fill sizes="480px" style={{ objectFit: "contain" }} />
         </div>
         <div>
-          <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-            {copy.eyebrow}
-          </div>
-          <h2 className="overlay-card-title" style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.05, margin: "12px 0 14px", letterSpacing: "-.02em" }}>
-            {copy.title}
-          </h2>
-          <p style={{ fontSize: 14.5, lineHeight: 1.8, opacity: 0.72, margin: "0 0 24px", maxWidth: 820 }}>
+          <h2 className="sec-title sec-title--feature">{copy.title}</h2>
+          <p className="sec-deck" style={{ fontSize: "var(--fs-body)", margin: "14px 0 24px" }}>
             {copy.description}
           </p>
           <div className="overlay-card-actions">
@@ -89,10 +106,14 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
       <section className="mobile-rail-section" style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
         <div className="mobile-section-head" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-                {rail.eyebrow}
-              </div>
+            {/* The badge moves down beside the title rather than sitting above
+                it. It survives the eyebrow's removal because it is not a
+                restatement of the heading — it is the one thing keeping four
+                structurally identical rails from reading as four identical
+                blocks (see BADGE_LABEL above). Beside the heading it annotates
+                it; above the heading it was a second kicker. */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+              <h2 className="sec-title">{rail.title}</h2>
               {badgeLabel && (
                 <span
                   style={{
@@ -105,16 +126,14 @@ export function RailSection({ rail, products }: { rail: RailDef; products: LiveP
                     background: "var(--pdh-plum-tint)",
                     padding: "3px 9px",
                     borderRadius: 999,
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {badgeLabel}
                 </span>
               )}
             </div>
-            <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0", letterSpacing: "-.01em" }}>
-              {rail.title}
-            </h2>
-            <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, maxWidth: 760 }}>{rail.subtitle}</div>
+            <div className="sec-deck">{rail.subtitle}</div>
           </div>
           <div className="mobile-rail-actions" style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <Link

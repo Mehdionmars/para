@@ -133,22 +133,11 @@ export function SummerEdit({
           }}
         >
           <div style={{ order: imageFirst ? 2 : 1 }}>
-            <div
-              className="summer-reveal"
-              data-in-view={heroInView}
-              style={{
-                fontFamily: "var(--font-poppins)",
-                fontSize: 11,
-                letterSpacing: ".28em",
-                textTransform: "uppercase",
-                color: accent,
-                transitionDelay: `${0.05 * speed}s`,
-              }}
-            >
-              {copy.eyebrow}
-              {copy.year && <span style={{ opacity: 0.6 }}> — {copy.year}</span>}
-            </div>
-
+            {/* The eyebrow that opened this sequence is gone with the other
+                fourteen, and the reveal delays below have each moved up a
+                beat so the block still starts on 0.05 instead of holding an
+                empty first frame. `copy.year` went with it — it was rendered
+                only as a suffix to the eyebrow, and it is still in the CMS. */}
             <h2
               id="summer-edit-heading"
               className="summer-reveal"
@@ -156,11 +145,14 @@ export function SummerEdit({
               style={{
                 fontFamily: "var(--font-alta)",
                 fontWeight: 200,
-                fontSize: "clamp(38px,6.2vw,76px)",
+                fontSize: "var(--fs-display)",
+                // The page's one display headline, set in two stacked lines
+                // of its own — tighter than --lh-display, which is sized for
+                // headlines that share a panel with body copy.
                 lineHeight: 0.98,
                 letterSpacing: "-.01em",
-                margin: "18px 0 20px",
-                transitionDelay: `${0.14 * speed}s`,
+                margin: "0 0 20px",
+                transitionDelay: `${0.05 * speed}s`,
               }}
             >
               <span style={{ display: "block", color: text }}>{copy.title}</span>
@@ -178,14 +170,14 @@ export function SummerEdit({
                   margin: "0 0 32px",
                   color: text,
                   opacity: 0.72,
-                  transitionDelay: `${0.22 * speed}s`,
+                  transitionDelay: `${0.13 * speed}s`,
                 }}
               >
                 {copy.description}
               </p>
             )}
 
-            <div className="summer-reveal" data-in-view={heroInView} style={{ transitionDelay: `${0.3 * speed}s` }}>
+            <div className="summer-reveal" data-in-view={heroInView} style={{ transitionDelay: `${0.21 * speed}s` }}>
               <Link
                 href={copy.ctaUrl || "/catalogue"}
                 className="summer-cta"
@@ -320,22 +312,10 @@ function ActBand({ act, tint, copy, speed }: { act: Act; tint: boolean; copy: Co
         }}
       >
         <div>
-          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-            {act.eyebrow}
-          </div>
-          <h3
-            style={{
-              fontFamily: "var(--font-alta)",
-              fontWeight: 200,
-              fontSize: "clamp(28px,3.4vw,40px)",
-              lineHeight: 1.02,
-              color: "var(--pdh-plum)",
-              margin: "10px 0 14px",
-            }}
-          >
+          <h3 className="sec-title" style={{ color: "var(--pdh-plum)", marginBottom: 14 }}>
             {act.title}
           </h3>
-          {act.description && <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: 0.68, margin: "0 0 20px", maxWidth: 300 }}>{act.description}</p>}
+          {act.description && <p className="sec-deck" style={{ margin: "0 0 20px", maxWidth: 300 }}>{act.description}</p>}
           <div style={{ height: 1, width: 44, background: "var(--pdh-plum-border)" }} />
         </div>
 

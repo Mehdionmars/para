@@ -54,46 +54,14 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
           gap: "clamp(12px,1.6vw,18px)",
         }}
       >
-        {copy.eyebrow?.trim() && (
-          <div
-            style={{
-              fontFamily: "var(--font-poppins)",
-              fontSize: 10.5,
-              letterSpacing: ".24em",
-              textTransform: "uppercase",
-              opacity: 0.7,
-            }}
-          >
-            {copy.eyebrow}
-          </div>
-        )}
-
-        {copy.title?.trim() && (
-          <h2
-            style={{
-              fontFamily: "var(--font-alta)",
-              fontWeight: 300,
-              fontSize: "clamp(28px,4.4vw,46px)",
-              lineHeight: 1.08,
-              margin: 0,
-              textWrap: "balance",
-            }}
-          >
-            {copy.title}
-          </h2>
-        )}
+        {copy.title?.trim() && <h2 className="sec-title sec-title--feature">{copy.title}</h2>}
 
         {copy.description?.trim() && (
-          <p
-            style={{
-              fontSize: "clamp(14px,1.35vw,16.5px)",
-              lineHeight: 1.6,
-              margin: 0,
-              opacity: 0.78,
-              maxWidth: "34em",
-              textWrap: "pretty",
-            }}
-          >
+          /* The one place --fs-body earns its size over --fs-deck: this is a
+             centred invitation the visitor is meant to read, not a caption
+             introducing a rail. `text-wrap: pretty` stays — it is the last
+             line of a centred paragraph that a widow would spoil. */
+          <p className="sec-deck" style={{ fontSize: "var(--fs-body)", margin: 0, maxWidth: "34em", textWrap: "pretty" }}>
             {copy.description}
           </p>
         )}

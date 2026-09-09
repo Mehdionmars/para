@@ -17,7 +17,27 @@ export type LiveProduct = Product & { image: string; gallery?: string[] };
 /** Re-exported so existing importers keep working; defined once in lib/productBadges. */
 export type { ResolvedBadge };
 
-export type PayloadMediaRef = { url?: string } | number | null | undefined;
+export type PayloadMediaRef =
+  | { url?: string; width?: number | null; height?: number | null }
+  | number
+  | null
+  | undefined;
+
+/**
+ * The uploaded image's own dimensions, when Payload resolved the media
+ * document rather than returning a bare id.
+ *
+ * Needed wherever a frame should take the picture's shape instead of
+ * imposing one. Payload stores width and height on every upload, and they
+ * were simply being dropped alongside the url — see resolveMediaUrl below.
+ */
+export function resolveMediaSize(ref: PayloadMediaRef): { width: number; height: number } | null {
+  if (!ref || typeof ref !== "object") return null;
+  const width = Number(ref.width);
+  const height = Number(ref.height);
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
+  return { width, height };
+}
 export type PayloadBrandRef = { id?: number; name?: string } | number | null | undefined;
 
 export type PayloadBadge = {

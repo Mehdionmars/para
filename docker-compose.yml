@@ -23,6 +23,28 @@ services:
       timeout: 5s
       retries: 10
 
+  # Cache and lock for the idempotency layer — never the source of truth for
+  # it. PostgreSQL's unique constraint on idempotency_keys is what actually
+  # stops a double checkout; this only saves the round trip. Stop this service
+  # and orders keep working, slightly slower. See backend/src/services/redis.ts.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # appendonly so a restart does not drop in-flight locks and cached
+    # responses. Losing them is survivable — every read falls through to
+    # Postgres — but a needless cold cache after every deploy is not free.
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    # Deliberately no `ports:`. Redis has no password here and its whole
+    # surface is reachable from the compose network only, which is the same
+    # posture Postgres has above minus the loopback convenience mapping.
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   adminer:
     image: adminer:latest
     restart: always
@@ -55,6 +77,9 @@ services:
       # the browser-facing origin (it backs CORS/CSRF), and inside this
       # container "localhost:3000" would resolve to the backend itself.
       STOREFRONT_INTERNAL_URL: http://frontend:3000
+      # Service name, like DATABASE_URI above. Unset this and the backend
+      # runs with no cache at all, which is a supported mode.
+      REDIS_URL: redis://redis:6379
       PORT: '3001'
     ports:
       # Loopback only. Caddy reaches this over the compose network, not through
@@ -73,6 +98,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      # Started with the backend, but not required by it: the idempotency
+      # layer treats an unreachable Redis as a cache miss. `service_started`
+      # rather than `service_healthy` so a sick cache can never hold up a
+      # deploy of the shop.
+      redis:
+        condition: service_started
 
   frontend:
     build:
@@ -99,3 +130,4 @@ services:
 volumes:
   pgdata:
   media:
+  redisdata:

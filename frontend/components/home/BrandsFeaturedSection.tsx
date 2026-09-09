@@ -28,12 +28,7 @@ export function BrandsFeaturedSection({ brands, copy: copyProp }: { brands: Bran
     <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 10.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-            {copy.eyebrow}
-          </div>
-          <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(25px,3.2vw,38px)", margin: "8px 0 0", letterSpacing: "-.01em" }}>
-            {copy.title}
-          </h2>
+          <h2 className="sec-title">{copy.title}</h2>
         </div>
         <div style={{ display: "flex", gap: 8, flex: "none" }}>
           <button type="button" onClick={() => railRef.current?.scrollPrev()} aria-label="Marques précédentes" className="circle-btn">
@@ -65,8 +60,18 @@ export function BrandsFeaturedSection({ brands, copy: copyProp }: { brands: Bran
                 {b.img && <CloudinaryImage preset="brand" src={b.img} alt={b.name} fill sizes="300px" style={{ objectFit: "cover" }} />}
               </div>
               <div style={{ padding: "18px 20px 22px" }}>
-                <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 22, letterSpacing: ".04em", color: "var(--pdh-plum)" }}>{b.name}</div>
-                {b.phrase && <p style={{ fontSize: 12.5, lineHeight: 1.6, opacity: 0.68, margin: "8px 0 14px", minHeight: 40 }}>{b.phrase}</p>}
+                <div className="card-title" style={{ fontSize: 22, letterSpacing: ".04em", color: "var(--pdh-plum)" }}>{b.name}</div>
+                {/* Two lines held open so a row of brand cards ends level. It
+                    was a literal 40 — two lines of the 12.5/1.6 this used to
+                    be — which is exactly the kind of number that goes stale
+                    the moment the role it was derived from moves. Asking for
+                    the arithmetic instead means it tracks --fs-deck and
+                    --lh-prose without anyone remembering to. */}
+                {b.phrase && (
+                  <p className="sec-deck" style={{ margin: "8px 0 14px", minHeight: "calc(var(--fs-deck) * var(--lh-prose) * 2)" }}>
+                    {b.phrase}
+                  </p>
+                )}
                 <span style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>{b.ctaLabel} →</span>
               </div>
             </Link>

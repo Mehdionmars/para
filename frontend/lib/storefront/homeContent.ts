@@ -24,13 +24,16 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { CMS_URL } from "@/lib/dashboard/constants";
-import { fetchProductsByIds, resolveMediaUrl, type LiveProduct, type PayloadMediaRef } from "@/lib/storefront/products";
+import { fetchProductsByIds, resolveMediaSize, resolveMediaUrl, type LiveProduct, type PayloadMediaRef } from "@/lib/storefront/products";
 import type { BrandFeatured, RailDef, SectionEntryKey } from "@/data/home";
 
 const ICONS: Record<string, LucideIcon> = { BadgeCheck, Gift, Headset, Heart, LifeBuoy, MessageCircleQuestion, ScanLine, ShieldCheck, Sparkles, Truck };
 const resolveIcon = (name: string | undefined) => ICONS[name || ""] || Truck;
 
-type RelRef = { id?: number; name?: string } | number | null | undefined;
+/** A brand relationship resolves to the whole document at this depth, so the
+ * logo and slug are already here — the marquee was simply dropping them and
+ * keeping the name. */
+type RelRef = { id?: number; name?: string; slug?: string; logo?: PayloadMediaRef } | number | null | undefined;
 const relId = (ref: RelRef): number | null => (typeof ref === "object" && ref ? (ref.id ?? null) : typeof ref === "number" ? ref : null);
 
 type RawCtaTile = { eyebrow?: string; title: string; bg?: string; image?: PayloadMediaRef };
@@ -161,6 +164,10 @@ export type LiveHomeContent = {
   marketingBanners: {
     campaign: string;
     imageMode: "overlay" | "imageOnly";
+    /** The desktop image's own dimensions, for an imageOnly banner whose copy
+     * is baked into the artwork and so must never be cropped. */
+    imgWidth?: number;
+    imgHeight?: number;
     eyebrow: string;
     title: string;
     description: string;
@@ -223,7 +230,7 @@ export type LiveHomeContent = {
     fullWidth: boolean;
   };
   summerEditActs: { eyebrow: string; title: string; description: string; products: LiveProduct[] }[];
-  brandsMarquee: string[];
+  brandsMarquee: { name: string; slug: string; logo: string }[];
   trustBadges: LiveTrustBadge[];
   servicesTeaser: LiveServiceCard[];
   newsletterSection: {
@@ -302,6 +309,14 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       ? {
           editorial: {
             image: resolveMediaUrl(r.editorialImage),
+            // The picture's own shape, so the frame can take it rather than
+            // impose a square. Absent when Payload returned a bare id.
+            ...(resolveMediaSize(r.editorialImage)
+              ? {
+                  imageWidth: resolveMediaSize(r.editorialImage)!.width,
+                  imageHeight: resolveMediaSize(r.editorialImage)!.height,
+                }
+              : {}),
             eyebrow: r.editorialEyebrow || "",
             title: r.editorialTitle || "",
             description: r.editorialDescription || "",
@@ -426,6 +441,9 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       // with, so a stale or empty value can never break the card.
       ctaAlign: toCtaAlign(b.ctaAlign),
       imageFraming: toImageFraming(b.imageFraming),
+      ...(resolveMediaSize(b.image)
+        ? { imgWidth: resolveMediaSize(b.image)!.width, imgHeight: resolveMediaSize(b.image)!.height }
+        : {}),
       badgeLabel: b.badgeLabel || "",
       active: b.active !== false,
       startDate: b.startDate || "",
@@ -535,7 +553,17 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       fullWidth: home.summerEditCopy?.fullWidth === true,
     },
     summerEditActs,
-    brandsMarquee: (home.brands || []).map((b: RelRef) => (typeof b === "object" && b ? b.name || "" : "")).filter(Boolean),
+    // Name, slug and logo rather than a bare name: the section shows the
+    // marks now, and a brand with no logo uploaded still needs its name to
+    // fall back to. Nothing here filters on the logo — a shop that has not
+    // uploaded one yet must still see its brands.
+    brandsMarquee: (home.brands || [])
+      .map((b: RelRef) =>
+        typeof b === "object" && b
+          ? { name: b.name || "", slug: b.slug || "", logo: resolveMediaUrl(b.logo) }
+          : { name: "", slug: "", logo: "" },
+      )
+      .filter((b: { name: string }) => Boolean(b.name)),
     trustBadges: (home.trustBadges || []).map((b: RawTrustBadge) => ({ title: b.title, sub: b.sub || "", icon: resolveIcon(b.icon) })),
     servicesTeaser: (home.servicesTeaser || []).map((s: RawServiceCard) => ({
       title: s.title,

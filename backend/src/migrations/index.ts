@@ -1,3 +1,4 @@
+import * as migration_20260910_000000_idempotency_scope_and_payment_events from './20260910_000000_idempotency_scope_and_payment_events';
 import * as migration_20260813_103331_initial from './20260813_103331_initial';
 import * as migration_20260813_140000_add_product_variants from './20260813_140000_add_product_variants';
 import * as migration_20260813_220000_add_marketing_banner from './20260813_220000_add_marketing_banner';
@@ -191,5 +192,10 @@ export const migrations = [
     up: migration_20260904_010000_newsletter_cta_radius_particles.up,
     down: migration_20260904_010000_newsletter_cta_radius_particles.down,
     name: '20260904_010000_newsletter_cta_radius_particles'
+  },
+  {
+    up: migration_20260910_000000_idempotency_scope_and_payment_events.up,
+    down: migration_20260910_000000_idempotency_scope_and_payment_events.down,
+    name: '20260910_000000_idempotency_scope_and_payment_events'
   },
 ];

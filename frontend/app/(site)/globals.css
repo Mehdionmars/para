@@ -125,6 +125,66 @@
   --pdh-badge-padding-y: 5px;
   --pdh-badge-gap: 6px;
 
+  /* Ink, one step down — the colour secondary prose is actually meant to be.
+     Every deck and caption on the home page was dimming --pdh-ink with an
+     `opacity` instead: 0.55, 0.6, 0.65, 0.68, 0.7, 0.72, 0.78, eleven
+     different values for one role, and two of them below AA. Measured on the
+     live page against their real painted ground: the coffrets deck at 13px /
+     0.6 came out 3.79:1 and the trust-bar sub at 10.5px / 0.55 came out
+     3.30:1, both under the 4.5:1 that text that size needs.
+
+     A mix rather than a fixed hex, unlike --pdh-muted-text below it. That one
+     is frozen because it is a *role* colour whose contrast the Theme Builder
+     must not be able to break. This one is not a colour of its own — it is
+     literally "the theme's ink, quieter", and freezing it would leave the
+     decks warm-grey while an editor moved the headings they sit under. What
+     it guarantees is the relationship: 72% of whatever ink is, which is the
+     first step on that ramp that clears 4.5:1 (0.68 → 4.77, 0.66 → 4.35).
+     With the default ink #373020 it resolves to rgb(111,106,94), 5.39:1 on
+     white. An editor who picks an ink too pale for its own headings will get
+     a deck to match; that is the same bargain --pdh-ink already makes. */
+  --pdh-ink-soft: color-mix(in srgb, var(--pdh-ink) 72%, #fff);
+
+  /* ---- Type scale ----------------------------------------------------
+     Four display steps and two prose steps, because the page had twenty-two.
+
+     Measured on the live home page at 1440: nine section headings rendered
+     at 36, 38, 42 and 46px, in weight 200 or 300, with tracking -0.01em or
+     none, and — because three of them set no line-height at all and simply
+     inherited the body's — at leading 1.08 or 1.50. At 375 the same nine came
+     out 24, 25, 26, 28 and 29.3px: a five-value ramp inside a five-pixel
+     band, which is drift wearing a hierarchy costume. One job, one size.
+
+     The steps are 76 / 46 / 38 / 24 on desktop and 38 / 29 / 26 / 19 on
+     mobile, so each is unmistakably a step and not a rounding error:
+
+     --fs-display  the page's single largest statement (a Summer Edit act)
+     --fs-feature  a headline inside a panel that owns its ground
+     --fs-section  a section heading standing on the page ground
+     --fs-card     a tile, brand or service name
+
+     Prose gets two: --fs-deck for the line under a heading, --fs-body for
+     real paragraphs inside a panel. The deck sits under the 16px body floor
+     deliberately — it is a caption for the heading above it, not the
+     section's body copy, and at 16 it competes with the rail title it is
+     supposed to introduce. It is 14 rather than the 13 it replaces because
+     13 was the smallest of the four sizes doing this job, not the right one. */
+  --fs-display: clamp(38px, 6.2vw, 76px);
+  --fs-feature: clamp(29px, 4.2vw, 46px);
+  --fs-section: clamp(26px, 3.2vw, 38px);
+  --fs-card: clamp(19px, 2.2vw, 24px);
+  --fs-body: 15px;
+  --fs-deck: 14px;
+
+  /* Leading belongs to the role, not to the element that remembered to set
+     it. Alta is a high-waisted geometric with a very tall lowercase, so
+     display leading runs tighter than a normal sans would want; prose leading
+     runs looser than 1.5 because Poppins' open counters need the room. */
+  --lh-display: 1.06;
+  --lh-title: 1.08;
+  --lh-card: 1.2;
+  --lh-prose: 1.65;
+
   /* ---- Spacing scale -------------------------------------------------
      4-unit base. The palette above had tokens for colour, buttons and
      badges but none for space, so every section hard-coded the same
@@ -1215,12 +1275,6 @@ button {
     padding: 14px 16px 16px !important;
     max-width: 100% !important;
     width: 100%;
-  }
-
-  .overlay-card-eyebrow {
-    font-size: 9.5px !important;
-    letter-spacing: 0.2em !important;
-    margin-bottom: 5px !important;
   }
 
   .overlay-card-title {
@@ -3226,9 +3280,19 @@ nav[aria-label^="Fil d"] a::after {
    at 768px would leave every tablet between 768 and 1023 with no menu bar and
    no strip either, navigable only through the burger. Hiding it here removes
    the duplication on exactly the widths that have it, and nowhere else. */
+/* Shown at every width again.
+
+   It was hidden from 1024px up because a row of photographs duplicated the
+   text menu that appears at that width. What changed is the job: the strip
+   now carries two rows of shelves that actually have stock behind them, and
+   the menu bar lists eighty slugs of which most are aisles. They are no
+   longer the same instrument — one sells the range, the other indexes it.
+
+   The cut stays available: set `display: none` here again and nothing else
+   in this file depends on the strip existing. */
 @media (min-width: 1024px) {
   .cat-tiles {
-    display: none;
+    justify-content: center;
   }
 }
 
@@ -3431,6 +3495,107 @@ nav[aria-label^="Fil d"] a::after {
    a movement-sized gap between two sections that are actually adjacent. */
 .home-movement:empty {
   display: none;
+}
+
+/* ---- The section header --------------------------------------------
+   Twelve home-page sections open the same way and each one had retyped it:
+   an uppercase label, an Alta heading, a line of deck. Retyped, so drifted —
+   see the --fs-* block for the nine sizes and two leadings that one heading
+   was rendering at.
+
+   The label tier is gone. It was a kicker above a heading, which this
+   project's craft floor bans outright, and the page carried fifteen of them:
+   "NOTRE SÉLECTION" over "Les incontournables" says nothing the heading did
+   not already say, and stacking a third type size above every section is
+   what made the home page read as a template rather than a shop. The CMS
+   `eyebrow` fields are all still there, still edited, still synced — only
+   the render is dropped, so this is one revert away and no copy is lost.
+
+   Setting `line-height` here is the fix for the quietest of the findings:
+   an <h2> with no line-height inherits the body's 1.5, which is what three
+   section headings were doing. Single-line today, so it shows only as extra
+   space; the moment an editor writes a title that wraps, those three open a
+   57px gap between lines while their neighbours hold 41px. */
+.sec-title {
+  font-family: var(--font-alta);
+  font-weight: 200;
+  font-size: var(--fs-section);
+  line-height: var(--lh-title);
+  letter-spacing: -0.01em;
+  margin: 0;
+  /* Alta at 200 is the Light file; a heading broken 6-and-1 by the browser's
+     greedy line-filling is far more visible in a hairline weight. */
+  text-wrap: balance;
+}
+
+/* A headline inside a panel that owns its ground — the dermo corner, the
+   contact banner, the marketing banner. Bigger because it is not competing
+   with the page around it, and it is the tint plus the size together that
+   separates the two, not size alone. */
+.sec-title--feature {
+  font-size: var(--fs-feature);
+  line-height: var(--lh-display);
+}
+
+.sec-deck {
+  font-size: var(--fs-deck);
+  line-height: var(--lh-prose);
+  color: var(--pdh-ink-soft);
+  margin: 10px 0 0;
+  /* Nothing on the page was over measure (36–54ch, checked live), so this is
+     a guard against a long CMS subtitle rather than a correction. */
+  max-width: 62ch;
+}
+
+/* On photography or a plum panel, tinted from the foreground rather than
+   dropped to grey — the same rule the rest of the storefront follows. */
+.sec-deck--on-dark {
+  color: rgba(var(--pdh-cream-rgb), 0.82);
+}
+
+/* A tile, brand or service name: the step below a section heading, and the
+   one place Alta is set at 300 rather than 200 — at 24px the Light face is
+   too fine to hold its own against the photograph beside it. */
+.card-title {
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: var(--fs-card);
+  line-height: var(--lh-card);
+  color: var(--pdh-ink);
+  margin: 0;
+}
+
+/* ---- Overlay cards --------------------------------------------------
+   Type set over a photograph. These classes existed already but owned only
+   their mobile overrides — every desktop value was retyped inline in each of
+   the five components, which is how the same title ended up at 32, 36 and
+   44px. The mobile !important blocks further down are untouched and still
+   win; what changes is that there is now something for them to override.
+
+   The eyebrow rules that used to live here are gone with the renders. */
+.overlay-card-title {
+  font-family: var(--font-alta);
+  font-weight: 200;
+  font-size: var(--fs-section);
+  line-height: var(--lh-title);
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+  text-wrap: balance;
+}
+
+/* Full-bleed banner rather than a card in a row — it has the width to take
+   the feature step. */
+.overlay-card-title--feature {
+  font-size: var(--fs-feature);
+  line-height: var(--lh-display);
+  margin-bottom: 14px;
+}
+
+.overlay-card-text {
+  font-size: var(--fs-deck);
+  line-height: var(--lh-prose);
+  color: rgba(var(--pdh-cream-rgb), 0.82);
+  margin: 0 0 18px;
 }
 
 /* The shop.
@@ -4677,5 +4842,259 @@ section.rail-editorial {
   .featured-promo-grid,
   .promotions-grid {
     scroll-snap-type: none;
+  }
+}
+
+/* ---- The brand wall -------------------------------------------------
+   Two rows that scroll sideways, with the arrows outside the track.
+
+   `grid-auto-flow: column` is what makes the height fixed: the grid fills
+   row 1 then row 2 then starts a new column, so eight brands and twenty-three
+   brands are both two rows tall. `flex-wrap` would have made the section grow
+   a row every time an editor added a mark. */
+.brand-wall {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-wall-track {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 1fr);
+  grid-auto-columns: minmax(132px, 1fr);
+  gap: clamp(10px, 1.6vw, 22px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* Room for the focus ring on the first and last cells, which a scroll
+     container would otherwise clip. */
+  padding: 4px;
+}
+.brand-wall-track::-webkit-scrollbar {
+  display: none;
+}
+
+.brand-wall-cell {
+  position: relative;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 78px;
+  padding: 14px 18px;
+  border: 1px solid var(--pdh-plum-tint);
+  border-radius: 14px;
+  background: #fff;
+  transition: border-color 0.2s, transform 0.2s;
+}
+a.brand-wall-cell:hover {
+  border-color: var(--pdh-plum-border);
+  transform: translateY(-2px);
+}
+
+/* The fallback, and it has to read as a considered state rather than as a
+   missing image — most brands in this shop have no logo uploaded yet. */
+.brand-wall-name {
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--pdh-plum);
+}
+
+.brand-wall-nav {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--pdh-plum-divider);
+  background: #fff;
+  color: var(--pdh-plum);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.brand-wall-nav:hover {
+  background: var(--pdh-plum-tint);
+}
+
+/* On touch the scroll gesture is the affordance; a pair of 34px buttons
+   beside it is one more thing to mis-tap, and it steals width the logos
+   need. */
+@media (max-width: 767px) {
+  .brand-wall-nav {
+    display: none;
+  }
+  .brand-wall-cell {
+    min-height: 66px;
+    padding: 10px 12px;
+  }
+}
+
+/* ---- Category circles: two rows, and the arrows beside them ---------
+   Same grid trick as .brand-wall-track, and for the same reason: with
+   `grid-auto-flow: column` the strip fills row 1 then row 2 then starts a new
+   column, so its height is a property of the design rather than of how many
+   aisles an editor has configured. Wrapping made eight chips two rows and
+   nine chips three, and the hero below moved every time.
+
+   One row until there are eight chips — [data-rows="1"] is the default and
+   this only overrides it — because four chips laid out two-and-two reads as
+   a grid that failed to fill, not as a browser. */
+.cat-tiles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-tiles[data-rows="2"] .cat-tiles-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: max-content;
+  row-gap: 18px;
+  /* `safe center` does not apply to a grid the way it does to the flex row
+     this replaces, and a centred overflowing grid puts its first column off
+     the left edge where no scroll reaches it. */
+  justify-content: start;
+}
+
+.cat-tiles-nav {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--pdh-plum-divider);
+  background: #fff;
+  color: var(--pdh-plum);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cat-tiles-nav:hover {
+  background: var(--pdh-plum-tint);
+}
+
+/* Touch scrolls; the buttons only take width the discs need. Matches the
+   brand wall, so the two scrollers on this page behave identically. */
+@media (max-width: 767px) {
+  .cat-tiles-nav {
+    display: none;
+  }
+}
+
+/* ---- The offers band ------------------------------------------------
+   One coloured stripe, edge to edge, holding the promotions grid.
+
+   No negative margin is needed to reach the edges: `<main>` is unconstrained
+   and it is each *section* that centres itself with `max-width: min(1280px,
+   100%); margin: 0 auto`. This section simply declines to do that, so it is
+   full width already, and .promo-band-inner re-establishes the column for its
+   contents. A `calc(50% - 50vw)` pull here would have double-counted and
+   overflowed by a scrollbar's width.
+
+   --promo-band is the only thing to change to make this louder. It is warm
+   sand by default — the tone this storefront already uses for panels, so the
+   band reads as an interruption rather than as a second brand. The reference
+   this was modelled on uses a saturated yellow; that is one value away, and
+   it is deliberately a decision rather than a default, because "le comptoir
+   en plein jour" and "la parapharmacie discount" are a few hundred nanometres
+   apart on this axis. */
+:root {
+  --promo-band: #faf5ea;
+}
+
+.promo-band {
+  background: var(--promo-band);
+  padding-block: clamp(30px, 4vw, 52px);
+}
+
+/* `<main>` is unconstrained and each section centres itself, so the band has
+   to re-establish the column its contents sit in. */
+.promo-band-inner {
+  max-width: min(1280px, 100%);
+  margin: 0 auto;
+  padding-inline: var(--sec-pad-x);
+}
+
+.promo-tab {
+  font-family: var(--font-poppins);
+  letter-spacing: 0.01em;
+}
+.promo-tab:hover {
+  color: var(--pdh-ink);
+}
+
+/* The band is the one place on the page where product cards sit on a tint
+   rather than on white. Their photography is shot on white, so without this
+   every packshot would carry a visible square edge against the band. */
+.promo-band .pdh-shot-wrap {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ---- The banner mosaic ----------------------------------------------
+   What .cta-pair-grid becomes at four tiles or more: pairs, with every third
+   running full width.
+
+   Strict two columns rather than the `auto-fit, minmax(320px, 1fr)` the pair
+   uses above. auto-fit is right for two tiles that should sit side by side or
+   stack; it is wrong here, because a mosaic whose column count changes with
+   the viewport puts the wide tile in a different place at every width, and
+   the rhythm — pair, pair, wide — is the whole point of the arrangement. */
+.cta-mosaic {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .cta-mosaic {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.cta-mosaic > [data-wide="true"] {
+  grid-column: 1 / -1;
+  /* A tile at twice the width needs more than a card's height or it reads as
+     a letterbox. The component sets min-height from its `height` prop; this
+     raises it for the wide ones only. */
+  min-height: clamp(200px, 30vw, 340px);
+}
+
+/* The pair stays hidden on phones — that was a deliberate request, and two
+   large tiles above the fold pushed the products down.
+
+   The mosaic does not. It is a different block doing a different job: it is
+   the category browser for a visitor who arrived from Instagram, it is the
+   layout that was asked for on a phone, and its tiles are half-width rather
+   than full. Re-enabled here rather than by loosening the rule above, so the
+   pair's behaviour is untouched. */
+@media (max-width: 767px) {
+  .cta-mosaic {
+    display: grid;
+    gap: 10px;
+  }
+  /* The wide tile keeps its own ratio.
+
+     .overlay-card-tile gives every card `aspect-ratio: 3 / 4` on phones,
+     which is right for a tile in a two-up row: at 169px wide it lands on
+     225px tall. Applied to a tile that spans both columns it lands on 463 —
+     measured, 347 / 462.66 is exactly 3:4 — a single banner taking more than
+     half the viewport before anything else is read.
+
+     A landscape ratio is what the shape is actually for; 2:1 is roughly what
+     the reference uses for its full-width tile. `height: auto` has to come
+     with it or the !important above still governs the free axis. */
+  .cta-mosaic > [data-wide="true"] {
+    aspect-ratio: 2 / 1;
+    height: auto;
+    min-height: clamp(150px, 42vw, 230px);
   }
 }

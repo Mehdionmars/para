@@ -11,7 +11,13 @@ import {
 // two layout options are declared here as optional additions to the
 // generated shape. Optional means a banner from either source — the live CMS
 // or the snapshot — still satisfies this type with nothing to change.
-export type MarketingBannerData = (typeof MARKETING_BANNERS)[number] & CardLayoutOptions;
+export type MarketingBannerData = (typeof MARKETING_BANNERS)[number] &
+  CardLayoutOptions & {
+    /** The artwork's own dimensions, supplied by the live CMS. The offline
+     * snapshot in data/home.ts predates them, hence optional. */
+    imgWidth?: number;
+    imgHeight?: number;
+  };
 
 /** Full-width seasonal/campaign banner between the hero and the product
  * rails — one CMS entry per campaign (été, Black Friday, Noël...); the
@@ -34,35 +40,46 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
   const ctaAlign = toCtaAlign(banner.ctaAlign);
   const objectPosition = framingToObjectPosition(banner.imageFraming);
 
+  // `undefined` leaves .marketing-banner's own aspect-ratio in charge.
+  const artRatio =
+    imageOnly && banner.imgWidth && banner.imgHeight ? `${banner.imgWidth} / ${banner.imgHeight}` : undefined;
+
   return (
     <section style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "var(--sec-pt,var(--sec-y)) var(--sec-pad-x) var(--sec-pb,var(--sec-y))" }}>
       {imageOnly ? (
-        <Link href={href} aria-label={wholeTileLabel} className="marketing-banner" style={{ display: "block" }}>
-          <BannerImage banner={banner} alt={altText} objectPosition={objectPosition} />
+        // An imageOnly banner is artwork with the offer, the products and the
+        // copy already laid out inside it. .marketing-banner's fixed ratio —
+        // 21:9 on desktop, 4:5 on phones — plus object-fit: cover then crops
+        // that artwork to fit, which cuts the message in half: a 2.2:1 banner
+        // in a 4:5 frame keeps about a third of its width.
+        //
+        // Nothing to crop once the frame takes the picture's own shape. The
+        // stylesheet ratio stays as the fallback for a banner whose media
+        // document did not resolve.
+        <Link
+          href={href}
+          aria-label={wholeTileLabel}
+          className="marketing-banner"
+          style={{ display: "block", aspectRatio: artRatio }}
+        >
+          <BannerImage banner={banner} alt={altText} fit={artRatio ? "contain" : "cover"} objectPosition={objectPosition} />
           {banner.badgeLabel && <BannerBadge label={banner.badgeLabel} />}
         </Link>
       ) : (
         <div className="marketing-banner" style={{ display: "flex", alignItems: "flex-end" }}>
-          <BannerImage banner={banner} alt="" objectPosition={objectPosition} />
+          <BannerImage banner={banner} alt="" fit="cover" objectPosition={objectPosition} />
           <div className="scrim-bottom" aria-hidden="true" style={{ position: "absolute", inset: 0 }} />
           {banner.badgeLabel && <BannerBadge label={banner.badgeLabel} />}
 
           <div className="overlay-card-content" style={{ position: "relative", zIndex: 2, padding: "clamp(24px,3.6vw,48px)", maxWidth: 560, color: "#fff" }}>
-            {banner.eyebrow && (
-              <div className="overlay-card-eyebrow" style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".24em", textTransform: "uppercase", opacity: 0.9, marginBottom: 10 }}>
-                {banner.eyebrow}
-              </div>
-            )}
             {banner.title && (
-              <h2
-                className="overlay-card-title"
-                style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(28px,4vw,44px)", lineHeight: 1.08, margin: "0 0 14px", letterSpacing: "-.01em" }}
-              >
-                {banner.title}
-              </h2>
+              <h2 className="overlay-card-title overlay-card-title--feature">{banner.title}</h2>
             )}
             {banner.description && (
-              <p className="overlay-card-text" style={{ fontSize: 14.5, lineHeight: 1.7, opacity: 0.92, margin: "0 0 22px", maxWidth: 460 }}>
+              /* The one overlay text that is not tinted from cream: this
+                 banner's copy is #fff on an editor-chosen photograph, and
+                 the scrim behind it is what carries the contrast. */
+              <p className="overlay-card-text" style={{ color: "rgba(255,255,255,.92)", maxWidth: 460 }}>
                 {banner.description}
               </p>
             )}
@@ -84,11 +101,15 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
   );
 }
 
+/** Cropping is right for a photograph the copy sits *on top of*, and wrong
+ * for artwork the copy is baked *into*. */
 function BannerImage({
   banner,
   alt,
   objectPosition,
+  fit,
 }: {
+  fit: "cover" | "contain";
   banner: MarketingBannerData;
   alt: string;
   objectPosition: string;
@@ -107,7 +128,7 @@ function BannerImage({
         fill
         sizes="(max-width: 767px) 100vw, 1280px"
         className={banner.imgMobile ? "hero-desktop-img" : undefined}
-        style={{ objectFit: "cover", objectPosition }}
+        style={{ objectFit: fit, objectPosition }}
       />
       {banner.imgMobile && (
         <CloudinaryImage
@@ -117,7 +138,7 @@ function BannerImage({
           fill
           sizes="100vw"
           className="hero-mobile-img"
-          style={{ objectFit: "cover", objectPosition }}
+          style={{ objectFit: fit, objectPosition }}
         />
       )}
     </>
