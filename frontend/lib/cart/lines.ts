@@ -48,8 +48,22 @@ export function cartLineKey(productId: number, variantId: string | null | undefi
   return `${productId}::${variantId || "default"}`;
 }
 
+/**
+ * A whole quantity of at least one.
+ *
+ * `Math.max(1, Math.floor(n))` alone does not deliver that: `Math.floor(NaN)`
+ * is `NaN` and `Math.max(1, NaN)` is `NaN`, so the guard used to pass straight
+ * through and a line could carry a `NaN` quantity into `linesSubtotal`, which
+ * renders as "NaN MAD". No current caller can produce one — the quantity
+ * stepper only ever emits integers — so this closes the contract rather than
+ * fixing a live bug.
+ */
+function wholeQty(qty: number): number {
+  return Number.isFinite(qty) ? Math.max(1, Math.floor(qty)) : 1;
+}
+
 export function toCartLine(input: CartLineInput, qty: number): CartLine {
-  return { ...input, key: cartLineKey(input.productId, input.variantId), qty: Math.max(1, Math.floor(qty)) };
+  return { ...input, key: cartLineKey(input.productId, input.variantId), qty: wholeQty(qty) };
 }
 
 /**
@@ -64,12 +78,12 @@ export function addLine(lines: CartLine[], input: CartLineInput, qty = 1): CartL
   const at = lines.findIndex((l) => l.key === key);
   if (at === -1) return [...lines, toCartLine(input, qty)];
   const next = lines.slice();
-  next[at] = { ...next[at], qty: next[at].qty + Math.max(1, Math.floor(qty)) };
+  next[at] = { ...next[at], qty: next[at].qty + wholeQty(qty) };
   return next;
 }
 
 export function setQty(lines: CartLine[], key: string, qty: number): CartLine[] {
-  return lines.map((l) => (l.key === key ? { ...l, qty: Math.max(1, Math.floor(qty)) } : l));
+  return lines.map((l) => (l.key === key ? { ...l, qty: wholeQty(qty) } : l));
 }
 
 export function removeLine(lines: CartLine[], key: string): CartLine[] {
@@ -110,9 +124,18 @@ export function parseStoredLines(
   for (const entry of raw) {
     if (!entry || typeof entry !== "object") continue;
     const row = entry as Record<string, unknown>;
-    const qty = Math.max(1, Math.floor(Number(row.qty) || 0));
+    const qty = wholeQty(Number(row.qty));
 
-    if (typeof row.productId === "number" && typeof row.price === "number" && typeof row.name === "string") {
+    // localStorage is editable by anyone with devtools, so a stored price is
+    // checked for being a real, non-negative amount and not merely for being
+    // of type number: NaN and -50 are both numbers, and either would render a
+    // nonsense line total. Such an entry is dropped, like any other that
+    // cannot be resolved — the server never sees these amounts (see
+    // toCheckoutLines), so this is about what the shopper is shown.
+    const storedPrice = row.price;
+    const usablePrice = typeof storedPrice === "number" && Number.isFinite(storedPrice) && storedPrice >= 0;
+
+    if (typeof row.productId === "number" && usablePrice && typeof row.name === "string") {
       const variantId = typeof row.variantId === "string" && row.variantId ? row.variantId : null;
       out.push({
         brand: String(row.brand || ""),
@@ -120,7 +143,7 @@ export function parseStoredLines(
         key: cartLineKey(row.productId, variantId),
         name: row.name,
         oldPrice: Number(row.oldPrice) || 0,
-        price: row.price,
+        price: storedPrice,
         productId: row.productId,
         qty,
         sku: String(row.sku || ""),

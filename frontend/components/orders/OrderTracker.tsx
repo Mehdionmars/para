@@ -1,10 +1,10 @@
 "use client";
 
 import { Loader2, PackageSearch } from "lucide-react";
-import { useState } from "react";
-import { usePersistedFields } from "@/lib/usePersistedFields";
+import { useEffect, useState } from "react";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/dashboard/orders-types";
+import { clearTracking, readTracking, saveTracking } from "@/lib/orders/trackingMemory";
 
 type TrackedOrder = {
   orderNumber: string;
@@ -27,16 +27,27 @@ export function OrderTracker() {
   const [order, setOrder] = useState<TrackedOrder | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  /** Vrai dès qu'une consultation retenue a été réinjectée dans les champs. */
+  const [remembered, setRemembered] = useState(false);
 
-  // Both fields, remembered across a reload: this page is checked repeatedly
-  // over the days a parcel takes to arrive, and retyping an order number from
-  // an email each time is the whole friction. The pair is also what authorises
-  // the lookup, so it is left in place only until the shopper clears it — see
-  // the note in usePersistedFields about shared machines.
-  usePersistedFields("pdh-tracking-v1", { orderNumber, email }, (saved) => {
-    if (saved.orderNumber) setOrderNumber(saved.orderNumber);
-    if (saved.email) setEmail(saved.email);
-  });
+  useEffect(() => {
+    // Après le montage, jamais pendant le rendu : le serveur n'a pas accès au
+    // stockage du navigateur, et pré-remplir au premier rendu ferait diverger
+    // l'hydratation. Le formulaire s'affiche donc vide puis se remplit.
+    const saved = readTracking();
+    if (!saved) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOrderNumber(saved.orderNumber);
+    setEmail(saved.email);
+    setRemembered(true);
+  }, []);
+
+  function forget() {
+    clearTracking();
+    setOrderNumber("");
+    setEmail("");
+    setRemembered(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,6 +67,11 @@ export function OrderTracker() {
         return;
       }
       setOrder(data);
+      // Uniquement ici : seule une consultation acceptée par le serveur est
+      // retenue. Un numéro ou un email refusé sort par la branche ci-dessus et
+      // laisse intacte la mémoire précédente — sinon une faute de frappe
+      // effacerait ce que le client avait de bon.
+      setRemembered(saveTracking({ email, orderNumber }));
     } catch {
       setError("Impossible de contacter le service. Réessayez.");
     } finally {
@@ -131,8 +147,35 @@ export function OrderTracker() {
           Suivre ma commande
         </button>
 
+        {remembered && (
+          // Une machine partagée est le cas courant ici : il faut pouvoir
+          // retirer ses informations sans aller fouiller dans les réglages du
+          // navigateur.
+          <p style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+            <span style={{ fontSize: 12.5, opacity: 0.65 }}>
+              Vos informations sont conservées sur cet appareil pour la prochaine fois.
+            </span>
+            <button
+              type="button"
+              onClick={forget}
+              className="link-hover"
+              style={{
+                background: "none",
+                border: 0,
+                color: "inherit",
+                cursor: "pointer",
+                fontSize: 12.5,
+                padding: 0,
+                textDecoration: "underline",
+              }}
+            >
+              Oublier
+            </button>
+          </p>
+        )}
+
         {error && (
-          <p role="alert" style={{ marginTop: 12, fontSize: 13, color: "var(--pdh-error)" }}>
+          <p role="alert" style={{ marginTop: 12, fontSize: 13, color: "#9A3B3B" }}>
             {error}
           </p>
         )}
@@ -154,7 +197,7 @@ export function OrderTracker() {
             <p style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", opacity: 0.5 }}>
               Commande {order.orderNumber}
             </p>
-            <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 26, margin: "6px 0 4px" }}>
+            <h2 style={{ fontFamily: "var(--font-jost)", fontWeight: 300, fontSize: 26, margin: "6px 0 4px" }}>
               {ORDER_STATUS_LABELS[order.status]}
             </h2>
             <p style={{ fontSize: 13, opacity: 0.65, margin: 0 }}>
@@ -174,11 +217,11 @@ export function OrderTracker() {
               {order.items.map((item, i) => (
                 <li key={`${item.name}-${item.variantLabel ?? ""}-${i}`} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}>
                   <span style={{ minWidth: 0 }}>
-                    {item.name} <span style={{ color: "var(--pdh-muted-text)" }}>× {item.quantity}</span>
+                    {item.name} <span style={{ color: "#6a7178" }}>× {item.quantity}</span>
                     {/* Without this, two sizes of one product read as the
                         same line twice on the customer's own order. */}
                     {!!item.variantLabel && (
-                      <span style={{ color: "var(--pdh-muted-text)", display: "block", fontSize: 12, marginTop: 2 }}>
+                      <span style={{ color: "#6a7178", display: "block", fontSize: 12, marginTop: 2 }}>
                         {item.variantType ? `${item.variantType} : ` : ""}
                         {item.variantLabel}
                         {item.sku ? ` · SKU ${item.sku}` : ""}
@@ -192,7 +235,7 @@ export function OrderTracker() {
 
             <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(94,64,116,.12)", display: "grid", gap: 6, fontSize: 13 }}>
               <Row label="Sous-total" value={money(order.subtotal)} />
-              {order.discount > 0 && <Row label="Réduction" value={`−${money(order.discount)}`} accent="var(--pdh-success)" />}
+              {order.discount > 0 && <Row label="Réduction" value={`−${money(order.discount)}`} accent="#1F8A5C" />}
               <Row label="Livraison" value={order.shipping ? money(order.shipping) : "Offerte"} />
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, fontSize: 16, fontWeight: 600 }}>
                 <span>Total</span>

@@ -23,15 +23,23 @@ export const maxDuration = 20
 async function handlePOST(request: Request) {
   const payload = await getPayload({ config: configPromise })
 
-  let body: { orderNumber?: string; email?: string }
+  let body: unknown
   try {
     body = await request.json()
   } catch {
     return Response.json({ error: 'Requête invalide.' }, { status: 400 })
   }
 
-  const orderNumber = body.orderNumber?.trim().toUpperCase()
-  const email = body.email?.trim().toLowerCase()
+  // `unknown` plutôt qu'une forme supposée, et le type vérifié avant d'appeler
+  // `.trim()`. L'optional chaining ne protège que de null/undefined : sur
+  // `{ orderNumber: 42 }` ou un tableau, `?.trim()` levait un TypeError qui
+  // remontait jusqu'à une 500 — n'importe qui pouvait donc faire répondre 500
+  // à cette route avec un corps bien formé mais mal typé.
+  const field = (value: unknown): string => (typeof value === 'string' ? value : '')
+  const record = (body ?? {}) as Record<string, unknown>
+
+  const orderNumber = field(record.orderNumber).trim().toUpperCase()
+  const email = field(record.email).trim().toLowerCase()
 
   if (!orderNumber || !email) {
     return Response.json({ error: 'Numéro de commande et email requis.' }, { status: 400 })

@@ -31,6 +31,7 @@ import * as migration_20260829_090000_nav_strip_image_and_promo_modal from './20
 import * as migration_20260829_120000_payment_settings_and_method_enum from './20260829_120000_payment_settings_and_method_enum';
 import * as migration_20260904_000000_theme_badge_and_newsletter_logo from './20260904_000000_theme_badge_and_newsletter_logo';
 import * as migration_20260904_010000_newsletter_cta_radius_particles from './20260904_010000_newsletter_cta_radius_particles';
+import * as migration_20260823_140000_integrity_constraints from './20260823_140000_integrity_constraints';
 
 export const migrations = [
   {
@@ -197,5 +198,15 @@ export const migrations = [
     up: migration_20260910_000000_idempotency_scope_and_payment_events.up,
     down: migration_20260910_000000_idempotency_scope_and_payment_events.down,
     name: '20260910_000000_idempotency_scope_and_payment_events'
+  },
+  // Out of date order on purpose. It is dated 20260823 but has never been
+  // applied anywhere, and it adds constraints to tables that later migrations
+  // create or alter — running it last is what guarantees every table it
+  // touches exists. Payload tracks applied migrations by name, so its position
+  // in this array only decides when it runs on a database that has not seen it.
+  {
+    up: migration_20260823_140000_integrity_constraints.up,
+    down: migration_20260823_140000_integrity_constraints.down,
+    name: '20260823_140000_integrity_constraints'
   },
 ];

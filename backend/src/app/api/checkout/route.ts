@@ -12,6 +12,7 @@ import {
 import { notifyOrderEvent } from '../../../lib/notifications/service'
 import { notifyStockChange } from '../../../lib/notifications/stock'
 import { serverError } from '../../../lib/apiError'
+import { STOCK_DECREMENT_SQL, STOCK_RESTORE_SQL } from '../../../lib/inventorySql'
 import { evaluateCoupon, resolveShipping } from '../../../lib/pricing'
 import { withApiLog } from '../../../lib/withApiLog'
 
@@ -42,7 +43,10 @@ type CheckoutBody = {
   couponCode?: string
   /** One of PAYMENT_METHOD_OPTIONS. Checked against what the shop actually
    * accepts before it is stored — see resolvePaymentMethod. */
-  paymentMethod?: string
+  /** Typed `unknown` rather than `string` on purpose: this is a parsed JSON
+   * body, so the annotation is a wish, not a guarantee. See the guard in
+   * handlePOST. */
+  paymentMethod?: unknown
   lines?: CheckoutLine[]
 }
 
@@ -176,7 +180,11 @@ async function handlePOST(request: Request) {
   // and must be told if that choice is not available, not discover it on
   // delivery.
   const offered = await allowedPaymentMethods(payload)
-  const requestedMethod = body.paymentMethod?.trim()
+  // `typeof === 'string'` is not decoration. `body` is parsed JSON, so this
+  // field is whatever the client sent — and `["bank_transfer"].trim` is not a
+  // function, which turned a malformed request into a 500 instead of the 400
+  // it deserves. Caught by a test that came in with the branch this merges.
+  const requestedMethod = typeof body.paymentMethod === 'string' ? body.paymentMethod.trim() : undefined
   const paymentMethod: PaymentMethod | null = requestedMethod
     ? ((PAYMENT_METHOD_OPTIONS as readonly string[]).includes(requestedMethod) &&
       offered.includes(requestedMethod as PaymentMethod)
@@ -386,10 +394,7 @@ async function handlePOST(request: Request) {
         subtotal += price * qty
       }
 
-      const decremented = await client.query(
-        'UPDATE products SET stock = stock - $1, updated_at = now() WHERE id = $2 AND stock >= $1 RETURNING stock',
-        [productQty, id],
-      )
+      const decremented = await client.query(STOCK_DECREMENT_SQL, [productQty, id])
       if (decremented.rowCount === 0) {
         // Belt-and-braces: the FOR UPDATE above should make this unreachable,
         // but if it ever matches zero the order must not proceed.
@@ -425,40 +430,46 @@ async function handlePOST(request: Request) {
   let appliedCouponId: number | null = null
   let appliedCouponCode: string | null = null
 
-  if (body.couponCode?.trim()) {
-    const evaluated = await evaluateCoupon({
-      code: body.couponCode,
-      customerEmail: email,
-      lines: resolved.map((l) => ({
-        brandId: l.brandId,
-        categoryValue: l.categoryValue,
-        price: l.price,
-        productId: l.productId,
-        quantity: l.quantity,
-      })),
-      payload,
-    })
-
-    if (evaluated.ok) {
-      discount = evaluated.discount
-      appliedCouponId = evaluated.couponId
-      appliedCouponCode = evaluated.code
-    }
-    // An invalid coupon does NOT fail the order: the stock is already
-    // committed above, and dropping a valid purchase over a lapsed promo
-    // code would be a worse outcome than charging full price. The response
-    // reports it so the cart can tell the customer what happened.
-  }
-
-  const shippingResult = await resolveShipping({
-    city: body.city,
-    payload,
-    subtotalAfterDiscount: subtotal - discount,
-  })
-  const shipping = shippingResult.cost
-  const total = Math.max(0, subtotal - discount) + shipping
-
+  // Everything from here runs inside the compensating try: the stock was
+  // committed above, so a database failure while *pricing* the order has to
+  // give it back for the same reason a failure while saving it does. Pricing
+  // used to sit outside this block, where a dropped connection in
+  // evaluateCoupon or resolveShipping left the stock decremented and no order
+  // behind it.
   try {
+    if (body.couponCode?.trim()) {
+      const evaluated = await evaluateCoupon({
+        code: body.couponCode,
+        customerEmail: email,
+        lines: resolved.map((l) => ({
+          brandId: l.brandId,
+          categoryValue: l.categoryValue,
+          price: l.price,
+          productId: l.productId,
+          quantity: l.quantity,
+        })),
+        payload,
+      })
+
+      if (evaluated.ok) {
+        discount = evaluated.discount
+        appliedCouponId = evaluated.couponId
+        appliedCouponCode = evaluated.code
+      }
+      // An invalid coupon does NOT fail the order: the stock is already
+      // committed above, and dropping a valid purchase over a lapsed promo
+      // code would be a worse outcome than charging full price. The response
+      // reports it so the cart can tell the customer what happened.
+    }
+
+    const shippingResult = await resolveShipping({
+      city: body.city,
+      payload,
+      subtotalAfterDiscount: subtotal - discount,
+    })
+    const shipping = shippingResult.cost
+    const total = Math.max(0, subtotal - discount) + shipping
+
     const order = await payload.create({
       collection: 'orders',
       data: {
@@ -641,10 +652,7 @@ async function handlePOST(request: Request) {
         )
       }
       for (const m of movements) {
-        await compensation.query('UPDATE products SET stock = stock + $1, updated_at = now() WHERE id = $2', [
-          m.quantity,
-          m.productId,
-        ])
+        await compensation.query(STOCK_RESTORE_SQL, [m.quantity, m.productId])
       }
       await compensation.query('COMMIT')
       stockRestored = true

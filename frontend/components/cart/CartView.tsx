@@ -5,9 +5,11 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { ShippingOption } from "@/app/api/shipping-rules/route";
+import { BankTransferDetails } from "@/components/cart/BankTransferDetails";
 import { CheckoutField } from "@/components/cart/CheckoutField";
 import type { PaymentMethodCode, PaymentSettings } from "@/lib/storefront/paymentSettings";
 import { usePersistedFields } from "@/lib/usePersistedFields";
+import { saveTracking } from "@/lib/orders/trackingMemory";
 import { CouponField, type AppliedCoupon } from "@/components/cart/CouponField";
 import { PaymentBadges } from "@/components/layout/PaymentBadges";
 import { useCart } from "@/context/cart-context";
@@ -225,6 +227,11 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
       setOrderNumber(data.orderNumber);
       setPlacedMethod((data.paymentMethod as PaymentMethodCode) || "cash_on_delivery");
       persistedCheckout.clear();
+      // Remembered for /suivi-commande, and only from the server's own order
+      // number — never a client-side guess. It saves the shopper retyping it
+      // out of their email on the first lookup. The tracker reads it back and
+      // offers a "forget" control for a shared machine.
+      saveTracking({ email, orderNumber: data.orderNumber });
       cart.clear();
       setStep("success");
     } catch (err) {
