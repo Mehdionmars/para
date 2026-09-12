@@ -4953,6 +4953,30 @@ a.brand-wall-cell:hover {
   gap: 6px;
 }
 
+/* The two lines that were missing, and the labels collided without them.
+   Making .cat-tiles a flex container to seat the arrows beside the track
+   turned .cat-tiles-row into a flex item, and a flex item shrinks by default:
+   the track was squeezed to whatever the arrows left over, the chips inside
+   were compressed below their own labels, and "Maquillage" ran into
+   "Compléments".
+
+   `flex: 1` makes the track take the space instead of yielding it; `min-width:
+   0` lets it still scroll rather than force the arrows off the row. The same
+   pair is on .brand-wall-track, which is why that one never collided. */
+.cat-tiles > .cat-tiles-row {
+  flex: 1;
+  min-width: 0;
+}
+
+/* And the chips themselves stop shrinking. `min-width: var(--tile)` further up
+   is a floor for the *disc*, not a promise the label fits: at the clamp's
+   58px a chip reading "Maquillage" is already wider than its tile. In a row
+   that is allowed to scroll, a chip that refuses to shrink is what keeps the
+   label whole — the overflow is the point. */
+.cat-tiles-row > li {
+  flex: none;
+}
+
 .cat-tiles[data-rows="2"] .cat-tiles-row {
   display: grid;
   grid-auto-flow: column;
