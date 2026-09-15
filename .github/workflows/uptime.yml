@@ -1,0 +1,140 @@
+# Uptime monitoring, from outside the building.
+#
+# ## Why here, and not on the server
+#
+# Anything running on the box can only tell you the box is fine. It cannot see
+# DNS, Cloudflare or the tunnel — and those are exactly what failed: the public
+# domain answered 500 for days while every container on the server was healthy
+# and nobody was told. A check has to start where a visitor starts.
+#
+# GitHub Actions is outside, free for this repository, needs no new service and
+# no secret: GITHUB_TOKEN can open and close issues, and an issue notifies the
+# repository owner by email and in the GitHub app. That is the alert channel.
+#
+# ## What "down" means
+#
+# Three attempts, 20 seconds apart, before anything is declared. A single blip
+# — a tunnel reconnect, a container restart mid-deploy — is not an incident,
+# and an alert that cries wolf gets muted, which is worse than no alert.
+#
+# One issue per target, found by its title. It is opened on the first failing
+# run, commented on (not duplicated) while it stays down, and closed with the
+# outage duration when it recovers. The issue *is* the incident record.
+#
+# ## Known limits, stated rather than discovered
+#
+# - Scheduled workflows run at best every five minutes and GitHub may delay them
+#   under load; this is a ten-minute check, not a pager.
+# - GitHub disables scheduled workflows after 60 days with no repository
+#   activity. A quiet repo will stop being watched without warning — push, or
+#   re-enable it from the Actions tab.
+
+name: Uptime
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The end-to-end probe: storefront -> backend -> Postgres, through
+          # Cloudflare and the tunnel. A 200 here means a visitor can shop.
+          - name: preprod
+            url: https://preprod.paradhiver.ma/api/health
+            expect: '"status":"ok"'
+          # The public domain. Plain page check: it is not guaranteed to be
+          # served by this stack, and a health route may not exist wherever
+          # it currently points.
+          - name: paradhiver.ma
+            url: https://paradhiver.ma/
+            expect: ''
+    steps:
+      - name: Probe ${{ matrix.name }}
+        id: probe
+        env:
+          URL: ${{ matrix.url }}
+          EXPECT: ${{ matrix.expect }}
+        run: |
+          set -u
+          status=down
+          detail=""
+          for attempt in 1 2 3; do
+            body=$(curl -sS -L -m 20 -o - -w '\n%{http_code} %{time_total}' "$URL" 2>&1) || true
+            meta=$(printf '%s' "$body" | tail -n1)
+            code=${meta%% *}
+            secs=${meta##* }
+            content=$(printf '%s' "$body" | sed '$d')
+            if [ "$code" = "200" ] && { [ -z "$EXPECT" ] || printf '%s' "$content" | grep -qF "$EXPECT"; }; then
+              status=up
+              detail="HTTP $code in ${secs}s"
+              break
+            fi
+            detail="HTTP ${code:-none} (attempt $attempt)"
+            echo "::warning::$URL -> $detail"
+            [ "$attempt" -lt 3 ] && sleep 20
+          done
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "detail=$detail" >> "$GITHUB_OUTPUT"
+          echo "$URL -> $status ($detail)"
+
+      - name: Open, update or close the incident
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NAME: ${{ matrix.name }}
+          URL: ${{ matrix.url }}
+          STATUS: ${{ steps.probe.outputs.status }}
+          DETAIL: ${{ steps.probe.outputs.detail }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -eu
+          title="Incident: $NAME is down"
+          now=$(date -u +%Y-%m-%dT%H:%MZ)
+
+          gh label create incident --color B60205 \
+            --description "Opened and closed by the Uptime workflow" 2>/dev/null || true
+
+          # Listed by label and matched on the exact title in jq — deliberately
+          # not `--search`. GitHub's search index lags a fresh issue by up to a
+          # minute or two, so a search would miss the issue the previous run
+          # just opened and this run would open a duplicate. There are only
+          # ever a handful of open incidents, so listing them all costs nothing.
+          number=$(gh issue list --state open --label incident --limit 50 \
+            --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -n1)
+
+          if [ "$STATUS" = "down" ]; then
+            if [ -z "$number" ]; then
+              gh issue create --label incident --title "$title" --body "$(printf '%s\n' \
+                "**$URL** failed three consecutive checks." \
+                "" \
+                "- First seen: $now" \
+                "- Last result: $DETAIL" \
+                "- Run: $RUN_URL" \
+                "" \
+                "This issue stays open while the target is down and closes itself when it recovers.")"
+            else
+              gh issue comment "$number" --body "Still down at $now — $DETAIL. [run]($RUN_URL)"
+            fi
+            exit 1
+          fi
+
+          if [ -n "$number" ]; then
+            opened=$(gh issue view "$number" --json createdAt --jq .createdAt)
+            mins=$(( ( $(date -u +%s) - $(date -u -d "$opened" +%s) ) / 60 ))
+            gh issue close "$number" --comment "Recovered at $now — $DETAIL. Down for about ${mins} minutes."
+          fi

@@ -1,9 +1,26 @@
 name: para-dhiver
 
+# Bounded logs for every service.
+#
+# Docker's default json-file driver keeps container output forever, and this
+# host had no daemon.json to cap it. Small today (under a megabyte), but it is
+# the classic slow outage on a self-hosted box: the disk fills over months and
+# Postgres is the first thing to stop writing. 10 MB x 5 files is ~50 MB per
+# service at worst — generous for debugging, impossible to fill a 50 GB disk
+# with. Declared here rather than in /etc/docker/daemon.json so it lives in the
+# repository, needs no root, and cannot drift from what is deployed.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '5'
+
+
 services:
   postgres:
     image: postgres:16-alpine
     restart: always
+    logging: *default-logging
     environment:
       POSTGRES_DB: para_dhiver
       POSTGRES_USER: postgres
@@ -30,6 +47,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    logging: *default-logging
     # appendonly so a restart does not drop in-flight locks and cached
     # responses. Losing them is survivable — every read falls through to
     # Postgres — but a needless cold cache after every deploy is not free.
@@ -48,6 +66,7 @@ services:
   adminer:
     image: adminer:latest
     restart: always
+    logging: *default-logging
     ports:
       # Loopback only. Adminer is a database administration console; on the
       # network it was one form away from full access to the data, guarded by
@@ -61,6 +80,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     restart: always
+    logging: *default-logging
     env_file:
       - ./backend/.env
     # Only values that describe Docker's own topology belong here. `environment:`
@@ -122,6 +142,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     restart: always
+    logging: *default-logging
     env_file:
       - ./frontend/.env.local
     environment:
@@ -138,6 +159,49 @@ services:
       - '127.0.0.1:3000:3000'
     depends_on:
       - backend
+
+  # The scheduler /api/jobs/tick was written for and never had.
+  #
+  # That endpoint is a worker exposed as a route — it drains queued
+  # notifications and runs the retention purges — and its own header says the
+  # loop has to live outside and call in, because a serverless backend has no
+  # long-lived process to hold one. It was built for Vercel Cron. On this box
+  # nothing called it: measured before this service existed, zero calls ever
+  # logged, three notifications queued since 2026-09-09 14:01, and
+  # api_request_logs past ten thousand rows with its 30-day purge never run.
+  #
+  # A compose service rather than a systemd timer on the host, so it ships with
+  # the stack, restarts with it, needs no root, and cannot be forgotten on the
+  # next machine. The endpoint is idempotent and claims its work with
+  # FOR UPDATE SKIP LOCKED, so an overlapping tick splits the queue instead of
+  # duplicating it — a slow run followed by the next minute's is safe.
+  #
+  # env_file is read by compose on the host, as the deploying user. That
+  # matters: backend/.env is 0600, and this image runs as a non-root uid that
+  # could not have read the file had it been mounted instead — every tick
+  # would have been a silent 401. The trade is that the backend's variables
+  # are present in this container's environment; it runs one fixed command and
+  # exposes nothing, which bounds that.
+  jobs-tick:
+    image: curlimages/curl:8.10.1
+    restart: unless-stopped
+    logging: *default-logging
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - backend
+    entrypoint: ['/bin/sh', '-c']
+    # -m 55 keeps one call under the route's 60-second maxDuration, so a hung
+    # tick is abandoned before the next one starts rather than stacking up.
+    # `$$` is compose's escape for a literal `$` read by the shell.
+    command:
+      - |
+        echo "jobs-tick: every 60s -> http://backend:3001/api/jobs/tick"
+        while true; do
+          code=$$(curl -s -o /dev/null -w '%{http_code}' -m 55 -X POST             -H "Authorization: Bearer $$JOBS_SECRET" http://backend:3001/api/jobs/tick)
+          [ "$$code" = "200" ] || echo "jobs-tick: HTTP $$code at $$(date -u +%FT%TZ)"
+          sleep 60
+        done
 
 volumes:
   pgdata:

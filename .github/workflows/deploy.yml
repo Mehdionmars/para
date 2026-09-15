@@ -1,0 +1,75 @@
+# Continuous deployment to the LAN host, after CI passes on main.
+#
+# ## Why a self-hosted runner
+#
+# The server sits on a private network at 10.0.0.140 with no inbound ports —
+# Cloudflare's tunnel dials *out*. GitHub's own runners cannot reach it, and
+# opening SSH to the internet so they could would undo the reason the host was
+# set up that way.
+#
+# A self-hosted runner inverts the direction: an agent on the server holds an
+# outbound connection to GitHub and picks up jobs. Nothing new is exposed.
+#
+# ## Why it is off until switched on
+#
+# `runs-on: self-hosted` with no runner registered does not skip — it queues,
+# and a queued job waits for up to 24 hours before failing. On every push. The
+# `DEPLOY_ENABLED` repository variable keeps this workflow evaluated but
+# skipped until the runner exists, so it costs nothing and alarms no one in
+# the meantime.
+#
+# ## What actually deploys
+#
+# scripts/deploy.sh, the same script a human runs by hand during an incident.
+# It re-checks CI, refuses a commit that adds a migration, builds before it
+# swaps, gates on the end-to-end health probe and rolls back on failure. This
+# workflow only decides *when*; the script decides *whether*.
+#
+# ## Turning it on — once
+#
+#   1. GitHub -> Settings -> Actions -> Runners -> New self-hosted runner (Linux)
+#   2. On the server, run the three commands GitHub shows, adding the label
+#      `para` when asked, then install it as a service (./svc.sh install && ./svc.sh start)
+#   3. GitHub -> Settings -> Secrets and variables -> Actions -> Variables:
+#      DEPLOY_ENABLED = true
+
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Skip the CI check (an incident, not a habit)
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: >-
+      vars.DEPLOY_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: [self-hosted, para]
+    timeout-minutes: 30
+    steps:
+      - name: Deploy with health gate and rollback
+        env:
+          FORCE: ${{ inputs.force && '--force' || '' }}
+        run: |
+          set -euo pipefail
+          cd "$HOME/para"
+          # The runner's own checkout is not the deployment: the stack runs
+          # from ~/para, with its .env files, and that is what the script moves.
+          git fetch --quiet origin main
+          git show origin/main:scripts/deploy.sh > /tmp/para-deploy.sh
+          bash /tmp/para-deploy.sh $FORCE
