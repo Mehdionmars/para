@@ -689,6 +689,122 @@ button {
   }
 }
 
+/* Horizontal strokes on the photo change it (ProductGallery's swipe);
+   vertical ones still scroll the page, and pinch still zooms it. */
+.pdp-media {
+  touch-action: pan-y pinch-zoom;
+}
+
+.pdp-media:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 3px;
+}
+
+/* Controls laid over the photo. White and translucent so they read on any
+   packshot background; 44px so a thumb can hit them. */
+.pdp-media-btn {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--pdh-plum-tint);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px -4px rgba(var(--pdh-ink-rgb), 0.35);
+  color: var(--pdh-ink);
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.pdp-media-btn:hover {
+  background: #fff;
+}
+
+.pdp-media-btn:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
+
+.pdp-media-nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.pdp-media-nav[data-dir="prev"] {
+  left: 12px;
+}
+
+.pdp-media-nav[data-dir="next"] {
+  right: 12px;
+}
+
+/* Top right: the badges sit top left and already stop 52px short of it. */
+.pdp-media-zoom {
+  top: 12px;
+  right: 12px;
+}
+
+.pdp-media-count {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--pdh-ink);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+/* On a mouse, the arrows appear with the pointer instead of sitting on
+   the photo; touch screens and keyboard focus keep them visible. */
+@media (hover: hover) and (pointer: fine) {
+  .pdp-media .pdp-media-nav {
+    opacity: 0;
+  }
+  .pdp-media:hover .pdp-media-nav,
+  .pdp-media:focus-within .pdp-media-nav {
+    opacity: 1;
+  }
+}
+
+.pdp-lightbox {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(20, 18, 15, 0.94);
+  color: #fff;
+}
+
+.pdp-lightbox::backdrop {
+  background: transparent;
+}
+
+.pdp-lightbox-frame {
+  position: absolute;
+  inset: clamp(56px, 8vh, 80px) clamp(12px, 6vw, 96px);
+  touch-action: pan-y pinch-zoom;
+}
+
+.pdp-lightbox-close {
+  top: 16px;
+  right: 16px;
+}
+
+.pdp-lightbox .pdp-media-count {
+  right: 50%;
+  bottom: 20px;
+  transform: translateX(50%);
+}
+
 /* Four lines of description, then a toggle. -webkit-line-clamp needs the
    -webkit-box display trio, which React's style prop cannot express cleanly. */
 .pdp-desc-clamp {
@@ -730,6 +846,9 @@ button {
   .pdp-thumb:hover {
     transition: none;
     transform: none;
+  }
+  .pdp-media-btn {
+    transition: none;
   }
 }
 
@@ -3111,12 +3230,16 @@ nav[aria-label^="Fil d"] a::after {
     border-radius: 0 0 18px 18px;
   }
 
+  /* No scroll-snap here: the row is scrolled programmatically when the hero
+     moves to a photo whose thumbnail is off-screen, and proximity snapping
+     pulled that scroll back mid-flight, leaving the selected thumbnail out
+     of view. Snapping a 64px strip was cosmetic; following the selection
+     is not. */
   .pdp-thumbs {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding: 2px 0 8px;
     scrollbar-width: none;
-    scroll-snap-type: x proximity;
   }
 
   .pdp-thumbs::-webkit-scrollbar {
@@ -3125,7 +3248,6 @@ nav[aria-label^="Fil d"] a::after {
 
   .pdp-thumb {
     width: 64px;
-    scroll-snap-align: start;
   }
 
   .pdp-purchase-panel h1 {
