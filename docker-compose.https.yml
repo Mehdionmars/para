@@ -11,6 +11,14 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: always
+    # Same bounds as every service in docker-compose.yml. YAML anchors do not
+    # cross files, so this is repeated rather than referenced: an overlay that
+    # quietly lacked it would be the one service still able to fill the disk.
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '5'
     environment:
       # No default: a wrong host here yields a certificate for the wrong name
       # and a handshake failure that reads like a broken proxy.

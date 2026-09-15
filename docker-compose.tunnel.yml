@@ -30,6 +30,14 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: always
+    # Same bounds as every service in docker-compose.yml. YAML anchors do not
+    # cross files, so this is repeated rather than referenced: an overlay that
+    # quietly lacked it would be the one service still able to fill the disk.
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '5'
     # No ports. The tunnel is an outbound connection.
     command: tunnel --no-autoupdate run
     environment:
