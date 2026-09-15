@@ -22,21 +22,25 @@ export type PanelVariant = {
   image: string;
 };
 
+/** Only what is true of *this* product. The panel used to append a usage
+ * sentence ("matin et soir, sur peau propre et sèche") to every description
+ * and list the same "Ingrédients clés" — eau thermale, niacinamide,
+ * céramides, "sans parfum, sans paraben" — under every product, a cleansing
+ * foam rinsed off wet skin and a toothbrush included. On a pharmacy site that
+ * is a false ingredient and safety claim. The CMS has no per-product
+ * ingredients field, so there is no section for them until it does. */
 function accordionsFor(product: Product) {
   return [
+    { title: "Description complète", body: product.desc },
     {
-      title: "Description complète",
-      body: `${product.desc} Utilisation quotidienne, matin et soir, sur peau propre et sèche.`,
-    },
-    {
-      title: "Ingrédients clés",
-      body: "Eau thermale, glycérine, niacinamide, céramides, acide hyaluronique. Sans parfum, sans paraben, testé sous contrôle dermatologique.",
-    },
-    {
+      // Not sourced from the CMS: no global carries delivery times or a
+      // return policy. The delivery times match ProductReassurance and the
+      // catalogue service strip; the 7-day return promise appears nowhere
+      // else and is unconfirmed.
       title: "Livraison & retours",
       body: "Livraison 24h à Casablanca, 48h dans le reste du Maroc. Retour gratuit sous 7 jours si le produit n'a pas été ouvert.",
     },
-  ];
+  ].filter((a) => a.body.trim());
 }
 
 export type PurchaseStockState = "ok" | "low" | "out";
@@ -94,9 +98,13 @@ export function PurchasePanel({
   const isOutOfStock = effectiveStockState === "out";
   const [qty, setQty] = useState(1);
   const [descExpanded, setDescExpanded] = useState(false);
-  // Roughly four lines at this measure. Below that the toggle would be
-  // chrome around nothing.
-  const isLongDesc = product.desc.length > 260;
+  // Measured, not guessed from the character count. Descriptions keep their
+  // line breaks, so 200 characters over six short lines ("Indications :",
+  // "Tous types de cheveux."…) overflow the four-line clamp — and a count
+  // threshold would clip them with no toggle to read the rest. The toggle
+  // shows exactly when the clamp is hiding something.
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const [descOverflows, setDescOverflows] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
   const [justAdded, setJustAdded] = useState(false);
   const [stickyVisible, setStickyVisible] = useState(false);
@@ -151,6 +159,19 @@ export function PurchasePanel({
   }, []);
 
   useEffect(() => {
+    const el = descRef.current;
+    // Expanded, nothing is clamped to measure; keep the last answer so the
+    // "Réduire" toggle stays.
+    if (!el || descExpanded) return;
+    const measure = () => setDescOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [descExpanded, product.desc]);
+
+  useEffect(() => {
     document.body.classList.toggle("sticky-atc-active", stickyVisible);
     return () => document.body.classList.remove("sticky-atc-active");
   }, [stickyVisible]);
@@ -178,13 +199,18 @@ export function PurchasePanel({
           away here and repeated in the "Description complète" accordion,
           so nothing is hidden, only deferred. */}
       <div style={{ margin: "0 0 22px", maxWidth: 820 }}>
+        {/* pre-line: descriptions are written in sections ("Conseils
+            d'utilisation :" on its own line); without it every break
+            collapsed into one run-on paragraph. Leading indentation still
+            collapses. */}
         <p
+          ref={descRef}
           className={descExpanded ? undefined : "pdp-desc-clamp"}
-          style={{ fontSize: 14.5, lineHeight: 1.8, color: "#57534a", margin: 0 }}
+          style={{ fontSize: 14.5, lineHeight: 1.8, color: "#57534a", margin: 0, whiteSpace: "pre-line" }}
         >
           {product.desc}
         </p>
-        {isLongDesc && (
+        {(descOverflows || descExpanded) && (
           <button
             aria-expanded={descExpanded}
             onClick={() => setDescExpanded((v) => !v)}
@@ -373,7 +399,7 @@ export function PurchasePanel({
               </button>
               <div style={{ display: "grid", gridTemplateRows: isOpen ? "1fr" : "0fr", transition: "grid-template-rows .4s ease" }}>
                 <div style={{ overflow: "hidden" }}>
-                  <div style={{ fontSize: 13, lineHeight: 1.75, opacity: 0.7, paddingBottom: 16 }}>{a.body}</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.75, opacity: 0.7, paddingBottom: 16, whiteSpace: "pre-line" }}>{a.body}</div>
                 </div>
               </div>
             </div>

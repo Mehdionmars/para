@@ -5,6 +5,7 @@
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { mediaSrc } from "@/lib/mediaSrc";
 import { stockStatus } from "@/lib/dashboard/products-types";
+import { reflowDescription } from "@/lib/storefront/descriptionText";
 import { resolveBadgesForDoc, type ResolvedBadge } from "@/lib/productBadges";
 import type { Category, Product } from "@/data/products";
 import type { RailDef } from "@/data/home";
@@ -461,7 +462,8 @@ function toLiveProductDetail(doc: PayloadProductDetailDoc): LiveProductDetail {
     badges: resolveBadges(doc),
     brand: resolveBrandName(doc.brand),
     cat: doc.category as Category,
-    desc: doc.description || "",
+    // Line breaks kept for the product page, PDF hard wraps rejoined.
+    desc: reflowDescription(doc.description),
     gallery: [hero, ...galleryImages],
     id: doc.id,
     image: hero,
