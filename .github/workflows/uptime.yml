@@ -75,6 +75,14 @@ jobs:
             expect: '"status":"ok"'
             attempts: 1
             title: 'Incident: database backups have stopped'
+          # The same freshness check for the encrypted copy in Cloudflare R2
+          # (database and product images). Fails on its own when the local
+          # backup is fine but nothing is leaving the server.
+          - name: offsite-backup
+            url: https://preprod.paradhiver.ma/api/health/backup/offsite
+            expect: '"status":"ok"'
+            attempts: 1
+            title: 'Incident: off-site backup copy has stopped'
     steps:
       - name: Probe ${{ matrix.name }}
         id: probe
