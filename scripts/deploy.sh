@@ -77,9 +77,16 @@ if [ "$FORCE" -eq 0 ]; then
     "https://api.github.com/repos/$GITHUB_REPO/commits/$target/check-runs?per_page=100") \
     || die "could not read CI status from GitHub"
 
-  total=$(printf '%s' "$runs" | grep -o '"conclusion":' | wc -l)
-  pending=$(printf '%s' "$runs" | grep -o '"status":"\(queued\|in_progress\)"' | wc -l)
-  bad=$(printf '%s' "$runs" | grep -oE '"conclusion":"(failure|cancelled|timed_out|action_required)"' | wc -l)
+  # `|| true` inside each count is load-bearing, not tidiness. grep exits 1 when
+  # it matches nothing, `pipefail` hands that to the assignment, and `set -e`
+  # then ends the script with no message. The count that finds nothing is
+  # `bad` — and it finds nothing precisely when CI *passed*. Without these, the
+  # script died silently on every healthy deploy; caught by running it while
+  # CI was still in progress and getting exit 1 instead of "not yet".
+  count() { printf '%s' "$runs" | { grep -oE "$1" || true; } | wc -l; }
+  total=$(count '"conclusion":')
+  pending=$(count '"status":"(queued|in_progress)"')
+  bad=$(count '"conclusion":"(failure|cancelled|timed_out|action_required)"')
 
   [ "$total" -gt 0 ] || die "no CI runs found for ${target:0:7} yet — will retry next time"
   [ "$pending" -eq 0 ] || { log "CI still running for ${target:0:7}, not deploying yet"; exit 0; }
