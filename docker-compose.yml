@@ -197,10 +197,14 @@ services:
     command:
       - |
         echo "jobs-tick: every 60s -> http://backend:3001/api/jobs/tick"
+        # Sleep first, then call. Deploys restart this container together with
+        # the backend, and calling immediately raced a backend still booting:
+        # the first tick after every deploy printed "HTTP 000". A minute's
+        # wait costs nothing — the worker is idempotent and not urgent.
         while true; do
+          sleep 60
           code=$$(curl -s -o /dev/null -w '%{http_code}' -m 55 -X POST             -H "Authorization: Bearer $$JOBS_SECRET" http://backend:3001/api/jobs/tick)
           [ "$$code" = "200" ] || echo "jobs-tick: HTTP $$code at $$(date -u +%FT%TZ)"
-          sleep 60
         done
 
 volumes:
