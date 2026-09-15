@@ -70,36 +70,36 @@ log "deploying ${current:0:7} -> ${target:0:7}"
 
 # ---------------------------------------------------------------- CI gate
 if [ "$FORCE" -eq 0 ]; then
-  # The check-runs API reports one entry per job; every one must have concluded
-  # `success` (or been skipped). A run still in progress is "not yet", not
-  # "failed" — the next invocation will pick it up.
-  runs=$(curl -fsS -m 20 -H 'Accept: application/vnd.github+json' \
-    "https://api.github.com/repos/$GITHUB_REPO/commits/$target/check-runs?per_page=100") \
-    || die "could not read CI status from GitHub"
-
-  # `|| true` inside each count is load-bearing, not tidiness. grep exits 1 when
-  # it matches nothing, `pipefail` hands that to the assignment, and `set -e`
-  # then ends the script with no message. The count that finds nothing is
-  # `bad` — and it finds nothing precisely when CI *passed*. Without these, the
-  # script died silently on every healthy deploy; caught by running it while
-  # CI was still in progress and getting exit 1 instead of "not yet".
+  # Scoped to the CI workflow, by file, and nothing else.
   #
-  # `[[:space:]]*` after every colon is the second fix, and the worse bug. The
-  # API returns pretty-printed JSON — `"status": "in_progress"`, a space after
-  # the colon — and the first version matched `"status":"in_progress"` with
-  # none. So `pending` and `bad` were always zero: the gate counted that runs
-  # existed and waved everything through, including a commit whose CI had
-  # failed. It deployed 9d80a8f fifteen seconds after the push, with the
-  # Frontend job still in_progress. Found by asking why that deploy was
-  # allowed, instead of accepting that it had worked.
-  count() { printf '%s' "$runs" | { grep -oE "$1" || true; } | wc -l; }
-  total=$(count '"conclusion":[[:space:]]*')
-  pending=$(count '"status":[[:space:]]*"(queued|in_progress|waiting|pending|requested)"')
-  bad=$(count '"conclusion":[[:space:]]*"(failure|cancelled|timed_out|action_required|startup_failure|stale)"')
+  # The first version read every check-run on the commit, and a commit carries
+  # checks from every workflow that ran against it. The Uptime workflow is one
+  # of them, and its paradhiver.ma job fails *correctly* while that domain is
+  # down — so with CI green (Frontend: success, Backend: success) this refused
+  # fd2e5ad as "CI did not pass". Left that way, an unrelated site being down
+  # would have blocked every deploy for as long as it stayed down.
+  #
+  # This endpoint returns the CI workflow's own run for this exact commit: one
+  # status, one conclusion. Two earlier bugs in this block are also why it reads
+  # the way it does — `|| true` so a field that is absent cannot end the script
+  # silently under `set -e`, and `[[:space:]]*` because the API pretty-prints
+  # `"status": "completed"` with a space after the colon.
+  runs=$(curl -fsS -m 20 -H 'Accept: application/vnd.github+json'     "https://api.github.com/repos/$GITHUB_REPO/actions/workflows/ci.yml/runs?head_sha=$target&per_page=1")     || die "could not read CI status from GitHub"
 
-  [ "$total" -gt 0 ] || die "no CI runs found for ${target:0:7} yet — will retry next time"
-  [ "$pending" -eq 0 ] || { log "CI still running for ${target:0:7}, not deploying yet"; exit 0; }
-  [ "$bad" -eq 0 ] || die "CI did not pass for ${target:0:7} — refusing to deploy"
+  field() { printf '%s' "$runs" | { grep -m1 -oE "\"$1\":[[:space:]]*(\"[a-z_]*\"|null|[0-9]+)" || true; } | sed -E 's/^[^:]*:[[:space:]]*//; s/"//g'; }
+  total=$(field total_count)
+  status=$(field status)
+  conclusion=$(field conclusion)
+
+  if [ "${total:-0}" = "0" ]; then
+    log "no CI run for ${target:0:7} yet — not deploying, will pick it up next time"
+    exit 0
+  fi
+  if [ "$status" != "completed" ]; then
+    log "CI is ${status:-unknown} for ${target:0:7} — not deploying yet"
+    exit 0
+  fi
+  [ "$conclusion" = "success" ] || die "CI concluded '${conclusion:-none}' for ${target:0:7} — refusing to deploy"
   log "CI passed for ${target:0:7}"
 else
   log "--force: skipping the CI check"
