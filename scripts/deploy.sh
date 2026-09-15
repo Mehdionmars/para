@@ -83,10 +83,19 @@ if [ "$FORCE" -eq 0 ]; then
   # `bad` — and it finds nothing precisely when CI *passed*. Without these, the
   # script died silently on every healthy deploy; caught by running it while
   # CI was still in progress and getting exit 1 instead of "not yet".
+  #
+  # `[[:space:]]*` after every colon is the second fix, and the worse bug. The
+  # API returns pretty-printed JSON — `"status": "in_progress"`, a space after
+  # the colon — and the first version matched `"status":"in_progress"` with
+  # none. So `pending` and `bad` were always zero: the gate counted that runs
+  # existed and waved everything through, including a commit whose CI had
+  # failed. It deployed 9d80a8f fifteen seconds after the push, with the
+  # Frontend job still in_progress. Found by asking why that deploy was
+  # allowed, instead of accepting that it had worked.
   count() { printf '%s' "$runs" | { grep -oE "$1" || true; } | wc -l; }
-  total=$(count '"conclusion":')
-  pending=$(count '"status":"(queued|in_progress)"')
-  bad=$(count '"conclusion":"(failure|cancelled|timed_out|action_required)"')
+  total=$(count '"conclusion":[[:space:]]*')
+  pending=$(count '"status":[[:space:]]*"(queued|in_progress|waiting|pending|requested)"')
+  bad=$(count '"conclusion":[[:space:]]*"(failure|cancelled|timed_out|action_required|startup_failure|stale)"')
 
   [ "$total" -gt 0 ] || die "no CI runs found for ${target:0:7} yet — will retry next time"
   [ "$pending" -eq 0 ] || { log "CI still running for ${target:0:7}, not deploying yet"; exit 0; }
