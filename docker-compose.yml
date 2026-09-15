@@ -157,6 +157,14 @@ services:
     ports:
       # Loopback only — see the backend service above.
       - '127.0.0.1:3000:3000'
+    # The backup heartbeat, read-only, for /api/health/backup.
+    #
+    # Only the heartbeat directory — a timestamp and a size, written after each
+    # verified dump by scripts/ops/para-backup-heartbeat.sh. The dumps
+    # themselves stay in /var/backups/para, 0700 root, and are never mounted
+    # anywhere: they hold every order and customer record.
+    volumes:
+      - /var/lib/para-backup:/backup-status:ro
     depends_on:
       - backend
 
