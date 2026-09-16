@@ -264,6 +264,20 @@ body {
   font-family: var(--font-poppins), var(--font-cairo), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* No sideways drift on phones. `overflow-x: hidden` on body alone does not
+   hold on iOS Safari: the page could still be dragged left and right,
+   header included, leaving a blank band on one side. `clip` on the root
+   stops the horizontal pan without turning html or body into a scroll
+   container (which `hidden` on both would, breaking the sticky header and
+   window scroll listeners), and overscroll-behavior-x removes the sideways
+   rubber band. Horizontal rails keep scrolling: they are their own scroll
+   containers. */
+html,
+body {
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
 /* The Arabic document leads with Cairo.
 
    Ordering matters far more than it looks. `var(--font-poppins)` expands to
@@ -2959,7 +2973,6 @@ nav[aria-label^="Fil d"] a::after {
   }
 
   body {
-    overflow-x: hidden;
     background: #fffdfb;
   }
 

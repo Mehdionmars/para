@@ -244,7 +244,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
   return (
     <html dir={SITE_DIR} lang={SITE_LOCALE} className={`${alta.variable} ${poppins.variable} ${cairo.variable}`}>
-      <body style={{ minHeight: "100vh", overflowX: "hidden" }}>
+      {/* Horizontal overflow is clipped in globals.css (html, body). */}
+      <body style={{ minHeight: "100vh" }}>
         {/* Values are hex/number-validated above (safeHex, chromeAppearanceCss),
             never raw operator text. */}
         <style dangerouslySetInnerHTML={{ __html: rootStyle }} />
