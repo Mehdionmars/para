@@ -211,6 +211,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
           <div
             key={slide.title}
             aria-hidden={!isActive}
+            className="home-hero-slide"
             style={{
               position: "absolute",
               inset: 0,
@@ -225,6 +226,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
           >
             <div
               aria-hidden="true"
+              className="home-hero-photo"
               style={{
                 position: "absolute",
                 inset: 0,

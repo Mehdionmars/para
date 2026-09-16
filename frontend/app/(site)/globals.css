@@ -3093,17 +3093,52 @@ nav[aria-label^="Fil d"] a::after {
      card keeps its full height; what shrinks is the empty band over it. The
      fold argument the note above makes still holds, more so: a shorter hero
      shows more of the rail beneath it, not less. */
+  /* The photograph, whole; the copy card beneath it.
+
+     The card used to sit over the bottom of the photo, and on a phone it
+     covered a third of it — the products in the shot were hidden behind the
+     text that was selling them. Below 768px the hero stops being a fixed-
+     height frame with layers inside and becomes two blocks in flow: the photo
+     at the campaign artwork's own ratio (1408x768), then the card. Desktop,
+     where the card sits beside the subject rather than on it, is unchanged.
+
+     The slides still crossfade: they share one grid cell instead of being
+     absolutely positioned, so the hero is as tall as its tallest slide. */
   .home-hero {
     width: 100% !important;
-    height: 44vh !important;
-    min-height: 360px;
-    max-height: 430px;
+    height: auto !important;
+    display: grid;
     margin-top: 0 !important;
     /* Square, edge to edge. The rounded bottom corners read as a card
        floating on the page; a phone hero is the top of the page itself, and
        the two notches of background showing under it were the only thing
        between the photograph and the section beneath it. */
     border-radius: 0 !important;
+    /* The page ground behind the card, not the plum the photo sat on. */
+    background: #fff !important;
+  }
+
+  .home-hero-slide {
+    position: relative !important;
+    inset: auto !important;
+    grid-area: 1 / 1;
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .home-hero-photo {
+    position: relative !important;
+    inset: auto !important;
+    width: 100%;
+    aspect-ratio: 1408 / 768;
+    overflow: hidden;
+  }
+
+  /* The seam under the hero. A movement boundary is 88px at this width; under
+     a photo and its card that read as an empty band before "Les nouveautés",
+     not as a pause. The hero now ends in a card, which already separates it. */
+  .home-movement:has(.home-hero) + .home-movement {
+    margin-top: 28px;
   }
 
   /* The category strip costs the fold 61px.
@@ -3117,11 +3152,6 @@ nav[aria-label^="Fil d"] a::after {
   /* Short screens are bound by the floor, not by the 44vh, so the floor is
      what has to give the fold its space back. 300px still clears the copy
      card, which is what the hero has to hold. */
-  @media (max-height: 700px) {
-    .home-hero {
-      min-height: 300px;
-    }
-  }
 
   /* height:100% is what makes the align-items below do anything at all: the
      slide is a flex row with align-items:center, so this wrap was only ever
@@ -3134,10 +3164,8 @@ nav[aria-label^="Fil d"] a::after {
      now, so the padding is just a gap the card is held above; 20px is the
      breathing room a rounded white card wants against the hero's edge. */
   .home-hero-copy-wrap {
-    height: 100%;
-    align-items: flex-end !important;
     justify-content: stretch !important;
-    padding: 0 14px 20px !important;
+    padding: 14px 14px 6px !important;
   }
 
   /* The copy card was taking 47% of the hero on a 390px phone — half the
@@ -3150,7 +3178,9 @@ nav[aria-label^="Fil d"] a::after {
     max-width: none !important;
     padding: 15px 16px !important;
     border-radius: 16px !important;
-    box-shadow: 0 20px 46px -30px rgba(30, 24, 14, 0.65) !important;
+    /* On the page now, not floating over a photo: a hairline, no shadow. */
+    border: 1px solid var(--pdh-plum-tint);
+    box-shadow: none !important;
   }
 
   /* The eyebrow pill: same shape, less bulk. */
@@ -3159,6 +3189,9 @@ nav[aria-label^="Fil d"] a::after {
     padding: 5px 11px !important;
   }
 
+  /* h1 too: the first slide's title is the page's h1, and the step down
+     only ever reached the h2 of the others. */
+  .home-hero-copy h1,
   .home-hero-copy h2 {
     font-size: clamp(21px, 6.2vw, 27px) !important;
     line-height: 1.08 !important;
