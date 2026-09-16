@@ -7,6 +7,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PromoModal } from "@/components/layout/PromoModal";
+import { ScrollToTopOnReload } from "@/components/layout/ScrollToTopOnReload";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { Toast } from "@/components/layout/Toast";
 import { FloatingActions } from "@/components/floating-actions/FloatingActions";
@@ -258,6 +259,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <Toast />
           <FloatingActions />
           {promoModal && <PromoModal config={promoModal} />}
+          <ScrollToTopOnReload />
         </StoreProvider>
       </body>
     </html>

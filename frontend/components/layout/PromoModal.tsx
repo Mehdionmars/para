@@ -6,10 +6,6 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { useToast } from "@/context/toast-context";
 import type { PromoModalContent } from "@/lib/storefront/siteChromeContent";
 
-/** Keyed by code, so launching a new campaign shows the popup again to
- * everyone instead of staying dismissed forever behind the old one. */
-const dismissKey = (code: string) => `pdh-promo-dismissed:${code}`;
-
 const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -22,34 +18,27 @@ export function PromoModal({ config }: { config: PromoModalContent }) {
   // Whatever had focus before the dialog stole it, so it can be handed back.
   const returnFocusRef = useRef<Element | null>(null);
 
-  // Open once, after a delay, unless this code was already dismissed.
+  // Opens on every arrival on the site — each full page load, a refresh
+  // included — after the configured delay. The shop wants the offer seen at
+  // each visit. Closing it used to be remembered in localStorage for good
+  // (per code), so anyone who had dismissed it once never saw it again.
+  //
+  // It is mounted in the site layout, which client-side navigation does not
+  // remount: moving between pages does not reopen it, only a new arrival does.
   useEffect(() => {
     if (!config.enabled) return;
-    let dismissed = false;
-    try {
-      dismissed = window.localStorage.getItem(dismissKey(config.code)) === "1";
-    } catch {
-      // Private mode or blocked storage: showing it once per page is a
-      // better failure than never showing it at all.
-    }
-    if (dismissed) return;
-
     const id = setTimeout(() => setOpen(true), config.delaySeconds * 1000);
     return () => clearTimeout(id);
-  }, [config.enabled, config.code, config.delaySeconds]);
+  }, [config.enabled, config.delaySeconds]);
 
   const close = useCallback(() => {
+    // Closed for this visit only: nothing is stored.
     setOpen(false);
-    try {
-      window.localStorage.setItem(dismissKey(config.code), "1");
-    } catch {
-      // Nothing to do — it will simply appear again next visit.
-    }
     // Hand focus back where it was, or the dismissed dialog leaves the
     // keyboard at the top of the document with no idea what happened.
     const back = returnFocusRef.current;
     if (back instanceof HTMLElement) back.focus();
-  }, [config.code]);
+  }, []);
 
   // Focus management, Escape, and the focus trap.
   useEffect(() => {
