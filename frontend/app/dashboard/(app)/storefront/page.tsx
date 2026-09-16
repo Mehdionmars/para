@@ -7,13 +7,16 @@ import { mapHomeDocToDraft, mapNavigationDocToDraft, mapSiteChromeDocToDraft, ma
 export default async function StorefrontPage() {
   await requireRole(canEditContent);
 
-  const [homeRes, chromeRes, themeRes, navigationRes, brandsRes, categoriesRes] = await Promise.all([
+  const [homeRes, chromeRes, themeRes, navigationRes, brandsRes, categoriesRes, instagramRes] = await Promise.all([
     payloadFetch("/api/globals/home?draft=true&depth=2"),
     payloadFetch("/api/globals/site-chrome?draft=true&depth=2"),
     payloadFetch("/api/globals/theme?draft=true&depth=0"),
     payloadFetch("/api/globals/navigation?draft=true&depth=1"),
     payloadFetch("/api/brands?limit=200&sort=name&depth=0"),
     payloadFetch("/api/categories?limit=500&sort=name&depth=0"),
+    // Counted with the storefront's own filter (lib/storefront/instagram.ts),
+    // so "no posts" in the builder means what the home page will see.
+    payloadFetch(`/api/instagram-posts?limit=1&depth=0&where=${encodeURIComponent(JSON.stringify({ isPublished: { equals: true } }))}`),
   ]);
 
   if (!homeRes.ok) {
@@ -39,6 +42,7 @@ export default async function StorefrontPage() {
     name: b.name,
     slug: b.slug || "",
   }));
+  const instagramPostCount: number | undefined = instagramRes.ok ? (await instagramRes.json()).totalDocs : undefined;
   const categoriesData = categoriesRes.ok ? await categoriesRes.json() : { docs: [] };
   const categories: { id: number; name: string }[] = (categoriesData.docs || [])
     .filter((c: { isActive?: boolean }) => c.isActive !== false)
@@ -57,6 +61,7 @@ export default async function StorefrontPage() {
         initialThemeStatus={themeDoc._status || "draft"}
         initialNavigationDraft={mapNavigationDocToDraft(navigationDoc)}
         initialNavigationStatus={navigationDoc._status || "draft"}
+        instagramPostCount={instagramPostCount}
       />
     </div>
   );

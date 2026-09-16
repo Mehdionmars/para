@@ -1,14 +1,16 @@
 "use client";
 
-import { Eye, EyeOff, GripVertical, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import { CONTENT_LESS_SECTIONS } from "@/components/dashboard/storefront/sectionEditors";
 import { cn } from "@/lib/dashboard/cn";
+import { hiddenReason } from "@/lib/dashboard/sectionHealth";
 import {
   SECTION_GROUP_LABELS,
   SECTION_GROUPS,
   SECTION_LABELS,
+  type HomeDraft,
   type Rail,
   type SectionEntry,
   type SectionEntryKey,
@@ -37,6 +39,8 @@ export function SectionList({
   rails,
   onAddRail,
   onDeleteRail,
+  draft,
+  instagramPostCount,
 }: {
   sections: SectionEntry[];
   onChange: (next: SectionEntry[]) => void;
@@ -45,6 +49,9 @@ export function SectionList({
   rails: Rail[];
   onAddRail: () => void;
   onDeleteRail: (railKey: string) => void;
+  /** The whole draft, to tell which visible blocks will render nothing. */
+  draft: HomeDraft;
+  instagramPostCount?: number;
 }) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<SectionEntryKey | null>(null);
@@ -63,19 +70,31 @@ export function SectionList({
     onChange(next);
   }
 
+  // The list is the page, top to bottom. It used to insert a group heading
+  // each time the group changed between two neighbours — and because the page
+  // alternates content and product blocks, "Contenu" and "Produits" came back
+  // three times each and the order read as unsorted. The group is now a tag on
+  // each row; the order is the only structure.
+  const reasons = sections.map((s) => (s.visible ? hiddenReason(s.key, draft, { instagramPostCount }) : null));
+  const hiddenCount = reasons.filter(Boolean).length;
+
   return (
     <div className="flex flex-col gap-1">
+      <p className="px-2 pb-1 text-[11px] leading-snug text-gray-400">Dans l&apos;ordre de la page, de haut en bas.</p>
+      {hiddenCount > 0 && (
+        <p className="mx-1 mb-1 flex items-start gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] leading-snug text-amber-800">
+          <AlertTriangle className="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
+          {hiddenCount === 1
+            ? "1 bloc coché n'apparaît pas sur le site, faute de contenu."
+            : `${hiddenCount} blocs cochés n'apparaissent pas sur le site, faute de contenu.`}
+        </p>
+      )}
       {sections.map((s, index) => {
         const isRail = s.key.startsWith("rail:");
         const group = groupFor(s.key);
-        const showGroupHeader = group !== groupFor(sections[index - 1]?.key ?? s.key) || index === 0;
+        const reason = reasons[index];
         return (
           <div key={s.key}>
-            {showGroupHeader && (
-              <div className="mb-1 mt-3 px-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400 first:mt-1">
-                {SECTION_GROUP_LABELS[group] || group}
-              </div>
-            )}
             <div
               draggable
               onDragStart={() => setDragIndex(index)}
@@ -97,9 +116,20 @@ export function SectionList({
                 onClick={() => onSelect(s.key)}
                 className={cn("flex-1 truncate text-left font-medium", s.visible ? "text-gray-800" : "text-gray-400 line-through")}
               >
-                {labelFor(s.key, rails)}
-                {!isRail && CONTENT_LESS_SECTIONS.includes(s.key as never) && (
-                  <span className="ml-1 text-[10px] font-normal text-gray-400">(non éditable)</span>
+                <span className="block truncate">
+                  {labelFor(s.key, rails)}
+                  {!isRail && CONTENT_LESS_SECTIONS.includes(s.key as never) && (
+                    <span className="ml-1 text-[10px] font-normal text-gray-400">(non éditable)</span>
+                  )}
+                </span>
+                <span className="block truncate text-[10px] font-normal uppercase tracking-wider text-gray-400">
+                  {SECTION_GROUP_LABELS[group] || group}
+                </span>
+                {reason && (
+                  <span className="mt-0.5 flex items-start gap-1 whitespace-normal text-[11px] font-normal normal-case leading-snug text-amber-700">
+                    <AlertTriangle className="mt-px h-3 w-3 flex-none" aria-hidden="true" />
+                    Masqué sur le site : {reason}
+                  </span>
                 )}
               </button>
               {isRail && (

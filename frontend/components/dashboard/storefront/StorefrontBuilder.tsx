@@ -325,6 +325,7 @@ export function StorefrontBuilder({
   initialThemeStatus,
   initialNavigationDraft,
   initialNavigationStatus,
+  instagramPostCount,
 }: {
   initialDraft: HomeDraft;
   initialStatus: string;
@@ -336,6 +337,8 @@ export function StorefrontBuilder({
   initialThemeStatus: string;
   initialNavigationDraft: NavigationDraft;
   initialNavigationStatus: string;
+  /** Published Instagram posts, for the "hidden on the site" hint. */
+  instagramPostCount?: number;
 }) {
   const [activeTab, setActiveTab] = useState<"home" | "navigation" | "theme" | "global">("home");
   const [globalSelectedKey, setGlobalSelectedKey] = useState<GlobalItemKey>("topBar");
@@ -613,6 +616,8 @@ export function StorefrontBuilder({
               rails={draft.rails}
               onAddRail={handleAddRail}
               onDeleteRail={handleDeleteRail}
+              draft={draft}
+              instagramPostCount={instagramPostCount}
             />
           ) : activeTab === "navigation" ? (
             <NavigationList

@@ -92,7 +92,14 @@ export const COFFRETS_LAYOUTS = [
 // ---- shapes -----------------------------------------------------------
 
 export type ImageRef = { id?: number; url: string };
-export type ProductRef = { id: number; label: string };
+export type ProductRef = {
+  id: number;
+  label: string;
+  /** False when the storefront will not show it (unpublished, discontinued,
+   * out of stock). Known for picks loaded from the CMS; absent for a pick
+   * made in this session. Read by lib/dashboard/sectionHealth.ts. */
+  sellable?: boolean;
+};
 
 export type HeroSlide = {
   active: boolean;
@@ -278,8 +285,15 @@ function relRef(r: RawRel): { id?: number; name: string } {
   return { name: "" };
 }
 
-function productRef(p: { id?: number; name?: string } | number | null | undefined): ProductRef | null {
-  if (p && typeof p === "object" && p.id) return { id: p.id, label: p.name || `#${p.id}` };
+function productRef(
+  p: { id?: number; name?: string; isPublished?: boolean | null; discontinued?: boolean | null; stock?: number | null } | number | null | undefined,
+): ProductRef | null {
+  if (p && typeof p === "object" && p.id) {
+    // Only claimed when the populated doc actually carries the facts.
+    const known = p.isPublished !== undefined && p.stock !== undefined;
+    const sellable = known ? p.isPublished === true && p.discontinued !== true && Number(p.stock) > 0 : undefined;
+    return { id: p.id, label: p.name || `#${p.id}`, ...(sellable === undefined ? {} : { sellable }) };
+  }
   if (typeof p === "number") return { id: p, label: `#${p}` };
   return null;
 }
