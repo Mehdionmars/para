@@ -32,6 +32,7 @@ import type { Category, Product } from "@/data/products";
 import {
   resolveBadges,
   resolveBrandName,
+  resolveBrandSlug,
   resolveMediaUrl,
   type PayloadBadge,
   type PayloadBrandRef,
@@ -96,6 +97,7 @@ function toCatalogueProduct(doc: CatalogueDoc): CatalogueProduct {
   return {
     badges: resolveBadges(doc),
     brand: resolveBrandName(doc.brand),
+    brandSlug: resolveBrandSlug(doc.brand),
     cat: doc.category as Category,
     desc: doc.description || "",
     id: doc.id,

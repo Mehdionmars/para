@@ -4,7 +4,9 @@ import { Minus, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/context/cart-context";
 import { useToast } from "@/context/toast-context";
+import Link from "next/link";
 import { money, type Product, productImage, stars } from "@/data/products";
+import { routes } from "@/lib/routes";
 
 /** One selectable option, as resolved server-side (lib/storefront/products).
  * `price` is already correct for the product's pricing mode, so this
@@ -179,9 +181,20 @@ export function PurchasePanel({
   return (
     <>
     <div className="pdp-purchase-panel">
-      <div style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-        {product.brand}
-      </div>
+      {product.brandSlug ? (
+        <Link
+          className="pdh-brand-link"
+          href={routes.brand(product.brandSlug)}
+          // No inline colour: it would outrank the hover colour in CSS.
+          style={{ display: "inline-block", fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase" }}
+        >
+          {product.brand}
+        </Link>
+      ) : (
+        <div style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
+          {product.brand}
+        </div>
+      )}
       <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.06, margin: "10px 0 12px" }}>
         {product.name}
       </h1>

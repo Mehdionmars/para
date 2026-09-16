@@ -21,6 +21,10 @@ export type Product = {
   id: number;
   slug: string;
   brand: string;
+  /** The brand's own slug from the CMS, for /marques/[slug]. Absent on the
+   * offline snapshot and on a product with no brand — the name is then shown
+   * as plain text rather than linked to a guessed URL. */
+  brandSlug?: string;
   name: string;
   size: string;
   price: number;

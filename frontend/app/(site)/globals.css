@@ -2607,6 +2607,45 @@ nav[aria-label^="Fil d"] a::after {
   min-width: 0;
 }
 
+/* A brand name that links to its page. Same type as .pdh-brand; it only
+   says "link" on hover and focus — plum and a thin underline — so a row of
+   cards does not turn into a row of underlined labels. */
+.pdh-brand-link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.pdh-brand-link:hover,
+.pdh-brand-link:focus-visible {
+  color: var(--pdh-plum);
+  text-decoration-color: currentColor;
+}
+
+/* The product page's brand line keeps its teal at rest. */
+.pdp-purchase-panel .pdh-brand-link {
+  color: var(--pdh-teal-text);
+}
+
+.pdp-purchase-panel .pdh-brand-link:hover,
+.pdp-purchase-panel .pdh-brand-link:focus-visible {
+  color: var(--pdh-plum);
+}
+
+.pdh-brand-link:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdh-brand-link {
+    transition: none;
+  }
+}
+
 .pdh-brand {
   font-family: var(--font-poppins);
   /* 9.5px with 0.16em of tracking was a label first and a brand second: at

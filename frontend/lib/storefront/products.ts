@@ -39,7 +39,7 @@ export function resolveMediaSize(ref: PayloadMediaRef): { width: number; height:
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
   return { width, height };
 }
-export type PayloadBrandRef = { id?: number; name?: string } | number | null | undefined;
+export type PayloadBrandRef = { id?: number; name?: string; slug?: string | null } | number | null | undefined;
 
 export type PayloadBadge = {
   enabled?: boolean | null;
@@ -129,6 +129,12 @@ export function resolveBrandName(brand: PayloadBrandRef): string {
   return brand && typeof brand === "object" && brand.name ? brand.name : "";
 }
 
+/** The brand's slug as stored in the CMS, or undefined. Never derived from
+ * the name: a slug an editor changed would then link to a page that 404s. */
+export function resolveBrandSlug(brand: PayloadBrandRef): string | undefined {
+  return brand && typeof brand === "object" && brand.slug ? brand.slug : undefined;
+}
+
 /**
  * An editor's explicitly configured badges win; only when none are enabled
  * (or none resolve to real text) does a single badge get computed from real
@@ -146,6 +152,7 @@ function toLiveProduct(doc: PayloadProductDoc): LiveProduct {
   return {
     badges: resolveBadges(doc),
     brand: resolveBrandName(doc.brand),
+    brandSlug: resolveBrandSlug(doc.brand),
     cat: doc.category as Category,
     desc: doc.description || "",
     id: doc.id,
@@ -468,6 +475,7 @@ function toLiveProductDetail(doc: PayloadProductDetailDoc): LiveProductDetail {
     variants,
     badges: resolveBadges(doc),
     brand: resolveBrandName(doc.brand),
+    brandSlug: resolveBrandSlug(doc.brand),
     cat: doc.category as Category,
     // Line breaks kept for the product page, PDF hard wraps rejoined.
     desc: reflowDescription(doc.description),

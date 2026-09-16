@@ -161,7 +161,16 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
       </div>
 
       <div className="pdh-body">
-        <div className="pdh-brand">{product.brand}</div>
+        {/* Its own link, beside the product links rather than inside them:
+            the photo and the name each link to the product, and nothing wraps
+            the card, so a click here can only ever mean the brand. */}
+        {product.brandSlug ? (
+          <Link className="pdh-brand pdh-brand-link" href={routes.brand(product.brandSlug)}>
+            {product.brand}
+          </Link>
+        ) : (
+          <div className="pdh-brand">{product.brand}</div>
+        )}
 
         <Link
           // Two-line clamp with a matching fixed height, so every card in a

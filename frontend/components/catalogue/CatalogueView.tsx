@@ -47,6 +47,7 @@ export function CatalogueView({
   initialQuick = "",
   pageTitle,
   pageIntro,
+  pageMark,
   breadcrumbExtra,
   brands = [],
   editorial = false,
@@ -66,6 +67,9 @@ export function CatalogueView({
   initialQuick?: string;
   pageTitle?: string;
   pageIntro?: string;
+  /** Shown above the title on a non-editorial page — the brand's logo on
+   * /marques/[slug]. Rendered by the server page and passed down as is. */
+  pageMark?: React.ReactNode;
   /** An extra breadcrumb crumb between "Accueil" and the current page, e.g.
    * {label: "Marques", href: "/marques"} on a brand page. */
   breadcrumbExtra?: BreadcrumbItem;
@@ -331,6 +335,7 @@ export function CatalogueView({
         <CatalogueHero intro={heroIntro} title={heroTitle} />
       ) : (
         <div style={{ marginTop: 10, maxWidth: 760 }}>
+          {pageMark}
           <h1 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(28px,3.8vw,44px)", fontWeight: 200, margin: 0 }}>{heroTitle}</h1>
           <p style={{ fontSize: 13.5, lineHeight: 1.75, margin: "12px 0 0", opacity: 0.62 }}>{heroIntro}</p>
         </div>
