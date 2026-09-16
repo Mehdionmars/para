@@ -9,6 +9,11 @@ type FavoritesContextValue = {
   count: number;
   isFavorite: (productId: number) => boolean;
   toggle: (productId: number) => void;
+  /** Favourited product ids. */
+  ids: number[];
+  /** False until localStorage has been read — before that "no favourites"
+   * is not yet known to be true. */
+  hydrated: boolean;
 };
 
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
@@ -46,10 +51,14 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     () => ({
       favorites,
       count: Object.values(favorites).filter(Boolean).length,
+      hydrated,
+      ids: Object.entries(favorites)
+        .filter(([, on]) => on)
+        .map(([id]) => Number(id)),
       isFavorite,
       toggle,
     }),
-    [favorites, isFavorite, toggle],
+    [favorites, hydrated, isFavorite, toggle],
   );
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;

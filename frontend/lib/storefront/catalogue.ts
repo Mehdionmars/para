@@ -135,6 +135,9 @@ export type CatalogueQuery = {
   inStockOnly?: boolean;
   sort?: "pertinence" | "price-asc" | "price-desc" | "newest";
   limit?: number;
+  /** Exactly these products (still subject to the visibility rule). An empty
+   * list matches nothing — it never widens to the whole catalogue. */
+  ids?: number[];
 };
 
 export type CatalogueFacets = {
@@ -259,6 +262,7 @@ function buildWhere(query: CatalogueQuery): Record<string, unknown> {
   if (query.subCategory) and.push({ subCategory: { equals: query.subCategory } });
   if (query.brand) and.push({ "brand.name": { equals: query.brand } });
   if (query.inStockOnly) and.push({ stock: { greater_than: 0 } });
+  if (query.ids) and.push({ id: { in: query.ids.length > 0 ? query.ids : [0] } });
 
   if (query.q) {
     // Same two fields the in-memory version searched: product name and brand

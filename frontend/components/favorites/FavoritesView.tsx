@@ -2,28 +2,75 @@
 
 import { Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductGridSkeleton } from "@/components/skeleton";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import { useToast } from "@/context/toast-context";
-import { PRODUCTS } from "@/data/products";
+import type { CatalogueProduct } from "@/lib/storefront/catalogue";
 
 export function FavoritesView() {
   const favorites = useFavorites();
   const cart = useCart();
   const toast = useToast();
-  const products = PRODUCTS.filter((p) => favorites.isFavorite(p.id));
+
+  // Live products, fetched by id. This page used to filter the static
+  // snapshot in data/products.ts, generated at the last sync: any product
+  // added to the CMS since — the Novexpert pack, for one — could be saved as
+  // a favourite, counted in the header, and never shown here, so the page
+  // said "votre liste est vide" right after an add.
+  const [loaded, setLoaded] = useState<Map<number, CatalogueProduct>>(new Map());
+  const [loading, setLoading] = useState(true);
+  const missingKey = favorites.ids
+    .filter((id) => !loaded.has(id))
+    .sort((a, b) => a - b)
+    .join(",");
+
+  useEffect(() => {
+    if (!favorites.hydrated) return;
+    if (!missingKey) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setLoading(true);
+    const params = new URLSearchParams();
+    missingKey.split(",").forEach((id) => params.append("id", id));
+    params.set("limit", "100");
+    fetch(`/api/catalogue?${params.toString()}`, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : { products: [] }))
+      .then((data: { products?: CatalogueProduct[] }) => {
+        setLoaded((prev) => {
+          const next = new Map(prev);
+          for (const p of data.products ?? []) next.set(p.id, p);
+          return next;
+        });
+        setLoading(false);
+      })
+      .catch((err: unknown) => {
+        if ((err as { name?: string })?.name !== "AbortError") setLoading(false);
+      });
+    return () => controller.abort();
+  }, [favorites.hydrated, missingKey]);
+
+  // Filtered on every render rather than on load, so removing a favourite
+  // takes the card away at once — and "Annuler" brings it straight back.
+  // A product unpublished since it was saved is simply not returned.
+  const products = favorites.ids.map((id) => loaded.get(id)).filter((p): p is CatalogueProduct => Boolean(p));
+  const pending = !favorites.hydrated || (loading && products.length === 0 && favorites.count > 0);
 
   // A wishlist is a shopping list: adding it item by item is the whole reason
-  // people abandon one. Availability is not filtered here because this view
-  // reads the static catalogue snapshot, which carries no live stock — the
-  // checkout re-reads both stock and price from the database anyway.
+  // people abandon one. Out-of-stock products are left out, now that this view
+  // knows the live stock; checkout re-reads stock and price regardless.
   function handleAddAll() {
-    products.forEach((product) => cart.addProduct(product, 1));
+    const available = products.filter((p) => p.stockState !== "out");
+    available.forEach((product) => cart.addProduct(product, 1));
     toast.fire(
-      products.length === 1
+      available.length === 1
         ? "1 produit ajouté au panier"
-        : `${products.length} produits ajoutés au panier`,
+        : `${available.length} produits ajoutés au panier`,
     );
   }
 
@@ -51,7 +98,9 @@ export function FavoritesView() {
             Mes favoris
           </h1>
           <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: 0.62, margin: "12px 0 0" }}>
-            {products.length === 0
+            {pending
+              ? "Chargement de vos favoris…"
+              : products.length === 0
               ? "Les produits que vous mettez en favoris depuis le catalogue apparaissent ici."
               : `${products.length} produit${products.length === 1 ? "" : "s"} enregistré${products.length === 1 ? "" : "s"} sur cet appareil.`}
           </p>
@@ -65,7 +114,9 @@ export function FavoritesView() {
         )}
       </div>
 
-      {products.length === 0 ? (
+      {pending ? (
+        <ProductGridSkeleton count={Math.min(Math.max(favorites.count, 4), 8)} />
+      ) : products.length === 0 ? (
         <div
           style={{
             textAlign: "center",

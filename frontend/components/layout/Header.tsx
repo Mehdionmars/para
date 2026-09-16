@@ -67,6 +67,23 @@ export function Header({
   const cart = useCart();
   const favorites = useFavorites();
 
+  // The favourites badge answers each change with one small bounce, so the
+  // heart tapped on a card and the count in the header read as one action.
+  // Not on the first render — a returning visitor's saved count is not news.
+  const favBadgeRef = useRef<HTMLSpanElement>(null);
+  const previousFavCount = useRef<number | null>(null);
+  useEffect(() => {
+    const previous = previousFavCount.current;
+    previousFavCount.current = favorites.count;
+    const el = favBadgeRef.current;
+    if (previous === null || previous === favorites.count || !el || typeof el.animate !== "function") return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    el.animate([{ transform: "scale(1)" }, { transform: "scale(1.35)" }, { transform: "scale(1)" }], {
+      duration: 380,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+    });
+  }, [favorites.count]);
+
   // "Favoris" and "Panier" keep their real route/behavior (badge counts,
   // opening the cart drawer) regardless of any `href` in the CMS data —
   // only their label/icon come from the builder for those two.
@@ -248,13 +265,17 @@ export function Header({
           {favorisAction && (
           <Link
             href="/favoris"
-            className="icon-btn header-secondary-link"
+            // `icon-btn` alone, like the cart: `header-secondary-link` hides
+            // an element below 768px, and with it went the only place on a
+            // phone that showed a favourite had been saved.
+            className="icon-btn"
             style={{ position: "relative", display: "flex", alignItems: "center", color: "var(--chrome-header-icon, var(--pdh-ink))" }}
             aria-label={`Voir mes favoris (${favorites.count})`}
           >
             {FavorisIcon && <FavorisIcon aria-hidden="true" size={21} strokeWidth={1.5} />}
             {favorites.count > 0 && (
               <span
+                ref={favBadgeRef}
                 aria-hidden="true"
                 style={{
                   position: "absolute",
