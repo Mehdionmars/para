@@ -11,6 +11,7 @@ import {
   CtaBannerEditor,
   DermoCornerCopyEditor,
   DermoPicksEditor,
+  FeaturedPromoEditor,
   HeroSlidesEditor,
   ImageCarouselEditor,
   InstagramEditor,
@@ -83,13 +84,9 @@ export const SECTION_EDITORS: Record<SectionKey, ((ctx: SectionEditorContext) =>
     <PromotionsGridEditor value={draft.promotionsGrid} onChange={(promotionsGrid) => update({ promotionsGrid })} />
   ),
 
-  /**
-   * No CMS fields exist for this section — it is a key, a label and a group in
-   * globals/Home.ts and nothing more, so /api/globals/home returns no
-   * `featuredPromo` object and the storefront component falls back to its own
-   * copy. Reordering and hiding it work; there is simply nothing to edit yet.
-   */
-  featuredPromo: null,
+  featuredPromo: ({ draft, update }) => (
+    <FeaturedPromoEditor value={draft.featuredPromo} onChange={(featuredPromo) => update({ featuredPromo })} />
+  ),
 
   coffrets: ({ draft, update }) => (
     <div className="flex flex-col gap-6">

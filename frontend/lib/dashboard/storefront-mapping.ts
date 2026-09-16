@@ -217,6 +217,19 @@ export type SectionEntry = { key: SectionEntryKey; visible: boolean };
 
 export type PromotionsGridCopy = { title: string; subtitle: string; limit: number };
 
+/** "Sélection + bannière promo" — see featuredPromo in backend/src/globals/Home.ts. */
+export type FeaturedPromoCopy = {
+  title: string;
+  subtitle: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  limit: number;
+  promoTitle: string;
+  promoCtaLabel: string;
+  promoCtaUrl: string;
+  promoImage: ImageRef;
+};
+
 export type HomeDraft = {
   sections: SectionEntry[];
   heroSlides: HeroSlide[];
@@ -226,6 +239,7 @@ export type HomeDraft = {
   rails: Rail[];
   brandsFeatured: BrandFeaturedItem[];
   promotionsGrid: PromotionsGridCopy;
+  featuredPromo: FeaturedPromoCopy;
   coffrets: Coffret[];
   coffretsCopy: CoffretsCopy;
   campaignCopy: CampaignCopy;
@@ -370,6 +384,19 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       ctaUrl: home.campaignCopy?.ctaUrl || "",
       railTitle: home.campaignCopy?.railTitle || "",
       image: mediaRef(home.campaignCopy?.image),
+    },
+    // Same fallbacks the storefront applies (lib/storefront/homeContent.ts),
+    // so an unsaved group opens in the editor showing what the page shows.
+    featuredPromo: {
+      title: home.featuredPromo?.title || "Les incontournables",
+      subtitle: home.featuredPromo?.subtitle || "",
+      ctaLabel: home.featuredPromo?.ctaLabel || "Voir tout",
+      ctaUrl: home.featuredPromo?.ctaUrl || "/catalogue",
+      limit: Number(home.featuredPromo?.limit) || 3,
+      promoTitle: home.featuredPromo?.promoTitle || "Les dernières arrivées, chaque semaine",
+      promoCtaLabel: home.featuredPromo?.promoCtaLabel || "Tout parcourir",
+      promoCtaUrl: home.featuredPromo?.promoCtaUrl || "/shop/nouveautes",
+      promoImage: mediaRef(home.featuredPromo?.promoImage),
     },
     campaignProducts: (home.campaignProducts || []).map(productRef).filter(Boolean) as ProductRef[],
     dermoPicks: (home.dermoPicks || []).map((d: any) => ({ product: productRef(d.product), actif: d.actif || "", claim: d.claim || "" })),
@@ -533,6 +560,17 @@ export function mapDraftToPayload(draft: HomeDraft): Record<string, unknown> {
       ctaUrl: draft.campaignCopy.ctaUrl,
       railTitle: draft.campaignCopy.railTitle,
       image: img(draft.campaignCopy.image),
+    },
+    featuredPromo: {
+      title: draft.featuredPromo.title,
+      subtitle: draft.featuredPromo.subtitle,
+      ctaLabel: draft.featuredPromo.ctaLabel,
+      ctaUrl: draft.featuredPromo.ctaUrl,
+      limit: draft.featuredPromo.limit,
+      promoTitle: draft.featuredPromo.promoTitle,
+      promoCtaLabel: draft.featuredPromo.promoCtaLabel,
+      promoCtaUrl: draft.featuredPromo.promoCtaUrl,
+      promoImage: img(draft.featuredPromo.promoImage),
     },
     campaignProducts: draft.campaignProducts.map((p) => p.id),
     dermoPicks: draft.dermoPicks.map((d) => ({ product: d.product?.id || null, actif: d.actif, claim: d.claim })),

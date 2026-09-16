@@ -562,6 +562,39 @@ export const Home: GlobalConfig = {
       ],
     },
     {
+      // "Sélection + bannière promo". The section existed — a key, a label, a
+      // component reading `home.featuredPromo` — but no field did, so the API
+      // never returned the object and the storefront always fell back to its
+      // hardcoded copy: the tile could not be given a photograph at all. The
+      // defaults below are that hardcoded copy, so adding the group changes
+      // nothing on the page until an editor does.
+      name: 'featuredPromo',
+      type: 'group',
+      admin: {
+        description:
+          'La section « Les incontournables » : les produits cochés « mis en avant », précédés d\'une tuile promo. Avec une photo, la tuile la montre en plein cadre, texte en bas.',
+      },
+      fields: [
+        { name: 'eyebrow', type: 'text', defaultValue: 'Sélection' },
+        { name: 'title', type: 'text', defaultValue: 'Les incontournables' },
+        { name: 'subtitle', type: 'text', defaultValue: '' },
+        { name: 'ctaLabel', type: 'text', defaultValue: 'Voir tout' },
+        { name: 'ctaUrl', type: 'text', defaultValue: '/catalogue' },
+        {
+          name: 'limit',
+          type: 'number',
+          admin: { description: 'Produits affichés à côté de la tuile. 3 = une ligne de quatre, 7 = deux lignes pleines.' },
+          defaultValue: 3,
+          max: 11,
+          min: 1,
+        },
+        { name: 'promoTitle', type: 'text', defaultValue: 'Les dernières arrivées, chaque semaine' },
+        { name: 'promoCtaLabel', type: 'text', defaultValue: 'Tout parcourir' },
+        { name: 'promoCtaUrl', type: 'text', defaultValue: '/shop/nouveautes' },
+        imageField('promoImage', false),
+      ],
+    },
+    {
       // The header of "Marques à l'honneur". The brands themselves are the
       // `brandsFeatured` array; this is only the wording above them, which
       // used to be written into the component.

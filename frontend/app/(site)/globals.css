@@ -3835,8 +3835,19 @@ section.rail-editorial {
 
  /* With a picture the copy goes back to the top, so the image has the
     bottom of the tile to itself. */
+/* With a photograph the tile is the photograph: full bleed, the copy set at
+   the bottom on a scrim. The scrim is what keeps cream text legible over any
+   picture an editor uploads — a pale packshot included. */
 .featured-promo-tile:has(.featured-promo-tile-img) {
-  justify-content: flex-start;
+  justify-content: flex-end;
+}
+.featured-promo-tile:has(.featured-promo-tile-img)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(47, 31, 61, 0) 38%, rgba(47, 31, 61, 0.72) 100%);
+  pointer-events: none;
 }
 
 .featured-promo-tile:hover {
@@ -3853,14 +3864,8 @@ section.rail-editorial {
    the tile rather than a thumbnail sitting in it. */
 .featured-promo-tile-img {
   position: absolute;
-  inset-inline-end: -12%;
-  bottom: -8%;
-  width: 78%;
-  aspect-ratio: 1 / 1;
+  inset: 0;
   z-index: -1;
-  opacity: 0.9;
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 42%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 42%);
 }
 
 .featured-promo-tile-body {

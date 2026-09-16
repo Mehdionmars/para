@@ -105,7 +105,7 @@ export function FeaturedWithPromo({
         <Link href={copy.promoCtaUrl || "/catalogue"} className="featured-promo-tile">
           {copy.promoImage && (
             <span className="featured-promo-tile-img" aria-hidden="true">
-              <CloudinaryImage preset="editorial" src={copy.promoImage} alt="" fill sizes="320px" style={{ objectFit: "cover" }} />
+              <CloudinaryImage preset="editorial" src={copy.promoImage} alt="" fill sizes="(max-width: 767px) 80vw, 360px" style={{ objectFit: "cover" }} />
             </span>
           )}
           <span className="featured-promo-tile-body">

@@ -28,6 +28,7 @@ import {
   type CoffretsCopy,
   type CtaTile,
   type CtaBannerCopyDraft,
+  type FeaturedPromoCopy,
   type DermoCornerCopy,
   type DermoPick,
   type HeroSlide,
@@ -493,6 +494,48 @@ export function ImageCarouselEditor({
           <span className="text-xs font-medium text-gray-600">Produits affichés (8 maximum)</span>
           <ProductPicker selected={products} onChange={onChangeProducts} max={8} />
         </label>
+      </FieldGroup>
+    </>
+  );
+}
+
+// ---- Sélection + bannière promo --------------------------------------------
+
+export function FeaturedPromoEditor({ value, onChange }: { value: FeaturedPromoCopy; onChange: (v: FeaturedPromoCopy) => void }) {
+  const update = (patch: Partial<FeaturedPromoCopy>) => onChange({ ...value, ...patch });
+  return (
+    <>
+      <EditorHeading
+        title="Sélection + bannière promo"
+        description="Les produits sont ceux cochés « mis en avant » sur leur fiche, les plus récents d'abord. Ici : le titre de la section et la tuile qui les précède."
+      />
+      <FieldGroup>
+        <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
+        <TextField label="Sous-titre (facultatif)" value={value.subtitle} onChange={(subtitle) => update({ subtitle })} />
+        <TextField label="Texte du lien « Voir tout »" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
+        <TextField label="Lien « Voir tout »" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+        <NumberField
+          label="Produits à côté de la tuile (3 = une ligne, 7 = deux lignes)"
+          value={value.limit}
+          min={1}
+          max={11}
+          onChange={(limit) => update({ limit })}
+        />
+      </FieldGroup>
+      <FieldGroup>
+        <EditorHeading
+          title="Tuile promo"
+          description="Avec une photo, elle occupe toute la tuile et le texte se pose en bas, sur un voile sombre. Sans photo, la tuile reste unie."
+        />
+        <ImagePicker
+          label="Photo (portrait de préférence)"
+          imageId={value.promoImage.id}
+          imageUrl={value.promoImage.url}
+          onChange={(id, url) => update({ promoImage: { id, url } })}
+        />
+        <TextField label="Titre de la tuile" value={value.promoTitle} onChange={(promoTitle) => update({ promoTitle })} />
+        <TextField label="Texte du bouton" value={value.promoCtaLabel} onChange={(promoCtaLabel) => update({ promoCtaLabel })} />
+        <TextField label="Lien du bouton" value={value.promoCtaUrl} onChange={(promoCtaUrl) => update({ promoCtaUrl })} />
       </FieldGroup>
     </>
   );

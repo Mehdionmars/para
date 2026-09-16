@@ -2134,6 +2134,24 @@ export interface Home {
     limit?: number | null;
   };
   /**
+   * La section « Les incontournables » : les produits cochés « mis en avant », précédés d'une tuile promo. Avec une photo, la tuile la montre en plein cadre, texte en bas.
+   */
+  featuredPromo?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+    /**
+     * Produits affichés à côté de la tuile. 3 = une ligne de quatre, 7 = deux lignes pleines.
+     */
+    limit?: number | null;
+    promoTitle?: string | null;
+    promoCtaLabel?: string | null;
+    promoCtaUrl?: string | null;
+    promoImage?: (number | null) | Media;
+  };
+  /**
    * En-tête de la section marques (les marques elles-mêmes se configurent dans « Marques à l'honneur »).
    */
   brandsFeaturedCopy?: {
@@ -3316,6 +3334,20 @@ export interface HomeSelect<T extends boolean = true> {
         title?: T;
         subtitle?: T;
         limit?: T;
+      };
+  featuredPromo?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+        limit?: T;
+        promoTitle?: T;
+        promoCtaLabel?: T;
+        promoCtaUrl?: T;
+        promoImage?: T;
       };
   brandsFeaturedCopy?:
     | T
