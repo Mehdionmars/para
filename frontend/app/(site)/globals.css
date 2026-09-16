@@ -1228,6 +1228,74 @@ button {
   }
 }
 
+/* "Ajouté au panier" toast. One line, always: the region spans the viewport
+   and centres the pill, instead of the old left:50% + translateX, which gave
+   an absolutely positioned box only half the screen to shrink into and broke
+   a product name over four lines on a phone. A name too long for the width is
+   cut with an ellipsis rather than wrapped. */
+.site-toast-region {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(34px + env(safe-area-inset-bottom, 0px));
+  z-index: 120;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}
+.site-toast {
+  pointer-events: auto;
+  max-width: 100%;
+  min-width: 0;
+  background: var(--pdh-ink);
+  color: var(--pdh-cream);
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 20px 34px -18px rgba(0, 0, 0, 0.6);
+  animation: rise 0.3s both;
+}
+.site-toast-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--pdh-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.site-toast-text {
+  display: flex;
+  min-width: 0;
+  white-space: nowrap;
+}
+.site-toast-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.site-toast-suffix {
+  flex-shrink: 0;
+  white-space: pre;
+}
+/* Above the sticky bars rather than over their button. */
+@media (max-width: 767px) {
+  .site-toast-region {
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+  body.sticky-atc-active .site-toast-region {
+    bottom: 96px;
+  }
+  body.sticky-cart-active .site-toast-region {
+    bottom: 148px;
+  }
+}
+
 /* "Les offres du moment" home section: desktop/tablet keep the previous
    auto-fill flow (however many ~182px cards fit), but mobile is forced to a
    fixed 2-column grid — auto-fill's math at ~360px available width was

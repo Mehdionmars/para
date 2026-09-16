@@ -3,42 +3,31 @@
 import { Check } from "lucide-react";
 import { useToast } from "@/context/toast-context";
 
+const ADDED_SUFFIX = " ajouté au panier";
+
 export function Toast() {
   const { message, isVisible } = useToast();
+  // When the line is too long it is the product name that gets cut, never
+  // what happened to it: "PACK DUO MOUSSE FL… ajouté au panier".
+  const suffix = message?.endsWith(ADDED_SUFFIX) && message.length > ADDED_SUFFIX.length ? ADDED_SUFFIX : "";
 
+  // Styles live in globals.css (.site-toast): the position has to react to the
+  // mobile sticky bars, which only a body-class selector can do.
   return (
-    <div aria-live="polite" role="status" style={{ position: "fixed", left: "50%", bottom: 34, transform: "translateX(-50%)", zIndex: 120 }}>
+    <div aria-live="polite" role="status" className="site-toast-region">
       {isVisible && (
-        <div
-          style={{
-            background: "var(--pdh-ink)",
-            color: "var(--pdh-cream)",
-            padding: "15px 26px",
-            borderRadius: 999,
-            fontSize: 13,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            boxShadow: "0 20px 34px -18px rgba(0,0,0,.6)",
-            animation: "rise .3s both",
-          }}
-        >
-          <span
-            aria-hidden="true"
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: "50%",
-              background: "var(--pdh-teal)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
+        <div className="site-toast">
+          <span aria-hidden="true" className="site-toast-check">
             <Check size={12} color="#fff" strokeWidth={2.5} />
           </span>
-          {message}
+          {suffix ? (
+            <span className="site-toast-text">
+              <span className="site-toast-name">{message.slice(0, -suffix.length)}</span>
+              <span className="site-toast-suffix">{suffix}</span>
+            </span>
+          ) : (
+            <span className="site-toast-text site-toast-name">{message}</span>
+          )}
         </div>
       )}
     </div>
