@@ -1,8 +1,10 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Heart, Minus, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/context/cart-context";
+import { useFavorites } from "@/context/favorites-context";
+import { useFavoriteToggle } from "@/hooks/use-favorite-toggle";
 import { useToast } from "@/context/toast-context";
 import Link from "next/link";
 import { money, type Product, productImage, stars } from "@/data/products";
@@ -75,6 +77,9 @@ export function PurchasePanel({
 }) {
   const cart = useCart();
   const toast = useToast();
+  const favorites = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const isFavorite = favorites.isFavorite(product.id);
 
   // Uncontrolled fallback, for a caller that renders the panel on its own.
   // Either way the selection is an id, never a list index: an index silently
@@ -181,20 +186,49 @@ export function PurchasePanel({
   return (
     <>
     <div className="pdp-purchase-panel">
-      {product.brandSlug ? (
-        <Link
-          className="pdh-brand-link"
-          href={routes.brand(product.brandSlug)}
-          // No inline colour: it would outrank the hover colour in CSS.
-          style={{ display: "inline-block", fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase" }}
+      {/* The brand and the heart share a line above the title. Not in the buy
+          row: on a phone that row is a two-column grid, and a third control
+          wrapped under the quantity stepper. Here it reads at every width,
+          where the eye already is when deciding. */}
+      <div style={{ alignItems: "center", display: "flex", gap: 12, justifyContent: "space-between" }}>
+        {product.brandSlug ? (
+          <Link
+            className="pdh-brand-link"
+            href={routes.brand(product.brandSlug)}
+            // No inline colour: it would outrank the hover colour in CSS.
+            style={{ display: "inline-block", fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase" }}
+          >
+            {product.brand}
+          </Link>
+        ) : (
+          <div style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
+            {product.brand}
+          </div>
+        )}
+        <button
+          aria-label={isFavorite ? `Retirer ${product.name} des favoris` : `Ajouter ${product.name} aux favoris`}
+          aria-pressed={isFavorite}
+          onClick={(e) => toggleFavorite(product.id, e.currentTarget)}
+          style={{
+            alignItems: "center",
+            background: isFavorite ? "var(--pdh-plum)" : "#fff",
+            border: `1px solid ${isFavorite ? "var(--pdh-plum)" : "var(--pdh-plum-border)"}`,
+            borderRadius: 999,
+            color: isFavorite ? "#fff" : "var(--pdh-plum)",
+            cursor: "pointer",
+            display: "flex",
+            flex: "none",
+            height: 44,
+            justifyContent: "center",
+            transition: "background-color .2s, color .2s, border-color .2s",
+            width: 44,
+          }}
+          title={isFavorite ? "Dans vos favoris" : "Ajouter aux favoris"}
+          type="button"
         >
-          {product.brand}
-        </Link>
-      ) : (
-        <div style={{ fontFamily: "var(--font-poppins)", fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--pdh-teal-text)" }}>
-          {product.brand}
-        </div>
-      )}
+          <Heart aria-hidden="true" fill={isFavorite ? "currentColor" : "none"} size={18} strokeWidth={1.7} />
+        </button>
+      </div>
       <h1 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(27px,3.8vw,44px)", lineHeight: 1.06, margin: "10px 0 12px" }}>
         {product.name}
       </h1>

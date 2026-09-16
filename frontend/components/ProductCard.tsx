@@ -7,6 +7,7 @@ import { ProductBadges } from "@/components/product/ProductBadges";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import { useToast } from "@/context/toast-context";
+import { useFavoriteToggle } from "@/hooks/use-favorite-toggle";
 import { type Product, money, productImage, stars } from "@/data/products";
 import { routes } from "@/lib/routes";
 
@@ -71,21 +72,11 @@ const VARIANT_CONFIG: Record<
  * rises in on hover, where a pointer user is already committed. On touch,
  * where there is no hover to give, it is always there.
  */
-/** A short beat on the heart as it fills. Web Animations rather than a CSS
- * class: nothing to clean up, and skipped entirely for reduced motion. */
-function pulse(el: HTMLElement) {
-  if (typeof el.animate !== "function") return;
-  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-  el.animate([{ transform: "scale(1)" }, { transform: "scale(1.22)" }, { transform: "scale(1)" }], {
-    duration: 320,
-    easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-  });
-}
-
 export function ProductCard({ product, variant, delayMs, dermo }: Props) {
   const cart = useCart();
   const favorites = useFavorites();
   const toast = useToast();
+  const toggleFavorite = useFavoriteToggle();
   const config = VARIANT_CONFIG[variant];
   const href = routes.product(product.slug);
   const isFavorite = favorites.isFavorite(product.id);
@@ -114,19 +105,8 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
 
   function handleFav(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    const wasFavorite = isFavorite;
-    favorites.toggle(product.id);
-
-    // The heart filling in was the only sign anything happened, and on a
-    // phone — where the header's favourites link was hidden — nothing said
-    // where the product had gone. The toast names the place and links to it;
-    // a removal, usually a thumb that missed the photo, can be undone.
-    if (wasFavorite) {
-      toast.fire("Retiré de vos favoris", { label: "Annuler", onClick: () => favorites.toggle(product.id) });
-    } else {
-      toast.fire("Ajouté à vos favoris", { href: "/favoris", label: "Voir" });
-      pulse(e.currentTarget);
-    }
+    // Says where the product went, and lets a mis-tap be undone — see the hook.
+    toggleFavorite(product.id, e.currentTarget);
   }
 
   return (
