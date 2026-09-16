@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
+import { clampNumber } from "@/lib/dashboard/clampNumber";
 
 const labelCls = "text-xs font-medium text-gray-600";
 const inputCls = "w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400";
@@ -51,18 +52,40 @@ export function TextAreaField({
   );
 }
 
+/**
+ * A number the CMS will accept.
+ *
+ * `min`/`max` on the input were only hints: nothing stopped typing 8 into
+ * "Cartes visibles (desktop)" (max 6). Payload does not validate drafts, so the
+ * draft saved — and every publish after it failed with "The following fields
+ * are invalid: Coffrets Copy > Visible Desktop, Visible Mobile".
+ *
+ * The draft now only ever receives an in-range value. What is typed is shown
+ * as typed while the field has focus — clamping each keystroke would turn a
+ * cleared "3" into "1" before the "0" of "10" arrived — and the field settles
+ * on the clamped value when it loses focus.
+ */
 export function NumberField({ label, value, onChange, min, max }: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) {
+  const [typed, setTyped] = useState<string | null>(null);
+  const shown = typed ?? String(clampNumber(value, min, max));
+  const bounds = min !== undefined && max !== undefined ? `Entre ${min} et ${max}.` : null;
   return (
     <label className="flex flex-col gap-1">
       <span className={labelCls}>{label}</span>
       <input
         type="number"
         className={inputCls}
-        value={Number.isFinite(value) ? value : 0}
+        value={shown}
         min={min}
         max={max}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => {
+          setTyped(e.target.value);
+          const raw = e.target.value.trim();
+          if (raw !== "" && Number.isFinite(Number(raw))) onChange(clampNumber(Number(raw), min, max));
+        }}
+        onBlur={() => setTyped(null)}
       />
+      {bounds && <span className="text-[11px] text-gray-400">{bounds}</span>}
     </label>
   );
 }

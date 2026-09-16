@@ -1,3 +1,4 @@
+import { clampNumber } from "@/lib/dashboard/clampNumber";
 import {
   type CardCtaAlign,
   type CardImageFraming,
@@ -387,8 +388,11 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       ctaLabel: home.coffretsCopy?.ctaLabel || "Tous les coffrets",
       ctaUrl: home.coffretsCopy?.ctaUrl || "/collections",
       layout: home.coffretsCopy?.layout || "carousel",
-      visibleDesktop: home.coffretsCopy?.visibleDesktop || 3,
-      visibleMobile: home.coffretsCopy?.visibleMobile || 1,
+      // Clamped on the way in: a draft saved before the builder enforced the
+      // bounds (8 and 8 on preprod) could never be published, because Payload
+      // validates on publish and these are 1-6 and 1-3 in globals/Home.ts.
+      visibleDesktop: clampNumber(Number(home.coffretsCopy?.visibleDesktop) || 3, 1, 6),
+      visibleMobile: clampNumber(Number(home.coffretsCopy?.visibleMobile) || 1, 1, 3),
     },
     campaignCopy: {
       eyebrow: home.campaignCopy?.eyebrow || "",
