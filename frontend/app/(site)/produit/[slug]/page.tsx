@@ -9,9 +9,11 @@ import { SimilarProducts } from "@/components/product/SimilarProducts";
 import {
   fetchProductBySlug,
   fetchProductByLegacyId,
+  fetchRoutineSuggestions,
   fetchSimilarProducts,
   type LiveProductDetail,
 } from "@/lib/storefront/products";
+import { fetchRoutineOffer } from "@/lib/storefront/paymentSettings";
 import { routes } from "@/lib/routes";
 
 // Payload is the source of truth for this page — there is deliberately no
@@ -94,7 +96,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   // CmsUnavailableError deliberately propagates rather than being caught:
   // an unreachable CMS is a 500, not "this product was deleted".
   const product = await resolveProduct(slug);
-  const similar = await fetchSimilarProducts({ cat: product.cat, id: product.id });
+  const [similar, routinePicks, routineOffer] = await Promise.all([
+    fetchSimilarProducts({ cat: product.cat, id: product.id }),
+    fetchRoutineSuggestions(product),
+    fetchRoutineOffer(),
+  ]);
   const productName = product.name.split("\n")[0];
   const canonical = `${siteUrl}${routes.product(product.slug)}`;
 
@@ -151,14 +157,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           when the option ships one — the photograph. */}
       <ProductDetail product={product} />
 
-      {/* Directly under the buy box, where the decision is still open. Reuses
-          the same live category matches the "Vous aimerez aussi" rail below
-          renders — one fetch, two sections, no second recommendation path. */}
-      {/* 0, not 15: nothing between this button and the order applied a lot
-          discount. The summary showed "Total du lot 654,5 MAD", the cart then
-          charged 770 — an advertised price that was never the price. At 0 the
-          discount line is not rendered and the section stays a multi-add. */}
-      <BundleUpsell bundleDiscountPercent={0} currentProduct={product} products={similar} />
+      {/* Directly under the buy box, where the decision is still open. Its
+          suggestions are the editor's routine picks, then the same aisle, then
+          the same shelf — every one a product checkout accepts in a lot with
+          this one, so the discount it previews is the discount charged. The
+          offer itself (on/off, %, minimum) is read from the CMS. */}
+      <BundleUpsell currentProduct={product} offer={routineOffer} products={routinePicks} />
 
       <ProductReviews product={product} />
       <SimilarProducts product={product} products={similar} />

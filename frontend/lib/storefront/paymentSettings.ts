@@ -1,3 +1,5 @@
+import { parseRoutineOffer, ROUTINE_OFF, type RoutineOffer } from "@/lib/cart/routine";
+
 const CMS_URL = process.env.CMS_URL || "http://localhost:3001";
 
 /** Cache tag the CMS purges when the payment settings are saved. */
@@ -133,4 +135,25 @@ export async function fetchPaymentSettings(): Promise<PaymentSettings> {
         }
       : null,
   };
+}
+
+/**
+ * The routine offer as configured in payment-settings → Offre routine.
+ *
+ * Same request and cache tag as fetchPaymentSettings, so saving the global
+ * purges both and Next serves them from one fetch. An unreachable CMS means
+ * no offer: previewing a discount checkout might not grant is the exact bug
+ * this replaced.
+ */
+export async function fetchRoutineOffer(): Promise<RoutineOffer> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/globals/payment-settings?depth=0`, {
+      next: { revalidate: 300, tags: [PAYMENT_SETTINGS_TAG] },
+    });
+    if (!res.ok) return ROUTINE_OFF;
+    const raw = (await res.json()) as { routineOffer?: unknown };
+    return parseRoutineOffer(raw.routineOffer);
+  } catch {
+    return ROUTINE_OFF;
+  }
 }

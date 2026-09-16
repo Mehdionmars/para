@@ -8,6 +8,7 @@ import type { StockState } from "@/components/ProductCard";
 import { useCart } from "@/context/cart-context";
 import { useToast } from "@/context/toast-context";
 import { money, productImage, stars, type Product } from "@/data/products";
+import { lotDiscount, ROUTINE_OFF, type RoutineOffer } from "@/lib/cart/routine";
 import { routes } from "@/lib/routes";
 
 /**
@@ -34,11 +35,15 @@ type Props = {
    *  live category matches the "Vous aimerez aussi" rail uses. */
   products: BundleItem[];
   /**
-   * Percentage off the selected subtotal. 0 is a real, supported value: the
-   * summary then drops the discount line entirely rather than printing
-   * "−0 MAD", and the section still works as a plain multi-add.
+   * The routine offer from the CMS (payment-settings → Offre routine). Off,
+   * the summary drops the discount lines entirely rather than printing
+   * "−0 MAD", and the section is a plain multi-add.
+   *
+   * On, the discount is previewed only for a lot checkout will grant — see
+   * `lotEligible` — and the lot is recorded on the cart so checkout can price
+   * it. It used to be a bare percentage the cart never applied.
    */
-  bundleDiscountPercent?: number;
+  offer?: RoutineOffer;
   /** Cards shown, current product included. Three fits the row at every
    *  width; more starts compressing the packshots. */
   maxItems?: number;
@@ -58,7 +63,7 @@ function alternateShot(item: BundleItem, hero: string): string | undefined {
  *  card and the cart both want the first. */
 const firstLine = (name: string) => name.split("\n")[0];
 
-export function BundleUpsell({ currentProduct, products, bundleDiscountPercent = 15, maxItems = 3 }: Props) {
+export function BundleUpsell({ currentProduct, products, offer = ROUTINE_OFF, maxItems = 3 }: Props) {
   const cart = useCart();
   const toast = useToast();
 
@@ -94,13 +99,20 @@ export function BundleUpsell({ currentProduct, products, bundleDiscountPercent =
   // counts each item's pre-markdown price where it has one, so "vous
   // économisez" is the whole distance from list price to what is paid —
   // the bundle discount plus any markdown already on the products.
+  // A lot is what checkout prices (backend/src/lib/routineOffer.ts): it must
+  // hold the product being viewed — the one the suggestions were chosen for —
+  // and at least `minItems` products. Anything else is previewed at full
+  // price, so the summary never shows a total the order will not charge.
+  const includesAnchor = chosen.some((i) => i.id === currentProduct.id);
+  const lotEligible = offer.enabled && includesAnchor && chosen.length >= offer.minItems;
+
   const totals = useMemo(() => {
     const subtotal = round2(chosen.reduce((sum, i) => sum + i.price, 0));
     const original = round2(chosen.reduce((sum, i) => sum + (i.old || i.price), 0));
-    const discount = round2((subtotal * bundleDiscountPercent) / 100);
+    const discount = lotEligible ? lotDiscount(offer, chosen.map((i) => i.price)) : 0;
     const total = round2(subtotal - discount);
     return { subtotal, original, discount, total, savings: round2(original - total) };
-  }, [chosen, bundleDiscountPercent]);
+  }, [chosen, lotEligible, offer]);
 
   // Two cards is the floor: one product is not a bundle, and the "+" would
   // have nothing to join.
@@ -113,6 +125,11 @@ export function BundleUpsell({ currentProduct, products, bundleDiscountPercent =
     // silently push every line to qty 2 rather than erroring — hence the
     // guard rather than a disabled attribute alone.
     for (const item of chosen) cart.addProduct({ ...item, name: firstLine(item.name) }, 1);
+    // Recorded only when the preview showed a discount, so the cart and the
+    // checkout price exactly the lot the shopper was shown.
+    if (totals.discount > 0) {
+      cart.addRoutine({ anchorId: currentProduct.id, productIds: chosen.map((i) => i.id) });
+    }
     toast.fire(
       chosen.length === 1
         ? `${firstLine(chosen[0].name)} ajouté au panier`
@@ -230,7 +247,7 @@ export function BundleUpsell({ currentProduct, products, bundleDiscountPercent =
 
         <aside aria-label="Récapitulatif du lot" className="bundle-summary">
           <div className="bundle-summary-head">
-            <span className="bundle-summary-kicker">Offre routine</span>
+            <span className="bundle-summary-kicker">{offer.enabled ? "Offre routine" : "Votre sélection"}</span>
             {/* The figures all change together as boxes are ticked, so the
                 count is announced and the rest is read on demand rather than
                 three regions racing each other. */}
@@ -244,14 +261,14 @@ export function BundleUpsell({ currentProduct, products, bundleDiscountPercent =
               <dt>Sous-total</dt>
               <dd>{money(totals.subtotal)}</dd>
             </div>
-            {bundleDiscountPercent > 0 && (
+            {totals.discount > 0 && (
               <div className="bundle-fig">
-                <dt>Remise du lot ({bundleDiscountPercent}%)</dt>
+                <dt>Remise du lot ({offer.percent}%)</dt>
                 <dd className="bundle-fig-minus">−{money(totals.discount)}</dd>
               </div>
             )}
             <div className="bundle-fig bundle-fig--total">
-              <dt>Total du lot</dt>
+              <dt>{offer.enabled ? "Total du lot" : "Total"}</dt>
               <dd>{money(totals.total)}</dd>
             </div>
           </dl>
@@ -262,7 +279,23 @@ export function BundleUpsell({ currentProduct, products, bundleDiscountPercent =
             {justAdded ? "Ajouté au panier" : "Ajouter la sélection au panier"}
           </button>
 
-          {chosen.length === 0 && <p className="bundle-hint">Sélectionnez au moins un produit pour continuer.</p>}
+          {chosen.length === 0 ? (
+            <p className="bundle-hint">Sélectionnez au moins un produit pour continuer.</p>
+          ) : (
+            offer.enabled &&
+            !lotEligible &&
+            // No hint when the viewed product is out of stock: pointing the
+            // shopper at something they cannot tick is worse than silence.
+            currentProduct.stockState !== "out" && (
+              // Says what unlocks the offer instead of letting it vanish
+              // silently when a box is unticked.
+              <p className="bundle-hint">
+                {includesAnchor
+                  ? `Remise de ${offer.percent} % dès ${offer.minItems} produits sélectionnés.`
+                  : `Remise de ${offer.percent} % avec « ${firstLine(currentProduct.name)} » dans la sélection.`}
+              </p>
+            )
+          )}
         </aside>
       </div>
     </section>

@@ -1,8 +1,9 @@
 import { PasswordForm } from "@/components/dashboard/settings/PasswordForm";
 import { PaymentMethodsForm } from "@/components/dashboard/settings/PaymentMethodsForm";
+import { RoutineOfferForm } from "@/components/dashboard/settings/RoutineOfferForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/Card";
 import { requireRole } from "@/lib/dashboard/guard";
-import { getPaymentSettings } from "@/lib/dashboard/paymentSettings";
+import { getPaymentSettings, getRoutineOffer } from "@/lib/dashboard/paymentSettings";
 import { canEditContent, isStaffUser, ROLE_LABELS } from "@/lib/dashboard/roles";
 
 export default async function SettingsPage() {
@@ -12,7 +13,9 @@ export default async function SettingsPage() {
   // could never save is not shown a form that would fail on submit. Loaded
   // only when it will be rendered.
   const canEditPayment = canEditContent(user);
-  const payment = canEditPayment ? await getPaymentSettings() : null;
+  const [payment, routineOffer] = canEditPayment
+    ? await Promise.all([getPaymentSettings(), getRoutineOffer()])
+    : [null, null];
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,6 +61,21 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <PaymentMethodsForm initial={payment} />
+          </CardContent>
+        </Card>
+      )}
+
+      {routineOffer && (
+        <Card>
+          <CardHeader className="flex-col items-start gap-1">
+            <CardTitle>Offre routine</CardTitle>
+            <p className="text-xs text-gray-500">
+              Remise sur les lots composés depuis « Complétez votre routine » d&apos;une fiche produit. Vérifiée et
+              appliquée au moment de la commande.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <RoutineOfferForm initial={routineOffer} />
           </CardContent>
         </Card>
       )}

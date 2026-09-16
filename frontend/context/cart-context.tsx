@@ -15,6 +15,7 @@ import {
   setQty,
   toCheckoutLines,
 } from "@/lib/cart/lines";
+import { type CartRoutine, keepLiveRoutines, parseStoredRoutines, withRoutine } from "@/lib/cart/routine";
 import { cartTotals } from "@/lib/cart/totals";
 
 // Bumped from "pdh-cart": the stored shape changed from { id, qty } to a
@@ -23,6 +24,10 @@ import { cartTotals } from "@/lib/cart/totals";
 // rollback would still find the old one intact.
 const STORAGE_KEY = "pdh-cart-v2";
 const LEGACY_STORAGE_KEY = "pdh-cart";
+/** Lots from "Complétez votre routine", beside the lines rather than inside
+ * them: a lot is a relation between lines, and keeping it out of the line
+ * shape leaves pdh-cart-v2 readable by a build that predates it. */
+const ROUTINES_STORAGE_KEY = "pdh-routines-v1";
 
 export type { CartLine, CartLineInput };
 
@@ -54,6 +59,10 @@ type CartContextValue = {
   has: (productId: number, variantId?: string | null) => boolean;
   /** The payload the checkout endpoint expects — ids and quantities only. */
   checkoutLines: () => { id: number; variantId: string | null; qty: number }[];
+  /** Routine lots whose products are all still in the cart. */
+  routines: CartRoutine[];
+  /** Records a lot built on a product page. Its lines are added separately. */
+  addRoutine: (lot: CartRoutine) => void;
   money: typeof money;
 };
 
@@ -83,6 +92,7 @@ function legacyLookup(productId: number): CartLineInput | null {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
+  const [storedRoutines, setStoredRoutines] = useState<CartRoutine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -94,16 +104,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const raw = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(LEGACY_STORAGE_KEY);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setLines(parseStoredLines(JSON.parse(raw), legacyLookup));
+      const rawRoutines = window.localStorage.getItem(ROUTINES_STORAGE_KEY);
+      if (rawRoutines) setStoredRoutines(parseStoredRoutines(JSON.parse(rawRoutines)));
     } catch {
       // Corrupt or inaccessible storage: start from an empty cart.
     }
     setHydrated(true);
   }, []);
 
+  // A lot broken by removing one of its products is dropped for good, not
+  // kept dormant to revive if the product is added back on its own later.
+  const routineLines = useMemo(() => lines.map((l) => ({ price: l.price, productId: l.productId, qty: l.qty })), [lines]);
+  const routines = useMemo(() => keepLiveRoutines(storedRoutines, routineLines), [storedRoutines, routineLines]);
+
   useEffect(() => {
     if (!hydrated) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
-  }, [lines, hydrated]);
+    window.localStorage.setItem(ROUTINES_STORAGE_KEY, JSON.stringify(routines));
+  }, [lines, routines, hydrated]);
+
+  const addRoutine = useCallback((lot: CartRoutine) => {
+    setStoredRoutines((prev) => withRoutine(prev, lot));
+  }, []);
 
   const add = useCallback((item: CartLineInput, qty = 1) => {
     setLines((prev) => addLine(prev, item, qty));
@@ -147,6 +169,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clear = useCallback(() => {
     setLines([]);
+    setStoredRoutines([]);
   }, []);
 
   const value = useMemo<CartContextValue>(() => {
@@ -164,6 +187,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return {
       add,
       addProduct,
+      addRoutine,
       checkoutLines: () => toCheckoutLines(lines),
       clear,
       closeCart: () => setIsOpen(false),
@@ -178,11 +202,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       money,
       openCart: () => setIsOpen(true),
       remove,
+      routines,
       shipping,
       subtotal,
       total,
     };
-  }, [lines, isOpen, add, addProduct, increment, decrement, remove, clear]);
+  }, [lines, routines, isOpen, add, addProduct, addRoutine, increment, decrement, remove, clear]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

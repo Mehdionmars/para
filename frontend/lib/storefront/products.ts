@@ -71,6 +71,9 @@ export type PayloadProductDoc = {
   gallery?: { image?: PayloadMediaRef }[] | null;
   createdAt: string;
   featured?: boolean | null;
+  subCategory?: string | null;
+  /** Ids at depth 0, documents at depth ≥ 1. */
+  relatedProducts?: (number | { id: number })[] | null;
 };
 
 export type PayloadVariantRow = {
@@ -397,6 +400,10 @@ export type LiveProductDetail = Product & {
   /** True when every variant shares the product's price, so the displayed
    * amount must not change as the shopper switches option. */
   sameVariantPrice: boolean;
+  /** The aisle under `cat`, or null when the product has none. */
+  subCategory: string | null;
+  /** "Produits associés (routine)", in the editor's order. */
+  relatedIds: number[];
 };
 
 /** A product page is only served for a product the storefront actually
@@ -471,11 +478,15 @@ function toLiveProductDetail(doc: PayloadProductDetailDoc): LiveProductDetail {
     old: doc.oldPrice && doc.oldPrice > doc.price ? doc.oldPrice : 0,
     price: doc.price,
     rating: doc.rating ?? 5,
+    relatedIds: (doc.relatedProducts || [])
+      .map((r) => (typeof r === "object" && r !== null ? r.id : r))
+      .filter((id): id is number => Number.isInteger(id)),
     reviews: doc.reviews ?? 0,
     size: doc.size || "",
     sku: doc.sku || "",
     slug: doc.slug || String(doc.id),
     stock,
+    subCategory: doc.subCategory ?? null,
     stockState: stockStatus({ lowStockThreshold: doc.lowStockThreshold ?? 5, stock }),
     tint: doc.tint || "#F2F2F2",
     updatedAt: doc.updatedAt || doc.createdAt,
@@ -537,6 +548,46 @@ export async function fetchProductByLegacyId(param: string): Promise<LiveProduct
 /** Same-category suggestions for the "Vous aimerez aussi" rail. Unlike the
  * product itself this is editorial filler, not data a shopper transacts on,
  * so it's cached for 5 minutes instead of fetched fresh on every hit. */
+/**
+ * What "Complétez votre routine" proposes on a product page, in order:
+ *
+ * 1. the editor's picks ("Produits associés (routine)" on the product);
+ * 2. products from the same aisle — same category *and* sub-category;
+ * 3. products from the same category.
+ *
+ * Every one of these is a product backend/src/lib/routineOffer.ts accepts in
+ * a lot with this product (a pick, or the same category), which is what lets
+ * the block preview a discount checkout will actually grant. The aisle step
+ * requires the category too: a few products carry a sub-category that does
+ * not match their broad category, and those would be previewed and refused.
+ */
+export async function fetchRoutineSuggestions(
+  product: { id: number; cat: string; subCategory: string | null; relatedIds: number[] },
+  limit = 4,
+): Promise<LiveProduct[]> {
+  const picks = product.relatedIds.filter((id) => id !== product.id);
+  const picked = picks.length > 0 ? (await fetchProductsByIds(picks)).slice(0, limit) : [];
+
+  const exclude = [product.id, ...picked.map((p) => p.id)];
+  const sameCategory = async (extra: Record<string, unknown>[], count: number): Promise<LiveProduct[]> => {
+    if (count <= 0) return [];
+    const docs = await fetchProducts(
+      { and: [...BASE_ELIGIBILITY, { category: { equals: product.cat } }, { id: { not_in: exclude } }, ...extra] },
+      count,
+      "-createdAt",
+    );
+    return docs.map(toLiveProduct);
+  };
+
+  const sameAisle = product.subCategory
+    ? await sameCategory([{ subCategory: { equals: product.subCategory } }], limit - picked.length)
+    : [];
+  exclude.push(...sameAisle.map((p) => p.id));
+  const sameShelf = await sameCategory([], limit - picked.length - sameAisle.length);
+
+  return [...picked, ...sameAisle, ...sameShelf];
+}
+
 export async function fetchSimilarProducts(product: { id: number; cat: string }, limit = 4): Promise<LiveProduct[]> {
   const where = {
     and: [...BASE_ELIGIBILITY, { category: { equals: product.cat } }, { id: { not_equals: product.id } }],

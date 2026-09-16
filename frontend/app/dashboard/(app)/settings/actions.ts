@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/dashboard/guard";
 import { getSessionUser, payloadFetch } from "@/lib/dashboard/payload";
-import { missingBankFields, type PaymentSettingsForm } from "@/lib/dashboard/paymentSettings-types";
+import {
+  missingBankFields,
+  type PaymentSettingsForm,
+  ROUTINE_PERCENT_MAX,
+  type RoutineOfferForm,
+} from "@/lib/dashboard/paymentSettings-types";
 import { canEditContent } from "@/lib/dashboard/roles";
 
 export async function updatePassword(newPassword: string): Promise<{ error?: string }> {
@@ -76,6 +81,37 @@ export async function updatePaymentSettings(
 
   // The global's afterChange hook purges the storefront cache tag; this is for
   // the dashboard's own copy of the page.
+  revalidatePath("/dashboard/settings");
+  return {};
+}
+
+/**
+ * Writes payment-settings → routineOffer, and only that group: Payload keeps
+ * every field a partial write leaves out, so saving this card cannot touch the
+ * payment methods above it (checked against the live global before shipping).
+ */
+export async function updateRoutineOffer(input: RoutineOfferForm): Promise<{ error?: string }> {
+  await requireRole(canEditContent);
+
+  const percent = Number(input.percent);
+  if (!Number.isFinite(percent) || percent < 1 || percent > ROUTINE_PERCENT_MAX) {
+    return { error: `La remise doit être comprise entre 1 et ${ROUTINE_PERCENT_MAX} %.` };
+  }
+  if (input.minItems !== 2 && input.minItems !== 3) {
+    return { error: "Le lot doit compter 2 ou 3 produits minimum." };
+  }
+
+  const res = await payloadFetch("/api/globals/payment-settings", {
+    body: JSON.stringify({ routineOffer: { enabled: input.enabled === true, minItems: input.minItems, percent } }),
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const first = data?.errors?.[0];
+    return { error: first?.data?.errors?.[0]?.message || first?.message || "Échec de l'enregistrement." };
+  }
+
   revalidatePath("/dashboard/settings");
   return {};
 }

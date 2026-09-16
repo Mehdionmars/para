@@ -29,6 +29,16 @@ export type PaymentSettingsForm = {
   bank: BankFields;
 };
 
+/** payment-settings → routineOffer, as the dashboard edits it. Priced at
+ * checkout by backend/src/lib/routineOffer.ts, which clamps the same bounds. */
+export type RoutineOfferForm = {
+  enabled: boolean;
+  percent: number;
+  minItems: number;
+};
+
+export const ROUTINE_PERCENT_MAX = 50;
+
 /** The three fields a payer cannot make a transfer without. */
 export const REQUIRED_FOR_TRANSFER = ["beneficiary", "bankName", "rib"] as const;
 

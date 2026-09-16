@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ShippingOption } from "@/app/api/shipping-rules/route";
 import { BankTransferDetails } from "@/components/cart/BankTransferDetails";
 import { CheckoutField } from "@/components/cart/CheckoutField";
+import { type RoutineOffer, routineDiscount } from "@/lib/cart/routine";
 import type { PaymentMethodCode, PaymentSettings } from "@/lib/storefront/paymentSettings";
 import { usePersistedFields } from "@/lib/usePersistedFields";
 import { saveTracking } from "@/lib/orders/trackingMemory";
@@ -34,7 +35,7 @@ function newIdempotencyKey(): string {
   return `pdh-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-export function CartView({ payment }: { payment: PaymentSettings }) {
+export function CartView({ payment, routineOffer }: { payment: PaymentSettings; routineOffer: RoutineOffer }) {
   const cart = useCart();
   const [step, setStep] = useState<Step>("cart");
   // A ref, not state: changing it must never re-render, and the submit
@@ -148,7 +149,21 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
   // These mirror the server's arithmetic so the shopper sees the same numbers
   // before submitting. They are never sent: /api/checkout recomputes all of it
   // from the database and ignores any amount in the request body.
-  const discount = coupon ? Math.min(coupon.discount, cart.subtotal) : 0;
+  //
+  // The routine offer and a coupon never stack — the larger applies, a tie
+  // going to the routine — exactly as /api/checkout decides it. Showing both
+  // would quote a total the order cannot reach.
+  const couponAmount = coupon ? Math.min(coupon.discount, cart.subtotal) : 0;
+  const routineAmount = routineDiscount({
+    lines: cart.lines.map((l) => ({ price: l.price, productId: l.productId, qty: l.qty })),
+    offer: routineOffer,
+    routines: cart.routines,
+  });
+  const routineWins = routineAmount > 0 && routineAmount >= couponAmount;
+  const discount = routineWins ? Math.min(routineAmount, cart.subtotal) : couponAmount;
+  const discountLabel = routineWins
+    ? `Offre routine (−${routineOffer.percent} %)`
+    : `Réduction ${coupon ? `(${coupon.code})` : ""}`;
   const afterDiscount = Math.max(0, cart.subtotal - discount);
   const activeRule = shippingRules.find((r) => r.city === city);
   const shipping = activeRule
@@ -212,6 +227,9 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
           // database and ignores anything an amount-shaped field might carry.
           lines: cart.checkoutLines(),
           name,
+          // Which products form a lot — never what it is worth. Checkout
+          // re-validates each lot and prices it from the database.
+          routines: cart.routines,
           paymentMethod,
           phone,
         }),
@@ -589,9 +607,14 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
                       fontWeight: 500,
                     }}
                   >
-                    <span>Réduction {coupon ? `(${coupon.code})` : ""}</span>
+                    <span>{discountLabel}</span>
                     <span>−{cart.money(discount)}</span>
                   </div>
+                )}
+                {routineWins && coupon && (
+                  <p style={{ fontSize: 12, color: "var(--pdh-muted-text)", margin: "-2px 0 10px" }}>
+                    Le code {coupon.code} ne se cumule pas avec l&apos;offre routine : la remise la plus avantageuse est appliquée.
+                  </p>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, opacity: 0.7, marginBottom: 14 }}>
                   <span>Livraison{activeRule ? ` · ${activeRule.city}` : ""}</span>
@@ -753,7 +776,7 @@ export function CartView({ payment }: { payment: PaymentSettings }) {
                 </div>
                 {discount > 0 && (
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--pdh-success)", fontWeight: 500 }}>
-                    <span>Réduction {coupon ? `(${coupon.code})` : ""}</span>
+                    <span>{discountLabel}</span>
                     <span>−{cart.money(discount)}</span>
                   </div>
                 )}

@@ -1,5 +1,5 @@
 import { payloadFetch } from "./payload";
-import type { BankFields, PaymentSettingsForm } from "./paymentSettings-types";
+import type { BankFields, PaymentSettingsForm, RoutineOfferForm } from "./paymentSettings-types";
 
 export * from "./paymentSettings-types";
 
@@ -40,5 +40,20 @@ export async function getPaymentSettings(): Promise<PaymentSettingsForm> {
       bic: text(raw?.bank?.bic),
       instructions: text(raw?.bank?.instructions),
     },
+  };
+}
+
+/** The routine offer, with the global's own defaults filled in for a
+ * database that has never saved the group. */
+export async function getRoutineOffer(): Promise<RoutineOfferForm> {
+  const res = await payloadFetch("/api/globals/payment-settings?depth=0");
+  if (!res.ok) throw new Error("Impossible de charger l'offre routine.");
+  const raw = (await res.json())?.routineOffer;
+  const percent = Number(raw?.percent);
+  const minItems = Number(raw?.minItems);
+  return {
+    enabled: raw?.enabled === true,
+    minItems: minItems === 3 ? 3 : 2,
+    percent: Number.isFinite(percent) && percent > 0 ? percent : 15,
   };
 }
