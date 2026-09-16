@@ -154,7 +154,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {/* Directly under the buy box, where the decision is still open. Reuses
           the same live category matches the "Vous aimerez aussi" rail below
           renders — one fetch, two sections, no second recommendation path. */}
-      <BundleUpsell bundleDiscountPercent={15} currentProduct={product} products={similar} />
+      {/* 0, not 15: nothing between this button and the order applied a lot
+          discount. The summary showed "Total du lot 654,5 MAD", the cart then
+          charged 770 — an advertised price that was never the price. At 0 the
+          discount line is not rendered and the section stays a multi-add. */}
+      <BundleUpsell bundleDiscountPercent={0} currentProduct={product} products={similar} />
 
       <ProductReviews product={product} />
       <SimilarProducts product={product} products={similar} />
