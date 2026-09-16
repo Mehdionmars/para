@@ -92,16 +92,21 @@ export function BrandsMarquee({ brands }: { brands?: MarqueeBrand[] } = {}) {
         <div className="brand-wall-track" ref={scroller}>
           {items.map((brand, i) => {
             const inner = brand.logo ? (
-              <CloudinaryImage
-                alt={brand.name}
-                // "limit" keeps a wordmark's own proportions: a logo stretched
-                // to fill a tile is worse than a logo shown small.
-                crop="limit"
-                fill
-                sizes="180px"
-                src={brand.logo}
-                style={{ objectFit: "contain" }}
-              />
+              // The image fills this box, not the cell: `fill` positions it
+              // against its nearest positioned parent, and against the cell
+              // itself a wide mark ran edge to edge, touching the tile.
+              <span className="brand-wall-logo">
+                <CloudinaryImage
+                  alt={brand.name}
+                  // "limit" keeps a wordmark's own proportions: a logo stretched
+                  // to fill a tile is worse than a logo shown small.
+                  crop="limit"
+                  fill
+                  sizes="(max-width: 767px) 45vw, 360px"
+                  src={brand.logo}
+                  style={{ objectFit: "contain" }}
+                />
+              </span>
             ) : (
               <span className="brand-wall-name">{brand.name}</span>
             );

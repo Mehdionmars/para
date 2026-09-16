@@ -5019,14 +5019,20 @@ section.rail-editorial {
   gap: 8px;
 }
 
+/* Three brands a row on a desktop, two on a phone, and the page scrolls
+   sideways for the rest. The marks are the content, so they are shown large
+   and unframed on the white ground — the tile borders boxed each logo into a
+   78px strip where a laboratory's name was barely legible. */
 .brand-wall-track {
+  --bw-gap: clamp(16px, 3vw, 48px);
+  --bw-cols: 3;
   flex: 1;
   min-width: 0;
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(2, 1fr);
-  grid-auto-columns: minmax(132px, 1fr);
-  gap: clamp(10px, 1.6vw, 22px);
+  grid-auto-columns: calc((100% - (var(--bw-cols) - 1) * var(--bw-gap)) / var(--bw-cols));
+  gap: var(--bw-gap);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -5044,16 +5050,26 @@ section.rail-editorial {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 78px;
-  padding: 14px 18px;
-  border: 1px solid var(--pdh-plum-tint);
+  min-height: clamp(96px, 11vw, 168px);
   border-radius: 14px;
   background: #fff;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: opacity 0.2s, transform 0.2s;
 }
+/* The box a logo is contained in, inside the cell's own margins. */
+.brand-wall-logo {
+  position: relative;
+  display: block;
+  width: 82%;
+  height: 72%;
+  min-height: 64px;
+}
+/* No frame left to recolour: the hover is the mark lifting slightly. */
 a.brand-wall-cell:hover {
-  border-color: var(--pdh-plum-border);
   transform: translateY(-2px);
+}
+a.brand-wall-cell:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
 }
 
 /* The fallback, and it has to read as a considered state rather than as a
@@ -5070,8 +5086,8 @@ a.brand-wall-cell:hover {
 
 .brand-wall-nav {
   flex: none;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--pdh-plum-divider);
   background: #fff;
@@ -5092,9 +5108,14 @@ a.brand-wall-cell:hover {
   .brand-wall-nav {
     display: none;
   }
+  .brand-wall-track {
+    --bw-cols: 2;
+  }
   .brand-wall-cell {
-    min-height: 66px;
-    padding: 10px 12px;
+    min-height: 88px;
+  }
+  .brand-wall-logo {
+    min-height: 52px;
   }
 }
 
