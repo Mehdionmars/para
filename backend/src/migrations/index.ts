@@ -32,6 +32,7 @@ import * as migration_20260829_120000_payment_settings_and_method_enum from './2
 import * as migration_20260904_000000_theme_badge_and_newsletter_logo from './20260904_000000_theme_badge_and_newsletter_logo';
 import * as migration_20260904_010000_newsletter_cta_radius_particles from './20260904_010000_newsletter_cta_radius_particles';
 import * as migration_20260823_140000_integrity_constraints from './20260823_140000_integrity_constraints';
+import * as migration_20260916_120000_routine_offer from './20260916_120000_routine_offer';
 
 export const migrations = [
   {
@@ -208,5 +209,10 @@ export const migrations = [
     up: migration_20260823_140000_integrity_constraints.up,
     down: migration_20260823_140000_integrity_constraints.down,
     name: '20260823_140000_integrity_constraints'
+  },
+  {
+    up: migration_20260916_120000_routine_offer.up,
+    down: migration_20260916_120000_routine_offer.down,
+    name: '20260916_120000_routine_offer'
   },
 ];

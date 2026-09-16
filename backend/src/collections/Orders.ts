@@ -306,6 +306,16 @@ export const Orders: CollectionConfig = {
       type: 'row',
       fields: [
         {
+          // The part of `discount` that came from the routine offer. Equal to
+          // `discount` or 0: the offer and a coupon never stack.
+          name: 'routineDiscount',
+          type: 'number',
+          admin: { description: "Part de la remise venant de l'offre routine (0 si un code promo a été appliqué).", readOnly: true },
+          defaultValue: 0,
+          label: 'Remise offre routine (MAD)',
+          min: 0,
+        },
+        {
           name: 'couponCode',
           type: 'text',
           // Snapshotted rather than only related: a coupon renamed or deleted

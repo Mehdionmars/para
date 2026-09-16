@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { canEditContent } from '../access/roles'
 import { revalidateStorefront } from '../lib/revalidateStorefront'
+import { ROUTINE_MAX_PERCENT } from '../lib/routineOffer'
 
 /**
  * The payment methods an order can carry.
@@ -114,6 +115,44 @@ export const PaymentSettings: GlobalConfig = {
             description:
               'Optionnel. Affiché sous les coordonnées, après la référence de commande.',
           },
+        },
+      ],
+    },
+    {
+      // Priced at checkout by lib/routineOffer.ts, not by the storefront —
+      // the block only previews it. Off by default: a migration must never
+      // start taking money off orders nobody decided to discount.
+      name: 'routineOffer',
+      type: 'group',
+      label: 'Offre routine',
+      admin: {
+        description:
+          "Remise sur un lot de produits achetés ensemble depuis le bloc « Complétez votre routine » d'une fiche produit. Appliquée et vérifiée au moment de la commande ; ne se cumule pas avec un code promo (la remise la plus avantageuse s'applique).",
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: false,
+          label: "Activer l'offre routine",
+        },
+        {
+          name: 'percent',
+          type: 'number',
+          defaultValue: 15,
+          label: 'Remise (%)',
+          max: ROUTINE_MAX_PERCENT,
+          min: 1,
+          admin: { description: `Entre 1 et ${ROUTINE_MAX_PERCENT} %. Appliquée à une unité de chaque produit du lot.` },
+        },
+        {
+          name: 'minItems',
+          type: 'number',
+          defaultValue: 2,
+          label: 'Produits minimum dans le lot',
+          max: 3,
+          min: 2,
+          admin: { description: 'Produit consulté compris. Le bloc en propose trois au maximum.' },
         },
       ],
     },

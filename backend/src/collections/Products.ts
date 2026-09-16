@@ -417,6 +417,24 @@ export const Products: CollectionConfig = {
       ],
     },
     {
+      // Read by the product page's "Complétez votre routine" block and by
+      // lib/routineOffer.ts, which honours the lot discount only for products
+      // associated with the one the lot was built from — picked here, or in
+      // the same category.
+      name: 'relatedProducts',
+      type: 'relationship',
+      access: contentFieldAccess,
+      admin: {
+        description:
+          "Produits proposés dans « Complétez votre routine » sur cette fiche, dans l'ordre. Vide : le bloc propose des produits de la même sous-catégorie, puis de la même catégorie.",
+      },
+      filterOptions: ({ id }) => (id ? { id: { not_equals: id } } : true),
+      hasMany: true,
+      label: 'Produits associés (routine)',
+      maxRows: 4,
+      relationTo: 'products',
+    },
+    {
       type: 'collapsible',
       label: 'Stock',
       fields: [

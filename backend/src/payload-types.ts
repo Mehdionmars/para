@@ -425,6 +425,10 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Produits proposés dans « Complétez votre routine » sur cette fiche, dans l'ordre. Vide : le bloc propose des produits de la même sous-catégorie, puis de la même catégorie.
+   */
+  relatedProducts?: (number | Product)[] | null;
   sku?: string | null;
   /**
    * EAN / barcode — business key used for POS lookup and Excel import.
@@ -596,6 +600,10 @@ export interface Order {
   discount?: number | null;
   shipping?: number | null;
   total: number;
+  /**
+   * Part de la remise venant de l'offre routine (0 si un code promo a été appliqué).
+   */
+  routineDiscount?: number | null;
   /**
    * Code tel qu'appliqué.
    */
@@ -1405,6 +1413,7 @@ export interface ProductsSelect<T extends boolean = true> {
         image?: T;
         id?: T;
       };
+  relatedProducts?: T;
   sku?: T;
   barcode?: T;
   stock?: T;
@@ -1513,6 +1522,7 @@ export interface OrdersSelect<T extends boolean = true> {
   discount?: T;
   shipping?: T;
   total?: T;
+  routineDiscount?: T;
   couponCode?: T;
   coupon?: T;
   status?: T;
@@ -2539,6 +2549,20 @@ export interface PaymentSetting {
      */
     instructions?: string | null;
   };
+  /**
+   * Remise sur un lot de produits achetés ensemble depuis le bloc « Complétez votre routine » d'une fiche produit. Appliquée et vérifiée au moment de la commande ; ne se cumule pas avec un code promo (la remise la plus avantageuse s'applique).
+   */
+  routineOffer?: {
+    enabled?: boolean | null;
+    /**
+     * Entre 1 et 50 %. Appliquée à une unité de chaque produit du lot.
+     */
+    percent?: number | null;
+    /**
+     * Produit consulté compris. Le bloc en propose trois au maximum.
+     */
+    minItems?: number | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3535,6 +3559,13 @@ export interface PaymentSettingsSelect<T extends boolean = true> {
         iban?: T;
         bic?: T;
         instructions?: T;
+      };
+  routineOffer?:
+    | T
+    | {
+        enabled?: T;
+        percent?: T;
+        minItems?: T;
       };
   updatedAt?: T;
   createdAt?: T;

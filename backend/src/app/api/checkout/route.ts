@@ -14,6 +14,7 @@ import { notifyStockChange } from '../../../lib/notifications/stock'
 import { serverError } from '../../../lib/apiError'
 import { STOCK_DECREMENT_SQL, STOCK_RESTORE_SQL } from '../../../lib/inventorySql'
 import { evaluateCoupon, resolveShipping } from '../../../lib/pricing'
+import { parseRoutineLots, priceRoutineLots } from '../../../lib/routineOffer'
 import { withApiLog } from '../../../lib/withApiLog'
 
 export const maxDuration = 30
@@ -48,6 +49,11 @@ type CheckoutBody = {
    * handlePOST. */
   paymentMethod?: unknown
   lines?: CheckoutLine[]
+  /** Lots built from "Complétez votre routine": `[{ anchorId, productIds }]`.
+   * A claim, not an amount — lib/routineOffer.ts decides whether each lot is
+   * real and what it is worth, from the database. Typed `unknown` for the
+   * same reason as `paymentMethod`. */
+  routines?: unknown
 }
 
 /**
@@ -427,6 +433,7 @@ async function handlePOST(request: Request) {
   // limit, or been used by this customer in another tab. The preview is a
   // courtesy; this is the calculation that binds.
   let discount = 0
+  let routineDiscount = 0
   let appliedCouponId: number | null = null
   let appliedCouponCode: string | null = null
 
@@ -462,6 +469,23 @@ async function handlePOST(request: Request) {
       // reports it so the cart can tell the customer what happened.
     }
 
+    // The routine offer, priced from the lines resolved above — only the
+    // lot membership comes from the request. It does not stack with a
+    // coupon, for the same reason coupons do not stack with each other:
+    // the larger of the two applies. A tie goes to the routine, which needs
+    // no code and uses no coupon's limited redemptions.
+    const routine = await priceRoutineLots({
+      lines: resolved.map((l) => ({ price: l.price, productId: l.productId, quantity: l.quantity })),
+      payload,
+      requested: parseRoutineLots(body.routines),
+    })
+    if (routine.discount > 0 && routine.discount >= discount) {
+      discount = Math.min(routine.discount, subtotal)
+      routineDiscount = discount
+      appliedCouponId = null
+      appliedCouponCode = null
+    }
+
     const shippingResult = await resolveShipping({
       city: body.city,
       payload,
@@ -492,6 +516,7 @@ async function handlePOST(request: Request) {
         coupon: appliedCouponId ?? undefined,
         couponCode: appliedCouponCode ?? undefined,
         discount,
+        routineDiscount,
         paymentMethod,
         // Both carry a defaultValue in the collection but are `required`, so
         // the generated input type still expects them.
@@ -625,6 +650,7 @@ async function handlePOST(request: Request) {
       paymentMethod,
       discount,
       orderNumber: order.orderNumber,
+      routineDiscount,
       shipping,
       shippingLabel: shippingResult.label,
       subtotal,
