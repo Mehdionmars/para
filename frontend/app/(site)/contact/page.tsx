@@ -2,13 +2,13 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Snowflakes } from "@/components/Snowflakes";
+import { WHATSAPP_PHONE } from "@/lib/contact";
 import { fetchStores } from "@/lib/storefront/stores";
 
 export const metadata: Metadata = {
   title: "Contact — Para d'Hiver",
 };
 
-const WHATSAPP_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
 export default async function ContactPage() {
   // Live: this page's whole job is telling people how to reach the pharmacy,
   // and a phone number corrected in the admin used to wait for a redeploy.

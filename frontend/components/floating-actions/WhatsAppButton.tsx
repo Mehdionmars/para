@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const PHONE = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
+import { WHATSAPP_PHONE as PHONE } from "@/lib/contact";
 const PREFILLED_MESSAGE = "Bonjour Para d'Hiver, j'ai besoin d'un conseil concernant un produit.";
 
 export function WhatsAppButton() {
@@ -20,7 +19,8 @@ export function WhatsAppButton() {
     return () => observer.disconnect();
   }, []);
 
-  // No number configured: don't render a dead/broken CTA.
+  // No usable number: don't render a dead/broken CTA. lib/contact.ts
+  // always supplies the shop's line, so this now only guards a bad override.
   if (!PHONE) return null;
 
   const href = `https://wa.me/${PHONE}?text=${encodeURIComponent(PREFILLED_MESSAGE)}`;
