@@ -9,6 +9,31 @@ import type { PromoModalContent } from "@/lib/storefront/siteChromeContent";
 const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
+/** How long the offer stays out of the way once it has been shown. */
+const QUIET_MS = 60 * 60 * 1000;
+
+/** Keyed by code, so launching a new campaign starts its own hour rather than
+ * inheriting the silence the previous one earned. */
+const lastShownKey = (code: string) => `pdh-promo-last-shown:${code}`;
+
+/** When this browser last saw this offer, or 0 — private mode, blocked site
+ * data and a first visit all answer the same way: show it. */
+function lastShownAt(code: string): number {
+  try {
+    return Number(window.localStorage.getItem(lastShownKey(code))) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+function rememberShown(code: string) {
+  try {
+    window.localStorage.setItem(lastShownKey(code), String(Date.now()));
+  } catch {
+    // Storage refused: the offer simply shows again on the next arrival.
+  }
+}
+
 export function PromoModal({ config }: { config: PromoModalContent }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -18,21 +43,31 @@ export function PromoModal({ config }: { config: PromoModalContent }) {
   // Whatever had focus before the dialog stole it, so it can be handed back.
   const returnFocusRef = useRef<Element | null>(null);
 
-  // Opens on every arrival on the site — each full page load, a refresh
-  // included — after the configured delay. The shop wants the offer seen at
-  // each visit. Closing it used to be remembered in localStorage for good
-  // (per code), so anyone who had dismissed it once never saw it again.
+  // Shown at most once an hour per browser, after the configured delay.
   //
-  // It is mounted in the site layout, which client-side navigation does not
-  // remount: moving between pages does not reopen it, only a new arrival does.
+  // It used to open on every page load, refreshes included, which is what made
+  // it a nuisance; before that it was dismissed forever, which meant anyone who
+  // closed it once never saw the offer again. The hour is the middle ground:
+  // the visitor gets the code, then browses undisturbed.
+  //
+  // The timestamp lives in this browser's localStorage, so it is per device and
+  // never leaves it. It is mounted in the site layout, which client-side
+  // navigation does not remount: moving between pages does not reopen it.
   useEffect(() => {
     if (!config.enabled) return;
-    const id = setTimeout(() => setOpen(true), config.delaySeconds * 1000);
+    if (Date.now() - lastShownAt(config.code) < QUIET_MS) return;
+
+    const id = setTimeout(() => {
+      // Written when it actually appears, not when the page loaded: a visitor
+      // who leaves during the delay has not seen it.
+      rememberShown(config.code);
+      setOpen(true);
+    }, config.delaySeconds * 1000);
     return () => clearTimeout(id);
-  }, [config.enabled, config.delaySeconds]);
+  }, [config.enabled, config.code, config.delaySeconds]);
 
   const close = useCallback(() => {
-    // Closed for this visit only: nothing is stored.
+    // The hour started when it opened; closing it early does not extend it.
     setOpen(false);
     // Hand focus back where it was, or the dismissed dialog leaves the
     // keyboard at the top of the document with no idea what happened.
