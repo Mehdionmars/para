@@ -1,3 +1,4 @@
+import { DEFAULT_NAV_ITEMS } from "@/lib/storefront/navDefaults";
 import { clampNumber } from "@/lib/dashboard/clampNumber";
 import {
   type CardCtaAlign,
@@ -1258,15 +1259,53 @@ function mapNavLinkDraftToPayload(l: NavLinkDraft): Record<string, unknown> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapNavigationDocToDraft(nav: any): NavigationDraft {
+function mapCatStripDocToDraft(nav: any): CategoryStripDraft {
   return {
-    catStrip: {
-      allChipLabel: nav.catStrip?.allChipLabel || "Tout",
-      enabled: nav.catStrip?.enabled === true,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      items: (nav.catStrip?.items || []).map((i: any) => ({ ...mapNavLinkDocToDraft(i), image: mediaRef(i.image) })),
-      showAllChip: nav.catStrip?.showAllChip !== false,
-    },
+    allChipLabel: nav.catStrip?.allChipLabel || "Tout",
+    enabled: nav.catStrip?.enabled === true,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    items: (nav.catStrip?.items || []).map((i: any) => ({ ...mapNavLinkDocToDraft(i), image: mediaRef(i.image) })),
+    showAllChip: nav.catStrip?.showAllChip !== false,
+  };
+}
+
+/**
+ * The menu the Builder opens on when the CMS has none.
+ *
+ * The storefront falls back to DEFAULT_NAV_ITEMS when the Navigation global
+ * has no items — which is what preprod serves — so the shop showed ten links
+ * while the Builder's Navigation tab showed an empty list with nothing but
+ * "Ajouter un lien". Starting from the same defaults means an editor sees the
+ * menu that is actually on the site, and saving keeps it.
+ */
+function defaultNavItemDrafts(): NavItemDraft[] {
+  return DEFAULT_NAV_ITEMS.map((item) => ({
+    label: item.label,
+    visible: true,
+    type: "custom",
+    category: { name: "" },
+    brand: { name: "" },
+    collectionRoute: "",
+    pageRoute: "",
+    customUrl: item.href,
+    badgeLabel: "",
+    badgeColor: "none",
+    megaMenuEnabled: false,
+    megaMenuSubtitle: "",
+    megaMenuColumns: [],
+    megaMenuPromo: { image: { url: "" }, title: "", description: "", ctaLabel: "", ctaUrl: "" },
+  }));
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapNavigationDocToDraft(nav: any): NavigationDraft {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const items = (nav.items || []) as any[];
+  if (items.length === 0) {
+    return { catStrip: mapCatStripDocToDraft(nav), items: defaultNavItemDrafts() };
+  }
+  return {
+    catStrip: mapCatStripDocToDraft(nav),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items: (nav.items || []).map((item: any) => ({
       ...mapNavLinkDocToDraft(item),
