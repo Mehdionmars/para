@@ -225,14 +225,16 @@ export const DERMO_PICKS: { id: number; actif: string; claim: string }[] = [
 ];
 
 export const CTA_BANNER_COPY = {
-  "eyebrow": "",
+  "eyebrow": "Conseil et Support",
   "title": "Un conseil de pharmacien, en deux minutes",
   "description": "Décrivez votre besoin, nous vous orientons vers les produits adaptés à votre peau.",
   "ctaLabel": "Nous contacter",
   "ctaUrl": "/contact",
   "bg": "#F7EEE5",
-  "bgImage": "",
-  "overlayOpacity": 55,
+  "bgImage": "/api/cms-media/ChatGPT%20Image%2013%20ao%C3%BBt%202026%2C%2021_49_53.png",
+  "bgImageWidth": 1448,
+  "bgImageHeight": 1086,
+  "overlayOpacity": 0,
   "textColor": "#373020",
   "ctaColor": "#5E4074"
 };

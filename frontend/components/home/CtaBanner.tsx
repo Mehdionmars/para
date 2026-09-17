@@ -10,6 +10,10 @@ export type CtaBannerCopy = {
   bg: string;
   /** Optional photograph behind the band. */
   bgImage?: string;
+  /** Its own dimensions. With them the band takes the picture's shape rather
+   * than cropping it to a height of its own choosing. */
+  bgImageWidth?: number;
+  bgImageHeight?: number;
   /** 0–90: how much of `bg` is laid over the photograph as a veil. */
   overlayOpacity?: number;
   textColor: string;
@@ -41,6 +45,12 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
 
   const bgColor = copy.bg || "var(--pdh-cream)";
   const photo = copy.bgImage?.trim();
+  // Artwork, not wallpaper: a background picked here is usually a composed
+  // banner that already carries its own products and copy, and cropping it to
+  // whatever height the text happened to need cut it in half. When the CMS
+  // reports the file's dimensions the band takes that shape and shows the
+  // whole picture; the copy still has its own minimum height underneath.
+  const artRatio = photo && copy.bgImageWidth && copy.bgImageHeight ? copy.bgImageWidth / copy.bgImageHeight : null;
   // The veil is the band's own colour over the photograph, so the text and
   // button colours an editor already tuned against `bg` stay readable.
   const veil = Math.min(90, Math.max(0, copy.overlayOpacity ?? 55)) / 100;
@@ -54,11 +64,25 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
         color: copy.textColor || "var(--pdh-ink)",
         padding: "clamp(48px,7vw,88px) var(--sec-pad-x)",
         marginBottom: "var(--sec-y)",
+        // A ratio as a floor, not a fixed height: long copy grows the band
+        // rather than spilling out of it. The image is centred in what is
+        // left, so it is never stretched either.
+        ...(artRatio ? { minHeight: `min(${100 / artRatio}vw, 62vh)` } : {}),
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
       {photo && (
         <>
-          <CloudinaryImage preset="hero" src={photo} alt="" fill sizes="100vw" style={{ objectFit: "cover" }} />
+          <CloudinaryImage
+            preset={artRatio ? "marketing" : "hero"}
+            src={photo}
+            alt=""
+            fill
+            sizes="100vw"
+            style={{ objectFit: artRatio ? "contain" : "cover" }}
+          />
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: bgColor, opacity: veil }} />
         </>
       )}

@@ -215,6 +215,10 @@ export type LiveHomeContent = {
     ctaUrl: string;
     bg: string;
     bgImage: string;
+    /** The artwork's own dimensions, so the band can take its shape instead
+     * of cropping it. Absent when the media document did not resolve. */
+    bgImageWidth?: number;
+    bgImageHeight?: number;
     overlayOpacity: number;
     textColor: string;
     ctaColor: string;
@@ -523,6 +527,12 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       ctaUrl: home.ctaBannerCopy?.ctaUrl || "/contact",
       bg: home.ctaBannerCopy?.bg || "#F7EEE5",
       bgImage: resolveMediaUrl(home.ctaBannerCopy?.bgImage),
+      ...(resolveMediaSize(home.ctaBannerCopy?.bgImage)
+        ? {
+            bgImageWidth: resolveMediaSize(home.ctaBannerCopy?.bgImage)!.width,
+            bgImageHeight: resolveMediaSize(home.ctaBannerCopy?.bgImage)!.height,
+          }
+        : {}),
       overlayOpacity: Math.min(90, Math.max(0, Number(home.ctaBannerCopy?.overlayOpacity ?? 55) || 0)),
       textColor: home.ctaBannerCopy?.textColor || "#373020",
       ctaColor: home.ctaBannerCopy?.ctaColor || "#5E4074",
