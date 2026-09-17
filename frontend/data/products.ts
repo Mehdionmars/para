@@ -2337,6 +2337,995 @@ export const PRODUCTS: Product[] = [
     "reviews": 0,
     "tint": "#F2F2F2",
     "desc": "D-biotic spray solaire Pédiatrique est une combinaison puissante d’actifs à synergie maximale de protection, réparation et d’hydratation."
+  },
+  {
+    "id": 147,
+    "slug": "d-biotic-gel-surgras-pediatrique-200-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Gel surgras Pédiatrique 200 ml",
+    "size": "",
+    "price": 120,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic gel surgras pediatric est une combinaison puissante d’actifs de dernière génération à base de sept (07) Ceramides et des actifs pré, pro et post biotiques, conçu pour restaurer, réparer et renforcer le système de défense cutanée d’une peau délicatement altérée"
+  },
+  {
+    "id": 146,
+    "slug": "d-biotic-creme-emolliente-pediatrique-200-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Crème émolliente pédiatrique 200 ml",
+    "size": "",
+    "price": 140,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic crème émolliente pédiatrique est une combi_x0002_naison puissante d’actifs de dernière génération à base de sept (07) Ceramides et des actifs pré, pro et post biotiques"
+  },
+  {
+    "id": 145,
+    "slug": "d-biotic-creme-solaire-75-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Crème solaire 75 ml",
+    "size": "",
+    "price": 200,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic crème solaire aide à retrouver l’équilibre du \nmicrobiome naturel de la peau et à réduire le risque \nde vieillissement cutané et d’autres effets nocifs du \nsoleil."
+  },
+  {
+    "id": 144,
+    "slug": "d-biotic-creme-rugosites-150-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Crème rugosités 150 ml",
+    "size": "",
+    "price": 250,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic crème rugosités est une crème spéciale peaux \nrugueuses. Grâce à sa formule avancée à base du \ncomplexe de sept (07) Céramides, pré- pro-et postbio_x0002_tiques, l’acide salicylique, l’urée à 10 % , D-Biotic crème \nrugosités aide la peau à retrouver dès les premières appli_x0002_cations l’équilibre de l’écosystème cutané."
+  },
+  {
+    "id": 143,
+    "slug": "d-biotic-gel-rugosites-240-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Gel rugosités 240 ml",
+    "size": "",
+    "price": 130,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic crème rugosités est une crème spéciale peaux \nrugueuses. Grâce à sa formule avancée à base du \ncomplexe de sept (07) Céramides, pré- pro-et postbio_x0002_tiques, l’acide salicylique, l’urée à 10 % , D-Biotic crème \nrugosités aide la peau à retrouver dès les premières appli_x0002_cations l’équilibre de l’écosystème cutané."
+  },
+  {
+    "id": 142,
+    "slug": "d-biotic-baume-hydratant-regenerant-150-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Baume hydratant régénérant 150 ml",
+    "size": "",
+    "price": 250,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-Biotic baume hydratant régénérant est un soin ultra \nhydratant, richement formulé à base d’une combinaison \npuissante de sept (07) Céramides, d’actifs hydratants,\nrégénérants et restructurants de l’écosystème cutané."
+  },
+  {
+    "id": 141,
+    "slug": "d-biotic-creme-hydratante-regenerante-75-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Crème hydratante régénérante 75 ml",
+    "size": "",
+    "price": 180,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic crème hydratante est formulé à base d’un \ncomplexe de sept (07) Céramides, d’actifs pré-pro et \npost biotiques et d’autres actifs ultra hydratants"
+  },
+  {
+    "id": 140,
+    "slug": "d-biotic-gel-surgras-240-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Gel surgras 240 ml",
+    "size": "",
+    "price": 130,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-Biotic gel nettoyant surgras est un gel à base d’un \ncomplexe spécifique de sept (07) Céramides, des \nactifs probiotiques et actifs ultra hydratants, aide la \npeau à retrouver son équilibre naturel, favorise à \nrenforcer l’écosystème cutané."
+  },
+  {
+    "id": 139,
+    "slug": "trio-acne-sun-spf50-creme-solaire-matifiante",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "TRIO-ACNÉ SUN SPF50+ CREME SOLAIRE MATIFIANTE",
+    "size": "",
+    "price": 160,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "DCP TRIO-ACNE-SUN SPF 50+ est une\ncrème solaire adaptée aux peaux grasses à tendance\nacnéique et allergique au soleil."
+  },
+  {
+    "id": 137,
+    "slug": "koproz-r-p-creme-reparatrice",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "KOPROZ R.P CREME REPARATRICE",
+    "size": "",
+    "price": 120,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "KOPROZ R.P est une crème réparatrice qui favorise à réparer et protéger les peaux sensibles, sèches à rougeurs installées et aux petits vaisseaux visibles. L'extrait de centella asiatica, l'extrait de bardane et le bisabolol s'associent pour offrir à la peau sensible des bénéfices hydratants, apaisants et réparateurs."
+  },
+  {
+    "id": 136,
+    "slug": "koproz-a-z-creme-concentree-intense",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "KOPROZ A.Z CREME CONCENTREE INTENSE",
+    "size": "",
+    "price": 160,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "soin concentré en actifs apaisants spécialement formulée pour peaux à rougeurs intenses localisées. La Crème Concentrée KOPROZ A.Z permet à la peau de retrouver une peau plus calme et un teint plus net."
+  },
+  {
+    "id": 135,
+    "slug": "koproz-creme-solaire-50",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "KOPROZ CREME SOLAIRE 50+",
+    "size": "",
+    "price": 160,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "KOPROZ 50+ est formulée pour protéger les peaux sèches sensibles et surtout sujettes aux rougeurs. \nKOPROZ 50+ combine protection et soin réparateur pour garder votre peau protégée et apaisée. \n2% Niacinamide: Améliore la barrière cutanée, réduit les inflammations et favorise l'uniformité du teint. \n- Extrait de Calendula : Apaise et répare la peau, renforçant sa confort naturellement. \n- \nAllantoïne: Hydrate et calme la peau, procurant un confort immédiat."
+  },
+  {
+    "id": 134,
+    "slug": "koproz-mousse-nettoyante",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "KOPROZ MOUSSE NETTOYANTE",
+    "size": "",
+    "price": 130,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "KOPROZ Mousse Nettoyante est une combinaison purifiante multi-action spécifiquement formulée pour répondre aux besoins des peaux sensibles sujettes aux rougeurs. \nAvec une texture mousse onctueuse KOPROZ Mousse enveloppe la peau d'une douceur réconfortante tout en éliminant efficacement les impurtés. \nCrème concentrée anti-rougeurs intense, avec une formule riche en actifs puissants, KOPROZ A.Z se distingue par son approche ciblée pour atténuer efficacement et rapidement les rougeurs sévères. ---- 10% Gel d'Aloe Vera: Hydratant et apaisant, il nettoie la peau sans provoquer d'irritation. \n- Allantoïne : Aux propriétés apaisantes, favorisant la régénération cutanée et le confort. \n- Extrait de Calendula : Connu pour ses vertus calmantes et réparatrices, idéal pour les peaux réactives."
+  },
+  {
+    "id": 133,
+    "slug": "hairloss-masque-capillaire",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "HAIRLOSS MASQUE CAPILLAIRE",
+    "size": "",
+    "price": 220,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "HAIRLOSS masque capillaire est une composition riche en actifs anti-chute et des huiles naturelles : ortie piquante, argan, avocat et karité qui permettent de lutter efficacement contre la chute de cheveux chronique et favorise la croissance des cheveux tout en hydratant le cuir chevelu.\n0% sulfate – 0% colorant – 0% sel .\n\nINDICATIONS :\n– Fortifie les cheveux et les rend plus résistants et volumineux grâce à une combinaison spéciale à base Extrait d’ortie piquante, l’Huile d’argan, l’huile d’avocat et le beurre de karité\n– Stimule la repousse des cheveux\n– Régénératrice et nourrit intensément vos cheveux\n– Régule le sébum pour les cheveux gras et apaise les états pelliculaires\n– Extrait d’orti piquante : Fortifiant naturel, riche en sels minéraux et oligo-éléments (soufre, zinc, cuivre…), apaisante\n\nUTILISATION :\nAppliquer sur les cheveux mouillés, bien masser, rincer, renouveler si besoin.\nRincer à nouveau et sécher les cheveux.\n\nFormule innovante - Formule haute tolerance\nExtrait d’ortie piquante\nAction vivifiante et stimulante, action tonifiante. Aide à stimuler l’oxygénation du cuir chevelu.\nHuile d’argan\nNourrissant et régénérant de la fibre capillaire. Redonne force, douceur, volume et brillance à la chevelure.\nHuile d’avocat\nRiche en acides gras essentiels, l’huile d’avocat, protège, nourrit et répare la chevelure. L’huile d’avocat pénètre les cheveux sans les surgraisser.\nBeurre de karité\nHydrate et lisse les cheveux crépus, ondulés, bouclés ou frisés. Répare, renforce et nourrit les cheveux cassés, secs et ternes."
+  },
+  {
+    "id": 132,
+    "slug": "hairloss-serum-capillaire",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "HAIRLOSS SERUM CAPILLAIRE",
+    "size": "",
+    "price": 300,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "HAIRLOSS serum capillaire est une composition riche en actifs anti chute et des huiles essentielles : centella asiatica, ortie piquante, gingembre, romarin et cèdre d’atlas qui permettent de lutter efficacement contre la chute de cheveux chronique et favorise la croissance des cheveux tout en hydratant le cuir chevelu.\n0% sulfate – 0% colorant – 0% sel .\n\nINDICATIONS :\n– Active la microcirculation\n– Limite et contrôle la chute de cheveux\n– Stimule la repousse des cheveux\n– Favorise l’ancrage des cheveux\n– Renforce le cheveu\n– Calme et limite les démangeaisons\n\nUTILISATION :\nAppliquez DCP HAIRLOSS Sérum sur le cuir chevelu propre, cheveux secs ou mouillés.\nPulvériser, masser le sérum puis coiffez-vous.\nDeux à trois fois par semaine, pendant trois à quatre mois.\nNe pas rincer.\n\nFormule innovante - Formule haute tolerance\nExtrait de centella asiatica\nElle aide à stimuler la micro-circulation et les vaisseaux sanguins, limitant ainsi la chute de cheveux.\nExtrait d’ortie piquante\nAction vivifiante et stimulante, action tonifiante. Aide à stimuler l’oxygénation du cuir chevelu.\nHuile essentielle de cèdre d’atlas\nAide la chute de cheveux en détruisant le gras déposé dessus et en les assainissant.\nHuile essentielle de gingembre\nStimulant capillaire par excellence. Fortifiant et renforce la chevelure.\nHuile essentielle de romarin\nStimule la croissance de la fibre capillaire et la fortifie.\nCheveux plus brillants et plus soyeux."
+  },
+  {
+    "id": 131,
+    "slug": "hairloss-lotion-capillaire-femmes",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "HAIRLOSS LOTION CAPILLAIRE FEMMES",
+    "size": "",
+    "price": 280,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "HAIRLOSS lotion capillaire femmes est une combinaison de formule unique qui renforce la croissance des cheveux et favorise à prolonger leur cycle de vie.\nRiche en huiles essentielles de cèdre d’atlas, romarin, gingembre et d’extrait de centella asiatica. DCP HAIRLOSS lotion capillaire stimule profondément la croissance des cheveux. Adaptée à tous les types de cheveux .\n\nUTILISATION :\nQuotidiennement, appliquer DCP HAIRLOSS lotion.\nRépartir sur le cuir chevelu.\nFrictionner légèrement du bout des doigts.\nSécher les cheveux puis coiffer.\nEn protocole, utiliser DCP HAIRLOSS lotion avec DCP HAIRLOSS Shampoing.\n\nFormule innovante - Formule haute tolerance\nHuile essentielle de cèdre d’atlas\nAide la chute de cheveux en détruisant le gras déposé dessus et en les assainissant.\nHuile essentielle de gingembre\nStimulant capillaire par excellence. Fortifiant et renforce la chevelure.\nExtrait de centella asiatica\nElle aide à stimuler la micro-circulation et les vaisseaux sanguins, limitant ainsi la chute de cheveux.\nHuile essentielle de romarin\nStimule la croissance de la fibre capillaire et la fortifie.\nCheveux plus brillants et plus soyeux.\nINDICATIONS :\n– Fortifie les cheveux\n– Aide à ralentir la chute des cheveux\n– Stimule profondément la repousse des cheveux\n– Revitalise le cuir chevelu et le tonifie sans le dessécher\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Respecte l’équilibre du cuir chevelu"
+  },
+  {
+    "id": 130,
+    "slug": "hairloss-lotion-capillaire-hommes",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "HAIRLOSS LOTION CAPILLAIRE HOMMES",
+    "size": "",
+    "price": 280,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "HAIRLOSS lotion capillaire hommes est une composition riche en actifs anti-chute et des huiles essentielles : cèdre d’atlas, gingembre, romarin et centella asiatica qui permettent de lutter efficacement contre la chute de cheveux chronique chez l’homme et favorise la croissance des cheveux tout en hydratant le cuir chevelu.\n0% sulfate – 0% colorant – 0% sel .\n\nUTILISATION :\nQuotidiennement, appliquer DCP HAIRLOSS lotion.\nRépartir sur le cuir chevelu.\nFrictionner légèrement du bout des doigts.\nSécher les cheveux puis coiffer.\nEn protocole, utiliser DCP HAIRLOSS lotion avec DCP HAIRLOSS Shampoing.\n\nINDICATIONS :\n– Fortifie les cheveux\n– Aide à ralentir la chute des cheveux\n– Stimule profondément la repousse des cheveux\n– Revitalise le cuir chevelu et le tonifie sans le dessécher\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Respecte l’équilibre du cuir chevelu\n\nFormule innovante - Formule haute tolerance\nHuile essentielle de cèdre d’atlas\nAide la chute de cheveux en détruisant le gras déposé dessus et en les assainissant.\nHuile essentielle de gingembre\nStimulant capillaire par excellence. Fortifiant et renforce la chevelure.\nExtrait de centella asiatica\nElle aide à stimuler la micro-circulation et les vaisseaux sanguins, limitant ainsi la chute de cheveux.\nHuile essentielle de romarin\nStimule la croissance de la fibre capillaire et la fortifie.\nCheveux plus brillants et plus soyeux."
+  },
+  {
+    "id": 129,
+    "slug": "hairloss-shampoing-femmes",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "HAIRLOSS SHAMPOING FEMMES",
+    "size": "",
+    "price": 250,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "DCP HAIRLOSS SHAMPOING Femmes est conçu avec une combinaison spéciale et efficace (de vitamine « Biotinyl-GHK » et l’Apigénine « flavonoïde d’argumes » et l’acide oléanolique des feuilles d’oliviers) qui aide à lutter contre l’alopécie, tout en stimulant la croissance des cheveux. Le mécanisme d’action du Hairloss shampoing cible spécifiquement les cellules du cuir chevelu pour lutter contre le vieillissement folliculaire.\nRésultat obtenu : Des cheveux renforcés de la racine jusqu’aux pointes\nHAIRLOSS cible: Micro-circulation, vieillissement folliculaire, ancrage des cheveux, 5x-réductase.\n\nINDICATIONS :\n– Lutte contre le vieillissement folliculaire\n– Protège contre la chute des cheveux\n– Stimule la repousse des cheveux\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Fortifie la racine et la pointe\n– Nettoie tout en douceur sans dessécher : nettoie les cheveux en douceur sans les dessécher et facilite le coiffage\n– Respecte l’équilibre du cuir chevelu\n\nUTILISATION :\nAppliquer sur les cheveux mouillés, bien masser, rincer, renouveler si besoin.\nRincer à nouveau et sécher les cheveux."
+  },
+  {
+    "id": 128,
+    "slug": "hairloss-shampoing-hommes",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "HAIRLOSS SHAMPOING HOMMES",
+    "size": "",
+    "price": 250,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "DCP HAIRLOSS SHAMPOING Hommes est conçu avec une combinaison spéciale et efficace (de vitamine « Biotinyl-GHK » et l’Apigénine « flavonoïde d’argumes » et l’acide oléanolique des feuilles d’oliviers) qui aide à lutter contre l’alopécie, tout en stimulant la croissance des cheveux. Le mécanisme d’action du Hairloss shampoing cible spécifiquement les cellules du cuir chevelu pour lutter contre le vieillissement folliculaire.\nRésultat obtenu : Des cheveux renforcés de la racine jusqu’aux pointes\nHAIRLOSS cible: Micro-circulation, vieillissement folliculaire, ancrage des cheveux, 5x-réductase.\n\nUTILISATION :\nAppliquer sur les cheveux mouillés, bien masser, rincer, renouveler si besoin.\nRincer à nouveau et sécher les cheveux.\n\nINDICATIONS :\n– Lutte contre le vieillissement folliculaire\n– Protège contre la chute des cheveux\n– Stimule la repousse des cheveux\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Fortifie la racine et la pointe\n– Nettoie tout en douceur sans dessécher : nettoie les cheveux en douceur sans les dessécher et facilite le coiffage\n– Respecte l’équilibre du cuir chevelu"
+  },
+  {
+    "id": 127,
+    "slug": "pruritus-control-lotion",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "PRURITUS-CONTROL LOTION",
+    "size": "",
+    "price": 158,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "PRURITUS-CONTROL est une lotion spécialement conçue pour atténuer le prurit cutané non spécifique sur des peaux prurigineuses, telles que le prurit sénile, le prurit psychogène, l’intertrigo varicelle, et les maladies bulleuses. Son action vise à soulager l’inconfort causé par les irritations cutanées et les démangeaisons non spécifiques induites par des facteurs tels que les piqûres d’insectes, l’exposition à l’herbe à puce, les coupures et les éraflures, entre autres.\nCOMPOSITION :\n– 1% Menthol\n– 1% Camphre\n– Niacinamide\n– Arbre à thé\n\nINDICATIONS :\n– Soulage l’inconfort des peaux prurigineuses à irritations cutanées\n– Soulage les démangeaisons cutanées non spécifiques, les démangeaisons causées par les piqûres d’insectes, par l’herbe à puce, les coupures et les éraflures…etc.\n\nUTILISATION :\nSur une peau propre, appliquer et masser délicatement les zones touchées jusqu’à l’absorption de la lotion DCP PRURITUS-CONTROL"
+  },
+  {
+    "id": 126,
+    "slug": "cicaplus-zones-larges",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "CICAPLUS ZONES LARGES",
+    "size": "",
+    "price": 200,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "CICAPLUS est spécialement formulé pour répondre aux besoins des peaux sensibles et réactives, il contribue à atténuer tous les signes des irritations sèches de la peau.\n\nINDICATIONS :\nGrâce à sa formule innovante, DCP CICAPLUS couvre un large spectre d’utilisations :\n– Accélère la réparatipon de la peau et la régénération de l’épiderme\n– Aseptisant, hydratant et réaparateur\n– Brûlûres 1er et 2ème degrè\n– Conseillé après les actes pour les peaux fragilisées, irritées et après les brûlures de 1er et 2éme degré, et aussi après le laser\n– Cicatrisant\n– Crème réparatrice aseptisante pour toute la famille\n– Tous types de peaux\n\nUTILISATION :\nAppliquer DCP CICAPLUS zones larges deux fois par jour sur les zones concernées."
+  },
+  {
+    "id": 125,
+    "slug": "cicasept",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "CICASEPT",
+    "size": "",
+    "price": 142,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "CICASEPT est spécialement formulée pour répondre aux besoins des peaux sensibles et réactives, cette crème cicatrisante contribue à atténuer tous les signes des irritations sèches de la peau.\n\nUTILISATION :\nAppliquer DCP CICASEPT, une à deux fois par jour sur la zone irritée et sèche préalablement nettoyée par DCP SYNDET LIPIDIK. Laisser le soin pénétrer la zone irritée.\n\nINDICATIONS :\nGrâce à sa formule innovante, DCP CICASEPT couvre un large spectre d’utilisations :\n– Eczéma atopique comme crème aseptisante, cicatrisante et relais des corticoïdes\n– Crème cicatrisante\n– Brûlures 1er et 2ème degré\n– Coup de soleil\n– Irritations des peaux intolérantes\n– Post-laser\n– Post-actes chirurgicaux\n– Post-peeling\n– Post-épilation\n– Peaux fragilisées\n– Echauffements cutanés\n– Plaies non suintantes\n– Crevasses\n– Gerçures\n– Plaques rouges\n– Crème réparatrice aseptisante pour toute la famille\n– Tous types de peaux\n\nEfficacité cliniquement prouvée avec la synergie de multiples principes actifs bien choisis pour des résultats rapides.\nHuile de ricin : cicatrisante, antibactérienne, antifongique, photo-protectrice et adoucissante.\nBeurre de karité : hydratante, adoucissante et réparatrice.\nCentella asiatica : cicatrisante des plaies et brûlures, eczéma, ulcère et synthèse de collagène et élastine.\nChlorhexidine undecylenate : antiseptique, antimicrobien biodégradable à large spectre plus efficace contre les bactéries gram-positives et gram-négatives, antifongique, antiparasitaire et mieux toléré que la Chlorhexidine classique.\nPropolis : antiseptique, antiradicalaire, cicatrisante, traitement des brûlures légères, engelures et crevasses.\nLécithine : émollient.\nHuile d’olive : nourrissante, émolliente, calmante et anti-oxydante.\nHuile de tournesol : riche en acides gras monoinsaturés, omega 6 et omega 9, hydratation des peaux sensibles irritées.\nPanthénol (ou provitamine B5) : hydratant, notamment pour soigner les peaux sensibles et sèches."
+  },
+  {
+    "id": 124,
+    "slug": "septiscars-spray",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "SEPTISCARS SPRAY",
+    "size": "",
+    "price": 99,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "SEPTISCARS SPRAY est une solution antiseptique, formulée avec six principes actifs en synergie. SEPTISCARS SPRAY démontre une action antiseptique, bactéricide, levurecide et cicatrisante et offre un large spectre d’utilisation pour traiter les plaies, brûlures, ainsi que pour assurer une bonne antisepsie cutanée.\n\nCARACTÉRISTIQUES\n– Digluconate de Chlorhexidine: Antiseptique à large spectre d’action. Effet bactériostatiques et bactéricides\n– Chlorure de benzalkonium: Antiseptique à large spectre et bactéricide\n– Chlorphénésine: Antiseptique : actif sur les bactéries, les levures et les virus\n– Centella asiatica: Cicatrisante : des plaies, brûlures,\neczéma et ulcères\n– Propolis: Antiseptique, cicatrisante,\naide au bourgeonnement\n\nAVANTAGES :​\n– Association synergique de six principes actifs\n– Action antiseptique, bactéricide, levurecide et cicatrisante\n– Large spectre d’utilisation : plaies, brûlures, avant et après les gestes chirurgicaux et esthétiques pour assurer une bonne antisepsie cutanée\n– Ne pique pas, indolore avec une bonne tolérance cutanée\n\nBÉNÉFICES\n– Pas de limite d’âge (adultes et enfants)\n– Meilleur rapport quantité / prix 125 ml à 94 dh\n– Produit de famille\n– Ne tache pas\n– Très économique : antiseptique et cicatrisant en même temps"
+  },
+  {
+    "id": 123,
+    "slug": "ds-emulsion",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "DS+ EMULSION",
+    "size": "",
+    "price": 126,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "ÉMULSION LÉGÈRE POUR UN SOIN LOCALISÉ VISAGE, COU ET CORPS\n\nDCP DS+ EMULSION est la crème qui régule le sébum, élimine les pellicules et la rougeur qui dérange notre peau et notre quotidien.\nLes formules DS+ sont hypoallergéniques et adaptées aux peaux sensibles et délicates avec un protocole dédié à la peau qui souffre de la Dermite Séborrhéique\n\nPROPRIÉTÉS :​\n– 2% Acide salicylique kérato – régulateur\n– 0,3% Piroctone olamine Antifongique\n– 0,1% Chlorure de benzalkonium Antiseptique\n– 1% Bardane Apaisant\n– 2% Niacinamide Anti-inflammatoire\n– Niacinamide + Bardine Seborégulateur\n– 5% Urée Hydratante, kérato-régulateur\n– 0,1% Alpha bisabolol Apaisant\n– 1% Aloe vera Hydratante\n– 3% Glycérine\n– 0,5% Allantoine\n– 1% Zinc pyrithione Antifongique\n– 0,5% Macérat de millepertuis Anti-inflammatoire\n– 0,07% Huile essentielle de géranium Anti-squame\n– 0,05% Huile menthe poivrée Rafraîchissante"
+  },
+  {
+    "id": 122,
+    "slug": "ds-lotion",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "DS+ LOTION",
+    "size": "",
+    "price": 142,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "UNE LOTION HYDRO-ALCOOLIQUE POUR TRAITEMENT DES ÉTATS SQUAMEUX SÉVÈRES\nDS+ LOTION pour les états squameux pelliculaires sévères dans leur routine de soins capillaires. La formule adaptée de DS+ LOTION assure un confort optimal et une efficacité durable.\n\nPROPRIÉTÉS :​\n– 2% Acide salicylique Kerato-régulateur\n– Piroctone olamine Antifongique\n– 2% Niacinamide Anti-inflammatoire\n– 0.1% Bisabolol Apaisant\n– 0.5% Badrane Apaisant\n– Huile de géranium Anti-pelliculaire\n– Bardane + Niacinamide Apaisant Action sébo-régulatric\n– 5% Urée Hydratant + Régulateur\n– 1 % Extrait de Tasmanie Anti-inflammatoire\n– 0.5% Extrait de neem Antifongique\n– 0.5% Chloride de Benzalkonium Antiseptique\n– Huile de menthe poivrée Rafraîchissante\n– 0.5% Aloe vera Hydratante"
+  },
+  {
+    "id": 121,
+    "slug": "ds-base-lavante",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "DS+ BASE LAVANTE",
+    "size": "",
+    "price": 200,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "UNE BASE LAVANTE KÉRATO-RÉDUCTRICE CORPS ET CHEVEUX\nDS+ BASE LAVANTE est une base lavante anti-pelliculaire qui fait partie de la gamme DS+ conçue pour nettoyer et purifier, en douceur, le visage, le corps et le cuir chevelu sans assécher la peau.\nCette DS+ BASE LAVANTE présente plusieurs effets bénéfiques :\n– Rééquilibrage des micro-organismes présents naturellement sur le cuir chevelu ;\n– Amélioration de la fonction de barrière du cuir chevelu ;\n– Régulation de la production de sébum sur les cheveux ;\n– Diminution des démangeaisons du cuir chevelu;\n– Calme les sensations d’inconfort;\n\nPROPRIÉTÉS :​\n– Acide salicylique kerato-régulateur\n– Piroctone olamine Antifongique\n– Niacinamide Anti-inflammatoire\n– Bisabolol Apaisant\n– Badrane Apaisant\n– Bardane + Niacinamide Sébo-régulatrice\n– Extrait de clendula, Apaisante + Anti-inflammatoire\n– Huile essentielle lavande, Apaisante + Anti-inflammatoire\n– Huile de géranium Anti-pelliculaire\n– Huile de romarin Anti-pelliculaire\n– Arbre à thé Antifongique et antiseptique\n– Extrait de tazmanie Anti-inflammatoire\n– Extrait de neem Antifongique\n– Huile de menthe poivrée Rafraîchissante\n– Aloe Vera Hydratante\n– Extrait de grenade Régénérant\n– Huile d’agran Démêleur"
+  },
+  {
+    "id": 120,
+    "slug": "depi-plus-intimate",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "DÉPI-PLUS INTIMATE",
+    "size": "",
+    "price": 368,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "ANTI-ODEUR - NON GRAS - NE COLLE PAS - HYDRATANT - TOUCHER SOYEUX - RÉDUCTION DES FROTTEMENTS - RÉDUCTION DES MACÉRATIONS\nDÉPI-PLUS INTIMATE est un lait éclaircissant et nourrissant des zones intimes. Notre lait DÉPI-PLUS INTIMATE a tout de l’indispensable de la salle de bain. En plus de son action ciblée contre les taches pigmentaires qui améliore l’hyperpigmentation et réduit efficacement la synthèse de la mélanine.\nCe lait bénéficie d’une texture fluide, non grasse, facile à appliquer après la douche. Pour une peau souple et soyeuse à tout âge.\n\nCOMPOSITION :\n– 5% Niacinamide : anti inflammatoire, éclaircissant\n– 0.5 % Alpha Arbutine : éclaircissant, très bien toléré au niveau des parties intimes\n– Bentonite : riche en minéraux, désintoxique la peau, calme les démangeaisons, anti-macération\n– Urée : hydratation, démangeaisons\n– Lactate : anti-odeur, favorise le développement des micro-organismes de la partie intime\n– Aloe Vera : Hydratation, texture exceptionnelle\n\nINDICATIONS :\n– Éclaircir la peau des zones intimes\n– Améliorer l’hyperpigmentation de la zone intime et réduire efficacement la synthèse de la mélanine\n– Nourrir et assurer un confort et une hydratation tout au long de la journée\n– Favoriser le developpement des lactobaciles.\n– Anti-prurit, anti-macération"
+  },
+  {
+    "id": 119,
+    "slug": "septiplus-ph-8",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "SEPTIPLUS PH 8",
+    "size": "",
+    "price": 95,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "PROPRIÉTÉS :\nSEPTIPLUS PH 8 est une crème lavante d’usage quotidien pour l’hygiène et la protection des peaux et des muqueuses délicates.\nDCP SEPTIPLUS PH 8 atténue le taux d’acidité dans la zone intime et aide à rétablir et protéger l’équilibre naturel de la flore intime.\n\nHYGIÈNE ET PROTECTION DES PEAUX ET DES MUQUEUSES DELICATES\nINDICATIONS :\n– Soin d’hygiène et de la protection des peaux et des muqueuses délicates.\n– Limite la prolifération des mycoses.\n– Soulager les sensations d’irritations.\n– Soulager les démangeaisons et les rougeurs.\n– Adjuvants des traitements d’infections vaginales.\n\nCARACTÉRISTIQUES :\n– PH alcalin\n– Hypoallergénique\n– Calme les irritations\n– Réduit les odeurs\n– Sans savon, sans alcool\n\nPRÉCAUTIONS :\n– Ne pas avaler.\n– Tenir hors de la portée des enfants.\n– Ne pas appliquer dans les orifices naturels (yeux, nez…).\n– Usage externe.\n– Ne pas utiliser plusieurs antiseptiques à la fois.\n\nCOMPOSITION :\nAqua, Lauryl Glucoside, Cocamidopropyl Betaine, Aloe Barbadensis Leaf Extract, Disodium Cocoamphodiacetate, Coco-Glucoside, Glycerin, Glyceryl Oleate, Phenoxyethanol, Chlorphenesin, Fragrance, Triethanolamine, Olea Europaea (Olive) Fruit Oil, Calendula Officinalis Flower Extract, Arctium Majus Root Extract, Lavandula Angustifolia Oil, Sodium Benzoate, Potassium sorbate."
+  },
+  {
+    "id": 118,
+    "slug": "septiplus-ph-5-5",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "SEPTIPLUS PH 5.5",
+    "size": "",
+    "price": 95,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "PROPRIÉTÉS : DCP Septiplus pH5,5 est un soin lavant doux d’usage quotidien des peaux délicates destiné pour toute la famille. Conçu sans savon, sans alcool, DCP Septiplus pH 5,5 respecte le film hydroli- pidique, calme les zones irritées, apaise les démangeaisons et les rougeurs. Spécialement formulé pour préserver et protéger l’équilibre naturel de la peau, Septiplus pH 5,5 à pH physiologique est un soin lavant doux conçu pour apaiser et offrir un confort optimal. Ultra-formulé à base de plantes telles que le Calendula officinal et la Camomille, DCP Septiplus pH 5,5 possède des propriétés calmantes et apaisantes.\nHYGIÈNE DES PEAUX DÉLICATES POUR TOUTE LA FAMILLE\nINDICATIONS :\n– Hygiène quotidiennes des peaux délicates de toute la famille ( nourrisons- enfants et adultes)\n– Peaux pathologiques\n– Infections virales ( Zona – Herpès…etc)\n– Infections microbiennes.\n\nCARACTÉRISTIQUES :\n– PH physiologique\n– Hypoallergénique\n– Sans savon, sans alcool\n\nPRÉCAUTIONS :\n– Ne pas avaler.\n– Tenir hors de la portée des enfants.\n– Ne pas appliquer dans les orifices naturels (yeux, nez…).\n– Usage externe.\n– Ne pas utiliser plusieurs antiseptiques à la fois.\n\nCOMPOSITION :\nAqua, Lauryl Glucoside, Cocamidopropyl Betaine, Aloe Barbadensis Leaf Extract, Disodium Cocoamphodiacetate, Coco-Glucoside, Glycerin, Glyceryl Oleate, Phenoxyethanol, Chlorphenesin, Citric Acid, Lavandula Angustifolia Oil, Fragrance, Olea Europaea (Olive) Fruit Oil, Calendula Officinalis Flower Extract, Arctium Majus Root Extract, Sodium Benzoate, Potassium sorbate"
+  },
+  {
+    "id": 117,
+    "slug": "baume-essentiel",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "BAUME ESSENTIEL",
+    "size": "",
+    "price": 116,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "BAUME ESSENTIEL est un traitement adjuvant spécifiquement conçu pour les soins des pieds et des mains. Enrichi en principes actifs tels que la Niacinamide, la Propolis, la Centella asiatica et le Beurre de karité, ce baume agit en synergie pour apporter une hydratation profonde et durable aux couches supérieures de l’épiderme.\nLa Niacinamide favorise la régulation hydrique, tandis que la Propolis offre des propriétés antimicrobiennes bénéfiques. De plus, la Centella asiatica contribue à la cicatrisation cutanée et le Beurre de karité renforce la barrière cutanée.\nCette formulation scientifique optimale assure un soin complet et efficace pour une peau radieuse et saine.\n\nINDICATIONS :\n– Fissures et crevasses\n– Pied diabétique\n\nUTILISATION :\nAppliquer DCP BAUME ESSENTIEL sur les paumes des mains et/ou les plantes des pieds fissurées et crevassées quotidiennement 2 à 3 fois par jour.\nGrâce à sa texture soyeuse, DCP BAUME ESSENTIEL s’étale facilement.\n\nPRINCIPES ACTIFS\n– Niacinamide: action apaisante-anti-inflammatoire.\n– Propolis: Propriétés analgésiques, calmer l’inconfot et réparer les gerçures.\n– Centella asiatica: Action cicatrisante.\n– Beurre de karité :\n – Hydratation profonde et durablele des couches supérieures de l’épiderme\n – régénération plus rapide."
+  },
+  {
+    "id": 116,
+    "slug": "kpp-soin",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "KPP SOIN",
+    "size": "",
+    "price": 151,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "KPP SOIN est un traitement intensif qui agit en profondeur pour adoucir et assouplir la peau rugueuse et épaisse des mains et des pieds, tout en procurant une sensation de douceur et de confort.\nNotre traitement d’attaque KPP SOIN, caractérisé par une texture douce et onctueuse, apporte souplesse et douceur à la peau râpeuse et épaisse. Sa composition est riche en principes actifs hydratants et adoucissants, tels que l’urée, l’acide salicylique et le beurre de karité.\nCes ingrédients agissent en synergie pour régénérer les cellules endommagées, nourrir profondément l’épiderme et restaurer l’élasticité de la peau.\nGrâce à ces actions combinées, le KPP SOIN permet d’améliorer considérablement l’état de la peau des mains et des pieds, en les rendant plus doux, souples et agréables au toucher.\nINDICATIONS :\n– Kératodermies palmoplantaires\n– Callosités\n– Rugosités\n– Cors et durillons\n\nUTILISATION :\nAppliquer DCP KPP SOIN sur les paumes des mains et/ou les plantes des pieds. Laisser agir 1 heure à 2 heures, puis frotter délicatement pour enlever la peau morte.\n\nPRINCIPES ACTIFS\n– 30 0/0 Urée: Action keratolytique.\n– 2% Acide salicylique: Action kératorégulatrice.\n– 5% Beurre de karité :\n – hydratation profonde et durablele des couches supérieures de l’épiderme\n – régénération plus rapide."
+  },
+  {
+    "id": 115,
+    "slug": "soin-lipidik",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "SOIN LIPIDIK",
+    "size": "",
+    "price": 179,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés :\n– Vaseline (filmogène)\n– Glycérine (humectant anti-déshydratation)\n– Huile minérale (filmogène )\n– Beurre de karité (relipidant riche en acides gras essentiels)\n– Niacinamide (anti-inflammatoire)\n– Calendula (apaisante)\n– Centella asiatica (cicatrisante)\n– Acides aminés (reconstruisent la structure des protéines de la peau : kératine, collagène, élastine et peptides)\n– Aloès Vera (Hydratante et anti-inflammatoire)\n\nAvantages :\n– Soin quotidien des peaux atopiques et sensibles ( Nourrison, enfant, adulte )\n– Visage et corps\n– Testé sous contrôle dermatologique Hypoallergénique\n– Sans parfum\n– Sans conservateur Économique : 200 ml\n\nBénéfices :\n– Emollient relipidant\n– Apaisant\n– Anti-grattage\n– Anti-inflammatoire\n– Décongestionnant\n– Réparateur cicatrisant\n– Eclaircissant\n– Espace les poussées d’eczéma atopique Souplesse, vitalité, douceur et confort immédiats Relais des corticoïdes"
+  },
+  {
+    "id": 114,
+    "slug": "syndet-lipidik",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "SYNDET LIPIDIK",
+    "size": "",
+    "price": 131,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés :\n– Apaisant\n– Anti-grattage\n– Base lavante douce = surgras, sans savon, non détergent\n– Préserve l’intégrité de la peau (pH physiologique)\n– Glycérine : humectant anti-déshydratation\n– Lipoamoniacide d’origine végétal (hydrate et surgraisse)\n– Extrait végétal (adoucissant – calmant)\n– Sans conservateur\n– Sans parfum\nAvantages :\n– Hygiène quotidienne des peaux sensibles et fragilisées ( Nourrison – Enfant – Adulte )\n– Visage et corps\n– Testé sous contrôle dermatologique\n– Hypoallergénique\n– Économique : 200 ml\nBénéfices :\n– Prévient les sensations de tiraillements\n– Nettoie en toute sécurité\n– Respecte l’équilibre biologique\n– Lipoamoniacide d’origine végétal (hydrate et surgraisse)\n– Extrait végétal (adoucissant – calmant)\n– Sans conservateur\n– Sans parfum"
+  },
+  {
+    "id": 113,
+    "slug": "depi-gel",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "DÉPI GEL",
+    "size": "",
+    "price": 189,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "DÉPI-CRÈME dépigmentant actif est une crème apportant une solution pour la prise en charge des tâches brunes et de l’hyperpigmentation cutanée, notamment dans les cas suivants : Mélasma (masque de grossesse), Lentigo (taches de vieillesse), Chloasma, Taches d’origine inflammatoire et Taches d’origine vasculaire.\nGrâce à sa formulation unique Hexa Actifs 6, DÉPI-CRÈME a une action complète sur :\n– la dépigmentation des taches brunes\n– le renouvellement cellulaire\n– la diminution de production de mélanine\n\nUTILISATION :\nAppliquez Dépi Crème 1 à 2 fois quotidiennement, matin et soir, pour des résultats optimaux. Le flacon 50 ml correspond à un traitement complet.\n\nPROPRIÉTÉS :\n– Synergie d’action de 6 actifs dépigmentants\n– Prise en charge complète du cycle de la mélanogénèse\n– Efficacité prouvée par des études scientifiques\n– Actions : dépigmentante, hydratante, anti-inflammatoire et anti-irritante\n\nINDICATIONS :\n– Melasma\n– Chloasma\n– Lentigo\n– Taches d’origine inflammatoire\n– Taches d’originre vasculaire\n\nINGRÉDIENTS :​\nHPPA, acide salicilyque, vitamine C, vitamine E, bisabolol, allontoine, niacinamide, arbutine.."
+  },
+  {
+    "id": 112,
+    "slug": "depi-creme",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "DÉPI CRÈME",
+    "size": "",
+    "price": 399,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "GEL NETTOYANT ECLAIRCISSANT ACTIF - TOUS TYPES DE PEAU\nDépi-gel est un gel nettoyant éclaircissant à base de 6 ingrédients actif, spécialement formulé pour atténuer de manière efficace la dimension et la pigmentation de toute variété de tâches cutanées, indépendamment de leur origine (telles que celles induites par l’exposition au soleil, le vieillissement cutané ou les marques d’imperfections). \n\nLa formulation spécifique de Dépi-gel vise ainsi à homogénéiser la pigmentation de la peau, tout en stimulant simultanément l’éclat du teint, et ce, dans l’objectif d’offrir une apparence plus unifiée et lumineuse à l’épiderme.\n\nDépi-gel est conseillé pour tous les types de taches brunes\n\nPROPRIÉTÉS :\n– Accélère le renouvellement cellulaire\n– Élimine les squames\n– Nettoie en profondeur\n\nINDICATIONS :\n– Éclaircit et unifie le teint\n– Favorise à diminuer considérablement l’apparence des taches pigmentaires\n\nUTILISATION :\nUtiliser Dépi-gel matin et soir sur un visage légèrement humidifié. Rincer soigneusement.\n\nINGRÉDIENTS ACTIF :\n– Vitamine C et E : Eviction anti-inflamatoire antioxydants\n\n– Allontoine & Bisabolol : Agents anti-irritants\n\n– Acide salicilyque\n\n– Niacinamide"
+  },
+  {
+    "id": 111,
+    "slug": "lotion-bha",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "LOTION BHA",
+    "size": "",
+    "price": 147,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Lotion BHA est un exfoliant BHA et kérato-régulateur à base d’aloe vera et de thé vert, formulée avec précision, la lotion est spécialement conçue pour éliminer en douceur les cellules mortes en surface de l’épiderme, tout en pénétrant profondément dans les pores pour déloger les impuretés accumulées. La lotion BHA favorise une peau nette, grâce aux ingrédients naturels tels que l’aloe vera et le thé vert, la lotion offre également une hydratation optimale.\n\nINDICATION :\n– Imperfections\n– Pores dilates\n– Points noirs\n\nUTILISATION :\nAppliquer le DCP LOTION BHA deux fois par jour\nsur le visage bien nettoyé avec DCP TRIO-ACNE GEL.\nMasser légèrement.\nSans rinçage.\n\nCOMPOSITION :\n– 2 % acide salicyliquee\n– The vert\n– Imperfections\n– Calendula\n– Isopentyldiol\n– Aloe vera"
+  },
+  {
+    "id": 110,
+    "slug": "nc-10-serum",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "NC 10 SERUM",
+    "size": "",
+    "price": 137,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "NC 10 SERUM\nSÉRUM ANTI-IMPERFECTIONS, ACNÉ INFLAMMATOIRE, ACNÉ ROSACÉE\nNC 10 SERUM est un sérum anti-imperfections spécialement conçu pour répondre aux besoins des peaux sensibles, en particulier celles sujettes à l’acné inflammatoire et à la rosacée. Grâce à sa formule hypoallergénique, NC 10 sérum offre une solution douce et efficace pour cibler les problèmes cutanés. Sa texture légère et ses ingrédients apaisants aident à réduire les rougeurs, à calmer l’inflammation et à retrouver une peau plus équilibrée et apaisée.\n\nNC 10 - INDICATION :\n– Acné inflammatoire\n– Acné rosacée\n– Association avec les traitements anti acnéiques\n\nNC 10 - COMPOSITION :\n– 10% Niacinamide\n– 3% AC.net\n\nNC 10 - UTILISATION :\nAppliquer le DCP NC 10 sérum matin et/ou soir sur le visage bien nettoyé avec le DCP TRIO ACNE GEL.\nMasser légèrement.\nSans rinçage."
+  },
+  {
+    "id": 109,
+    "slug": "trio-acne-lotion",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "TRIO ACNE LOTION",
+    "size": "",
+    "price": 294,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "PEAUX GRASSES À IMPERFECTIONS MODÉRÉES À SÉVÈRES\nTRIO ACNE LOTION spray est un traitement ciblé anti-acné zones larges à base d’acide exfoliant, anti-inflammatoire et éclaircissant, qui permet de purifier en éliminant les impuretés et matifier la peau en absorbant l’excès de sébum et en régulant sa sécrétion. Pour les lésions sur les grandes surfaces ( dos, torse, avant bras..etc ), kératose pilaire et pili incarnati. Ce traitement convient à tous les types de peau, même les plus sensibles, et à tous les phototypes.\n\nINDICATION :\n– Lésions sur les grandes surfaces\n– Kératose pilaire\n– Pili incarnati\n\nUTILISATION :\nAppliquer DCP TRIO ACNE LOTION deux fois par jour sur une peau préalablement nettoyée avec DCP TRIO-ACNE GEL. S’applique directement sur les imperfections. Idéal pour les zones larges touchées par l’acné.\n\nCOMPOSITION :\n– 10% Glycolic Acid >Exfoliant\n– 5% Niacinamide > Anti-inflammatoire et éclaircissant\n– 2% Salicylic Acid > Kératolytique\n– 1% Allantoin > Apaisant\n– 1% Tasmannia Lanceolata Fruit > Anti-inflammatoire\n– 0.5% Arctium Majus Root Extract > Apaisant\n– 5% Glycerin > Hydratant\n– 5% Aloe Barbadensis Leaf Extract > Hydratant et apaisant\n– 0.6% Centella Asiatica Leaf Water > Cicatrisant"
+  },
+  {
+    "id": 108,
+    "slug": "trio-acne-soin-ski",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "TRIO ACNE SOIN SKI",
+    "size": "",
+    "price": 126,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "PEAUX GRASSES À IMPERFECTIONS MODÉRÉES À SÉVÈRES\nTRIO ACNE SOIN SKI conçu pour une application quotidienne, sa texture laisse un fini agréable, non gras et non collant, pour une absorption rapide. Grâce à sa formule régulateur de la sécrétion du sébum, mais aussi : anti-inflammatoire, anti-bactérien et un excellent apaisant des irritations de l’acné\n\nINDICATION :\n– Séborégulateur : Régule la sécrétion du sébum\n– Keratorégulateur\n– Anti-inflammatoire\n– Anti-bactérien\n– Apaisant : Apaise et calme les irritations\n\nUTILISATION :\nAppliquer DCP TRIO-ACNE SOIN S.K.I deux fois par jour sur une peau préalablement nettoyée avec DCP TRIO-ACNE GEL.\nS’applique directement sur les imperfections.\nEviter le contour des yeux.\n\nINGRÉDIENTS :\naqua, cetearyl alcohol, coco- caprylate/caprate, vitis vinifera seed oil, zinc oxide, salicylic acid, glycerin, butylene glycol, peg-60 almond glycerides, caprylyl glycol, carbomer, nordihydroguaiaretic acid, oleanolic acid, zea mays (corn) starch, niacinamide, glyceryl stearate, ceteareth-20, chlorhexidine undecylenate, allantoin, dehydroacetic acid, benzyl alcohol, butyrospermum parkii butter, ethylhexylglycerin, propanediol, xanthan gum, pyridoxine hcl, panthenol, hydrolyzed yeast protein, threonine, biotin, lactic acid, tocopherol, melaleuca alternifolia leaf oil."
+  },
+  {
+    "id": 107,
+    "slug": "trio-acne-gel",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "TRIO-ACNE GEL",
+    "size": "",
+    "price": 168,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "PEAUX GRASSES À IMPERFECTIONS MODÉRÉES À SÉVÈRES\nTRIO ACNE GEL MOUSSANT est un nettoyant moussant pour peaux mixtes et grasses à imperfections modérées à sévères. Ce gel moussant nettoie en douceur les impuretés et les bactéries responsables de l’acné, régule l’excès de sébum, purifie l’épiderme, prévient les éruptions cutanées et respecte le pH cutané.\n\nINDICATION :\n– Nettoie en douceur les peaux mixtes et grasses à imperfections.\n– Séborégulateur sans provoquer l’hyper-séborrhée réactionnelle.\n– Purifie et assainit l’épiderme tout en nettoyant en douceur la peau.\n– Prévient les éruptions cutanées\n– Réspecte le pH cutané\n\nUTILISATION :\nAppliquer, matin et soir, DCP TRIO-ACNE Gel sur une peau humide. Faire mousser avec un peu d’eau le gel, rincer abondamment à l’eau, puis sécher sans frotter.\nIdéal pour toutes les zones touchées par l’acné, y compris le visage, le dos et la poitrine.\n\nINGRÉDIENTS :\naqua, sodium laureth sulfate, lauryl glucoside, cocamide dea, propylene glycol, salicylic acid, pyridoxine hcl, hydrolyzed yeast protein, threonine, biotin, niacinamide, glycerin, sodium chloride, dehydroacetic acid, benzyl alcohol, coco-glucoside, glyceryl oleate, allantoin, lactic acid, lauryl glucoside, disodium edta, ci19140, ci42090"
+  },
+  {
+    "id": 106,
+    "slug": "moist-intense",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "MOIST INTENSE",
+    "size": "",
+    "price": 168,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "DCP MOIST INTENSE est spécialement conçue pour les peaux sèches à très sèches, cette crème hydratante profonde apporte une sensation de confort et de douceur absolue. Elle soulage les rougeurs, les picotements et procure une hydratation intense.\n\nINDICATION :\n– Crème hydratante profonde 72 H\n– Peaux sèches à très sèches\n\nUTILISATION :\nAppliquer DCP MOIST INTENSE chaque matin et soir sur l’ensemble du visage et du cou.\n\nPROPRIÉTÉS :\nDCP MOIST INTENSE réconforte complètement les peaux les plus sensibles, soulage les rougeurs et les picotements et hydrate intensément.\n\nUNE RESTAURATION DE LA BARRIÈRE CUTANÉE\nINGRÉDIENTS ACTIFS\n15% ACIDES AMINÉS : Facteurs naturels d’hydratation ( FNH – Plastification des Cornéocytes)\n5% ALOE VERA : Véritable concentré d’actifs hydratants, de vitamines (A, B et E), de minéraux, des acides aminés essentiels et de 99% d’eau.\n1% PENTAVITIN : Actif apaisant pour une hydratation en profondeur.\n1% CALENDULA : Antioxydant, protégeant de la dégénérescence cellulaire et captant\nles radicaux libres à l’origine du vieillissement cutané prématuré.\n1% KARITÉ : Riche en vitamines A, D, E et F, le karité possède de nombreuses proprié- tés réparatrices, il assouplit, adoucit et hydrate la peau en profondeur.\n1% PROVITAMINE B5 : Hydratant et émollient, la provitamine B5 réduit la perte en eau et maintient la douceur et l’élasticité de la peau."
+  },
+  {
+    "id": 105,
+    "slug": "sunscreen-invisible",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "SUNSCREEN INVISIBLE",
+    "size": "",
+    "price": 158,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "SUNSCREEN INVISIBLE ultra protection SPF 50+ est une crème solaire invisible avec une formule innovante de triple action « Protection, Hydratation et Anti-âge », offre une protection maximale contre les rayons UVA/UVB et hydrate profondément tous les types de peau.\n\nINDICATIONS :\n– Protection maximale absorbante UVA / UVB 50+\n– Prévention du veillissement cutané\n– Crème solaire adaptée à tous les types de peau\n– Ultra hydratant\n– Non comédogène, hypoallergénique, sans paraben\n– Toucher sec, fini mat immaculé\n– Résiste à l’eau\n– Resiste à la sudadtion\n– Miscibilité avec l’huile\n\nUTILISATION :\nAppliquer généreusement et uniformément DCP SUNSCREEN INVISIBLE sur la peau sèche 30 minutes avant l’exposition au soleil et aussi souvent que nécessaire.\nRenouveler l’application toutes les deux heures ou aprés la natation ou la transpiration.\n\nUNE PROTECTION OPTIMALE : TINOSORB M + TINOSORB S + UVINUL A Plus\nINGRÉDIENTS ACTIFS :\nTinsorb M : Protection et absorption maximale\nTinisorb S : Protection et absorption maximale\nUvinul A Plus : Protection et absorption maximale\nAloe Vera : Hydratation maximale. Renforcer la barrière cutanée\nVitamine E : Vieillissement cutané"
+  },
+  {
+    "id": 104,
+    "slug": "sunscreen-hydro",
+    "brand": "DCP",
+    "brandSlug": "dcp",
+    "name": "SUNSCREEN HYDRO",
+    "size": "",
+    "price": 242,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "SUNSCREEN HYDRO ultra protection SPF 50+ est une crème solaire invisible avec une formule contenant « Tinosorb M, Tinosorb S, Emollionts et Aloe vera », offre une protection maximale contre les rayons UVA/UVB et hydrate profondément tous les types de peau.\n\nUTILISATION :\nAppliquer généreusement et uniformément DCP SUNSCREEN HYDRO sur la peau sèche 30 minutes avant l’exposition au soleil et aussi souvent que nécessaire.\nRenouveler l’application toutes les deux heures ou aprés la natation ou la transpiration.\n\nUNE PROTECTION OPTIMALE : TINOSORB M + TINOSORB S + UVINUL A Plus\nINDICATIONS :\n– Protection maximale absorbante UVA / UVB 50+\n– Prévention du veillissement cutané\n– Crème solaire adaptée à tous les types de peau\n– Ultra hydratant\n– Non comédogène, hypoallergénique, sans paraben\n– Toucher sec, fini mat immaculé\n– Résiste à l’eau\n– Resiste à la sudadtion\n– Miscibilité avec l’huile\n\nINGRÉDIENTS ACTIFS :\nTinsorb M : Protection et absorption maximale\nTinisorb S : Protection et absorption maximale\nUvinul A Plus : Protection et absorption maximale\nAloe Vera : Hydratation maximale. Renforcer la barrière cutanée\nVitamine E : Vieillissement cutané"
   }
 ];
 
@@ -2426,11 +3415,146 @@ export const IMG: Record<string, string> = {
   "C30 SERUM": "/api/cms-media/HTCEUTIC-C30-SERUM.jpg",
   "CRÉME LAVANTE": "/api/cms-media/HTCEUTIC-CREME-LAVANTE.jpg",
   "MOUSSE NETTOYANTE": "/api/cms-media/HTCEUTIC-MOUSSE.jpg",
-  "LCP lotion anti-chute": "/api/cms-media/LCPHAIR-Lotion-Anti-Chute-200ml.jpg"
+  "LCP lotion anti-chute": "/api/cms-media/LCPHAIR-Lotion-Anti-Chute-200ml.jpg",
+  "LCP masque anti-chute": "/api/cms-media/LCPHAIR-Masque-Anti-Chute-200ml.jpg",
+  "LCP Shampoing anti-chute": "/api/cms-media/LCPHAIR-Shampoing-Anti-Chute-300ml.jpg",
+  "LCP Soin Réparateur Apaisant": "/api/cms-media/LCP-Mains-Soin-Reparateur-Apaisant-75ml.jpg",
+  "LCP Baume Eclat Anti-Âge Mains": "/api/cms-media/LCP-Mains-Baume-Eclat-Anti-age-SPF-30%2B-75ml.jpg",
+  "LCP Baume Chauffant Mains Engelure": "/api/cms-media/LCP-Mains-Baume-Chauffant-Mains-Engelures-75ml.jpg",
+  "LCP Gommage Nourissant Pieds": "/api/cms-media/LCP-Gommage-NOURRISSANT-100ml.jpg",
+  "LCP Crème Anti-callosités": "/api/cms-media/LCP-Creme-ANTI-CALLOSITES-75ml.jpg",
+  "LCP Baume\nChauffant\nPieds Secs": "/api/cms-media/LCP-Baume-Chauffant-PIEDS-SECS-100ml.jpg",
+  "LCP Soin Intense Pied Diabétique": "/api/cms-media/LCP-Soin-Intense-PIEDS-DIABETIQUES-75ml.jpg",
+  "LCP baume relipidant atopique crème émolliente": "/api/cms-media/LCP-Baume-Relipidant-240ml.jpg",
+  "LCP syndet relipidant atopique gel lavant": "/api/cms-media/LCP-Syndet-Lavant-Relipidant-240ml.jpg",
+  "LCP crème solaire matifiante": "/api/cms-media/LCP-Creme-Solaire-Matifiante-SPF50%2B-75ml.jpg",
+  "LCP soin global": "/api/cms-media/LCP-Soin-Global-75ml.jpg",
+  "LCP crème hydratante matifiante": "/api/cms-media/LCP-Creme-Matifiante-75ml.jpg",
+  "LCP gel nettoyant": "/api/cms-media/LCP-Gel-Nettoyant-350ml.jpg",
+  "ECLABIOTIC  GEL ÉCLAIRCISSANT EXFOLIANT": "/api/cms-media/ECLABIOTIC-Gel-200ml.jpg",
+  "ECLABIOTIC INTENSE": "/api/cms-media/ECLABIOTIC-Intense-50ml.jpg",
+  "ECLABIOTIC SOLAIRE TEINTÉ SPF50+": "/api/cms-media/ECLABIOTIC-Solaire-SPF-50%2B-50ml.jpg",
+  "ECLABIOTIC SOLAIRE INVISIBLE SPF50+": "/api/cms-media/ECLABIOTIC-Solaire-Invisible-SPF-50%2B-50ml.jpg",
+  "ECLABIOTIC RADIANCE": "/api/cms-media/ECLABIOTIC-Radiance-SPF-30%2B-50ml.jpg",
+  "Baume à lèvres Eclaircissant": "/api/cms-media/D-biotic-Baume-a-levres-Eclaircissant-15ml.jpg",
+  "Baume à lèvres Très réparateur": "/api/cms-media/D-biotic-Baume-a-levres-Tres-reparateur-15ml.jpg",
+  "SEBIOTIC SERUM AI": "/api/cms-media/D-biotic-Sebiotic-Serum-AI-50ml.jpg",
+  "SEBIOTIC SPF 50+": "/api/cms-media/D-biotic-Sebiotic-Ecran-solaire-SPF-50%2B-50ml.jpg",
+  "SEBIOTIC Soin protecteur gelée": "/api/cms-media/D-biotic-Sebiotic-Soin-protecteur-gelee-50ml.jpg",
+  "SEBIOTIC Soin réparateur intense": "/api/cms-media/D-biotic-Sebiotic-Soin-reparateur-intense-75ml.jpg",
+  "SEBIOTIC Mousse purifiante": "/api/cms-media/D-biotic-Sebiotic-Mousse-purifiante-150ml.jpg",
+  "D-BIOTIC PULVOBIOTIC  PH 5,5": "/api/cms-media/D-biotic-Pulvobiotic-pH-5-5-500ml.jpg",
+  "D-BIOTIC PULVOBIOTIC  PH 8": "/api/cms-media/D-biotic-Pulvobiotic-pH-8-500ml.jpg",
+  "D-BIOTIC CICABIOTIC 75 ML": "/api/cms-media/D-biotic-Cicabiotic-75ml.jpg",
+  "D-BIOTIC ROSABIOTIC LOTION SOIN INTENSE 100 ML": "/api/cms-media/D-biotic-Rosabiotic-Lotion-100ml.jpg",
+  "D-BIOTIC ROSABIOTIC TRI-PHASIQUE NETTOYANT 200 ML": "/api/cms-media/D-biotic-Rosabiotic-Tri-phasique-200ml.jpg",
+  "D-BIOTIC ROSABIOTIC CREME PEAUX A ROUGEURS INSTALLEES 75 ML": "/api/cms-media/D-biotic-Rosabiotic-Creme-75ml.jpg",
+  "D-BIOTIC ROSABIOTIC CREME SOLAIRE SPF50+ TEINTE CLAIRE 75 ML": "/api/cms-media/D-biotic-Rosabiotic-SPF-50%2B-75ml.jpg",
+  "D-BIOTIC Velvet 50 ml": "/api/cms-media/D-biotic-Velvet-Sunscreen-50ml.jpg",
+  "D-BIOTIC Spray solaire Pédiatrique 100 ml": "/api/cms-media/D-biotic-Spray-Solaire-Pediatrique-SPF50%2B-100ml.jpg",
+  "D-BIOTIC Gel surgras Pédiatrique 200 ml": "/api/cms-media/D-biotic-Gel-Surgras-Pediatrique-200ml.jpg",
+  "D-BIOTIC Crème émolliente pédiatrique 200 ml": "/api/cms-media/D-biotic-Creme-Emolliente-Pediatrique-200ml.jpg",
+  "D-BIOTIC Crème solaire 75 ml": "/api/cms-media/D-biotic-Creme-Solaire-SPF50%2B-75ml.jpg",
+  "D-BIOTIC Crème rugosités 150 ml": "/api/cms-media/D-biotic-Creme-Rugosites-150ml.jpg",
+  "D-BIOTIC Gel rugosités 240 ml": "/api/cms-media/D-biotic-Gel-Rugosites-240ml.jpg",
+  "D-BIOTIC Baume hydratant régénérant 150 ml": "/api/cms-media/D-biotic-Baume-Hydratant-Regenerant-150ml.jpg",
+  "D-BIOTIC Crème hydratante régénérante 75 ml": "/api/cms-media/D-biotic-Creme-Hydratante-Regenerante-75ml.jpg",
+  "D-BIOTIC Gel surgras 240 ml": "/api/cms-media/D-biotic-Gel-Surgras-240ml.jpg",
+  "TRIO-ACNÉ SUN SPF50+ CREME SOLAIRE MATIFIANTE": "/api/cms-media/DCP-TRIO-ACNE-SUN-SPF50%2B-50ml.jpg",
+  "KOPROZ R.P CREME REPARATRICE": "/api/cms-media/DCP-KOPROZ-RP-70ml.jpg",
+  "KOPROZ A.Z CREME CONCENTREE INTENSE": "/api/cms-media/DCP-KOPROZ-AZ-50ml.jpg",
+  "KOPROZ CREME SOLAIRE 50+": "/api/cms-media/DCP-KOPROZ-50%2B-Creme-solaire-50ml.jpg",
+  "KOPROZ MOUSSE NETTOYANTE": "/api/cms-media/DCP-KOPROZ-Mousse-Nettoyante-150ml.jpg",
+  "HAIRLOSS MASQUE CAPILLAIRE": "/api/cms-media/DCP-HAIRLOSS-MASQUE.jpg",
+  "HAIRLOSS SERUM CAPILLAIRE": "/api/cms-media/DCP-HAIRLOSS-SERUM.jpg",
+  "HAIRLOSS LOTION CAPILLAIRE FEMMES": "/api/cms-media/DCP-HAIRLOSS-LOTION-FEMMES.jpg",
+  "HAIRLOSS LOTION CAPILLAIRE HOMMES": "/api/cms-media/DCP-HAIRLOSS-LOTION-HOMMES.jpg",
+  "HAIRLOSS SHAMPOING FEMMES": "/api/cms-media/DCP-HAIRLOSS-SH-FEMMES.jpg",
+  "HAIRLOSS SHAMPOING HOMMES": "/api/cms-media/DCP-HAIRLOSS-SH-HOMMES.jpg",
+  "PRURITUS-CONTROL LOTION": "/api/cms-media/DCP-PRURITUS-CONTROL.jpg",
+  "CICAPLUS ZONES LARGES": "/api/cms-media/DCP-CICAPLUS-Z.jpg",
+  "CICASEPT": "/api/cms-media/DCP-CICASEPT.jpg",
+  "SEPTISCARS SPRAY": "/api/cms-media/DCP-SEPTISCARS.jpg",
+  "DS+ EMULSION": "/api/cms-media/DCP-EMULSION-DS%2B.jpg",
+  "DS+ LOTION": "/api/cms-media/DCP-LOTION-DS%2B.jpg",
+  "DS+ BASE LAVANTE": "/api/cms-media/DCP-BASE-LAVANTE-DS%2B.jpg",
+  "DÉPI-PLUS INTIMATE": "/api/cms-media/DCP-DEPI-PLUS.jpg",
+  "SEPTIPLUS PH 8": "/api/cms-media/DCP-SEPTIPLUS-PH8.jpg",
+  "SEPTIPLUS PH 5.5": "/api/cms-media/DCP-SEPTIPLUS-PH5.jpg",
+  "BAUME ESSENTIEL": "/api/cms-media/DCP-BAUM-ESSENTIEL.jpg",
+  "KPP SOIN": "/api/cms-media/DCP-KPP-SOIN.jpg",
+  "SOIN LIPIDIK": "/api/cms-media/DCP-SOIN-LIPIDIK.jpg",
+  "SYNDET LIPIDIK": "/api/cms-media/DCP-SYNDET-LIPIDIK.jpg",
+  "DÉPI GEL": "/api/cms-media/DCP-DEPI-GEL.jpg",
+  "DÉPI CRÈME": "/api/cms-media/DCP-DEPI-CREME.jpg",
+  "LOTION BHA": "/api/cms-media/DCP-LOTION-BHA.jpg",
+  "NC 10 SERUM": "/api/cms-media/DCP-NC10.jpg",
+  "TRIO ACNE LOTION": "/api/cms-media/DCP-TRIO-ACNE-LOTION.jpg",
+  "TRIO ACNE SOIN SKI": "/api/cms-media/DCP-TRIO-ACNE-SKI.jpg",
+  "TRIO-ACNE GEL": "/api/cms-media/DCP-TRIO-ACNE.jpg",
+  "MOIST INTENSE": "/api/cms-media/DCP-MOIST-INTENSE.jpg",
+  "SUNSCREEN INVISIBLE": "/api/cms-media/DCP-INVISIBLE.jpg",
+  "SUNSCREEN HYDRO": "/api/cms-media/DCP-SUNSCREEN-HYDRO.jpg",
+  "visage": "/api/cms-media/visage.png",
+  "solaire2": "/api/cms-media/solaire-elite.png",
+  "solaire": "/api/cms-media/solaire.png",
+  "maquillage": "/api/cms-media/maquillage.png",
+  "dermo": "/api/cms-media/dermo.png",
+  "corps": "/api/cms-media/nuxe-solaire.jpg",
+  "complements": "/api/cms-media/complements.png",
+  "coffret2": "/api/cms-media/coffret-hall.png",
+  "coffret": "/api/cms-media/coffrets.png",
+  "cheveux": "/api/cms-media/cheveux.png",
+  "baby": "/api/cms-media/baby.png",
+  "arbre2": "/api/cms-media/arbre-hiver.png",
+  "arbre": "/api/cms-media/arbre-marques.png"
 };
 
 // Per-product hero image, keyed by product id.
 const PRODUCT_IMAGE: Record<number, string> = {
+  "104": "/api/cms-media/DCP-SUNSCREEN-HYDRO.jpg",
+  "105": "/api/cms-media/DCP-INVISIBLE.jpg",
+  "106": "/api/cms-media/DCP-MOIST-INTENSE.jpg",
+  "107": "/api/cms-media/DCP-TRIO-ACNE.jpg",
+  "108": "/api/cms-media/DCP-TRIO-ACNE-SKI.jpg",
+  "109": "/api/cms-media/DCP-TRIO-ACNE-LOTION.jpg",
+  "110": "/api/cms-media/DCP-NC10.jpg",
+  "111": "/api/cms-media/DCP-LOTION-BHA.jpg",
+  "112": "/api/cms-media/DCP-DEPI-CREME.jpg",
+  "113": "/api/cms-media/DCP-DEPI-GEL.jpg",
+  "114": "/api/cms-media/DCP-SYNDET-LIPIDIK.jpg",
+  "115": "/api/cms-media/DCP-SOIN-LIPIDIK.jpg",
+  "116": "/api/cms-media/DCP-KPP-SOIN.jpg",
+  "117": "/api/cms-media/DCP-BAUM-ESSENTIEL.jpg",
+  "118": "/api/cms-media/DCP-SEPTIPLUS-PH5.jpg",
+  "119": "/api/cms-media/DCP-SEPTIPLUS-PH8.jpg",
+  "120": "/api/cms-media/DCP-DEPI-PLUS.jpg",
+  "121": "/api/cms-media/DCP-BASE-LAVANTE-DS%2B.jpg",
+  "122": "/api/cms-media/DCP-LOTION-DS%2B.jpg",
+  "123": "/api/cms-media/DCP-EMULSION-DS%2B.jpg",
+  "124": "/api/cms-media/DCP-SEPTISCARS.jpg",
+  "125": "/api/cms-media/DCP-CICASEPT.jpg",
+  "126": "/api/cms-media/DCP-CICAPLUS-Z.jpg",
+  "127": "/api/cms-media/DCP-PRURITUS-CONTROL.jpg",
+  "128": "/api/cms-media/DCP-HAIRLOSS-SH-HOMMES.jpg",
+  "129": "/api/cms-media/DCP-HAIRLOSS-SH-FEMMES.jpg",
+  "130": "/api/cms-media/DCP-HAIRLOSS-LOTION-HOMMES.jpg",
+  "131": "/api/cms-media/DCP-HAIRLOSS-LOTION-FEMMES.jpg",
+  "132": "/api/cms-media/DCP-HAIRLOSS-SERUM.jpg",
+  "133": "/api/cms-media/DCP-HAIRLOSS-MASQUE.jpg",
+  "134": "/api/cms-media/DCP-KOPROZ-Mousse-Nettoyante-150ml.jpg",
+  "135": "/api/cms-media/DCP-KOPROZ-50%2B-Creme-solaire-50ml.jpg",
+  "136": "/api/cms-media/DCP-KOPROZ-AZ-50ml.jpg",
+  "137": "/api/cms-media/DCP-KOPROZ-RP-70ml.jpg",
+  "139": "/api/cms-media/DCP-TRIO-ACNE-SUN-SPF50%2B-50ml.jpg",
+  "140": "/api/cms-media/D-biotic-Gel-Surgras-240ml.jpg",
+  "141": "/api/cms-media/D-biotic-Creme-Hydratante-Regenerante-75ml.jpg",
+  "142": "/api/cms-media/D-biotic-Baume-Hydratant-Regenerant-150ml.jpg",
+  "143": "/api/cms-media/D-biotic-Gel-Rugosites-240ml.jpg",
+  "144": "/api/cms-media/D-biotic-Creme-Rugosites-150ml.jpg",
+  "145": "/api/cms-media/D-biotic-Creme-Solaire-SPF50%2B-75ml.jpg",
+  "146": "/api/cms-media/D-biotic-Creme-Emolliente-Pediatrique-200ml.jpg",
+  "147": "/api/cms-media/D-biotic-Gel-Surgras-Pediatrique-200ml.jpg",
   "148": "/assets/product-placeholder.svg",
   "149": "/assets/product-placeholder.svg",
   "150": "/assets/product-placeholder.svg",
@@ -2535,6 +3659,49 @@ const PRODUCT_IMAGE: Record<number, string> = {
 
 // Per-product gallery images (hero + alternates), keyed by product id.
 const PRODUCT_GALLERY: Record<number, string[]> = {
+  "104": [],
+  "105": [],
+  "106": [],
+  "107": [],
+  "108": [],
+  "109": [],
+  "110": [],
+  "111": [],
+  "112": [],
+  "113": [],
+  "114": [],
+  "115": [],
+  "116": [],
+  "117": [],
+  "118": [],
+  "119": [],
+  "120": [],
+  "121": [],
+  "122": [],
+  "123": [],
+  "124": [],
+  "125": [],
+  "126": [],
+  "127": [],
+  "128": [],
+  "129": [],
+  "130": [],
+  "131": [],
+  "132": [],
+  "133": [],
+  "134": [],
+  "135": [],
+  "136": [],
+  "137": [],
+  "139": [],
+  "140": [],
+  "141": [],
+  "142": [],
+  "143": [],
+  "144": [],
+  "145": [],
+  "146": [],
+  "147": [],
   "148": [],
   "149": [],
   "150": [],

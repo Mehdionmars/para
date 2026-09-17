@@ -240,7 +240,7 @@ export function CategoryStripEditor({
     <div className="flex flex-col gap-4">
       <EditorHeading
         title="Catégories rapides (ronds photo)"
-        description="Les ronds avec photo en haut de la page d'accueil, sur téléphone et tablette — masqués à partir de 1024px, où le menu principal les remplace. Désactivée, la boutique affiche une sélection par défaut."
+        description="Les ronds avec photo en haut de la page d'accueil, sur téléphone et tablette — masqués à partir de 1024px, où le menu principal les remplace. Chaque rond coché s'affiche, même si sa catégorie n'a pas encore de produit. Désactivée, la boutique affiche une sélection par défaut."
       />
 
       <FieldGroup>

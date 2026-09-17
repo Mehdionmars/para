@@ -37,9 +37,20 @@ async function fetchJSON(urlPath) {
   return res.json()
 }
 
+/**
+ * Every document, page by page.
+ *
+ * `limit=500&pagination=false` looked like "all of them", but the API caps a
+ * page at 100 and ignores both: the snapshot held 100 of 226 products and 100
+ * of 197 media, and which 100 changed from one run to the next.
+ */
 async function fetchAllDocs(collection, depth = 2) {
-  const { docs } = await fetchJSON(`/api/${collection}?limit=500&depth=${depth}&pagination=false`)
-  return docs
+  const all = []
+  for (let page = 1; ; page++) {
+    const res = await fetchJSON(`/api/${collection}?limit=100&page=${page}&depth=${depth}`)
+    all.push(...res.docs)
+    if (!res.hasNextPage) return all
+  }
 }
 
 async function fetchGlobal(slug, depth = 2) {

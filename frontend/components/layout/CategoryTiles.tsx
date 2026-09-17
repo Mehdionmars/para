@@ -87,8 +87,13 @@ export function CategoryTiles({
   // Only a *known* empty category is dropped: an aisle link, a brand link or
   // a category whose count could not be fetched all stay, so a failed facets
   // request degrades to today's behaviour instead of blanking the browser.
+  //
+  // That rule is for the code defaults only. Chips an editor picked in the
+  // Storefront Builder are shown as picked: hiding three of six chosen
+  // circles, with nothing in the Builder saying why, read as the setting not
+  // working. An editor who wants a chip gone unticks it.
   const counts = categoryCounts ?? new Map<Category, number>();
-  const tiles = all.filter((tile) => tile.isAll || hasProductsBehind(tile.href, counts));
+  const tiles = configured ? all : all.filter((tile) => tile.isAll || hasProductsBehind(tile.href, counts));
 
   if (tiles.length === 0) return null;
 
