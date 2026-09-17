@@ -963,6 +963,54 @@ button {
   }
 }
 
+/* The centred CTA. One column, centred, until a picture is set: the picture
+   then takes half the band and the copy squares up beside it, left-aligned
+   because a column of centred text next to a photograph reads as a caption. */
+.cta-band-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 1.6vw, 18px);
+  max-width: min(40em, 100%);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.cta-band-grid {
+  display: grid;
+  gap: clamp(22px, 3.5vw, 52px);
+  align-items: center;
+  max-width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+.cta-band-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: clamp(14px, 2vw, 22px);
+}
+
+@media (max-width: 767px) {
+  /* Picture first on a phone: it is what makes the block worth stopping at. */
+  .cta-band-media {
+    order: -1;
+  }
+}
+
+@media (min-width: 768px) {
+  .cta-band-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .cta-band-grid .cta-band-copy {
+    align-items: flex-start;
+    margin: 0;
+    text-align: start;
+  }
+}
+
 /* Coffret card: picture, then copy beneath it — never copy over the picture. */
 .giftset-card {
   display: flex;

@@ -439,20 +439,11 @@ export function CtaBannerEditor({ value, onChange }: { value: CtaBannerCopyDraft
       <TextField label="Lien du bouton" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
       <ColorField label="Fond" value={value.bg} onChange={(bg) => update({ bg })} />
       <ImagePicker
-        label="Image de fond (facultative)"
+        label="Image (facultative) — affichée à côté du texte"
         imageId={value.bgImage.id}
         imageUrl={value.bgImage.url}
         onChange={(id, url) => update({ bgImage: { id, url } })}
       />
-      {value.bgImage.url && (
-        <NumberField
-          label="Voile de la couleur de fond sur l'image (%)"
-          value={value.overlayOpacity}
-          min={0}
-          max={90}
-          onChange={(overlayOpacity) => update({ overlayOpacity })}
-        />
-      )}
       {/* Both advisories read against the band's own background, which is
           what these two are actually painted on. */}
       <ColorField label="Texte" value={value.textColor} contrastAgainst={value.bg} onChange={(textColor) => update({ textColor })} />
