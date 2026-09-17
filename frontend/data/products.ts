@@ -3347,6 +3347,7 @@ export const IMG: Record<string, string> = {
   "Pack Repair Björn Axén, soin des cheveux abîmés": "/api/cms-media/bjorn-axen-pack-repair-3.png",
   "Pack Repair Björn Axén, cheveux réparés dès la première utilisation": "/api/cms-media/bjorn-axen-pack-repair-2.png",
   "Pack Repair Björn Axén : Repair Shampoo et Repair Conditioner, 250 ml chacun": "/api/cms-media/bjorn-axen-pack-repair-1.png",
+  "Para d'Hiver": "/api/cms-media/logo.webp",
   "Logo Vichy": "/api/cms-media/logo-vichy.png",
   "Logo Nuxe": "/api/cms-media/logo-nuxe.png",
   "Logo La Roche-Posay": "/api/cms-media/logo-la-roche-posay.png",

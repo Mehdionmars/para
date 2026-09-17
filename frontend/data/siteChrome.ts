@@ -36,7 +36,7 @@ export const TOPBAR_CONFIG: TopBarConfig = {
 };
 
 export const LOGO: Logo = {
-  "img": "/api/cms-media/logo.png",
+  "img": "/api/cms-media/logo.webp",
   "wordmark": "PARA D'HIVER",
   "href": "/"
 };

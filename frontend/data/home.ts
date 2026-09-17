@@ -157,9 +157,9 @@ export const RAILS: RailDef[] = [
     "ctaUrl": "/shop/cheveux",
     "badgeStyle": "none",
     "editorial": {
-      "image": "/api/cms-media/imgi_165_cat-2.jpg",
-      "imageWidth": 1000,
-      "imageHeight": 1000
+      "image": "/api/cms-media/imgi_255_cat-61-800x800-1.jpg",
+      "imageWidth": 800,
+      "imageHeight": 800
     }
   }
 ];
@@ -738,7 +738,7 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
   },
   {
     "key": "trustBar",
-    "visible": true
+    "visible": false
   }
 ];
 
@@ -765,8 +765,8 @@ export const MARKETING_BANNERS = [
     "active": true,
     "startDate": "",
     "endDate": "",
-    "img": "/api/cms-media/ChatGPT%20Image%2017%20ao%C3%BBt%202026%2C%2013_44_36.png",
-    "imgMobile": ""
+    "img": "/api/cms-media/ChatGPT%20Image%2017%20ao%C3%BBt%202026%2C%2013_44_36-1.png",
+    "imgMobile": "/api/cms-media/ChatGPT%20Image%2017%20ao%C3%BBt%202026%2C%2013_46_14.png"
   }
 ];
 
@@ -774,7 +774,7 @@ export const NEWSLETTER_COPY = {
   "title": "Recevez nos conseils & nouveautés",
   "subtitle": "Inscrivez-vous pour découvrir nos conseils pharmaceutiques, nouveautés et offres exclusives.",
   "placeholder": "Votre adresse email",
-  "buttonLabel": "S'inscrire",
+  "buttonLabel": "S'abonner",
   "successMessage": "Merci ! Votre code −10% arrive par email",
   "logoEnabled": true,
   "logoSize": 76,
@@ -782,9 +782,9 @@ export const NEWSLETTER_COPY = {
   "backgroundColor": "#5E4074",
   "textColor": "#FFFFFF",
   "ctaColor": "#008AA5",
-  "borderRadius": 26,
+  "borderRadius": 30,
   "particlesEnabled": true,
-  "particlesOpacity": 0.18
+  "particlesOpacity": 1
 };
 
 export const SERVICES_TEASER = [];

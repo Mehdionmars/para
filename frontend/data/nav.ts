@@ -86,27 +86,27 @@ export const CATEGORY_STRIP: {
     {
       "href": "/shop/visage",
       "label": "Visage",
-      "image": "/api/cms-media/visage.png"
+      "image": "/api/cms-media/imgi_165_cat-4.jpg"
     },
     {
       "href": "/shop/cheveux",
       "label": "Cheveux",
-      "image": "/api/cms-media/cheveux.png"
+      "image": "/api/cms-media/imgi_255_cat-61-800x800.jpg"
     },
     {
       "href": "/shop/corps",
       "label": "Corps",
-      "image": "/api/cms-media/dermo.png"
+      "image": "/api/cms-media/imgi_185_cat-19-800x800-1.jpg"
     },
     {
       "href": "/shop/bebe-maman",
       "label": "Bébé & Maman",
-      "image": "/api/cms-media/baby.png"
+      "image": "/api/cms-media/imgi_283_cat-85-800x800.jpg"
     },
     {
       "href": "/shop/maquillage",
       "label": "Maquillage",
-      "image": "/api/cms-media/maquillage.png"
+      "image": "/api/cms-media/imgi_283_cat-85-800x800-1.jpg"
     },
     {
       "href": "/shop/complements-alimentaires",
