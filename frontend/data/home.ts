@@ -415,7 +415,10 @@ export const COFFRETS_COPY = {
 // Explicit type (rather than inferring from the const, as elsewhere in this
 // file) because an empty CMS result would otherwise infer COFFRETS as
 // never[], breaking every consumer that reads (typeof COFFRETS)[number].
-export type Coffret = { tag: string; title: string; sub: string; price: number; priceFrom?: boolean; img: string; ctaLabel: string; ctaUrl: string; toast: string };
+/** The product a coffret card sells: enough to put it in the cart and link to it. */
+export type CoffretProduct = { id: number; slug: string; name: string; brand: string; price: number; old: number; image: string };
+
+export type Coffret = { tag: string; title: string; sub: string; price: number; priceFrom?: boolean; img: string; ctaLabel: string; ctaUrl: string; toast: string; product?: CoffretProduct };
 
 export const COFFRETS: Coffret[] = [
   {

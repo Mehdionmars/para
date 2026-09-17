@@ -2397,6 +2397,10 @@ export interface Home {
         tag?: string | null;
         title: string;
         sub?: string | null;
+        /**
+         * Produit vendu par cette carte. « Offrir » l'ajoute au panier, l'image ouvre sa page, et son prix remplace celui saisi ci-dessous.
+         */
+        product?: (number | null) | Product;
         price: number;
         /**
          * Show price as "à partir de" (from), e.g. for gift cards.
@@ -3495,6 +3499,7 @@ export interface HomeSelect<T extends boolean = true> {
         tag?: T;
         title?: T;
         sub?: T;
+        product?: T;
         price?: T;
         priceFrom?: T;
         image?: T;

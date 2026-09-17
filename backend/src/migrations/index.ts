@@ -34,6 +34,7 @@ import * as migration_20260904_010000_newsletter_cta_radius_particles from './20
 import * as migration_20260823_140000_integrity_constraints from './20260823_140000_integrity_constraints';
 import * as migration_20260916_120000_routine_offer from './20260916_120000_routine_offer';
 import * as migration_20260916_150000_featured_promo_fields from './20260916_150000_featured_promo_fields';
+import * as migration_20260917_010000_coffret_product from './20260917_010000_coffret_product';
 
 export const migrations = [
   {
@@ -220,5 +221,10 @@ export const migrations = [
     up: migration_20260916_150000_featured_promo_fields.up,
     down: migration_20260916_150000_featured_promo_fields.down,
     name: '20260916_150000_featured_promo_fields'
+  },
+  {
+    up: migration_20260917_010000_coffret_product.up,
+    down: migration_20260917_010000_coffret_product.down,
+    name: '20260917_010000_coffret_product'
   },
 ];

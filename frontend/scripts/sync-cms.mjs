@@ -488,6 +488,20 @@ async function syncHome() {
       price: c.price,
       ...(c.priceFrom ? { priceFrom: true } : {}),
       img: mediaURL(c.image),
+      // Only a published product can be sold from the card.
+      ...(c.product && typeof c.product === 'object' && c.product.isPublished === true
+        ? {
+            product: {
+              id: c.product.id,
+              slug: c.product.slug || String(c.product.id),
+              name: c.product.name,
+              brand: relName(c.product.brand),
+              price: c.product.price,
+              old: c.product.oldPrice || 0,
+              image: mediaURL(c.product.image),
+            },
+          }
+        : {}),
       ctaLabel: c.ctaLabel || 'Offrir',
       ctaUrl: c.ctaUrl || '/catalogue',
       toast: c.toast || '',
@@ -682,7 +696,10 @@ export const COFFRETS_COPY = ${JSON.stringify(coffretsCopy, null, 2)};
 // Explicit type (rather than inferring from the const, as elsewhere in this
 // file) because an empty CMS result would otherwise infer COFFRETS as
 // never[], breaking every consumer that reads (typeof COFFRETS)[number].
-export type Coffret = { tag: string; title: string; sub: string; price: number; priceFrom?: boolean; img: string; ctaLabel: string; ctaUrl: string; toast: string };
+/** The product a coffret card sells: enough to put it in the cart and link to it. */
+export type CoffretProduct = { id: number; slug: string; name: string; brand: string; price: number; old: number; image: string };
+
+export type Coffret = { tag: string; title: string; sub: string; price: number; priceFrom?: boolean; img: string; ctaLabel: string; ctaUrl: string; toast: string; product?: CoffretProduct };
 
 export const COFFRETS: Coffret[] = ${JSON.stringify(coffrets, null, 2)};
 

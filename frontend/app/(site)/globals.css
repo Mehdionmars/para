@@ -963,44 +963,115 @@ button {
   }
 }
 
-/* Hovering a coffret shows the photograph alone: the copy slides down and
-   fades out line by line, the scrim goes with it, and the card neither lifts
-   nor casts a shadow. Pointer devices only — on touch there is no hover, and
-   the text is the only thing saying what the coffret is. Keyboard focus keeps
-   the copy for the same reason. */
-.giftset-scrim {
-  transition: opacity 0.45s ease;
-}
-.giftset-copy > * {
-  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 0.68, 0.24, 1);
-}
-.giftset-copy > :nth-child(2) {
-  transition-delay: 0.04s;
-}
-.giftset-copy > :nth-child(3) {
-  transition-delay: 0.08s;
-}
-.giftset-copy > :nth-child(4) {
-  transition-delay: 0.12s;
+/* Coffret card: picture, then copy beneath it — never copy over the picture. */
+.giftset-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.3s ease;
 }
 @media (hover: hover) and (pointer: fine) {
-  .giftset-card:hover:not(:focus-visible) .giftset-scrim {
-    opacity: 0;
-  }
-  .giftset-card:hover:not(:focus-visible) .giftset-copy > * {
-    opacity: 0;
-    transform: translateY(18px);
+  .giftset-card:hover {
+    transform: translateY(-2px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .giftset-scrim,
-  .giftset-copy > * {
-    transition: opacity 0.2s ease;
-    transition-delay: 0s;
-  }
-  .giftset-card:hover .giftset-copy > * {
+  .giftset-card,
+  .giftset-card:hover {
+    transition: none;
     transform: none;
   }
+}
+.giftset-card-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--pdh-sand);
+}
+a.giftset-card-media:focus-visible {
+  outline: 2px solid var(--pdh-teal);
+  outline-offset: 3px;
+}
+.giftset-card-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--pdh-cream);
+  color: var(--pdh-plum);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.giftset-card-title {
+  margin: 16px 0 0;
+  font-family: var(--font-poppins);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--pdh-ink);
+}
+.giftset-card-sub {
+  display: -webkit-box;
+  margin: 4px 0 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(var(--pdh-ink-rgb), 0.68);
+}
+/* Pinned to the bottom so prices line up across cards whose copy differs. */
+.giftset-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+.giftset-card-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-alta);
+  font-size: 20px;
+  color: var(--pdh-ink);
+  white-space: nowrap;
+}
+.giftset-card-old {
+  font-family: var(--font-poppins);
+  font-size: 12.5px;
+  color: rgba(var(--pdh-ink-rgb), 0.5);
+}
+.giftset-card-cta {
+  flex: none;
+  min-height: 40px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pdh-plum);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.giftset-card-cta:hover {
+  background: var(--pdh-plum-dark);
+}
+.giftset-card-cta:focus-visible {
+  outline: 2px solid var(--pdh-teal);
+  outline-offset: 2px;
 }
 
 /* Hero slide art direction: only present when a slide has a dedicated

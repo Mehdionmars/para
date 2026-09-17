@@ -951,6 +951,18 @@ export const Home: GlobalConfig = {
         { name: 'tag', type: 'text' },
         { name: 'title', type: 'text', required: true },
         { name: 'sub', type: 'textarea' },
+        {
+          // What "Offrir" puts in the cart, and what the picture opens at
+          // /shop/promo/coffret-cadeaux/<slug>. A card is only buyable through a
+          // real product: checkout prices and stocks products, never this card.
+          name: 'product',
+          type: 'relationship',
+          relationTo: 'products',
+          admin: {
+            description:
+              "Produit vendu par cette carte. « Offrir » l'ajoute au panier, l'image ouvre sa page, et son prix remplace celui saisi ci-dessous.",
+          },
+        },
         { name: 'price', type: 'number', min: 0, required: true },
         {
           name: 'priceFrom',

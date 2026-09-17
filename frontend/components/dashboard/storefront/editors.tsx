@@ -602,6 +602,7 @@ export function CoffretsEditor({ value, onChange }: { value: Coffret[]; onChange
           tag: "",
           title: "Nouveau coffret",
           sub: "",
+          product: null,
           price: 0,
           priceFrom: false,
           image: { url: "" },
@@ -616,10 +617,23 @@ export function CoffretsEditor({ value, onChange }: { value: Coffret[]; onChange
             <TextField label="Étiquette" value={c.tag} onChange={(tag) => update({ tag })} />
             <TextField label="Titre" value={c.title} onChange={(title) => update({ title })} />
             <TextAreaField label="Sous-titre" value={c.sub} onChange={(sub) => update({ sub })} />
-            <NumberField label="Prix (MAD)" value={c.price} min={0} onChange={(price) => update({ price })} />
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-gray-600">Produit vendu</span>
+              <ProductPicker
+                selected={c.product ? [c.product] : []}
+                onChange={(sel: ProductRef[]) => update({ product: sel[sel.length - 1] || null })}
+                max={1}
+              />
+              <span className="text-[11px] text-gray-400">
+                {c.product
+                  ? "« Offrir » ajoute ce produit au panier et l'image ouvre sa page. Son prix remplace celui ci-dessous."
+                  : "Sans produit, la carte ne peut pas être ajoutée au panier : « Offrir » renvoie vers le lien du CTA."}
+              </span>
+            </label>
+            <NumberField label={c.product ? "Prix (MAD) — ignoré, prix du produit" : "Prix (MAD)"} value={c.price} min={0} onChange={(price) => update({ price })} />
             <CheckboxField label='Afficher "à partir de"' checked={c.priceFrom} onChange={(priceFrom) => update({ priceFrom })} />
             <TextField label="Texte du CTA" value={c.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-            <TextField label="Lien du CTA" value={c.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+            {!c.product && <TextField label="Lien du CTA" value={c.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />}
             <TextField label="Message de confirmation" value={c.toast} onChange={(toast) => update({ toast })} />
           </FieldGroup>
         )}

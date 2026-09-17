@@ -12,6 +12,8 @@ export const routes = {
   brands: () => "/marques",
   brand: (slug: string) => `/marques/${slug}`,
   product: (slug: string) => `/produit/${slug}`,
+  /** A gift box's page, opened from its card on the home page. */
+  coffret: (slug: string) => `/shop/promo/coffret-cadeaux/${slug}`,
   search: (query: string) => `/catalogue?q=${encodeURIComponent(query)}`,
 } as const;
 

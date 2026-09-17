@@ -99,6 +99,7 @@ type RawCoffret = {
   price: number;
   priceFrom?: boolean;
   image?: PayloadMediaRef;
+  product?: number | { id: number } | null;
   ctaLabel?: string;
   ctaUrl?: string;
   toast?: string;
@@ -133,7 +134,26 @@ export type LiveHeroSlide = {
   img: string;
   mobileImg: string;
 };
-export type LiveCoffret = { tag: string; title: string; sub: string; price: number; priceFrom?: boolean; img: string; ctaLabel: string; ctaUrl: string; toast: string };
+export type LiveCoffret = {
+  tag: string;
+  title: string;
+  sub: string;
+  price: number;
+  priceFrom?: boolean;
+  img: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  toast: string;
+  /** Present only when the linked product is on sale — see fetchProductsByIds. */
+  product?: { id: number; slug: string; name: string; brand: string; price: number; old: number; image: string };
+};
+
+/** The cart-ready part of a product sold by a coffret card, or nothing when
+ * the card has no product on sale. */
+function coffretProductFields(p: LiveProduct | undefined): Pick<LiveCoffret, "product"> {
+  if (!p) return {};
+  return { product: { id: p.id, slug: p.slug, name: p.name, brand: p.brand, price: p.price, old: p.old || 0, image: p.image } };
+}
 export type LiveCoffretsCopy = {
   eyebrow: string;
   title: string;
@@ -354,8 +374,13 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       mobileImg: resolveMediaUrl(s.mobileImage),
     }));
 
-  const coffrets: LiveCoffret[] = (home.coffrets || [])
-    .filter((c: RawCoffret) => c.active !== false)
+  const rawCoffrets = ((home.coffrets || []) as RawCoffret[]).filter((c) => c.active !== false);
+  const coffretProducts = await fetchProductsByIds(
+    rawCoffrets.map((c) => relId(c.product)).filter((id: number | null): id is number => id !== null),
+  );
+  const coffretProductById = new Map(coffretProducts.map((p) => [p.id, p]));
+
+  const coffrets: LiveCoffret[] = rawCoffrets
     .map((c: RawCoffret) => ({
       tag: c.tag || "",
       title: c.title,
@@ -366,6 +391,7 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       ctaLabel: c.ctaLabel || "Offrir",
       ctaUrl: c.ctaUrl || "/catalogue",
       toast: c.toast || "",
+      ...coffretProductFields(coffretProductById.get(relId(c.product) ?? -1)),
     }));
   const coffretsCopy: LiveCoffretsCopy = {
     eyebrow: (home.coffretsCopy as RawCoffretsCopy)?.eyebrow || "Idées cadeaux",

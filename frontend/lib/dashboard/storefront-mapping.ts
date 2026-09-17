@@ -165,7 +165,7 @@ export type DermoCornerCopy = {
   autoplaySpeedMs: number;
 };
 export type ImageCarouselCopy = { eyebrow: string; title: string; subtitle: string; ctaLabel: string; ctaUrl: string; picksTitle: string; image: ImageRef };
-export type Coffret = { active: boolean; tag: string; title: string; sub: string; price: number; priceFrom: boolean; image: ImageRef; ctaLabel: string; ctaUrl: string; toast: string };
+export type Coffret = { active: boolean; tag: string; title: string; sub: string; product: ProductRef | null; price: number; priceFrom: boolean; image: ImageRef; ctaLabel: string; ctaUrl: string; toast: string };
 export type CoffretsCopy = {
   eyebrow: string;
   title: string;
@@ -374,6 +374,7 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       tag: c.tag || "",
       title: c.title || "",
       sub: c.sub || "",
+      product: productRef(c.product),
       price: c.price || 0,
       priceFrom: !!c.priceFrom,
       image: mediaRef(c.image),
@@ -562,6 +563,7 @@ export function mapDraftToPayload(draft: HomeDraft): Record<string, unknown> {
       tag: c.tag,
       title: c.title,
       sub: c.sub,
+      product: c.product?.id || null,
       price: c.price,
       priceFrom: c.priceFrom,
       image: img(c.image),

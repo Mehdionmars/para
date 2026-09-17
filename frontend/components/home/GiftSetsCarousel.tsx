@@ -5,57 +5,75 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { useRef } from "react";
 import { Rail, type RailHandle } from "@/components/Rail";
+import { useCart } from "@/context/cart-context";
 import { useToast } from "@/context/toast-context";
 import { COFFRETS, COFFRETS_COPY } from "@/data/home";
 import { money } from "@/data/products";
+import { routes } from "@/lib/routes";
 
 type Coffret = (typeof COFFRETS)[number];
 type CoffretsCopy = typeof COFFRETS_COPY;
 
+/**
+ * A coffret as a product tile: the picture, then the copy beneath it.
+ *
+ * The copy used to sit on a dark scrim over the photo, which hid the box it
+ * was describing. The card now reads top to bottom — picture, name, line,
+ * price and "Offrir" — and lifts slightly on hover.
+ *
+ * Two targets, never nested: the picture opens the coffret's page, "Offrir"
+ * puts it in the cart. Both need a product behind the card (set in the
+ * Storefront Builder); without one the picture is not a link and "Offrir"
+ * falls back to the card's own CTA link, since there is nothing to sell.
+ */
 function CoffretCard({ c }: { c: Coffret }) {
+  const cart = useCart();
   const toast = useToast();
+  const product = c.product;
+  const price = product ? product.price : c.price;
+  const old = product && product.old > product.price ? product.old : 0;
+
+  const picture = (
+    <>
+      <CloudinaryImage preset="category" src={c.img} alt="" fill sizes="(max-width: 767px) 80vw, 380px" style={{ objectFit: "cover" }} />
+      {c.tag && <span className="giftset-card-tag">{c.tag}</span>}
+    </>
+  );
+
+  function offer() {
+    if (!product) return;
+    cart.addProduct(product, 1);
+    toast.fire(c.toast || `${c.title} ajouté au panier`, { label: "Voir le panier", onClick: cart.openCart });
+  }
+
   return (
-    <button
-      type="button"
-      role="listitem"
-      onClick={() => toast.fire(c.toast)}
-      className="giftset-card"
-      style={{
-        position: "relative",
-        height: 320,
-        borderRadius: 20,
-        overflow: "hidden",
-        cursor: "pointer",
-        border: "1px solid var(--pdh-plum-tint)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-end",
-        textAlign: "start",
-      }}
-    >
-      <CloudinaryImage preset="category" src={c.img} alt={c.title} fill sizes="380px" style={{ objectFit: "cover" }} />
-      <div aria-hidden="true" className="giftset-scrim" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 26%,rgba(var(--pdh-ink-rgb), 0.62) 58%,rgba(38,32,20,.9) 100%)" }} />
-      <div className="giftset-copy" style={{ position: "relative", zIndex: 3, padding: 26 }}>
-        {c.tag && (
-          <span style={{ display: "inline-block", background: "var(--pdh-cream)", color: "var(--pdh-plum)", fontSize: 10, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 999 }}>
-            {c.tag}
-          </span>
+    <article className="giftset-card">
+      {product ? (
+        <Link href={routes.coffret(product.slug)} className="giftset-card-media" aria-label={c.title}>
+          {picture}
+        </Link>
+      ) : (
+        <div className="giftset-card-media">{picture}</div>
+      )}
+      <h3 className="giftset-card-title">{c.title}</h3>
+      {c.sub && <p className="giftset-card-sub">{c.sub}</p>}
+      <div className="giftset-card-foot">
+        <span className="giftset-card-price">
+          {c.priceFrom ? "Dès " : ""}
+          {money(price)}
+          {old > 0 && <s className="giftset-card-old">{money(old)}</s>}
+        </span>
+        {product ? (
+          <button type="button" className="giftset-card-cta" onClick={offer}>
+            {c.ctaLabel || "Offrir"}
+          </button>
+        ) : (
+          <Link href={c.ctaUrl || "/catalogue"} className="giftset-card-cta">
+            {c.ctaLabel || "Offrir"}
+          </Link>
         )}
-        <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 24, lineHeight: 1.15, margin: "12px 0 6px", maxWidth: 280, color: "var(--pdh-cream)", textShadow: "0 1px 12px rgba(30,24,14,.5)" }}>
-          {c.title}
-        </div>
-        <div style={{ fontSize: 12.5, color: "rgba(var(--pdh-cream-rgb), 0.82)", maxWidth: 280, lineHeight: 1.6 }}>{c.sub}</div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 16 }}>
-          <span style={{ fontFamily: "var(--font-alta)", fontSize: 21, color: "var(--pdh-cream)", whiteSpace: "nowrap" }}>
-            {c.priceFrom ? "Dès " : ""}
-            {money(c.price)}
-          </span>
-          <span className="link-hover" style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--pdh-cream)", borderBottom: "1px solid rgba(var(--pdh-cream-rgb), 0.5)", paddingBottom: 2, whiteSpace: "nowrap" }}>
-            {c.ctaLabel} →
-          </span>
-        </div>
       </div>
-    </button>
+    </article>
   );
 }
 
@@ -105,7 +123,7 @@ export function GiftSetsCarousel({ coffrets, copy: copyProp }: { coffrets?: Coff
           style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,240px),1fr))", gap: "clamp(12px,1.7vw,20px)" }}
         >
           {items.map((c, i) => (
-            <div key={c.title} style={i === 0 && items.length >= 3 ? { gridColumn: "span 2" } : undefined}>
+            <div key={c.title} role="listitem" style={i === 0 && items.length >= 3 ? { gridColumn: "span 2" } : undefined}>
               <CoffretCard c={c} />
             </div>
           ))}
