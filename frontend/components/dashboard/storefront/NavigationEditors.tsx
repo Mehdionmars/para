@@ -239,8 +239,8 @@ export function CategoryStripEditor({
   return (
     <div className="flex flex-col gap-4">
       <EditorHeading
-        title="Bande de catégories (mobile)"
-        description="Raccourcis affichés sous l'en-tête sur téléphone uniquement — masqués à partir de 768px, où ces liens sont déjà dans le menu principal."
+        title="Catégories rapides (ronds photo)"
+        description="Les ronds avec photo en haut de la page d'accueil, sur téléphone et tablette — masqués à partir de 1024px, où le menu principal les remplace. Désactivée, la boutique affiche une sélection par défaut."
       />
 
       <FieldGroup>
@@ -283,9 +283,15 @@ export function CategoryStripEditor({
             onAdd={value.items.length < 10 ? () => ({ ...EMPTY_CATEGORY_CHIP }) : undefined}
             renderItem={(chip, _i, updateChip) => (
               <FieldGroup>
+                <ImagePicker
+                  label="Photo (carrée, recadrée en rond)"
+                  imageId={chip.image.id}
+                  imageUrl={chip.image.url}
+                  onChange={(id, url) => updateChip({ ...chip, image: { id, url } })}
+                />
                 <LinkFieldsEditor
                   value={chip}
-                  onChange={updateChip}
+                  onChange={(link) => updateChip({ ...chip, ...link })}
                   linkTypes={NAV_LINK_TYPES}
                   categories={categories}
                   brands={brands}

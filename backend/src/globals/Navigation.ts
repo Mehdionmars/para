@@ -288,7 +288,7 @@ export const Navigation: GlobalConfig = {
       type: 'group',
       admin: {
         description:
-          "Bande de catégories horizontale affichée sous l'en-tête, sur mobile uniquement (masquée à partir de 768px, où ces liens sont déjà dans le menu principal).",
+          "Les ronds photo en haut de la page d'accueil, sur téléphone et tablette (masqués à partir de 1024px, où le menu principal les remplace). Désactivée, la boutique affiche une sélection par défaut.",
       },
       fields: [
         {

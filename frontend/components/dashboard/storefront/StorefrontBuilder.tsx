@@ -608,6 +608,18 @@ export function StorefrontBuilder({
       <div className="flex min-h-0 flex-1">
         <aside className="w-64 flex-none overflow-y-auto border-r border-gray-200 bg-white p-3">
           {activeTab === "home" ? (
+            <>
+            {/* The photo circles open the home page but are not a home
+                section: they are edited with the navigation. Without this
+                pointer editors looked for them in this list and found nothing. */}
+            <button
+              type="button"
+              onClick={() => setActiveTab("navigation")}
+              className="mb-3 w-full rounded-md border border-dashed border-gray-300 px-2.5 py-2 text-left text-xs text-gray-600 hover:border-violet-300 hover:bg-violet-50"
+            >
+              <span className="block font-medium text-gray-800">Catégories rapides (ronds photo)</span>
+              Se modifient dans l&apos;onglet Navigation →
+            </button>
             <SectionList
               sections={draft.sections}
               onChange={(sections) => update({ sections })}
@@ -619,6 +631,7 @@ export function StorefrontBuilder({
               draft={draft}
               instagramPostCount={instagramPostCount}
             />
+            </>
           ) : activeTab === "navigation" ? (
             <NavigationList
               items={navigation.draft.items}

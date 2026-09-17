@@ -1186,7 +1186,10 @@ export type NavItemDraft = NavLinkDraft & {
  * bespoke shape: a chip points at a category, a brand or a route the same way
  * every other navigation link does, so it shares the link mapper and the
  * LinkPicker instead of growing a parallel way to describe a destination. */
-export type CategoryChipDraft = NavLinkDraft;
+/** A chip is a link plus its round photo. The photo exists in the CMS
+ * (catStrip.items.image) but the Builder never read or wrote it, so a strip
+ * set up here could only ever show monograms. */
+export type CategoryChipDraft = NavLinkDraft & { image: ImageRef };
 
 export type CategoryStripDraft = {
   enabled: boolean;
@@ -1202,6 +1205,7 @@ export const EMPTY_CATEGORY_CHIP: CategoryChipDraft = {
   category: { name: "" },
   collectionRoute: "",
   customUrl: "",
+  image: { url: "" },
   label: "Nouvelle catégorie",
   pageRoute: "",
   type: "category",
@@ -1253,7 +1257,7 @@ export function mapNavigationDocToDraft(nav: any): NavigationDraft {
       allChipLabel: nav.catStrip?.allChipLabel || "Tout",
       enabled: nav.catStrip?.enabled === true,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      items: (nav.catStrip?.items || []).map((i: any) => mapNavLinkDocToDraft(i)),
+      items: (nav.catStrip?.items || []).map((i: any) => ({ ...mapNavLinkDocToDraft(i), image: mediaRef(i.image) })),
       showAllChip: nav.catStrip?.showAllChip !== false,
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1293,7 +1297,7 @@ export function mapNavigationDraftToPayload(draft: NavigationDraft): Record<stri
       items: draft.catStrip.items.map((chip) => {
         const { label, visible, type, category, brand, collectionRoute, pageRoute, customUrl } =
           mapNavLinkDraftToPayload(chip) as Record<string, unknown>;
-        return { brand, category, collectionRoute, customUrl, label, pageRoute, type, visible };
+        return { brand, category, collectionRoute, customUrl, image: img(chip.image), label, pageRoute, type, visible };
       }),
       showAllChip: draft.catStrip.showAllChip,
     },
