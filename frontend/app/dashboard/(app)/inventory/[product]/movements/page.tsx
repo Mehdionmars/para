@@ -39,7 +39,7 @@ export default async function ProductMovementsPage({ params }: { params: Promise
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">

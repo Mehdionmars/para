@@ -1,15 +1,17 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/dashboard/cn";
 
-const badgeVariants = cva("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", {
+// Pale fill with a matching hairline, so a status reads on a white card
+// without turning into a solid block of colour.
+const badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium", {
   defaultVariants: { variant: "default" },
   variants: {
     variant: {
-      default: "bg-gray-100 text-gray-700",
-      success: "bg-emerald-100 text-emerald-700",
-      warning: "bg-amber-100 text-amber-700",
-      danger: "bg-red-100 text-red-700",
-      info: "bg-sky-100 text-sky-700",
+      default: "border-gray-200 bg-gray-50 text-gray-700",
+      success: "border-emerald-200/80 bg-emerald-50 text-emerald-700",
+      warning: "border-amber-200/80 bg-amber-50 text-amber-700",
+      danger: "border-red-200/80 bg-red-50 text-red-700",
+      info: "border-sky-200/80 bg-sky-50 text-sky-700",
     },
   },
 });

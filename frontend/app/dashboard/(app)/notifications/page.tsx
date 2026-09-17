@@ -21,7 +21,7 @@ type Group = (typeof GROUPS)[number]["value"];
 
 function Stat({ label, value, tone = "" }: { label: string; value: number; tone?: string }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white px-3 py-2.5">
+    <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs px-3 py-2.5">
       <p className={`text-lg font-semibold tabular-nums ${tone || "text-gray-900"}`}>{value}</p>
       <p className="mt-0.5 text-[11px] leading-tight text-gray-500">{label}</p>
     </div>

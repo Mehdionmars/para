@@ -393,7 +393,7 @@
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: #f3f4f6; /* gray-100, as used by every dashboard card */
+  --border: rgb(229 231 235 / 0.7); /* gray-200 at 70%, the dashboard card rule */
   --input: #e5e7eb;
   --ring: #c4b5fd; /* violet-300, the dashboard's focus ring */
 }

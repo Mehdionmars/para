@@ -78,7 +78,7 @@ export function DeliveryMonitor({ deliveries }: { deliveries: NotificationRow[] 
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <div className="overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-xs">
       {/* Table on desktop, cards on mobile — nine columns on a phone would
           force horizontal scrolling to reach the retry button. */}
       <table className="hidden w-full text-sm md:table">

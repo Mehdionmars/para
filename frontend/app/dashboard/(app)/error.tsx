@@ -42,7 +42,7 @@ export default function DashboardError({
 
   return (
     <div className="flex min-h-full items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
+      <div className="w-full max-w-md rounded-xl border border-gray-200/70 bg-white shadow-xs p-6 text-center">
         <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-red-50 text-red-600">
           <TriangleAlert className="h-5 w-5" aria-hidden="true" />
         </span>

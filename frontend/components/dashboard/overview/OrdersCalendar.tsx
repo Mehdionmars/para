@@ -107,7 +107,7 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
         <div>
           <h2 className="text-sm font-semibold text-gray-900">Calendrier des commandes</h2>

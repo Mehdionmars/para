@@ -34,7 +34,7 @@ export default function OrderDetailLoading() {
       </header>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]" aria-hidden="true">
-        <div className="rounded-xl border border-gray-200 bg-white">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs">
           <div className="border-b border-gray-100 px-4 py-2.5">
             <Block className="h-3 w-24" />
           </div>
@@ -50,7 +50,7 @@ export default function OrderDetailLoading() {
           ))}
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white lg:self-start">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs lg:self-start">
           <div className="border-b border-gray-100 px-4 py-2.5">
             <Block className="h-3 w-16" />
           </div>
@@ -65,7 +65,7 @@ export default function OrderDetailLoading() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2" aria-hidden="true">
         {[0, 1].map((i) => (
-          <div key={i} className="rounded-xl border border-gray-200 bg-white">
+          <div key={i} className="rounded-xl border border-gray-200/70 bg-white shadow-xs">
             <div className="border-b border-gray-100 px-4 py-2.5">
               <Block className="h-3 w-20" />
             </div>
@@ -78,7 +78,7 @@ export default function OrderDetailLoading() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white" aria-hidden="true">
+      <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs" aria-hidden="true">
         <div className="border-b border-gray-100 px-4 py-2.5">
           <Block className="h-3 w-32" />
         </div>
@@ -92,7 +92,7 @@ export default function OrderDetailLoading() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white" aria-hidden="true">
+      <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs" aria-hidden="true">
         {[0, 1, 2].map((i) => (
           <div key={i} className="border-b border-gray-100 px-4 py-3.5 last:border-0">
             <Block className="h-3.5 w-40" />

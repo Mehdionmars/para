@@ -47,7 +47,7 @@ export function OverviewTabs({
   coupons: Coupon[] | null;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs">
       <Tabs
         tabs={[
           {

@@ -40,21 +40,21 @@ export default async function InvoicesPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Factures</div>
           <div className="mt-1 text-xl font-semibold text-gray-900">{invoices.length}</div>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Montant total facturé</div>
           <div className="mt-1 text-xl font-semibold text-gray-900">{money(totalInvoiced)}</div>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Commandes non facturables</div>
           <div className="mt-1 text-xl font-semibold text-gray-900">{orders.length - invoices.length}</div>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">

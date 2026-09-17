@@ -118,7 +118,7 @@ export function ProductsTable({
   return (
     <>
       {/* ------------------------------------------------ desktop table */}
-      <div className="hidden overflow-hidden rounded-2xl border border-gray-100 bg-white md:block">
+      <div className="hidden overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-xs md:block">
         <table className="w-full table-fixed text-sm">
           <caption className="sr-only">Catalogue produits, triable et sélectionnable</caption>
           <colgroup>

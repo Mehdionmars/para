@@ -9,7 +9,7 @@ import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
  */
 export function ProductsTableSkeleton({ rows = 10 }: { rows?: number }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white" aria-hidden="true">
+    <div className="overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-xs" aria-hidden="true">
       <div className="hidden h-11 items-center gap-4 border-b border-gray-100 px-4 md:flex">
         <div className="h-4 w-4 rounded bg-gray-100" />
         <div className="h-3 w-32 rounded bg-gray-100" />

@@ -67,7 +67,7 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         <span className="text-sm text-gray-500">{rows.length} commande(s)</span>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">

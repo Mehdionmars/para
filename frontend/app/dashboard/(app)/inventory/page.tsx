@@ -72,23 +72,23 @@ export default async function InventoryPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Produits</div>
           <div className="mt-1 text-xl font-semibold text-gray-900">{products.length}</div>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Stock faible</div>
           <div className="mt-1 text-xl font-semibold text-amber-600">{lowStockCount}</div>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Rupture</div>
           <div className="mt-1 text-xl font-semibold text-red-600">{outOfStockCount}</div>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Expiration proche (60j)</div>
           <div className="mt-1 text-xl font-semibold text-amber-600">{expiringProductIds.size}</div>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
           <div className="text-xs text-gray-500">Réappro. récents</div>
           <div className="mt-1 text-xl font-semibold text-gray-900">{recentRestocks}</div>
         </div>
@@ -98,7 +98,7 @@ export default async function InventoryPage() {
 
       <div>
         <h2 className="mb-3 text-sm font-semibold text-gray-900">Derniers mouvements de stock</h2>
-        <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">
