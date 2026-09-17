@@ -30,10 +30,10 @@ export const HERO_SLIDES: HeroSlide[] = [
     "ctaUrl": "/catalogue",
     "secondaryCta": "",
     "secondaryCtaUrl": "",
-    "align": "left",
+    "align": "right",
     "overlay": true,
     "bg": "linear-gradient(120deg,#2f1f3d,#5E4074 60%,#4b3563)",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/visage.png",
+    "img": "/api/cms-media/visage.png",
     "mobileImg": ""
   },
   {
@@ -47,7 +47,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     "align": "right",
     "overlay": true,
     "bg": "linear-gradient(120deg,#123a44,#008AA5 65%,#0d5f70)",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/solaire.png",
+    "img": "/api/cms-media/solaire.png",
     "mobileImg": ""
   },
   {
@@ -61,7 +61,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     "align": "right",
     "overlay": true,
     "bg": "linear-gradient(120deg,#3a3324,#5b4e33 60%,#373020)",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/nuxe-solaire.jpg",
+    "img": "/api/cms-media/nuxe-solaire.jpg",
     "mobileImg": ""
   }
 ];
@@ -97,17 +97,19 @@ export const RAILS: RailDef[] = [
     "eyebrow": "Sélection du moment",
     "title": "Les essentiels de la saison",
     "subtitle": "Découvrez notre sélection pensée pour prendre soin de vous au quotidien.",
-    "productSource": "latest",
+    "productSource": "category",
     "productIds": [],
-    "category": "",
+    "category": "Visage",
     "brandFilterId": null,
     "limit": 8,
     "sortOrder": "newest",
-    "ctaLabel": "Explorer la selection",
-    "ctaUrl": "/catalogue",
+    "ctaLabel": "Voir tout",
+    "ctaUrl": "/shop/visage",
     "badgeStyle": "none",
     "editorial": {
-      "image": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/imgi_43_block_2_m.jpg"
+      "image": "/api/cms-media/arbre-marques.png",
+      "imageWidth": 1024,
+      "imageHeight": 1024
     }
   },
   {
@@ -115,36 +117,50 @@ export const RAILS: RailDef[] = [
     "eyebrow": "Nouveautés",
     "title": "Les nouveautés à découvrir",
     "subtitle": "Les dernières références entrées en pharmacie.",
-    "productSource": "brand",
-    "productIds": [
-      716,
-      717
-    ],
-    "category": "",
-    "brandFilterId": 16,
-    "limit": 8,
-    "sortOrder": "price-desc",
-    "ctaLabel": "Voir tout",
-    "ctaUrl": "/catalogue",
-    "badgeStyle": "none",
-    "editorial": {
-      "image": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/imgi_45_block_4_m.jpg"
-    }
-  },
-  {
-    "key": "best",
-    "eyebrow": "Best sellers",
-    "title": "Les meilleures ventes",
-    "subtitle": "Les produits préférés de nos clientes et clients cette saison.",
-    "productSource": "manual",
+    "productSource": "latest",
     "productIds": [],
     "category": "",
-    "brandFilterId": null,
+    "brandFilterId": 18,
     "limit": 8,
     "sortOrder": "newest",
     "ctaLabel": "Voir tout",
     "ctaUrl": "/catalogue",
     "badgeStyle": "none"
+  },
+  {
+    "key": "best",
+    "eyebrow": "Best sellers",
+    "title": "Soins du corps",
+    "subtitle": "Laits, baumes et soins ciblés",
+    "productSource": "category",
+    "productIds": [],
+    "category": "Corps",
+    "brandFilterId": null,
+    "limit": 8,
+    "sortOrder": "newest",
+    "ctaLabel": "Voir tout",
+    "ctaUrl": "/shop/corps",
+    "badgeStyle": "none"
+  },
+  {
+    "key": "rail-1788783106613",
+    "eyebrow": "Sélection",
+    "title": "Cheveux & cuir chevelu",
+    "subtitle": "",
+    "productSource": "category",
+    "productIds": [],
+    "category": "Cheveux",
+    "brandFilterId": null,
+    "limit": 8,
+    "sortOrder": "newest",
+    "ctaLabel": "Voir tout",
+    "ctaUrl": "/shop/cheveux",
+    "badgeStyle": "none",
+    "editorial": {
+      "image": "/api/cms-media/imgi_165_cat-2.jpg",
+      "imageWidth": 1000,
+      "imageHeight": 1000
+    }
   }
 ];
 
@@ -155,13 +171,13 @@ export const CTA_PAIR_1 = [
     "eyebrow": "Dermocosmétique",
     "title": "Prenez soin de votre peau",
     "bg": "#EFE6F3",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/dermo.png"
+    "img": "/api/cms-media/imgi_165_cat-3.jpg"
   },
   {
     "eyebrow": "Cheveux",
     "title": "Révélez la beauté de vos cheveux",
     "bg": "#E4F1F4",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/cheveux.png"
+    "img": "/api/cms-media/imgi_276_cat-70-800x800.jpg"
   }
 ];
 
@@ -170,17 +186,43 @@ export const CTA_PAIR_2 = [
     "eyebrow": "Visage",
     "title": "Une routine adaptée à votre peau",
     "bg": "#F2E9F2",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/maquillage.png"
+    "img": "/api/cms-media/imgi_186_cat-19.jpg"
   },
   {
     "eyebrow": "Corps",
     "title": "Des soins pour chaque moment",
     "bg": "#F5F0E3",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/complements.png"
+    "img": "/api/cms-media/imgi_200_cat-42.jpg"
   }
 ];
 
-export const DERMO_PICKS: { id: number; actif: string; claim: string }[] = [];
+export const DERMO_PICKS: { id: number; actif: string; claim: string }[] = [
+  {
+    "id": 221,
+    "actif": "Acide hyaluronique",
+    "claim": "Barrière cutanée fortifiée"
+  },
+  {
+    "id": 77,
+    "actif": "Zinc PCA",
+    "claim": "Peaux grasses à imperfections"
+  },
+  {
+    "id": 142,
+    "actif": "Céramides",
+    "claim": "Hydratation 24 h"
+  },
+  {
+    "id": 32,
+    "actif": "Cica",
+    "claim": "Zones fragilisées, gerçures"
+  },
+  {
+    "id": 145,
+    "actif": "UVMune 400",
+    "claim": "Très haute protection UVA"
+  }
+];
 
 export const CTA_BANNER_COPY = {
   "eyebrow": "",
@@ -200,18 +242,30 @@ export const DERMO_CORNER_COPY = {
   "ctaLabel": "Voir le rayon dermo",
   "ctaUrl": "/catalogue",
   "picksTitle": "Nos soins dermo favoris",
-  "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ShinSpa2-780x675.png",
+  "img": "/api/cms-media/imgi_179_cat-13.jpg",
   "autoplay": true,
   "autoplaySpeedMs": 4500
 };
 
-export const CAMPAIGN_PRODUCT_IDS = [];
+export const CAMPAIGN_PRODUCT_IDS = [
+  59,
+  79,
+  163,
+  76,
+  74,
+  142,
+  154,
+  145,
+  153,
+  150
+];
 
 export const IMAGE_CAROUSEL_PRODUCT_IDS = [
-  810,
-  731,
-  758,
-  738
+  76,
+  56,
+  57,
+  78,
+  79
 ];
 
 export const IMAGE_CAROUSEL_COPY = {
@@ -221,7 +275,7 @@ export const IMAGE_CAROUSEL_COPY = {
   "ctaLabel": "Voir la sélection",
   "ctaUrl": "/catalogue",
   "picksTitle": "Notre sélection",
-  "img": ""
+  "img": "/api/cms-media/ShinSpa2-780x675-1.png"
 };
 
 // `highlights[].icon` stays a plain string name (not a resolved
@@ -254,13 +308,13 @@ export type SummerEditAct = { eyebrow: string; title: string; description: strin
 
 export const SUMMER_EDIT_COPY: SummerEditCopy = {
   "eyebrow": "01 / Summer Edit",
-  "year": "2026",
+  "year": "",
   "title": "L'été commence",
   "titleAccent": "par la peau",
   "description": "Protection solaire, hydratation intense et soins après-soleil pour une peau sublimée tout l’été.",
   "ctaLabel": "Découvrir la sélection",
   "ctaUrl": "/catalogue",
-  "img": "",
+  "img": "/api/cms-media/ShinSpa2-780x675.png",
   "imgMobile": "",
   "imagePosition": "right",
   "imageScale": 1.06,
@@ -320,7 +374,7 @@ export const TABS = ["Tous", "Visage", "Corps", "Cheveux"] as const;
 export const PROMOTIONS_GRID = {
   "title": "Les offres du moment",
   "subtitle": "Profitez de nos meilleures offres.",
-  "limit": 6
+  "limit": 8
 };
 
 export type TrustBadge = { title: string; sub: string; icon: LucideIcon };
@@ -354,8 +408,8 @@ export const COFFRETS_COPY = {
   "ctaLabel": "Tous les coffrets",
   "ctaUrl": "/collections",
   "layout": "carousel",
-  "visibleDesktop": 3,
-  "visibleMobile": 1
+  "visibleDesktop": 6,
+  "visibleMobile": 3
 };
 
 // Explicit type (rather than inferring from the const, as elsewhere in this
@@ -369,7 +423,7 @@ export const COFFRETS: Coffret[] = [
     "title": "Coffret Rituel d'Hiver",
     "sub": "Nettoyant doux, sérum hydratant et baume réparateur, dans une boîte cadeau.",
     "price": 549,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/coffrets.png",
+    "img": "/api/cms-media/coffrets.png",
     "ctaLabel": "Offrir",
     "ctaUrl": "/catalogue",
     "toast": "Coffret Rituel d'Hiver ajouté au panier"
@@ -379,18 +433,28 @@ export const COFFRETS: Coffret[] = [
     "title": "Coffret Peau Sensible",
     "sub": "Le duo eau thermale + cicaplast, pour les peaux réactives.",
     "price": 319,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/coffret-hall.png",
+    "img": "/api/cms-media/coffret-hall.png",
     "ctaLabel": "Offrir",
     "ctaUrl": "/catalogue",
     "toast": "Coffret Peau Sensible ajouté au panier"
   },
   {
-    "tag": "Nouveau",
-    "title": "Carte cadeau",
-    "sub": "De 200 à 2 000 MAD, valable en ligne et en institut.",
+    "tag": "PACK REPAIR",
+    "title": " SHAMPOOING + APRÈS-SHAMPOOING",
+    "sub": "",
+    "price": 349,
+    "img": "/api/cms-media/bjorn-axen-pack-repair-1.webp",
+    "ctaLabel": "Offrir",
+    "ctaUrl": "/produit/pack-repair-shampooing-apres-shampooing",
+    "toast": ""
+  },
+  {
+    "tag": "OFFRE SPÉCIALE FILORGA",
+    "title": "Cadeau a offrir",
+    "sub": " À l’achat de 3 produits FILORGA, recevez une jolie trousse Summer FILORGA OFFERTE !",
     "price": 200,
     "priceFrom": true,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/nuxe-solaire.jpg",
+    "img": "/api/cms-media/WhatsApp%20Image%202026-09-15%20at%2016.52.51.jpeg",
     "ctaLabel": "Offrir",
     "ctaUrl": "/catalogue",
     "toast": "Carte cadeau ajoutée au panier"
@@ -413,13 +477,7 @@ export const BRANDS: string[] = [
   "Bioderma",
   "Vichy",
   "CeraVe",
-  "Uriage",
-  "Nuxe",
-  "Klorane",
-  "Ducray",
-  "Mustela",
-  "Lierac",
-  "SVR"
+  "Nuxe"
 ];
 
 export type ReviewBar = { n: string; pct: number };
@@ -475,37 +533,37 @@ export const COLLECTIONS: CollectionCard[] = [
     "title": "Rituel d'hiver",
     "sub": "Nettoyer, réparer, protéger : la routine froid et vent.",
     "count": "24 produits",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/visage.png"
+    "img": "/api/cms-media/visage.png"
   },
   {
     "title": "Peaux sensibles",
     "sub": "Formules minimalistes, sans parfum, testées sous contrôle dermatologique.",
     "count": "38 produits",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/dermo.png"
+    "img": "/api/cms-media/dermo.png"
   },
   {
     "title": "Cheveux & cuir chevelu",
     "sub": "Chute, pellicules, longueurs abîmées : protocoles ciblés.",
     "count": "31 produits",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/cheveux.png"
+    "img": "/api/cms-media/cheveux.png"
   },
   {
     "title": "Solaire toute l'année",
     "sub": "SPF 50+ visage et corps, y compris en altitude.",
     "count": "18 produits",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/solaire.png"
+    "img": "/api/cms-media/solaire.png"
   },
   {
     "title": "Bébé & maman",
     "sub": "Grossesse, post-partum et peau des tout-petits.",
     "count": "27 produits",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/baby.png"
+    "img": "/api/cms-media/baby.png"
   },
   {
     "title": "Coffrets & cadeaux",
     "sub": "Rituels prêts à offrir, emballés à la main.",
     "count": "12 coffrets",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/coffrets.png"
+    "img": "/api/cms-media/coffrets.png"
   }
 ];
 
@@ -594,8 +652,16 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
     "visible": true
   },
   {
+    "key": "ctaPair1",
+    "visible": true
+  },
+  {
     "key": "rail:nouveautes",
     "visible": true
+  },
+  {
+    "key": "summerEdit",
+    "visible": false
   },
   {
     "key": "promotionsGrid",
@@ -614,19 +680,11 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
     "visible": true
   },
   {
+    "key": "services",
+    "visible": false
+  },
+  {
     "key": "coffrets",
-    "visible": true
-  },
-  {
-    "key": "rail:best",
-    "visible": true
-  },
-  {
-    "key": "ctaPair1",
-    "visible": true
-  },
-  {
-    "key": "summerEdit",
     "visible": true
   },
   {
@@ -634,27 +692,27 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
     "visible": true
   },
   {
-    "key": "services",
+    "key": "rail:best",
     "visible": true
   },
   {
     "key": "imageCarousel",
-    "visible": true
+    "visible": false
   },
   {
     "key": "dermoCorner",
     "visible": true
   },
   {
-    "key": "rail:coup-de-coeur",
-    "visible": true
-  },
-  {
     "key": "brandsFeatured",
-    "visible": true
+    "visible": false
   },
   {
     "key": "brandsMarquee",
+    "visible": true
+  },
+  {
+    "key": "rail:rail-1788783106613",
     "visible": true
   },
   {
@@ -662,12 +720,16 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
     "visible": true
   },
   {
-    "key": "instagram",
+    "key": "ctaBanner",
     "visible": true
   },
   {
-    "key": "newsletter",
+    "key": "instagram",
     "visible": false
+  },
+  {
+    "key": "newsletter",
+    "visible": true
   },
   {
     "key": "trustBar",
@@ -682,23 +744,23 @@ export const CAMPAIGN_COPY = {
   "ctaLabel": "Voir la sélection",
   "ctaUrl": "/catalogue",
   "railTitle": "Nos coups de cœur",
-  "img": ""
+  "img": "/api/cms-media/imgi_242_cat-41.jpg"
 };
 
 export const MARKETING_BANNERS = [
   {
-    "campaign": "Eté 2026",
+    "campaign": "campagne-2026-09-07",
     "imageMode": "overlay",
-    "eyebrow": "SAISON ÉTÉ",
-    "title": "Votre peau, notre priorité",
-    "description": "Découvrez notre sélection solaire pour une peau protégée, hydratée et éclatante tout l'été.",
-    "ctaLabel": "DÉCOUVRIR LA SÉLECTION",
-    "ctaUrl": "/shop/solaire",
-    "badgeLabel": "JUSQU'À -40%",
+    "eyebrow": "",
+    "title": "",
+    "description": "",
+    "ctaLabel": "",
+    "ctaUrl": "/catalogue",
+    "badgeLabel": "",
     "active": true,
     "startDate": "",
     "endDate": "",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/solaire.png",
+    "img": "/api/cms-media/ChatGPT%20Image%2017%20ao%C3%BBt%202026%2C%2013_44_36.png",
     "imgMobile": ""
   }
 ];
@@ -710,7 +772,7 @@ export const NEWSLETTER_COPY = {
   "buttonLabel": "S'inscrire",
   "successMessage": "Merci ! Votre code −10% arrive par email",
   "logoEnabled": true,
-  "logoSize": 65,
+  "logoSize": 76,
   "logoPosition": "left",
   "backgroundColor": "#5E4074",
   "textColor": "#FFFFFF",

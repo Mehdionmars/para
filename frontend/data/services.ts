@@ -25,8 +25,8 @@ export type Service = {
 
 export const SERVICES: Service[] = [
   {
-    "id": 6,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/baby.png",
+    "id": 12,
+    "img": "/api/cms-media/baby.png",
     "title": "Atelier future maman",
     "sub": "Routine grossesse et post-partum, sélection de soins sûrs pour vous et bébé.",
     "price": 0,
@@ -65,8 +65,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 5,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/arbre-marques.png",
+    "id": 11,
+    "img": "/api/cms-media/arbre-marques.png",
     "title": "Épilation",
     "sub": "Cire tiède hypoallergénique, protocole apaisant avant et après séance.",
     "price": 99,
@@ -105,8 +105,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 4,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/maquillage.png",
+    "id": 10,
+    "img": "/api/cms-media/maquillage.png",
     "title": "Conseil maquillage",
     "sub": "Teint, correction et sélection de produits adaptés à votre carnation.",
     "price": 249,
@@ -145,8 +145,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 3,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/cheveux.png",
+    "id": 9,
+    "img": "/api/cms-media/cheveux.png",
     "title": "Soin capillaire",
     "sub": "Diagnostic du cuir chevelu et soin ciblé chute, pellicules ou cheveux abîmés.",
     "price": 199,
@@ -185,8 +185,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 2,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/visage.png",
+    "id": 8,
+    "img": "/api/cms-media/visage.png",
     "title": "Soin du visage éclat",
     "sub": "Nettoyage profond, gommage doux et masque hydratant adaptés aux peaux sensibles.",
     "price": 299,
@@ -225,8 +225,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 1,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/dermo.png",
+    "id": 7,
+    "img": "/api/cms-media/dermo.png",
     "title": "Diagnostic de peau",
     "sub": "Analyse complète du teint, de l'hydratation et de la sensibilité, avec une routine sur mesure.",
     "price": 0,

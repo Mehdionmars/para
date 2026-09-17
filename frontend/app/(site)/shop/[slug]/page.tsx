@@ -4,6 +4,7 @@ import { CatalogueView } from "@/components/catalogue/CatalogueView";
 import { MEGA_MENU, NAV_ITEMS } from "@/data/nav";
 import type { Category } from "@/data/products";
 import { routes } from "@/lib/routes";
+import { fetchCategoryNameBySlug } from "@/lib/storefront/categories";
 import { REAL_CATEGORY_BY_SLUG } from "@/lib/storefront/shopTaxonomy";
 import { fetchAllBrandsWithCounts } from "@/lib/storefront/catalogue";
 
@@ -101,12 +102,13 @@ function findMegaLink(slug: string) {
 }
 
 /** Resolves a slug to its display label, trying the nav entry first (so an
- * existing nav item's exact wording still wins) and falling back to the
- * category/quick-filter value for slugs that only exist as a direct
- * product filter, not a nav entry. */
-function resolveLabel(slug: string): string | null {
+ * existing nav item's exact wording still wins), then the category of that
+ * slug in the CMS, then the category/quick-filter value for slugs that only
+ * exist as a direct product filter, not a nav entry. */
+async function resolveLabel(slug: string): Promise<string | null> {
   return (
     findNavItem(slug)?.label ??
+    (await fetchCategoryNameBySlug(slug)) ??
     REAL_CATEGORY_BY_SLUG[slug] ??
     QUICK_FILTER_BY_SLUG[slug] ??
     findMegaLink(slug)?.label ??
@@ -116,7 +118,7 @@ function resolveLabel(slug: string): string | null {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const label = resolveLabel(slug);
+  const label = await resolveLabel(slug);
   if (!label) return { title: "Catalogue — Para d'Hiver" };
   const title = `${label} — Para d'Hiver`;
   const description = `Découvrez notre sélection ${label} : soins dermocosmétiques et parapharmacie en ligne au Maroc, livrés partout au pays.`;
@@ -141,7 +143,7 @@ export default async function ShopCategoryPage({
   const brandTarget = await brandRedirect(slug);
   if (brandTarget) redirect(brandTarget);
 
-  const label = resolveLabel(slug);
+  const label = await resolveLabel(slug);
   if (!label) notFound();
 
   // An aisle wins over the broad category when a slug is both — "solaire" is

@@ -212,7 +212,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     ? navigation.navItems.length > 0
       ? navigation.navItems
       : DEFAULT_NAV_ITEMS
-    : NAV_ITEMS;
+    : // The snapshot is synced from the CMS, so it is empty whenever the CMS
+      // menu is — as on preprod. Unreachable plus an empty snapshot still
+      // needs a menu bar.
+      NAV_ITEMS.length > 0
+      ? NAV_ITEMS
+      : DEFAULT_NAV_ITEMS;
   const megaMenu = navigation?.megaMenu ?? MEGA_MENU;
   // The mobile category strip used to render here, under the header on every
   // page. It belongs to the home page now — above the hero, which is the only

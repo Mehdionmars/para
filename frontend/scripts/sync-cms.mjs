@@ -73,10 +73,22 @@ async function fetchSectionRegistry() {
   return registry
 }
 
+/**
+ * The same rule as lib/mediaSrc.ts (a .ts module this script cannot import):
+ * files Payload stores itself go through the shop's /api/cms-media proxy.
+ *
+ * Prefixing them with CMS_URL wrote the address this script fetched from into
+ * the snapshot — http://localhost:3001 through the SSH tunnel — so every image
+ * the CMS serves from its own disk pointed at a host only the machine that ran
+ * the sync could reach.
+ */
+const CMS_FILE_PREFIX = '/api/media/file/'
 const mediaURL = (doc) => {
   if (!doc) return ''
   const url = typeof doc === 'string' ? '' : doc.url || ''
-  return url.startsWith('http') ? url : `${CMS_URL}${url}`
+  if (!url || url.startsWith('http')) return url
+  if (url.startsWith(CMS_FILE_PREFIX)) return `/api/cms-media/${url.slice(CMS_FILE_PREFIX.length)}`
+  return url
 }
 
 /** Extracts a relationship's id (or `field`, when the relation is optional
@@ -105,7 +117,7 @@ function writeGenerated(filename, content) {
  * renders. It is plain ESM precisely so this bare-Node script can load it. */
 const resolveBadges = (p) => resolveBadgesForDoc(p)
 
-async function syncProducts(brandsById, mediaByAlt) {
+async function syncProducts(brandsById, brandSlugsById, mediaByAlt) {
   const products = await fetchAllDocs('products')
 
   const img = {}
@@ -115,6 +127,9 @@ async function syncProducts(brandsById, mediaByAlt) {
     id: p.id,
     slug: p.slug || String(p.id),
     brand: brandsById.get(relId(p.brand)) || '',
+    // Omitted rather than '' when the brand has no slug: the storefront shows
+    // the name as plain text then, instead of linking a guessed URL.
+    ...(brandSlugsById.get(relId(p.brand)) ? { brandSlug: brandSlugsById.get(relId(p.brand)) } : {}),
     name: p.name,
     size: p.size || '',
     price: p.price,
@@ -163,6 +178,10 @@ export type Product = {
   id: number;
   slug: string;
   brand: string;
+  /** The brand's own slug from the CMS, for /marques/[slug]. Absent on a
+   * product with no brand (or a brand with no slug) — the name is then shown
+   * as plain text rather than linked to a guessed URL. */
+  brandSlug?: string;
   name: string;
   size: string;
   price: number;
@@ -323,7 +342,16 @@ async function syncHome() {
     ctaLabel: r.ctaLabel || 'Voir tout',
     ctaUrl: r.ctaUrl || '/catalogue',
     badgeStyle: r.badgeStyle || 'none',
-    ...(r.editorialImage ? { editorial: { image: mediaURL(r.editorialImage) } } : {}),
+    ...(r.editorialImage
+      ? {
+          editorial: {
+            image: mediaURL(r.editorialImage),
+            ...(r.editorialImage?.width && r.editorialImage?.height
+              ? { imageWidth: r.editorialImage.width, imageHeight: r.editorialImage.height }
+              : {}),
+          },
+        }
+      : {}),
   }))
 
   const brandsFeatured = (home.brandsFeatured || [])
@@ -346,6 +374,18 @@ async function syncHome() {
   const dermoPicks = (home.dermoPicks || [])
     .map((d) => ({ id: relId(d.product), actif: d.actif, claim: d.claim }))
     .filter((d) => d.id !== null)
+
+  // Same defaults as lib/storefront/homeContent.ts.
+  const ctaBannerCopy = {
+    eyebrow: home.ctaBannerCopy?.eyebrow || '',
+    title: home.ctaBannerCopy?.title || '',
+    description: home.ctaBannerCopy?.description || '',
+    ctaLabel: home.ctaBannerCopy?.ctaLabel || '',
+    ctaUrl: home.ctaBannerCopy?.ctaUrl || '/contact',
+    bg: home.ctaBannerCopy?.bg || '#F7EEE5',
+    textColor: home.ctaBannerCopy?.textColor || '#373020',
+    ctaColor: home.ctaBannerCopy?.ctaColor || '#5E4074',
+  }
 
   const dermoCornerCopy = {
     eyebrow: home.dermoCornerCopy?.eyebrow || 'Dermo corner',
@@ -562,7 +602,7 @@ export type RailDef = {
   ctaLabel: string;
   ctaUrl: string;
   badgeStyle: RailBadgeStyle;
-  editorial?: { image: string };
+  editorial?: { image: string; imageWidth?: number; imageHeight?: number };
 };
 
 export type BrandFeatured = { name: string; slug: string; phrase: string; img: string; ctaLabel: string };
@@ -576,6 +616,8 @@ export const CTA_PAIR_1 = ${JSON.stringify(ctaPair1, null, 2)};
 export const CTA_PAIR_2 = ${JSON.stringify(ctaPair2, null, 2)};
 
 export const DERMO_PICKS: { id: number; actif: string; claim: string }[] = ${JSON.stringify(dermoPicks, null, 2)};
+
+export const CTA_BANNER_COPY = ${JSON.stringify(ctaBannerCopy, null, 2)};
 
 export const DERMO_CORNER_COPY = ${JSON.stringify(dermoCornerCopy, null, 2)};
 
@@ -1146,9 +1188,10 @@ async function main() {
 
   const [brandDocs, mediaDocs] = await Promise.all([fetchAllDocs('brands', 0), fetchAllDocs('media', 0)])
   const brandsById = new Map(brandDocs.map((b) => [b.id, b.name]))
+  const brandSlugsById = new Map(brandDocs.filter((b) => b.slug).map((b) => [b.id, b.slug]))
   const mediaByAlt = new Map(mediaDocs.map((m) => [m.alt, m]))
 
-  await syncProducts(brandsById, mediaByAlt)
+  await syncProducts(brandsById, brandSlugsById, mediaByAlt)
   await syncServices()
 
   const homeContent = await syncHome()

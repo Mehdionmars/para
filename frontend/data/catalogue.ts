@@ -62,7 +62,7 @@ export const QUICK_FILTERS: string[] = [
 export const FEATURED_TILE = {
   title: "Le rayon dermocosmétique",
   sub: "Les marques prescrites en pharmacie, à prix parapharmacie.",
-  img: "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/dermo.png",
+  img: "/api/cms-media/dermo.png",
 };
 
 // Explicit types (rather than inferring from the const) because an empty CMS
@@ -74,17 +74,17 @@ export const EDITORIAL_TILES: EditorialTile[] = [
   {
     "title": "Nouveautés",
     "sub": "Les dernières références en rayon",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/visage.png"
+    "img": "/api/cms-media/visage.png"
   },
   {
     "title": "Peaux sensibles",
     "sub": "Formules sans parfum",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/arbre-marques.png"
+    "img": "/api/cms-media/arbre-marques.png"
   },
   {
     "title": "Coffrets",
     "sub": "Prêts à offrir",
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/coffrets.png"
+    "img": "/api/cms-media/coffrets.png"
   }
 ];
 
@@ -131,7 +131,7 @@ export const GUIDE = {
   title: "Comment choisir sa crème hydratante ?",
   body: "Peau sèche, mixte ou réactive : nos pharmaciens décryptent les textures, les actifs à privilégier en hiver et les associations à éviter avec un traitement dermatologique.",
   cta: "Lire le guide",
-  img: "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/visage.png",
+  img: "/api/cms-media/visage.png",
 };
 
 export const SEO_INTRO = {

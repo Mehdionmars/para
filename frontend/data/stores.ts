@@ -26,5 +26,18 @@ export const STORES: Store[] = [
     "mapUrl": "https://www.google.com/maps/search/?api=1&query=4A%20All%C3%A9e%20des%20Amandiers%2C%20A%C3%AFn%20Seba%C3%A2%2C%20Casablanca%2020000",
     "name": "Para d'Hiver — Aïn Sebaâ",
     "phone": "06 19 96 90 07"
+  },
+  {
+    "address": "Adresse à compléter",
+    "email": "",
+    "hours": [
+      {
+        "days": "Horaires à compléter",
+        "hours": "—"
+      }
+    ],
+    "mapUrl": "https://www.google.com/maps/search/?api=1&query=Adresse%20%C3%A0%20compl%C3%A9ter",
+    "name": "Para d'Hiver — Magasin 2 (à compléter)",
+    "phone": "Téléphone à compléter"
   }
 ];

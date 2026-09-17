@@ -21,8 +21,8 @@ export type Product = {
   id: number;
   slug: string;
   brand: string;
-  /** The brand's own slug from the CMS, for /marques/[slug]. Absent on the
-   * offline snapshot and on a product with no brand — the name is then shown
+  /** The brand's own slug from the CMS, for /marques/[slug]. Absent on a
+   * product with no brand (or a brand with no slug) — the name is then shown
    * as plain text rather than linked to a guessed URL. */
   brandSlug?: string;
   name: string;
@@ -39,772 +39,107 @@ export type Product = {
 
 export const PRODUCTS: Product[] = [
   {
-    "id": 880,
-    "slug": "psorisdin-shampooing-anti-desquamative-traitement",
-    "brand": "Isdin",
-    "name": "Psorisdin® Shampooing Anti Desquamative Traitement",
-    "size": "400 ml",
-    "price": 210,
-    "old": 0,
-    "cat": "Cheveux",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Elimine la desquamation et atténue les rougeurs. Particulièrement indiqué pour les personnes atteintes de psoriasis.\nGrâce à ses ingrédients, il élimine la desquamation, réduit les rougeurs et soulage les démangeaisons qui accompagnent la desquamation. Laisse les cheveux doux et faciles à coiffer."
-  },
-  {
-    "id": 814,
-    "slug": "saforelle-soin-lavant-doux-100ml",
-    "brand": "Saforelle",
-    "name": "Soin Lavant Doux Apaisant",
-    "size": "100 ml",
-    "price": 38,
-    "old": 0,
-    "cat": "Hygiène",
-    "badges": [
-      {
-        "text": "Exclu web",
-        "bgColor": "#00758A",
-        "textColor": "#FFFFFF",
-        "priority": 4
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Soin lavant intime et corporel doux, prescrit par les gynécologues depuis 1990. Formulé avec extrait de bardane, sans savon, sans paraben et sans colorant, il nettoie et apaise les peaux sensibles ou irritées tout en respectant la flore."
-  },
-  {
-    "id": 813,
-    "slug": "la-roche-posay-lipikar-huile-lavante-400ml",
-    "brand": "La Roche-Posay",
-    "name": "Lipikar Huile Lavante AP+",
-    "size": "400 ml",
-    "price": 152,
-    "old": 0,
-    "cat": "Hygiène",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Huile lavante pour les sécheresses cutanées sévères et les peaux atopiques, de la naissance à l'âge adulte. Formulée avec Aqua Posae Filiformis, niacinamide et beurre de karité pour apaiser les démangeaisons et hydrater 24 heures."
-  },
-  {
-    "id": 812,
-    "slug": "la-roche-posay-lipikar-syndet-ap-200ml",
-    "brand": "La Roche-Posay",
-    "name": "Lipikar Syndet AP+ Crème Lavante Relipidante",
-    "size": "200 ml",
-    "price": 103,
-    "old": 0,
-    "cat": "Hygiène",
-    "badges": [
-      {
-        "text": "Routine",
-        "bgColor": "#F7EEE5",
-        "textColor": "#373020",
-        "priority": 5
-      },
-      {
-        "text": "Coup de cœur",
-        "bgColor": "#F7EEE5",
-        "textColor": "#6D28D9",
-        "priority": 6
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Crème lavante sans savon pour l'hygiène quotidienne des peaux atopiques sujettes à l'eczéma, dès la naissance. Formulée avec glycérine, niacinamide, beurre de karité et mannose pour réduire les démangeaisons et la sécheresse."
-  },
-  {
-    "id": 811,
-    "slug": "solgar-omega-3-30-capsules",
-    "brand": "Solgar",
-    "name": "Oméga 3 Capsules",
-    "size": "30 capsules",
-    "price": 270,
-    "old": 0,
-    "cat": "Compléments alimentaires",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Complément alimentaire à base d'huile de poisson des mers froides, apportant des acides gras polyinsaturés oméga-3 sous forme naturelle. Deux capsules fournissent 720 mg d'EPA et 480 mg de DHA. Sans sucre, sans gluten, sans additifs artificiels."
-  },
-  {
-    "id": 810,
-    "slug": "arkopharma-acerola-1000-vitd3-20-comprimes",
-    "brand": "Arkopharma",
-    "name": "Acérola 1000 + Vitamine D3 Comprimés Effervescents",
-    "size": "20 comprimés",
-    "price": 86,
-    "old": 0,
-    "cat": "Compléments alimentaires",
-    "badges": [
-      {
-        "text": "Nouveauté",
-        "bgColor": "#6D28D9",
-        "textColor": "#FFFFFF",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Complément alimentaire 100% végétal associant vitamine C d'acérola (170 mg) et vitamine D3 de lichen boréal (2000 UI) en comprimés effervescents. La vitamine C aide à réduire la fatigue tandis que la vitamine D3 soutient la santé osseuse."
-  },
-  {
-    "id": 809,
-    "slug": "solgar-vitamine-d3-1000ui-100-comprimes",
-    "brand": "Solgar",
-    "name": "Vitamine D3 1000 UI Comprimés à Croquer",
-    "size": "100 comprimés",
-    "price": 163,
-    "old": 0,
-    "cat": "Compléments alimentaires",
-    "badges": [
-      {
-        "text": "Offre spéciale",
-        "bgColor": "#6D28D9",
-        "textColor": "#FFFFFF",
-        "priority": 7
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Complément alimentaire apportant 1000 UI (25µg) de vitamine D3 par comprimé à croquer, pour le maintien des os et des dents et le fonctionnement normal du système immunitaire. Saveur fraise-banane, sans gluten ni levure, convient aux végétariens."
-  },
-  {
-    "id": 808,
-    "slug": "inava-brosse-a-dents-parodontie",
-    "brand": "Inava",
-    "name": "Brosse à Dents Parodontie",
-    "size": "1 unité",
-    "price": 47,
-    "old": 0,
-    "cat": "Bucco-Dentaire",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Brosse à dents aux poils souples Tynex coupés en V inversé pour un accès facilité aux espaces interdentaires. Adaptée à la reprise progressive du brossage après une intervention chirurgicale, elle protège les gencives fragiles et les tissus cicatriciels."
-  },
-  {
-    "id": 807,
-    "slug": "parodontax-dentifrice-complete-protection-75ml",
-    "brand": "Parodontax",
-    "name": "Dentifrice Complete Protection",
-    "size": "75 ml",
-    "price": 54,
-    "old": 0,
-    "cat": "Bucco-Dentaire",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Dentifrice quotidien au fluor qui nettoie en profondeur les dents tout en aidant à stopper et prévenir les saignements des gencives. Formulé avec du fluorure de sodium (1400 ppm) et de la silice pour un nettoyage complet et une haleine fraîche."
-  },
-  {
-    "id": 806,
-    "slug": "elmex-dentifrice-anti-caries-professional-75ml",
-    "brand": "Elmex",
-    "name": "Dentifrice Anti-Caries Professional",
-    "size": "75 ml",
-    "price": 81,
-    "old": 0,
-    "cat": "Bucco-Dentaire",
-    "badges": [
-      {
-        "text": "Best-seller",
-        "bgColor": "#111827",
-        "textColor": "#FFFFFF",
-        "priority": 3
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Dentifrice quotidien à partir de 7 ans contenant un neutraliseur prébiotique d'acides qui bloque les attaques acido-sucrées responsables des caries en rétablissant la neutralité du pH de la flore buccale. Fluor et calcium renforcent l'émail dentaire."
-  },
-  {
-    "id": 805,
-    "slug": "mustela-lait-solaire-spf50-40ml",
-    "brand": "Mustela",
-    "name": "Lait Solaire SPF50+ Très Haute Protection",
-    "size": "40 ml",
-    "price": 118,
-    "old": 0,
-    "cat": "Baby & Mom",
-    "badges": [
-      {
-        "text": "Nouveauté",
-        "bgColor": "#6D28D9",
-        "textColor": "#FFFFFF",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Lait solaire très haute protection pour bébés et toute la famille dès la naissance. Formulé sans octocrylène et enrichi en perséose d'avocat, il hydrate tout en protégeant contre les UVA/UVB. Résistant à l'eau, respectueux des océans."
-  },
-  {
-    "id": 804,
-    "slug": "uriage-bebe-1er-change-creme-100ml",
-    "brand": "Uriage",
-    "name": "Bébé 1er Change Crème",
-    "size": "100 ml",
-    "price": 86,
-    "old": 0,
-    "cat": "Baby & Mom",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Crème pour le change à l'edelweiss bio qui réduit les rougeurs, apaise la peau et prévient l'érythème fessier. Formulée à 96% d'ingrédients d'origine naturelle avec l'eau thermale d'Uriage, oxyde de zinc, cire d'abeille, karité et jojoba."
-  },
-  {
-    "id": 803,
-    "slug": "mustela-hydra-bebe-creme-visage-avocat-40ml",
-    "brand": "Mustela",
-    "name": "Hydra Bébé Crème Visage à l'Avocat Bio",
-    "size": "40 ml",
-    "price": 86,
-    "old": 0,
-    "cat": "Baby & Mom",
-    "badges": [
-      {
-        "text": "Best-seller",
-        "bgColor": "#111827",
-        "textColor": "#FFFFFF",
-        "priority": 3
-      },
-      {
-        "text": "Routine",
-        "bgColor": "#F7EEE5",
-        "textColor": "#373020",
-        "priority": 5
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Crème hydratante visage spécialement formulée pour les nouveau-nés et nourrissons, à la perséose d'avocat bio. Combine glycérine végétale, huile de jojoba, beurre de karité et vitamine E pour hydrater et apaiser dès la naissance."
-  },
-  {
-    "id": 802,
-    "slug": "la-roche-posay-toleriane-fluide-correcteur-spf25-30ml",
-    "brand": "La Roche-Posay",
-    "name": "Toleriane Fluide Correcteur Haute Couvrance SPF25",
-    "size": "30 ml",
-    "price": 211,
-    "old": 0,
-    "cat": "Maquillage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Fond de teint fluide correcteur haute couvrance pour peaux fragiles ou intolérantes, avec eau thermale de La Roche-Posay. Texture fine et légère, très étalable, tenue toute la journée sans effet masque. Protection SPF25."
-  },
-  {
-    "id": 801,
-    "slug": "avene-couvrance-mascara-haute-tolerance-7ml",
-    "brand": "Avène",
-    "name": "Couvrance Mascara Haute Tolérance",
-    "size": "7 ml",
-    "price": 190,
-    "old": 0,
-    "cat": "Maquillage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Mascara haute tolérance spécialement formulé pour les yeux sensibles et les porteuses de lentilles de contact. Volume, courbe et définition des cils grâce à une brosse innovante anti-paquets. Tenue 8 heures, se retire facilement."
-  },
-  {
-    "id": 800,
-    "slug": "avene-couvrance-fond-de-teint-fluide-spf20-30ml",
-    "brand": "Avène",
-    "name": "Couvrance Fond de Teint Correcteur Fluide SPF20",
-    "size": "30 ml",
-    "price": 195,
-    "old": 0,
-    "cat": "Maquillage",
-    "badges": [
-      {
-        "text": "Nouveauté",
-        "bgColor": "#6D28D9",
-        "textColor": "#FFFFFF",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Fond de teint fluide correcteur pour peaux sensibles, avec SPF20. Couvre parfaitement les petites irrégularités du teint et les imperfections légères à modérées, sans effet masque, grâce à des pigments photo-correcteurs."
-  },
-  {
-    "id": 799,
-    "slug": "isdin-fusion-water-magic-fluide-spf50-50ml",
-    "brand": "Isdin",
-    "name": "Fusion Water Magic Fluide Solaire SPF50",
-    "size": "50 ml",
-    "price": 243,
-    "old": 0,
-    "cat": "Solaire",
-    "badges": [
-      {
-        "text": "Édition limitée",
-        "bgColor": "#373020",
-        "textColor": "#FFFFFF",
-        "priority": 8
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Protection solaire visage ultra-légère avec système de filtres Full Spectrum contre UVB, UVA, lumière bleue et infrarouges A. Enrichie en acide hyaluronique, glycérine et extrait d'algues méditerranéennes. Absorption immédiate, sans film gras."
-  },
-  {
-    "id": 798,
-    "slug": "vichy-capital-soleil-creme-onctueuse-spf50-50ml",
-    "brand": "Vichy",
-    "name": "Capital Soleil Crème Solaire Onctueuse SPF50+",
-    "size": "50 ml",
-    "price": 76,
-    "old": 108,
-    "cat": "Solaire",
-    "badges": [
-      {
-        "text": "−30%",
-        "bgColor": "var(--pdh-sale-strong)",
-        "textColor": "#FFFFFF",
-        "priority": 1
-      },
-      {
-        "text": "Solde",
-        "bgColor": "#DC2626",
-        "textColor": "#FFFFFF",
-        "priority": 7
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Crème solaire onctueuse haute protection pour peau sensible, normale à sèche. Combine filtres chimiques et minéraux contre les rayons UVA/UVB avec de la glycérine et de l'acide hyaluronique. Texture soyeuse, résistante à l'eau."
-  },
-  {
-    "id": 797,
-    "slug": "la-roche-posay-anthelios-uvmune-400-fluide-spf50-50ml",
-    "brand": "La Roche-Posay",
-    "name": "Anthelios UVMune 400 Fluide Solaire Invisible SPF50+",
-    "size": "50 ml",
-    "price": 115,
-    "old": 147,
-    "cat": "Solaire",
-    "badges": [
-      {
-        "text": "−22%",
-        "bgColor": "var(--pdh-sale-strong)",
-        "textColor": "#FFFFFF",
-        "priority": 1
-      },
-      {
-        "text": "Nouveauté",
-        "bgColor": "#6D28D9",
-        "textColor": "#FFFFFF",
-        "priority": 2
-      },
-      {
-        "text": "Best-seller",
-        "bgColor": "#111827",
-        "textColor": "#FFFFFF",
-        "priority": 3
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Fluide solaire invisible SPF50+ à très haute protection pour peaux sensibles, sans parfum. Grâce au Mexoryl, protège aussi des UVA longs (380-400nm) responsables des dommages cellulaires profonds. Fini invisible, non gras, résiste à l'eau."
-  },
-  {
-    "id": 796,
-    "slug": "klorane-shampooing-quinine-edelweiss-100ml",
-    "brand": "Klorane",
-    "name": "Shampooing Quinine et Edelweiss Bio",
-    "size": "100 ml",
-    "price": 108,
-    "old": 0,
-    "cat": "Cheveux",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Shampooing antichute à la quinine et à l'edelweiss bio, complément d'un traitement contre la chute de cheveux. Un complexe de vitamines B et de caféine renforce la fibre capillaire et stimule la microcirculation du cuir chevelu."
-  },
-  {
-    "id": 795,
-    "slug": "phyto-phytocyane-shampooing-revigorant-250ml",
-    "brand": "Phyto",
-    "name": "Phytocyane Shampooing Revigorant",
-    "size": "250 ml",
-    "price": 92,
-    "old": 0,
-    "cat": "Cheveux",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Shampooing revigorant complément d'un traitement antichute chez la femme. Enrichi en extrait de ginkgo biloba pour stimuler la microcirculation et en romarin pour protéger le cuir chevelu, il nettoie en douceur et redonne du volume aux cheveux."
-  },
-  {
-    "id": 794,
-    "slug": "ducray-kelual-ds-shampooing-traitant-100ml",
-    "brand": "Ducray",
-    "name": "Kelual DS Shampooing Traitant",
-    "size": "100 ml",
-    "price": 129,
-    "old": 0,
-    "cat": "Cheveux",
-    "badges": [
-      {
-        "text": "Exclu web",
-        "bgColor": "#00758A",
-        "textColor": "#FFFFFF",
-        "priority": 4
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Shampooing traitant antipelliculaire pour états pelliculaires sévères associés à des démangeaisons du cuir chevelu. Formulé avec ciclopirox olamine et piroctone olamine, il réduit de moitié le nombre de pellicules dès la première semaine."
-  },
-  {
-    "id": 793,
-    "slug": "klorane-shampoing-extra-doux-avoine-400ml",
-    "brand": "Klorane",
-    "name": "Shampoing Extra-Doux à l'Avoine",
-    "size": "400 ml",
-    "price": 108,
-    "old": 0,
-    "cat": "Cheveux",
-    "badges": [
-      {
-        "text": "Routine",
-        "bgColor": "#F7EEE5",
-        "textColor": "#373020",
-        "priority": 5
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Shampoing extra-doux au lait d'avoine bio, adapté aux cheveux fragiles de toute la famille dès 3 ans. Formule sans sulfates qui adoucit, protège et hydrate les cheveux tout en les nettoyant en douceur."
-  },
-  {
-    "id": 792,
-    "slug": "uriage-xemose-creme-relipidante-200ml",
-    "brand": "Uriage",
-    "name": "Xémose C8+ Crème Relipidante Anti-Grattage",
-    "size": "200 ml",
-    "price": 134,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Crème relipidante pour peaux atopiques sujettes à l'eczéma et à la sécheresse extrême. Formulée avec l'eau thermale d'Uriage, 8 céramides biomimétiques et beurre de karité pour soulager les démangeaisons et protéger la barrière cutanée dès la naissance."
-  },
-  {
-    "id": 791,
-    "slug": "cerave-lait-hydratant-visage-corps-236ml",
-    "brand": "CeraVe",
-    "name": "Lait Hydratant Visage et Corps",
-    "size": "236 ml",
-    "price": 98,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Best-seller",
-        "bgColor": "#111827",
-        "textColor": "#FFFFFF",
-        "priority": 3
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Lait hydratant pour peaux très sèches, visage et corps. Contient 3 céramides, acide hyaluronique et glycérine pour restaurer la barrière d'hydratation, réduire les tiraillements et lisser la texture de la peau. Sans parfum."
-  },
-  {
-    "id": 790,
-    "slug": "avene-cold-cream-mains-concentree-50ml",
-    "brand": "Avène",
-    "name": "Cold Cream Crème Mains Concentrée",
-    "size": "50 ml",
-    "price": 54,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Crème mains concentrée pour mains sèches à très sèches ou abîmées. Nourrit, apaise et répare grâce au Cold Cream, à l'eau thermale d'Avène et à l'alpha-bisabolol. Texture riche à absorption rapide, sans effet gras."
-  },
-  {
-    "id": 789,
-    "slug": "nuxe-reve-de-miel-gel-lavant-surgras-400ml",
-    "brand": "Nuxe",
-    "name": "Rêve de Miel Gel Lavant Surgras",
-    "size": "400 ml",
-    "price": 141,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Coup de cœur",
-        "bgColor": "#F7EEE5",
-        "textColor": "#6D28D9",
-        "priority": 6
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Gel lavant surgras au miel d'acacia et à l'huile de tournesol pour le soin quotidien des peaux sèches et sensibles, visage et corps. Respecte la barrière hydrolipidique tout en apportant douceur et confort après chaque douche."
-  },
-  {
-    "id": 788,
-    "slug": "cerave-gel-moussant-nettoyant-88ml",
-    "brand": "CeraVe",
-    "name": "Gel Moussant Nettoyant",
-    "size": "88 ml",
-    "price": 134,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Best-seller",
-        "bgColor": "#111827",
-        "textColor": "#FFFFFF",
-        "priority": 3
-      },
-      {
-        "text": "Routine",
-        "bgColor": "#F7EEE5",
-        "textColor": "#373020",
-        "priority": 5
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Gel nettoyant moussant pour peaux normales à grasses, formulé par des dermatologues avec 3 céramides essentiels et acide hyaluronique. Élimine l'excès de sébum et les impuretés sans agresser le film hydrolipidique. Non comédogène."
-  },
-  {
-    "id": 787,
-    "slug": "vichy-mineral-89-booster-quotidien-50ml",
-    "brand": "Vichy",
-    "name": "Minéral 89 Booster Quotidien",
-    "size": "50 ml",
-    "price": 228,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveauté",
-        "bgColor": "#6D28D9",
-        "textColor": "#FFFFFF",
-        "priority": 2
-      },
-      {
-        "text": "Coup de cœur",
-        "bgColor": "#F7EEE5",
-        "textColor": "#6D28D9",
-        "priority": 6
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Sérum quotidien composé à 89% d'eau volcanique de Vichy enrichie en 15 minéraux et acide hyaluronique. Renforce les défenses naturelles de la peau et apporte une hydratation intense. Sans alcool, sans paraben, sans parfum."
-  },
-  {
-    "id": 786,
-    "slug": "bioderma-crealine-h2o-ts-eau-micellaire-250ml",
-    "brand": "Bioderma",
-    "name": "Créaline H2O TS Eau Micellaire",
-    "size": "250 ml",
-    "price": 108,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Routine",
-        "bgColor": "#F7EEE5",
-        "textColor": "#373020",
-        "priority": 5
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Eau micellaire douce pour peaux très sèches et sensibles du visage. Démaquille et nettoie sans rinçage, enrichie en glycérine et extrait de plantain pour hydrater et apaiser tout en renforçant la barrière protectrice naturelle de la peau."
-  },
-  {
-    "id": 785,
-    "slug": "la-roche-posay-effaclar-gel-moussant-purifiant-400ml",
-    "brand": "La Roche-Posay",
-    "name": "Effaclar Gel Moussant Purifiant",
-    "size": "400 ml",
-    "price": 226,
-    "old": 348,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "−35%",
-        "bgColor": "var(--pdh-sale-strong)",
-        "textColor": "#FFFFFF",
-        "priority": 1
-      },
-      {
-        "text": "Best-seller",
-        "bgColor": "#111827",
-        "textColor": "#FFFFFF",
-        "priority": 3
-      },
-      {
-        "text": "Exclu web",
-        "bgColor": "#00758A",
-        "textColor": "#FFFFFF",
-        "priority": 4
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Gel nettoyant moussant purifiant pour peaux grasses à imperfections. Élimine l'excès de sébum et les impuretés tout en respectant la barrière cutanée, grâce à l'eau thermale de La Roche-Posay et au zinc. Recommandé matin et soir pour les peaux acnéiques."
-  },
-  {
-    "id": 583,
-    "slug": "d-biotic-creme-emolliente-pediatrique-200-ml",
-    "brand": "D-Biotic",
-    "name": "D-BIOTIC Crème émolliente pédiatrique 200 ml",
+    "id": 250,
+    "slug": "pack-durcisseur-extra-fort-dissolvant",
+    "brand": "Herôme",
+    "brandSlug": "herome",
+    "name": "PACK DURCISSEUR EXTRA FORT + DISSOLVANT",
     "size": "",
-    "price": 140,
-    "old": 0,
-    "cat": "Visage",
+    "price": 269,
+    "old": 330,
+    "cat": "Corps",
     "badges": [
       {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
+        "text": "−18%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
       }
     ],
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "D-biotic crème émolliente pédiatrique est une combi_x0002_naison puissante d’actifs de dernière génération à base de sept (07) Ceramides et des actifs pré, pro et post biotiques"
+    "desc": "Le Pack Herôme Extra Fort est un soin intensif destiné aux ongles extrêmement fragiles, très mous ou sévèrement cassants. Il associe le Durcisseur Extra Fort, la formule la plus puissante de Herôme, à un dissolvant soignant sans acétone, pour une routine complète qui renforce l'ongle sans l'agresser.\n\nIngrédients clés :\nProvitamine B5 : pénètre dans la plaque de l'ongle pour maintenir l'hydratation et éviter la rugosité.\nVitamines C et E : antioxydants qui revitalisent l'ongle et le protègent des agressions extérieures.\nExtrait de graines de céleri : prend soin de la structure de l'ongle pour un aspect plus lisse et uniforme.\n\nConseils d'utilisation :\nJour 1 : appliquer une couche de durcisseur sur des ongles propres et secs.\nJour 2 : appliquer une deuxième couche.\nJour 3 : retirer les couches avec le dissolvant sans acétone Herôme, puis appliquer une nouvelle couche de durcisseur.\nJour 4 : appliquer une deuxième couche, et ainsi de suite pendant 30 jours.\nEn cure intensive, quatre fois par an."
   },
   {
-    "id": 582,
-    "slug": "d-biotic-creme-solaire-75-ml",
-    "brand": "D-Biotic",
-    "name": "D-BIOTIC Crème solaire 75 ml",
+    "id": 249,
+    "slug": "pack-durcisseur-fort-dissolvant",
+    "brand": "Herôme",
+    "brandSlug": "herome",
+    "name": "PACK DURCISSEUR FORT + DISSOLVANT",
+    "size": "",
+    "price": 259,
+    "old": 320,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "−19%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Le Pack Herôme Fort est un soin complet en deux étapes pour renforcer les ongles fragiles, mous ou cassants. Il associe un durcisseur fort, qui améliore la structure naturelle de l'ongle, à un dissolvant soignant sans acétone qui retire le vernis en douceur, sans dessécher ni fragiliser l'ongle. Avec une utilisation régulière, les ongles sont visiblement plus résistants et moins sujets à la casse.\n\nIngrédients clés :\nProvitamine B5 : hydrate en profondeur, réduit le dessèchement et la rugosité de l'ongle.\nVitamines C et E : revitalisent l'ongle et le protègent des agressions extérieures.\nExtrait de graines de céleri : nourrit la matrice pour des ongles plus lisses et robustes.\n\nConseils d'utilisation :\nJour 1 : appliquer une couche de durcisseur sur des ongles propres et secs.\nJour 2 : appliquer une deuxième couche.\nJour 3 : retirer les couches avec le dissolvant sans acétone Herôme, puis appliquer une nouvelle couche de durcisseur.\nJour 4 : appliquer une deuxième couche, et ainsi de suite pendant 30 jours.\nEn cure, quatre fois par an."
+  },
+  {
+    "id": 248,
+    "slug": "pack-repair-shampooing-apres-shampooing",
+    "brand": "Björn Axén",
+    "brandSlug": "bjorn-axen",
+    "name": "PACK REPAIR SHAMPOOING + APRÈS-SHAMPOOING",
+    "size": "2 × 250 ml",
+    "price": 349,
+    "old": 468,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "−25%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Le Pack Repair Björn Axén est un soin capillaire complet en 2 étapes, formulé pour réparer, renforcer et revitaliser les cheveux abîmés, fragilisés ou cassants. Dès la première utilisation, le duo restaure la fibre capillaire, améliore la résistance des cheveux et leur redonne douceur et brillance.\n\nPour qui :\nCheveux abîmés, secs ou cassants.\nCheveux fragilisés par la coloration, le brushing ou la chaleur.\nCheveux ternes, sans vitalité.\n\nIngrédients clés :\nKératine végétale : répare la structure du cheveu et renforce la fibre.\nProvitamine B5 (panthénol) : hydrate et apporte douceur.\nSqualane : nourrit et protège, pour des cheveux souples et brillants.\nPeptides : renforcent et préviennent la casse.\n\nConseils d'utilisation :\nÉtape 1, Repair Shampoo : appliquer sur cheveux mouillés, masser délicatement le cuir chevelu et les longueurs, puis rincer soigneusement.\nÉtape 2, Repair Conditioner : appliquer sur les longueurs et les pointes, laisser agir quelques minutes, puis rincer.\nÀ utiliser régulièrement pour des résultats optimaux."
+  },
+  {
+    "id": 247,
+    "slug": "pack-duo-mousse-flash-eclat",
+    "brand": "Novexpert",
+    "brandSlug": "novexpert",
+    "name": "PACK DUO MOUSSE FLASH ÉCLAT",
+    "size": "2 × 150 ml",
+    "price": 396,
+    "old": 528,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−25%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Deux Mousses Nettoyantes Flash Éclat Novexpert à la vitamine C, réunies dans un pack. En un seul geste, la mousse nettoie, démaquille et exfolie en douceur : enzymes de papaye et PHAs affinent le grain de peau et ravivent l'éclat en 20 secondes, sans dessécher.\n\nLes plus :\n3 actions en 1 : nettoie, démaquille et exfolie.\nDouble exfoliation douce : enzymes de papaye et PHAs.\nPeau lissée et matifiée, sans tiraillement.\nCoup d'éclat grâce à la vitamine C.\nFormule 100 % d'origine naturelle et vegan, certifiée cosmétique biologique Ecocert.\n\nConseils d'utilisation :\nAppliquer sur peau humide, laisser agir 20 secondes, masser 10 secondes, puis rincer.\nMatin et soir pour les peaux mixtes à grasses ; le soir uniquement pour les peaux normales."
+  },
+  {
+    "id": 246,
+    "slug": "serum-apaisant-cappilaire",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "SERUM APAISANT CAPPILAIRE",
     "size": "",
     "price": 200,
     "old": 0,
-    "cat": "Solaire",
+    "cat": "Cheveux",
     "badges": [
       {
         "text": "Nouveau",
@@ -816,17 +151,18 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "D-biotic crème solaire aide à retrouver l’équilibre du \nmicrobiome naturel de la peau et à réduire le risque \nde vieillissement cutané et d’autres effets nocifs du \nsoleil."
+    "desc": "Description :\nCalme et redonne confort au cuir chevelu sensible et fragilisé.\nRespecte et maintient l’équilibre du cuir chevelu en le laissant mieux respirer.\nHydrate le cuir chevelu et apporte douceur et brillance aux cheveux.\nTexture légère, aucun rinçage nécessaire.\nIndications :\nTous types de cheveux.\nCuir chevelu sensible avec ou sans pellicules.\nDémangeaisons du cuir chevelu sec ou fragilisé par le stress ou l’environnement.\nConseils d'utilisation :\nUne ou deux fois semaine ou au besoin, répartir le sérum directement sur le cuir chevelu, raie par raie et masser légèrement.\nNe pas rincer après l’application.\nÉviter le contact avec les yeux.\nPrincipaux ingrédients :\nExtraits de graine de Céleri\nHuile d’Échium\nEnoxolone\nProvitamine B5\nHuile de Caméline\nANP® 2+ (brevet Asepta)\nExtraits de soie\nSans Paraben"
   },
   {
-    "id": 581,
-    "slug": "d-biotic-creme-rugosites-150-ml",
-    "brand": "D-Biotic",
-    "name": "D-BIOTIC Crème rugosités 150 ml",
+    "id": 245,
+    "slug": "masque-capillaire",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "MASQUE CAPILLAIRE",
     "size": "",
-    "price": 250,
+    "price": 155,
     "old": 0,
-    "cat": "Visage",
+    "cat": "Cheveux",
     "badges": [
       {
         "text": "Nouveau",
@@ -838,233 +174,14 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "D-biotic crème rugosités est une crème spéciale peaux \nrugueuses. Grâce à sa formule avancée à base du \ncomplexe de sept (07) Céramides, pré- pro-et postbio_x0002_tiques, l’acide salicylique, l’urée à 10 % , D-Biotic crème \nrugosités aide la peau à retrouver dès les premières appli_x0002_cations l’équilibre de l’écosystème cutané."
+    "desc": "INDICATIONS\nCheveux secs, cassants, abîmés, pointes fourchues.\nRecommandé dans le cadre du programme intensif anti-chute à l’ANP®2+.\n\nPROPRIÉTÉS\nLe Masque Capillaire Nutritif ECRINAL® à l’ANP®2+ est un soin intensif pour cheveux très abîmés, secs et/ou cassants.\nIl nourrit et répare les cheveux secs et abîmés, sublime la couleur des cheveux.\nIl facilite le démêlage et coiffage. Les cheveux sont plus doux et plus beaux.\n\nCONSEILS D'UTILISATION\nAppliquer 2 fois par semaine après le shampooing fortifiant ECRINAL®. Répartir une noisette de masque sur l'ensemble de la chevelure essorée en insistant sur les pointes. Laisser poser 3 à 5 minutes et rincer abondamment."
   },
   {
-    "id": 580,
-    "slug": "d-biotic-gel-rugosites-240-ml",
-    "brand": "D-Biotic",
-    "name": "D-BIOTIC Gel rugosités 240 ml",
-    "size": "",
-    "price": 130,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "D-biotic crème rugosités est une crème spéciale peaux \nrugueuses. Grâce à sa formule avancée à base du \ncomplexe de sept (07) Céramides, pré- pro-et postbio_x0002_tiques, l’acide salicylique, l’urée à 10 % , D-Biotic crème \nrugosités aide la peau à retrouver dès les premières appli_x0002_cations l’équilibre de l’écosystème cutané."
-  },
-  {
-    "id": 579,
-    "slug": "d-biotic-baume-hydratant-regenerant-150-ml",
-    "brand": "D-Biotic",
-    "name": "D-BIOTIC Baume hydratant régénérant 150 ml",
-    "size": "",
-    "price": 250,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "D-Biotic baume hydratant régénérant est un soin ultra \nhydratant, richement formulé à base d’une combinaison \npuissante de sept (07) Céramides, d’actifs hydratants,\nrégénérants et restructurants de l’écosystème cutané."
-  },
-  {
-    "id": 578,
-    "slug": "d-biotic-creme-hydratante-regenerante-75-ml",
-    "brand": "D-Biotic",
-    "name": "D-BIOTIC Crème hydratante régénérante 75 ml",
-    "size": "",
-    "price": 180,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "D-biotic crème hydratante est formulé à base d’un \ncomplexe de sept (07) Céramides, d’actifs pré-pro et \npost biotiques et d’autres actifs ultra hydratants"
-  },
-  {
-    "id": 577,
-    "slug": "d-biotic-gel-surgras-240-ml",
-    "brand": "D-Biotic",
-    "name": "D-BIOTIC Gel surgras 240 ml",
-    "size": "",
-    "price": 130,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "D-Biotic gel nettoyant surgras est un gel à base d’un \ncomplexe spécifique de sept (07) Céramides, des \nactifs probiotiques et actifs ultra hydratants, aide la \npeau à retrouver son équilibre naturel, favorise à \nrenforcer l’écosystème cutané."
-  },
-  {
-    "id": 576,
-    "slug": "trio-acne-sun-spf50-creme-solaire-matifiante",
-    "brand": "DCP",
-    "name": "TRIO-ACNÉ SUN SPF50+ CREME SOLAIRE MATIFIANTE",
-    "size": "",
-    "price": 160,
-    "old": 0,
-    "cat": "Solaire",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "DCP TRIO-ACNE-SUN SPF 50+ est une\ncrème solaire adaptée aux peaux grasses à tendance\nacnéique et allergique au soleil."
-  },
-  {
-    "id": 575,
-    "slug": "depi-sun-spf100-creme-solaire-eclaircissante",
-    "brand": "DCP",
-    "name": "DÉPI-SUN SPF100+ CREME SOLAIRE ÉCLAIRCISSANTE",
-    "size": "",
-    "price": 180,
-    "old": 0,
-    "cat": "Solaire",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "DCP DEPI-SUN est une crème solaire\néclaircissante qui offre une très haute protection tout en\nfavorisant à prévenir et réduire les taches brunes."
-  },
-  {
-    "id": 574,
-    "slug": "koproz-r-p-creme-reparatrice",
-    "brand": "DCP",
-    "name": "KOPROZ R.P CREME REPARATRICE",
-    "size": "",
-    "price": 120,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "KOPROZ R.P est une crème réparatrice qui favorise à réparer et protéger les peaux sensibles, sèches à rougeurs installées et aux petits vaisseaux visibles. L'extrait de centella asiatica, l'extrait de bardane et le bisabolol s'associent pour offrir à la peau sensible des bénéfices hydratants, apaisants et réparateurs."
-  },
-  {
-    "id": 573,
-    "slug": "koproz-a-z-creme-concentree-intense",
-    "brand": "DCP",
-    "name": "KOPROZ A.Z CREME CONCENTREE INTENSE",
-    "size": "",
-    "price": 160,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "soin concentré en actifs apaisants spécialement formulée pour peaux à rougeurs intenses localisées. La Crème Concentrée KOPROZ A.Z permet à la peau de retrouver une peau plus calme et un teint plus net."
-  },
-  {
-    "id": 572,
-    "slug": "koproz-creme-solaire-50",
-    "brand": "DCP",
-    "name": "KOPROZ CREME SOLAIRE 50+",
-    "size": "",
-    "price": 160,
-    "old": 0,
-    "cat": "Solaire",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "KOPROZ 50+ est formulée pour protéger les peaux sèches sensibles et surtout sujettes aux rougeurs. \nKOPROZ 50+ combine protection et soin réparateur pour garder votre peau protégée et apaisée. \n2% Niacinamide: Améliore la barrière cutanée, réduit les inflammations et favorise l'uniformité du teint. \n- Extrait de Calendula : Apaise et répare la peau, renforçant sa confort naturellement. \n- \nAllantoïne: Hydrate et calme la peau, procurant un confort immédiat."
-  },
-  {
-    "id": 571,
-    "slug": "koproz-mousse-nettoyante",
-    "brand": "DCP",
-    "name": "KOPROZ MOUSSE NETTOYANTE",
-    "size": "",
-    "price": 130,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "KOPROZ Mousse Nettoyante est une combinaison purifiante multi-action spécifiquement formulée pour répondre aux besoins des peaux sensibles sujettes aux rougeurs. \nAvec une texture mousse onctueuse KOPROZ Mousse enveloppe la peau d'une douceur réconfortante tout en éliminant efficacement les impurtés. \nCrème concentrée anti-rougeurs intense, avec une formule riche en actifs puissants, KOPROZ A.Z se distingue par son approche ciblée pour atténuer efficacement et rapidement les rougeurs sévères. ---- 10% Gel d'Aloe Vera: Hydratant et apaisant, il nettoie la peau sans provoquer d'irritation. \n- Allantoïne : Aux propriétés apaisantes, favorisant la régénération cutanée et le confort. \n- Extrait de Calendula : Connu pour ses vertus calmantes et réparatrices, idéal pour les peaux réactives."
-  },
-  {
-    "id": 570,
-    "slug": "hairloss-masque-capillaire",
-    "brand": "DCP",
-    "name": "HAIRLOSS MASQUE CAPILLAIRE",
+    "id": 244,
+    "slug": "apres-shamp",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "APRES SHAMP",
     "size": "",
     "price": 220,
     "old": 0,
@@ -1080,13 +197,37 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "HAIRLOSS masque capillaire est une composition riche en actifs anti-chute et des huiles naturelles : ortie piquante, argan, avocat et karité qui permettent de lutter efficacement contre la chute de cheveux chronique et favorise la croissance des cheveux tout en hydratant le cuir chevelu.\n0% sulfate – 0% colorant – 0% sel .\n\nINDICATIONS :\n– Fortifie les cheveux et les rend plus résistants et volumineux grâce à une combinaison spéciale à base Extrait d’ortie piquante, l’Huile d’argan, l’huile d’avocat et le beurre de karité\n– Stimule la repousse des cheveux\n– Régénératrice et nourrit intensément vos cheveux\n– Régule le sébum pour les cheveux gras et apaise les états pelliculaires\n– Extrait d’orti piquante : Fortifiant naturel, riche en sels minéraux et oligo-éléments (soufre, zinc, cuivre…), apaisante\n\nUTILISATION :\nAppliquer sur les cheveux mouillés, bien masser, rincer, renouveler si besoin.\nRincer à nouveau et sécher les cheveux.\n\nFormule innovante - Formule haute tolerance\nExtrait d’ortie piquante\nAction vivifiante et stimulante, action tonifiante. Aide à stimuler l’oxygénation du cuir chevelu.\nHuile d’argan\nNourrissant et régénérant de la fibre capillaire. Redonne force, douceur, volume et brillance à la chevelure.\nHuile d’avocat\nRiche en acides gras essentiels, l’huile d’avocat, protège, nourrit et répare la chevelure. L’huile d’avocat pénètre les cheveux sans les surgraisser.\nBeurre de karité\nHydrate et lisse les cheveux crépus, ondulés, bouclés ou frisés. Répare, renforce et nourrit les cheveux cassés, secs et ternes."
+    "desc": "Le Baume Après-Shampooing ECRINAL® à l’A.N.P®2+ exerce une action stimulante et régénératrice sur la racine des cheveux qui ont besoin d’être fortifiés. Il embellit, apporte brillance et douceur aux cheveux et facilite leur démêlage.\n\nIndication :\nSoin fortifiant, régénérateur, démêlant et booster d’éclat pour cheveux secs, cassants et abîmés, recommandé sans le cas de chute de cheveux et de cuir chevelu anémié.\n\nPropriétés :\n– Fabriqué à Monaco\n\nConseils d’utilisation :\nA utiliser après avoir lavé les cheveux avec le shampooing à l’A.N.P®2+. Appliquer une noix sur l’ensemble de la chevelure. Peigner pour répartir uniformément. Laisser agir 1 à 2 minutes. Rincer abondamment puis procéder au séchage des cheveux."
   },
   {
-    "id": 569,
-    "slug": "hairloss-serum-capillaire",
-    "brand": "DCP",
-    "name": "HAIRLOSS SERUM CAPILLAIRE",
+    "id": 240,
+    "slug": "shamp-ultra-doux",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "SHAMP ULTRA DOUX",
+    "size": "",
+    "price": 350,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "INDICATIONS\nCheveux normaux, usages fréquents\nEnfants à partir de 3 ans\n\nPROPRIÉTÉS\nLe Shampooing Ultra Doux Family à l'ANP®2+ d’ECRINAL® restaure et maintient l’équilibre du cuir chevelu. Il assure brillance et vigueur aux cheveux. Sa douceur permet un usage fréquent.\n\nCONSEILS D'UTILISATION\nAppliquer sur cheveux mouillés 1 à 2 fois par jour. Faire mousser en massant le cuir chevelu. Rincer abondamment puis renouveler l’opération si nécessaire."
+  },
+  {
+    "id": 239,
+    "slug": "shamp-femme-400-ml",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "SHAMP FEMME 400 ml",
     "size": "",
     "price": 300,
     "old": 0,
@@ -1102,15 +243,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "HAIRLOSS serum capillaire est une composition riche en actifs anti chute et des huiles essentielles : centella asiatica, ortie piquante, gingembre, romarin et cèdre d’atlas qui permettent de lutter efficacement contre la chute de cheveux chronique et favorise la croissance des cheveux tout en hydratant le cuir chevelu.\n0% sulfate – 0% colorant – 0% sel .\n\nINDICATIONS :\n– Active la microcirculation\n– Limite et contrôle la chute de cheveux\n– Stimule la repousse des cheveux\n– Favorise l’ancrage des cheveux\n– Renforce le cheveu\n– Calme et limite les démangeaisons\n\nUTILISATION :\nAppliquez DCP HAIRLOSS Sérum sur le cuir chevelu propre, cheveux secs ou mouillés.\nPulvériser, masser le sérum puis coiffez-vous.\nDeux à trois fois par semaine, pendant trois à quatre mois.\nNe pas rincer.\n\nFormule innovante - Formule haute tolerance\nExtrait de centella asiatica\nElle aide à stimuler la micro-circulation et les vaisseaux sanguins, limitant ainsi la chute de cheveux.\nExtrait d’ortie piquante\nAction vivifiante et stimulante, action tonifiante. Aide à stimuler l’oxygénation du cuir chevelu.\nHuile essentielle de cèdre d’atlas\nAide la chute de cheveux en détruisant le gras déposé dessus et en les assainissant.\nHuile essentielle de gingembre\nStimulant capillaire par excellence. Fortifiant et renforce la chevelure.\nHuile essentielle de romarin\nStimule la croissance de la fibre capillaire et la fortifie.\nCheveux plus brillants et plus soyeux."
+    "desc": "PROPRIÉTÉS\nLe Shampooing Femme ECRINAL® à l’ANP®2+ nettoie en douceur les cheveux sans irriter le cuir chevelu. Il exerce une action stimulante sur la racine et fortifie le cheveu. Son utilisation est particulièrement indiquée dans le cas d’un traitement anti-chute.\n\nCONSEILS D'UTILISATION\nAppliquer sur cheveux mouillés. Masser le cuir chevelu et les cheveux puis laisser agir 1 minute. Rincer. Si besoin, procéder à un deuxième shampooing. Rincer soigneusement et sécher les cheveux."
   },
   {
-    "id": 568,
-    "slug": "hairloss-lotion-capillaire-femmes",
-    "brand": "DCP",
-    "name": "HAIRLOSS LOTION CAPILLAIRE FEMMES",
+    "id": 238,
+    "slug": "shamp-homme-400-ml",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "SHAMP HOMME 400 ml",
     "size": "",
-    "price": 280,
+    "price": 300,
     "old": 0,
     "cat": "Cheveux",
     "badges": [
@@ -1124,15 +266,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "HAIRLOSS lotion capillaire femmes est une combinaison de formule unique qui renforce la croissance des cheveux et favorise à prolonger leur cycle de vie.\nRiche en huiles essentielles de cèdre d’atlas, romarin, gingembre et d’extrait de centella asiatica. DCP HAIRLOSS lotion capillaire stimule profondément la croissance des cheveux. Adaptée à tous les types de cheveux .\n\nUTILISATION :\nQuotidiennement, appliquer DCP HAIRLOSS lotion.\nRépartir sur le cuir chevelu.\nFrictionner légèrement du bout des doigts.\nSécher les cheveux puis coiffer.\nEn protocole, utiliser DCP HAIRLOSS lotion avec DCP HAIRLOSS Shampoing.\n\nFormule innovante - Formule haute tolerance\nHuile essentielle de cèdre d’atlas\nAide la chute de cheveux en détruisant le gras déposé dessus et en les assainissant.\nHuile essentielle de gingembre\nStimulant capillaire par excellence. Fortifiant et renforce la chevelure.\nExtrait de centella asiatica\nElle aide à stimuler la micro-circulation et les vaisseaux sanguins, limitant ainsi la chute de cheveux.\nHuile essentielle de romarin\nStimule la croissance de la fibre capillaire et la fortifie.\nCheveux plus brillants et plus soyeux.\nINDICATIONS :\n– Fortifie les cheveux\n– Aide à ralentir la chute des cheveux\n– Stimule profondément la repousse des cheveux\n– Revitalise le cuir chevelu et le tonifie sans le dessécher\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Respecte l’équilibre du cuir chevelu"
+    "desc": "PROPRIÉTÉS\nLe Shampooing Homme ECRINAL® à l’ANP®2+ nettoie en douceur les cheveux sans irriter le cuir chevelu. Il exerce une action stimulante sur la racine et fortifie le cheveu. Son utilisation est particulièrement indiquée dans le cas d’un traitement anti-chute.\nCONSEILS D'UTILISATION\nAppliquer sur cheveux mouillés. Masser le cuir chevelu et les cheveux puis laisser agir 1 minute. Rincer. Si besoin, procéder à un deuxième shampooing. Rincer soigneusement et sécher les cheveux."
   },
   {
-    "id": 567,
-    "slug": "hairloss-lotion-capillaire-hommes",
-    "brand": "DCP",
-    "name": "HAIRLOSS LOTION CAPILLAIRE HOMMES",
+    "id": 237,
+    "slug": "shamp-femme-200-ml",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "SHAMP FEMME 200 ml",
     "size": "",
-    "price": 280,
+    "price": 220,
     "old": 0,
     "cat": "Cheveux",
     "badges": [
@@ -1146,15 +289,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "HAIRLOSS lotion capillaire hommes est une composition riche en actifs anti-chute et des huiles essentielles : cèdre d’atlas, gingembre, romarin et centella asiatica qui permettent de lutter efficacement contre la chute de cheveux chronique chez l’homme et favorise la croissance des cheveux tout en hydratant le cuir chevelu.\n0% sulfate – 0% colorant – 0% sel .\n\nUTILISATION :\nQuotidiennement, appliquer DCP HAIRLOSS lotion.\nRépartir sur le cuir chevelu.\nFrictionner légèrement du bout des doigts.\nSécher les cheveux puis coiffer.\nEn protocole, utiliser DCP HAIRLOSS lotion avec DCP HAIRLOSS Shampoing.\n\nINDICATIONS :\n– Fortifie les cheveux\n– Aide à ralentir la chute des cheveux\n– Stimule profondément la repousse des cheveux\n– Revitalise le cuir chevelu et le tonifie sans le dessécher\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Respecte l’équilibre du cuir chevelu\n\nFormule innovante - Formule haute tolerance\nHuile essentielle de cèdre d’atlas\nAide la chute de cheveux en détruisant le gras déposé dessus et en les assainissant.\nHuile essentielle de gingembre\nStimulant capillaire par excellence. Fortifiant et renforce la chevelure.\nExtrait de centella asiatica\nElle aide à stimuler la micro-circulation et les vaisseaux sanguins, limitant ainsi la chute de cheveux.\nHuile essentielle de romarin\nStimule la croissance de la fibre capillaire et la fortifie.\nCheveux plus brillants et plus soyeux."
+    "desc": "PROPRIÉTÉS\nLe Shampooing Femme ECRINAL® à l’ANP®2+ nettoie en douceur les cheveux sans irriter le cuir chevelu. Il exerce une action stimulante sur la racine et fortifie le cheveu. Son utilisation est particulièrement indiquée dans le cas d’un traitement anti-chute.\n\nCONSEILS D'UTILISATION\nAppliquer sur cheveux mouillés. Masser le cuir chevelu et les cheveux puis laisser agir 1 minute. Rincer. Si besoin, procéder à un deuxième shampooing. Rincer soigneusement et sécher les cheveux."
   },
   {
-    "id": 566,
-    "slug": "hairloss-shampoing-femmes",
-    "brand": "DCP",
-    "name": "HAIRLOSS SHAMPOING FEMMES",
+    "id": 236,
+    "slug": "shamp-homme-200-ml",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "SHAMP HOMME 200 ml",
     "size": "",
-    "price": 250,
+    "price": 220,
     "old": 0,
     "cat": "Cheveux",
     "badges": [
@@ -1168,15 +312,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "DCP HAIRLOSS SHAMPOING Femmes est conçu avec une combinaison spéciale et efficace (de vitamine « Biotinyl-GHK » et l’Apigénine « flavonoïde d’argumes » et l’acide oléanolique des feuilles d’oliviers) qui aide à lutter contre l’alopécie, tout en stimulant la croissance des cheveux. Le mécanisme d’action du Hairloss shampoing cible spécifiquement les cellules du cuir chevelu pour lutter contre le vieillissement folliculaire.\nRésultat obtenu : Des cheveux renforcés de la racine jusqu’aux pointes\nHAIRLOSS cible: Micro-circulation, vieillissement folliculaire, ancrage des cheveux, 5x-réductase.\n\nINDICATIONS :\n– Lutte contre le vieillissement folliculaire\n– Protège contre la chute des cheveux\n– Stimule la repousse des cheveux\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Fortifie la racine et la pointe\n– Nettoie tout en douceur sans dessécher : nettoie les cheveux en douceur sans les dessécher et facilite le coiffage\n– Respecte l’équilibre du cuir chevelu\n\nUTILISATION :\nAppliquer sur les cheveux mouillés, bien masser, rincer, renouveler si besoin.\nRincer à nouveau et sécher les cheveux."
+    "desc": "PROPRIÉTÉS\nLe Shampooing Homme ECRINAL® à l’ANP®2+ nettoie en douceur les cheveux sans irriter le cuir chevelu. Il exerce une action stimulante sur la racine et fortifie le cheveu. Son utilisation est particulièrement indiquée dans le cas d’un traitement anti-chute.\n\nCONSEILS D'UTILISATION\nAppliquer sur cheveux mouillés. Masser le cuir chevelu et les cheveux puis laisser agir 1 minute. Rincer. Si besoin, procéder à un deuxième shampooing. Rincer soigneusement et sécher les cheveux."
   },
   {
-    "id": 565,
-    "slug": "hairloss-shampoing-hommes",
-    "brand": "DCP",
-    "name": "HAIRLOSS SHAMPOING HOMMES",
+    "id": 235,
+    "slug": "lotion-femme",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "LOTION FEMME",
     "size": "",
-    "price": 250,
+    "price": 260,
     "old": 0,
     "cat": "Cheveux",
     "badges": [
@@ -1190,15 +335,85 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "DCP HAIRLOSS SHAMPOING Hommes est conçu avec une combinaison spéciale et efficace (de vitamine « Biotinyl-GHK » et l’Apigénine « flavonoïde d’argumes » et l’acide oléanolique des feuilles d’oliviers) qui aide à lutter contre l’alopécie, tout en stimulant la croissance des cheveux. Le mécanisme d’action du Hairloss shampoing cible spécifiquement les cellules du cuir chevelu pour lutter contre le vieillissement folliculaire.\nRésultat obtenu : Des cheveux renforcés de la racine jusqu’aux pointes\nHAIRLOSS cible: Micro-circulation, vieillissement folliculaire, ancrage des cheveux, 5x-réductase.\n\nUTILISATION :\nAppliquer sur les cheveux mouillés, bien masser, rincer, renouveler si besoin.\nRincer à nouveau et sécher les cheveux.\n\nINDICATIONS :\n– Lutte contre le vieillissement folliculaire\n– Protège contre la chute des cheveux\n– Stimule la repousse des cheveux\n– Indiqué pour tous types de cheveux et plus spécialement : cheveux cassants et abîmés\n– Fortifie la racine et la pointe\n– Nettoie tout en douceur sans dessécher : nettoie les cheveux en douceur sans les dessécher et facilite le coiffage\n– Respecte l’équilibre du cuir chevelu"
+    "desc": "INDICATIONS\nCuirs chevelus clairsemés, cheveux dévitalisés.\nS’utilise en relais après un traitement anti-chute à l’ANP®2+.\nTraitement d'entretien de la chevelure.\n\nPROPRIÉTÉS\nLa Lotion Femme Fortifiante ECRINAL® à l’ANP®2+ fortifie la fibre capillaire et stimule le bulbe pileux. Les cheveux retrouvent ainsi douceur et brillance. Rapidement, ils redeviennent sains sur toute leur longueur. D’un parfum frais, doux et raffiné son utilisation est très agréable."
   },
   {
-    "id": 564,
-    "slug": "pruritus-control-lotion",
-    "brand": "DCP",
-    "name": "PRURITUS-CONTROL LOTION",
+    "id": 234,
+    "slug": "lotion-homme",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "LOTION HOMME",
     "size": "",
-    "price": 158,
+    "price": 260,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "INDICATIONS\nCuirs chevelus clairsemés, cheveux dévitalisés.\nS’utilise en relais après un traitement anti-chute à l’ANP®2+.\nTraitement d'entretien de la chevelure.\n\nPROPRIÉTÉS\nLa Lotion Homme Fortifiante ECRINAL® à l’ANP®2+ fortifie la fibre capillaire et stimule le bulbe pileux. Les cheveux retrouvent ainsi douceur et brillance. Rapidement, ils redeviennent sains sur toute leur longueur. D’un parfum frais, doux et raffiné son utilisation est très agréable."
+  },
+  {
+    "id": 233,
+    "slug": "capsule-cheveux",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "CAPSULE CHEVEUX",
+    "size": "",
+    "price": 303,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ecrinal 30 capsules cheveux 1 mois de traitement spécialement conçu contre les carences alimentaires et déséquilibres biologiques affectant les constituants\n\nessentiels des cheveux.\n\nECRINAL CAPSULES contient les éléments complémentaires à l’alimentation quotidienne nécessaires à la croissance harmonieuse des cheveux.\n\nSa composition riche en cystine, silicium, vitamines B3, B5, B6, B8 contribue à la vigueur et à l'embellissement de vos cheveux.\n\nCOMPOSITION :\n\n-Cystine : participe à la synthèse de la kératine, constituant essentiel du cheveu.\n\n-Poudre de bambou : riche en silicium végétal, agit sur la structure de la kératine.\n\n-Vitamines B3, B5, B6 et B8 : favorisent la croissance et renforcent la résistance de la kératine.\n\n-Huile de bourrache, lécithine et huile de soja : apport d’ AGE ( acides gras essentiels ) qui contribuent à l’équilibre du cuir chevelu.\n\nFAIBLE VALEUR CALORIQUE : 2.7KCAL PAR CAPSULE .\n\nUTILISATION :\n\nUne capsule par jour, à avaler de préférence le matin ou au petit déjeuner.\n\nA utiliser en cure de 2 mois. Boite de 30 capsules sous blister.\n\n1 BOITE = 1 MOIS DE TRAITEMENT"
+  },
+  {
+    "id": 232,
+    "slug": "ampoules-cheveux",
+    "brand": "Ecrinal",
+    "brandSlug": "ecrinal",
+    "name": "AMPOULES cheveux",
+    "size": "",
+    "price": 477,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Top",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 8
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "INDICATIONS\nChute de cheveux excessive, cheveux ternes, clairsemés, affaiblis.\nConvient au cuir chevelu sensible.\nPROPRIÉTÉS\nLes Ampoules ANP®2+ d’ECRINAL® stimulent la croissance des cheveux et atténuent leur chute. Concentrée en ANP®2+ (Activateur Naturel de Phanère, actif breveté exclusif des Laboratoires ASEPTA), l’ampoule ne se limite pas à son action principale : la chute de cheveux. Elle assure également une revitalisation des cheveux faibles et clairsemés. Le cheveu est ainsi sain, plus solide et vigoureux.\nEfficacité prouvée dès 21 jours.\nCONSEILS D'UTILISATION\n3 fois par semaine, appliquer 1 ampoule à l’aide de l’embout sur le cuir chevelu sec, raie par raie et masser délicatement. Laisser agir au minimum 30 minutes puis laver les cheveux avec le shampooing fortifiant ECRINAL®\n\nPhase d'attaque : 3 applications par semaine pendant 21 jours\nPhase d'entretien : 2 applications par semaine pendant 1 mois"
+  },
+  {
+    "id": 231,
+    "slug": "o-regen-creme-exfoliante-visage-75ml",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "O-REGEN CREME EXFOLIANTE VISAGE 75ml",
+    "size": "",
+    "price": 210,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1212,15 +427,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "PRURITUS-CONTROL est une lotion spécialement conçue pour atténuer le prurit cutané non spécifique sur des peaux prurigineuses, telles que le prurit sénile, le prurit psychogène, l’intertrigo varicelle, et les maladies bulleuses. Son action vise à soulager l’inconfort causé par les irritations cutanées et les démangeaisons non spécifiques induites par des facteurs tels que les piqûres d’insectes, l’exposition à l’herbe à puce, les coupures et les éraflures, entre autres.\nCOMPOSITION :\n– 1% Menthol\n– 1% Camphre\n– Niacinamide\n– Arbre à thé\n\nINDICATIONS :\n– Soulage l’inconfort des peaux prurigineuses à irritations cutanées\n– Soulage les démangeaisons cutanées non spécifiques, les démangeaisons causées par les piqûres d’insectes, par l’herbe à puce, les coupures et les éraflures…etc.\n\nUTILISATION :\nSur une peau propre, appliquer et masser délicatement les zones touchées jusqu’à l’absorption de la lotion DCP PRURITUS-CONTROL"
+    "desc": "Cette crème exfoliante assure un gommage doux du visage grâce aux fines particules de noyaux de prunes de Gascogne et de coques de coco."
   },
   {
-    "id": 563,
-    "slug": "cicaplus-zones-larges",
-    "brand": "DCP",
-    "name": "CICAPLUS ZONES LARGES",
+    "id": 230,
+    "slug": "o-regen-creme-requilbrante-50ml",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "O-REGEN CREME REQUILBRANTE 50ml",
     "size": "",
-    "price": 200,
+    "price": 600,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1234,149 +450,18 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "CICAPLUS est spécialement formulé pour répondre aux besoins des peaux sensibles et réactives, il contribue à atténuer tous les signes des irritations sèches de la peau.\n\nINDICATIONS :\nGrâce à sa formule innovante, DCP CICAPLUS couvre un large spectre d’utilisations :\n– Accélère la réparatipon de la peau et la régénération de l’épiderme\n– Aseptisant, hydratant et réaparateur\n– Brûlûres 1er et 2ème degrè\n– Conseillé après les actes pour les peaux fragilisées, irritées et après les brûlures de 1er et 2éme degré, et aussi après le laser\n– Cicatrisant\n– Crème réparatrice aseptisante pour toute la famille\n– Tous types de peaux\n\nUTILISATION :\nAppliquer DCP CICAPLUS zones larges deux fois par jour sur les zones concernées."
+    "desc": "Ce soin a été spécialement formulé pour détoxifier, protéger, rééquilibrer et dynamiser les peaux soumises aux contraintes de la vie urbaine. \nIl contient un concentré d’actifs qui agissent en synergie pour favoriser la micro circulation et l’oxygénation de la peau (Lupin et Ginkgo biloba), son hydratation (acide hyaluronique, impérata cylindrica et huile de pépins de raisin) et le renouvellement cellulaire : l’extrait de fleurs de Nopal exerce un effet peeling très doux pour révéler l’éclat du teint."
   },
   {
-    "id": 562,
-    "slug": "cicasept",
-    "brand": "DCP",
-    "name": "CICASEPT",
-    "size": "",
-    "price": 142,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "CICASEPT est spécialement formulée pour répondre aux besoins des peaux sensibles et réactives, cette crème cicatrisante contribue à atténuer tous les signes des irritations sèches de la peau.\n\nUTILISATION :\nAppliquer DCP CICASEPT, une à deux fois par jour sur la zone irritée et sèche préalablement nettoyée par DCP SYNDET LIPIDIK. Laisser le soin pénétrer la zone irritée.\n\nINDICATIONS :\nGrâce à sa formule innovante, DCP CICASEPT couvre un large spectre d’utilisations :\n– Eczéma atopique comme crème aseptisante, cicatrisante et relais des corticoïdes\n– Crème cicatrisante\n– Brûlures 1er et 2ème degré\n– Coup de soleil\n– Irritations des peaux intolérantes\n– Post-laser\n– Post-actes chirurgicaux\n– Post-peeling\n– Post-épilation\n– Peaux fragilisées\n– Echauffements cutanés\n– Plaies non suintantes\n– Crevasses\n– Gerçures\n– Plaques rouges\n– Crème réparatrice aseptisante pour toute la famille\n– Tous types de peaux\n\nEfficacité cliniquement prouvée avec la synergie de multiples principes actifs bien choisis pour des résultats rapides.\nHuile de ricin : cicatrisante, antibactérienne, antifongique, photo-protectrice et adoucissante.\nBeurre de karité : hydratante, adoucissante et réparatrice.\nCentella asiatica : cicatrisante des plaies et brûlures, eczéma, ulcère et synthèse de collagène et élastine.\nChlorhexidine undecylenate : antiseptique, antimicrobien biodégradable à large spectre plus efficace contre les bactéries gram-positives et gram-négatives, antifongique, antiparasitaire et mieux toléré que la Chlorhexidine classique.\nPropolis : antiseptique, antiradicalaire, cicatrisante, traitement des brûlures légères, engelures et crevasses.\nLécithine : émollient.\nHuile d’olive : nourrissante, émolliente, calmante et anti-oxydante.\nHuile de tournesol : riche en acides gras monoinsaturés, omega 6 et omega 9, hydratation des peaux sensibles irritées.\nPanthénol (ou provitamine B5) : hydratant, notamment pour soigner les peaux sensibles et sèches."
-  },
-  {
-    "id": 561,
-    "slug": "septiscars-spray",
-    "brand": "DCP",
-    "name": "SEPTISCARS SPRAY",
-    "size": "",
-    "price": 99,
-    "old": 0,
-    "cat": "Visage",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "SEPTISCARS SPRAY est une solution antiseptique, formulée avec six principes actifs en synergie. SEPTISCARS SPRAY démontre une action antiseptique, bactéricide, levurecide et cicatrisante et offre un large spectre d’utilisation pour traiter les plaies, brûlures, ainsi que pour assurer une bonne antisepsie cutanée.\n\nCARACTÉRISTIQUES\n– Digluconate de Chlorhexidine: Antiseptique à large spectre d’action. Effet bactériostatiques et bactéricides\n– Chlorure de benzalkonium: Antiseptique à large spectre et bactéricide\n– Chlorphénésine: Antiseptique : actif sur les bactéries, les levures et les virus\n– Centella asiatica: Cicatrisante : des plaies, brûlures,\neczéma et ulcères\n– Propolis: Antiseptique, cicatrisante,\naide au bourgeonnement\n\nAVANTAGES :​\n– Association synergique de six principes actifs\n– Action antiseptique, bactéricide, levurecide et cicatrisante\n– Large spectre d’utilisation : plaies, brûlures, avant et après les gestes chirurgicaux et esthétiques pour assurer une bonne antisepsie cutanée\n– Ne pique pas, indolore avec une bonne tolérance cutanée\n\nBÉNÉFICES\n– Pas de limite d’âge (adultes et enfants)\n– Meilleur rapport quantité / prix 125 ml à 94 dh\n– Produit de famille\n– Ne tache pas\n– Très économique : antiseptique et cicatrisant en même temps"
-  },
-  {
-    "id": 560,
-    "slug": "ds-emulsion",
-    "brand": "DCP",
-    "name": "DS+ EMULSION",
-    "size": "",
-    "price": 126,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "ÉMULSION LÉGÈRE POUR UN SOIN LOCALISÉ VISAGE, COU ET CORPS\n\nDCP DS+ EMULSION est la crème qui régule le sébum, élimine les pellicules et la rougeur qui dérange notre peau et notre quotidien.\nLes formules DS+ sont hypoallergéniques et adaptées aux peaux sensibles et délicates avec un protocole dédié à la peau qui souffre de la Dermite Séborrhéique\n\nPROPRIÉTÉS :​\n– 2% Acide salicylique kérato – régulateur\n– 0,3% Piroctone olamine Antifongique\n– 0,1% Chlorure de benzalkonium Antiseptique\n– 1% Bardane Apaisant\n– 2% Niacinamide Anti-inflammatoire\n– Niacinamide + Bardine Seborégulateur\n– 5% Urée Hydratante, kérato-régulateur\n– 0,1% Alpha bisabolol Apaisant\n– 1% Aloe vera Hydratante\n– 3% Glycérine\n– 0,5% Allantoine\n– 1% Zinc pyrithione Antifongique\n– 0,5% Macérat de millepertuis Anti-inflammatoire\n– 0,07% Huile essentielle de géranium Anti-squame\n– 0,05% Huile menthe poivrée Rafraîchissante"
-  },
-  {
-    "id": 559,
-    "slug": "ds-lotion",
-    "brand": "DCP",
-    "name": "DS+ LOTION",
-    "size": "",
-    "price": 142,
-    "old": 0,
-    "cat": "Cheveux",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "UNE LOTION HYDRO-ALCOOLIQUE POUR TRAITEMENT DES ÉTATS SQUAMEUX SÉVÈRES\nDS+ LOTION pour les états squameux pelliculaires sévères dans leur routine de soins capillaires. La formule adaptée de DS+ LOTION assure un confort optimal et une efficacité durable.\n\nPROPRIÉTÉS :​\n– 2% Acide salicylique Kerato-régulateur\n– Piroctone olamine Antifongique\n– 2% Niacinamide Anti-inflammatoire\n– 0.1% Bisabolol Apaisant\n– 0.5% Badrane Apaisant\n– Huile de géranium Anti-pelliculaire\n– Bardane + Niacinamide Apaisant Action sébo-régulatric\n– 5% Urée Hydratant + Régulateur\n– 1 % Extrait de Tasmanie Anti-inflammatoire\n– 0.5% Extrait de neem Antifongique\n– 0.5% Chloride de Benzalkonium Antiseptique\n– Huile de menthe poivrée Rafraîchissante\n– 0.5% Aloe vera Hydratante"
-  },
-  {
-    "id": 558,
-    "slug": "ds-base-lavante",
-    "brand": "DCP",
-    "name": "DS+ BASE LAVANTE",
-    "size": "",
-    "price": 200,
-    "old": 0,
-    "cat": "Cheveux",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "UNE BASE LAVANTE KÉRATO-RÉDUCTRICE CORPS ET CHEVEUX\nDS+ BASE LAVANTE est une base lavante anti-pelliculaire qui fait partie de la gamme DS+ conçue pour nettoyer et purifier, en douceur, le visage, le corps et le cuir chevelu sans assécher la peau.\nCette DS+ BASE LAVANTE présente plusieurs effets bénéfiques :\n– Rééquilibrage des micro-organismes présents naturellement sur le cuir chevelu ;\n– Amélioration de la fonction de barrière du cuir chevelu ;\n– Régulation de la production de sébum sur les cheveux ;\n– Diminution des démangeaisons du cuir chevelu;\n– Calme les sensations d’inconfort;\n\nPROPRIÉTÉS :​\n– Acide salicylique kerato-régulateur\n– Piroctone olamine Antifongique\n– Niacinamide Anti-inflammatoire\n– Bisabolol Apaisant\n– Badrane Apaisant\n– Bardane + Niacinamide Sébo-régulatrice\n– Extrait de clendula, Apaisante + Anti-inflammatoire\n– Huile essentielle lavande, Apaisante + Anti-inflammatoire\n– Huile de géranium Anti-pelliculaire\n– Huile de romarin Anti-pelliculaire\n– Arbre à thé Antifongique et antiseptique\n– Extrait de tazmanie Anti-inflammatoire\n– Extrait de neem Antifongique\n– Huile de menthe poivrée Rafraîchissante\n– Aloe Vera Hydratante\n– Extrait de grenade Régénérant\n– Huile d’agran Démêleur"
-  },
-  {
-    "id": 557,
-    "slug": "depi-plus-intimate",
-    "brand": "DCP",
-    "name": "DÉPI-PLUS INTIMATE",
-    "size": "",
-    "price": 368,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "ANTI-ODEUR - NON GRAS - NE COLLE PAS - HYDRATANT - TOUCHER SOYEUX - RÉDUCTION DES FROTTEMENTS - RÉDUCTION DES MACÉRATIONS\nDÉPI-PLUS INTIMATE est un lait éclaircissant et nourrissant des zones intimes. Notre lait DÉPI-PLUS INTIMATE a tout de l’indispensable de la salle de bain. En plus de son action ciblée contre les taches pigmentaires qui améliore l’hyperpigmentation et réduit efficacement la synthèse de la mélanine.\nCe lait bénéficie d’une texture fluide, non grasse, facile à appliquer après la douche. Pour une peau souple et soyeuse à tout âge.\n\nCOMPOSITION :\n– 5% Niacinamide : anti inflammatoire, éclaircissant\n– 0.5 % Alpha Arbutine : éclaircissant, très bien toléré au niveau des parties intimes\n– Bentonite : riche en minéraux, désintoxique la peau, calme les démangeaisons, anti-macération\n– Urée : hydratation, démangeaisons\n– Lactate : anti-odeur, favorise le développement des micro-organismes de la partie intime\n– Aloe Vera : Hydratation, texture exceptionnelle\n\nINDICATIONS :\n– Éclaircir la peau des zones intimes\n– Améliorer l’hyperpigmentation de la zone intime et réduire efficacement la synthèse de la mélanine\n– Nourrir et assurer un confort et une hydratation tout au long de la journée\n– Favoriser le developpement des lactobaciles.\n– Anti-prurit, anti-macération"
-  },
-  {
-    "id": 556,
-    "slug": "septiplus-ph-8",
-    "brand": "DCP",
-    "name": "SEPTIPLUS PH 8",
+    "id": 229,
+    "slug": "o-regen-masque-eclat-anti-pollution",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "O-REGEN MASQUE ECLAT ANTI-POLLUTION",
     "size": "",
     "price": 95,
     "old": 0,
-    "cat": "Corps",
+    "cat": "Visage",
     "badges": [
       {
         "text": "Nouveau",
@@ -1388,125 +473,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "PROPRIÉTÉS :\nSEPTIPLUS PH 8 est une crème lavante d’usage quotidien pour l’hygiène et la protection des peaux et des muqueuses délicates.\nDCP SEPTIPLUS PH 8 atténue le taux d’acidité dans la zone intime et aide à rétablir et protéger l’équilibre naturel de la flore intime.\n\nHYGIÈNE ET PROTECTION DES PEAUX ET DES MUQUEUSES DELICATES\nINDICATIONS :\n– Soin d’hygiène et de la protection des peaux et des muqueuses délicates.\n– Limite la prolifération des mycoses.\n– Soulager les sensations d’irritations.\n– Soulager les démangeaisons et les rougeurs.\n– Adjuvants des traitements d’infections vaginales.\n\nCARACTÉRISTIQUES :\n– PH alcalin\n– Hypoallergénique\n– Calme les irritations\n– Réduit les odeurs\n– Sans savon, sans alcool\n\nPRÉCAUTIONS :\n– Ne pas avaler.\n– Tenir hors de la portée des enfants.\n– Ne pas appliquer dans les orifices naturels (yeux, nez…).\n– Usage externe.\n– Ne pas utiliser plusieurs antiseptiques à la fois.\n\nCOMPOSITION :\nAqua, Lauryl Glucoside, Cocamidopropyl Betaine, Aloe Barbadensis Leaf Extract, Disodium Cocoamphodiacetate, Coco-Glucoside, Glycerin, Glyceryl Oleate, Phenoxyethanol, Chlorphenesin, Fragrance, Triethanolamine, Olea Europaea (Olive) Fruit Oil, Calendula Officinalis Flower Extract, Arctium Majus Root Extract, Lavandula Angustifolia Oil, Sodium Benzoate, Potassium sorbate."
+    "desc": "Héliabrine Oxy-défense Masque éclat anti-pollution Charbon Végétal Grâce au pouvoir absorbant du charbon végétal, ce masque capture les impuretés et les toxines accumulées tout au long de la journée.\n\nUn complexe anti-pollution composé de lierre, tournesol et extrait de son de riz protège la peau des fumées polluantes."
   },
   {
-    "id": 555,
-    "slug": "septiplus-ph-5-5",
-    "brand": "DCP",
-    "name": "SEPTIPLUS PH 5.5",
+    "id": 228,
+    "slug": "o-regen-mousse",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "O-REGEN MOUSSE",
     "size": "",
-    "price": 95,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "PROPRIÉTÉS : DCP Septiplus pH5,5 est un soin lavant doux d’usage quotidien des peaux délicates destiné pour toute la famille. Conçu sans savon, sans alcool, DCP Septiplus pH 5,5 respecte le film hydroli- pidique, calme les zones irritées, apaise les démangeaisons et les rougeurs. Spécialement formulé pour préserver et protéger l’équilibre naturel de la peau, Septiplus pH 5,5 à pH physiologique est un soin lavant doux conçu pour apaiser et offrir un confort optimal. Ultra-formulé à base de plantes telles que le Calendula officinal et la Camomille, DCP Septiplus pH 5,5 possède des propriétés calmantes et apaisantes.\nHYGIÈNE DES PEAUX DÉLICATES POUR TOUTE LA FAMILLE\nINDICATIONS :\n– Hygiène quotidiennes des peaux délicates de toute la famille ( nourrisons- enfants et adultes)\n– Peaux pathologiques\n– Infections virales ( Zona – Herpès…etc)\n– Infections microbiennes.\n\nCARACTÉRISTIQUES :\n– PH physiologique\n– Hypoallergénique\n– Sans savon, sans alcool\n\nPRÉCAUTIONS :\n– Ne pas avaler.\n– Tenir hors de la portée des enfants.\n– Ne pas appliquer dans les orifices naturels (yeux, nez…).\n– Usage externe.\n– Ne pas utiliser plusieurs antiseptiques à la fois.\n\nCOMPOSITION :\nAqua, Lauryl Glucoside, Cocamidopropyl Betaine, Aloe Barbadensis Leaf Extract, Disodium Cocoamphodiacetate, Coco-Glucoside, Glycerin, Glyceryl Oleate, Phenoxyethanol, Chlorphenesin, Citric Acid, Lavandula Angustifolia Oil, Fragrance, Olea Europaea (Olive) Fruit Oil, Calendula Officinalis Flower Extract, Arctium Majus Root Extract, Sodium Benzoate, Potassium sorbate"
-  },
-  {
-    "id": 554,
-    "slug": "baume-essentiel",
-    "brand": "DCP",
-    "name": "BAUME ESSENTIEL",
-    "size": "",
-    "price": 116,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "BAUME ESSENTIEL est un traitement adjuvant spécifiquement conçu pour les soins des pieds et des mains. Enrichi en principes actifs tels que la Niacinamide, la Propolis, la Centella asiatica et le Beurre de karité, ce baume agit en synergie pour apporter une hydratation profonde et durable aux couches supérieures de l’épiderme.\nLa Niacinamide favorise la régulation hydrique, tandis que la Propolis offre des propriétés antimicrobiennes bénéfiques. De plus, la Centella asiatica contribue à la cicatrisation cutanée et le Beurre de karité renforce la barrière cutanée.\nCette formulation scientifique optimale assure un soin complet et efficace pour une peau radieuse et saine.\n\nINDICATIONS :\n– Fissures et crevasses\n– Pied diabétique\n\nUTILISATION :\nAppliquer DCP BAUME ESSENTIEL sur les paumes des mains et/ou les plantes des pieds fissurées et crevassées quotidiennement 2 à 3 fois par jour.\nGrâce à sa texture soyeuse, DCP BAUME ESSENTIEL s’étale facilement.\n\nPRINCIPES ACTIFS\n– Niacinamide: action apaisante-anti-inflammatoire.\n– Propolis: Propriétés analgésiques, calmer l’inconfot et réparer les gerçures.\n– Centella asiatica: Action cicatrisante.\n– Beurre de karité :\n – Hydratation profonde et durablele des couches supérieures de l’épiderme\n – régénération plus rapide."
-  },
-  {
-    "id": 553,
-    "slug": "kpp-soin",
-    "brand": "DCP",
-    "name": "KPP SOIN",
-    "size": "",
-    "price": 151,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "KPP SOIN est un traitement intensif qui agit en profondeur pour adoucir et assouplir la peau rugueuse et épaisse des mains et des pieds, tout en procurant une sensation de douceur et de confort.\nNotre traitement d’attaque KPP SOIN, caractérisé par une texture douce et onctueuse, apporte souplesse et douceur à la peau râpeuse et épaisse. Sa composition est riche en principes actifs hydratants et adoucissants, tels que l’urée, l’acide salicylique et le beurre de karité.\nCes ingrédients agissent en synergie pour régénérer les cellules endommagées, nourrir profondément l’épiderme et restaurer l’élasticité de la peau.\nGrâce à ces actions combinées, le KPP SOIN permet d’améliorer considérablement l’état de la peau des mains et des pieds, en les rendant plus doux, souples et agréables au toucher.\nINDICATIONS :\n– Kératodermies palmoplantaires\n– Callosités\n– Rugosités\n– Cors et durillons\n\nUTILISATION :\nAppliquer DCP KPP SOIN sur les paumes des mains et/ou les plantes des pieds. Laisser agir 1 heure à 2 heures, puis frotter délicatement pour enlever la peau morte.\n\nPRINCIPES ACTIFS\n– 30 0/0 Urée: Action keratolytique.\n– 2% Acide salicylique: Action kératorégulatrice.\n– 5% Beurre de karité :\n – hydratation profonde et durablele des couches supérieures de l’épiderme\n – régénération plus rapide."
-  },
-  {
-    "id": 552,
-    "slug": "soin-lipidik",
-    "brand": "DCP",
-    "name": "SOIN LIPIDIK",
-    "size": "",
-    "price": 179,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Propriétés :\n– Vaseline (filmogène)\n– Glycérine (humectant anti-déshydratation)\n– Huile minérale (filmogène )\n– Beurre de karité (relipidant riche en acides gras essentiels)\n– Niacinamide (anti-inflammatoire)\n– Calendula (apaisante)\n– Centella asiatica (cicatrisante)\n– Acides aminés (reconstruisent la structure des protéines de la peau : kératine, collagène, élastine et peptides)\n– Aloès Vera (Hydratante et anti-inflammatoire)\n\nAvantages :\n– Soin quotidien des peaux atopiques et sensibles ( Nourrison, enfant, adulte )\n– Visage et corps\n– Testé sous contrôle dermatologique Hypoallergénique\n– Sans parfum\n– Sans conservateur Économique : 200 ml\n\nBénéfices :\n– Emollient relipidant\n– Apaisant\n– Anti-grattage\n– Anti-inflammatoire\n– Décongestionnant\n– Réparateur cicatrisant\n– Eclaircissant\n– Espace les poussées d’eczéma atopique Souplesse, vitalité, douceur et confort immédiats Relais des corticoïdes"
-  },
-  {
-    "id": 551,
-    "slug": "syndet-lipidik",
-    "brand": "DCP",
-    "name": "SYNDET LIPIDIK",
-    "size": "",
-    "price": 131,
-    "old": 0,
-    "cat": "Corps",
-    "badges": [
-      {
-        "text": "Nouveau",
-        "bgColor": "",
-        "textColor": "",
-        "priority": 2
-      }
-    ],
-    "rating": 5,
-    "reviews": 0,
-    "tint": "#F2F2F2",
-    "desc": "Propriétés :\n– Apaisant\n– Anti-grattage\n– Base lavante douce = surgras, sans savon, non détergent\n– Préserve l’intégrité de la peau (pH physiologique)\n– Glycérine : humectant anti-déshydratation\n– Lipoamoniacide d’origine végétal (hydrate et surgraisse)\n– Extrait végétal (adoucissant – calmant)\n– Sans conservateur\n– Sans parfum\nAvantages :\n– Hygiène quotidienne des peaux sensibles et fragilisées ( Nourrison – Enfant – Adulte )\n– Visage et corps\n– Testé sous contrôle dermatologique\n– Hypoallergénique\n– Économique : 200 ml\nBénéfices :\n– Prévient les sensations de tiraillements\n– Nettoie en toute sécurité\n– Respecte l’équilibre biologique\n– Lipoamoniacide d’origine végétal (hydrate et surgraisse)\n– Extrait végétal (adoucissant – calmant)\n– Sans conservateur\n– Sans parfum"
-  },
-  {
-    "id": 550,
-    "slug": "depi-gel",
-    "brand": "DCP",
-    "name": "DÉPI GEL",
-    "size": "",
-    "price": 189,
+    "price": 310,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1520,15 +496,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "DÉPI-CRÈME dépigmentant actif est une crème apportant une solution pour la prise en charge des tâches brunes et de l’hyperpigmentation cutanée, notamment dans les cas suivants : Mélasma (masque de grossesse), Lentigo (taches de vieillesse), Chloasma, Taches d’origine inflammatoire et Taches d’origine vasculaire.\nGrâce à sa formulation unique Hexa Actifs 6, DÉPI-CRÈME a une action complète sur :\n– la dépigmentation des taches brunes\n– le renouvellement cellulaire\n– la diminution de production de mélanine\n\nUTILISATION :\nAppliquez Dépi Crème 1 à 2 fois quotidiennement, matin et soir, pour des résultats optimaux. Le flacon 50 ml correspond à un traitement complet.\n\nPROPRIÉTÉS :\n– Synergie d’action de 6 actifs dépigmentants\n– Prise en charge complète du cycle de la mélanogénèse\n– Efficacité prouvée par des études scientifiques\n– Actions : dépigmentante, hydratante, anti-inflammatoire et anti-irritante\n\nINDICATIONS :\n– Melasma\n– Chloasma\n– Lentigo\n– Taches d’origine inflammatoire\n– Taches d’originre vasculaire\n\nINGRÉDIENTS :​\nHPPA, acide salicilyque, vitamine C, vitamine E, bisabolol, allontoine, niacinamide, arbutine.."
+    "desc": "Les sensations de tiraillements ou de sécheresse peuvent être ressenties après l’utilisation d’un produit démaquillant.\n\nGourmande et aérienne, la mousse O-REGEN démaquille et nettoie en profondeur tout en procurant une agréable sensation de fraîcheur.\n\nFormulée à partir d’une base lavante ultra douce, elle élimine toutes les impuretés qui asphyxient le teint tout en respectant l’équilibre naturel de la peau.\n\nLa sélection d’extraits naturels spécifiques tels que le Lupin et le Ginkgo Biloba assure une meilleure oxygénation et protection de la peau. L’extrait de fleur de Nopal ravive l’éclat du teint."
   },
   {
-    "id": 549,
-    "slug": "depi-creme",
-    "brand": "DCP",
-    "name": "DÉPI CRÈME",
+    "id": 227,
+    "slug": "soin-exfoliant-visage-75-ml",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SOIN EXFOLIANT VISAGE 75 ML",
     "size": "",
-    "price": 399,
+    "price": 370,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1542,15 +519,39 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "GEL NETTOYANT ECLAIRCISSANT ACTIF - TOUS TYPES DE PEAU\nDépi-gel est un gel nettoyant éclaircissant à base de 6 ingrédients actif, spécialement formulé pour atténuer de manière efficace la dimension et la pigmentation de toute variété de tâches cutanées, indépendamment de leur origine (telles que celles induites par l’exposition au soleil, le vieillissement cutané ou les marques d’imperfections). \n\nLa formulation spécifique de Dépi-gel vise ainsi à homogénéiser la pigmentation de la peau, tout en stimulant simultanément l’éclat du teint, et ce, dans l’objectif d’offrir une apparence plus unifiée et lumineuse à l’épiderme.\n\nDépi-gel est conseillé pour tous les types de taches brunes\n\nPROPRIÉTÉS :\n– Accélère le renouvellement cellulaire\n– Élimine les squames\n– Nettoie en profondeur\n\nINDICATIONS :\n– Éclaircit et unifie le teint\n– Favorise à diminuer considérablement l’apparence des taches pigmentaires\n\nUTILISATION :\nUtiliser Dépi-gel matin et soir sur un visage légèrement humidifié. Rincer soigneusement.\n\nINGRÉDIENTS ACTIF :\n– Vitamine C et E : Eviction anti-inflamatoire antioxydants\n\n– Allontoine & Bisabolol : Agents anti-irritants\n\n– Acide salicilyque\n\n– Niacinamide"
+    "desc": "Ce soin exfoliant doux au caviar et extrait de raisin rouge, naturellement riches en vitamines A,B, D et polyphénols, élimine efficacement les cellules mortes et les impuretés. Il laisse la peau douce, éclatante et plus réceptive aux produits de soin. Sa texture fondante et dorée délecte les sens."
   },
   {
-    "id": 548,
-    "slug": "lotion-bha",
-    "brand": "DCP",
-    "name": "LOTION BHA",
+    "id": 226,
+    "slug": "bb-cream-soin-teinte-spf-30",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "BB CREAM SOIN TEINTE SPF 30",
     "size": "",
-    "price": 147,
+    "price": 400,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "BB Crème Teintée Beige SPF 30 d’HELIABRINE, un soin multifonction qui hydrate, unifie et protège la peau tout en corrigeant les imperfections. Idéale pour celles qui recherchent un teint lumineux et naturel, cette crème offre une mise en beauté instantanée en un seul geste."
+  },
+  {
+    "id": 225,
+    "slug": "ginkgomask-masque-eclat",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "GINKGOMASK MASQUE ECLAT",
+    "size": "",
+    "price": 280,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1564,15 +565,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "Lotion BHA est un exfoliant BHA et kérato-régulateur à base d’aloe vera et de thé vert, formulée avec précision, la lotion est spécialement conçue pour éliminer en douceur les cellules mortes en surface de l’épiderme, tout en pénétrant profondément dans les pores pour déloger les impuretés accumulées. La lotion BHA favorise une peau nette, grâce aux ingrédients naturels tels que l’aloe vera et le thé vert, la lotion offre également une hydratation optimale.\n\nINDICATION :\n– Imperfections\n– Pores dilates\n– Points noirs\n\nUTILISATION :\nAppliquer le DCP LOTION BHA deux fois par jour\nsur le visage bien nettoyé avec DCP TRIO-ACNE GEL.\nMasser légèrement.\nSans rinçage.\n\nCOMPOSITION :\n– 2 % acide salicyliquee\n– The vert\n– Imperfections\n– Calendula\n– Isopentyldiol\n– Aloe vera"
+    "desc": "HELIABRINE Ginkgomask Masque Éclat: Formule exceptionnelle en ingrédients hydratant et raffermissant des peaux sèches. Le teint parait éclatant, la peau semble plus lisse, douce et revitalisée."
   },
   {
-    "id": 547,
-    "slug": "nc-10-serum",
-    "brand": "DCP",
-    "name": "NC 10 SERUM",
+    "id": 224,
+    "slug": "masque-reequilibrant-au-melilot-bio",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "MASQUE REEQUILIBRANT AU MELILOT BIO",
     "size": "",
-    "price": 137,
+    "price": 320,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1586,13 +588,129 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "NC 10 SERUM\nSÉRUM ANTI-IMPERFECTIONS, ACNÉ INFLAMMATOIRE, ACNÉ ROSACÉE\nNC 10 SERUM est un sérum anti-imperfections spécialement conçu pour répondre aux besoins des peaux sensibles, en particulier celles sujettes à l’acné inflammatoire et à la rosacée. Grâce à sa formule hypoallergénique, NC 10 sérum offre une solution douce et efficace pour cibler les problèmes cutanés. Sa texture légère et ses ingrédients apaisants aident à réduire les rougeurs, à calmer l’inflammation et à retrouver une peau plus équilibrée et apaisée.\n\nNC 10 - INDICATION :\n– Acné inflammatoire\n– Acné rosacée\n– Association avec les traitements anti acnéiques\n\nNC 10 - COMPOSITION :\n– 10% Niacinamide\n– 3% AC.net\n\nNC 10 - UTILISATION :\nAppliquer le DCP NC 10 sérum matin et/ou soir sur le visage bien nettoyé avec le DCP TRIO ACNE GEL.\nMasser légèrement.\nSans rinçage."
+    "desc": "Ultra réconfortant, ce masque crème aide à rétablir l’équilibre nécessaire au confort et à l’éclat des peaux fragiles grâce à un cocktail d’ingrédients apaisants, hydratants et réparateurs. La peau paraît revitalisées, plus souple, douce et lumineuse."
   },
   {
-    "id": 546,
-    "slug": "trio-acne-lotion",
-    "brand": "DCP",
-    "name": "TRIO ACNE LOTION",
+    "id": 223,
+    "slug": "serum-nutrivitamine-au-calendula",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SERUM NUTRIVITAMINE AU CALENDULA",
+    "size": "",
+    "price": 400,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Sérum Nutrivitaminé au Calendula d’Heliabrine, un soin révolutionnaire conçu pour apaiser, réparer et protéger les peaux sensibles et réactives. Sa texture onctueuse et légère en fait un véritable plaisir à appliquer, offrant un confort immédiat dès la première utilisation. Ce sérum est idéal pour les peaux sujettes aux rougeurs et aux irritations, particulièrement en période de stress climatique intense."
+  },
+  {
+    "id": 222,
+    "slug": "serum-expert-fermete",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SERUM EXPERT FERMETE",
+    "size": "",
+    "price": 450,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Le Sérum Expert Fermeté HELIABRINE est un soin intensif conçu pour raffermir et revitaliser les peaux en manque de tonus. Sa formule légère et concentrée cible le relâchement cutané tout en lissant et tonifiant la peau. Idéal pour les peaux matures ou en perte d’élasticité, ce sérum offre une action anti-âge complète."
+  },
+  {
+    "id": 221,
+    "slug": "creme-hydra-perlee-a-l-acide-hyaluronique",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "CREME HYDRA-PERLEE A L'ACIDE HYALURONIQUE",
+    "size": "",
+    "price": 560,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "95% d'ingrédients d'origine naturelle.\nPropriétés hydratantes, adoucissante, apaisantes et régénérantes.\nConvient à tous types de peaux y compris les peaux sensibles.\nPénètre rapidement, sans laisser de fil gras sur la peau.\nNon comédogène et non acnéigène.\nEffet matifiant, moins de brillance au cours de la journée."
+  },
+  {
+    "id": 220,
+    "slug": "creme-hydra-satinee-au-collagene-marin",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "CREME HYDRA-SATINEE AU COLLAGENE MARIN",
+    "size": "",
+    "price": 420,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "95% d'ingrédients d'origine naturelle.\nHydratation longue durée.\nFermeté et élasticité de la peau.\nEffet lissant et anti-rides, fini satiné.\nConvient à tous types de peaux y compris les peaux sensibles, particulièrement recommandé pour les peaux sèches ou matures."
+  },
+  {
+    "id": 219,
+    "slug": "gel-post-epilation",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "GEL POST EPILATION",
+    "size": "",
+    "price": 220,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Calme instantanément les peaux fragilisées ou échauffées par l’épilation. Contient un actif breveté, le Capislow®​ qui ralentit la repousse du poil et permet de conserver des jambes nettes et douces plus longtemps. \nEstompe les rougeurs et imperfections liées à l’épilation (poils incarnés)."
+  },
+  {
+    "id": 218,
+    "slug": "soin-de-nuit",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SOIN DE NUIT",
     "size": "",
     "price": 294,
     "old": 0,
@@ -1608,15 +726,85 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "PEAUX GRASSES À IMPERFECTIONS MODÉRÉES À SÉVÈRES\nTRIO ACNE LOTION spray est un traitement ciblé anti-acné zones larges à base d’acide exfoliant, anti-inflammatoire et éclaircissant, qui permet de purifier en éliminant les impuretés et matifier la peau en absorbant l’excès de sébum et en régulant sa sécrétion. Pour les lésions sur les grandes surfaces ( dos, torse, avant bras..etc ), kératose pilaire et pili incarnati. Ce traitement convient à tous les types de peau, même les plus sensibles, et à tous les phototypes.\n\nINDICATION :\n– Lésions sur les grandes surfaces\n– Kératose pilaire\n– Pili incarnati\n\nUTILISATION :\nAppliquer DCP TRIO ACNE LOTION deux fois par jour sur une peau préalablement nettoyée avec DCP TRIO-ACNE GEL. S’applique directement sur les imperfections. Idéal pour les zones larges touchées par l’acné.\n\nCOMPOSITION :\n– 10% Glycolic Acid >Exfoliant\n– 5% Niacinamide > Anti-inflammatoire et éclaircissant\n– 2% Salicylic Acid > Kératolytique\n– 1% Allantoin > Apaisant\n– 1% Tasmannia Lanceolata Fruit > Anti-inflammatoire\n– 0.5% Arctium Majus Root Extract > Apaisant\n– 5% Glycerin > Hydratant\n– 5% Aloe Barbadensis Leaf Extract > Hydratant et apaisant\n– 0.6% Centella Asiatica Leaf Water > Cicatrisant"
+    "desc": "Héliabrine Helia Green Soin de Nuit Hydratation & Confort est un soin de nuit nourrissant et hydratant conçu pour apporter réconfort et douceur à la peau tout au long de la nuit. Il est adapté aux peaux normales à sèches. La texture de ce soin est décrite comme « cocooning », c’est-à-dire qu’elle est douce et enveloppante pour procurer une sensation de confort.\nCe soin de nuit est formulé avec des ingrédients naturels, dont 99% sont d’origine naturelle, et met en avant les actifs suivants :\nHibiscus Blanc et Fruit de Baobab : Ces ingrédients sont sélectionnés pour leurs propriétés repulpantes, contribuant ainsi à maintenir la jeunesse de la peau.\nGrenade et Karité : Ils sont reconnus pour leur pouvoir hydratant et réparateur exceptionnel, aidant à garder la peau bien hydratée et à favoriser sa réparation.\nAlgue Brune de Méditerranée : Cette algue est appréciée pour ses vertus adoucissantes et raffermissantes, participant ainsi à maintenir la douceur et la fermeté de la peau.\nConseils d’application :\nPour optimiser l’utilisation de ce soin de nuit, suivez ces recommandations :\nAppliquez le produit chaque soir sur le visage, le cou et le décolleté après les avoir démaquillés.\nLe matin, utilisez le soin jour « Hydratation et Douceur » de la gamme Heliagreen pour compléter votre routine."
   },
   {
-    "id": 545,
-    "slug": "trio-acne-soin-ski",
-    "brand": "DCP",
-    "name": "TRIO ACNE SOIN SKI",
+    "id": 217,
+    "slug": "soin-de-jour",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SOIN DE JOUR",
     "size": "",
-    "price": 126,
+    "price": 294,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Top",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 8
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Héliabrine Helia Green Soin de Jour Hydratation & Douceur est un soin hydratant quotidien qui convient à tous les types de peaux. Sa texture fine, fraîche et fondante aide à maintenir un taux d’hydratation optimal pour une peau plus douce, souple et éclatante.\nLes ingrédients clés de ce soin, dont 99% sont d’origine naturelle, sont les suivants :\nExtrait de Gaulthérie : Sélectionné pour son action sur l’éclat du teint, cet extrait contribue à donner à la peau un aspect lumineux.\nGrenade et Karité : Ces ingrédients sont reconnus pour leur exceptionnel pouvoir hydratant et protecteur. Ils aident à maintenir la peau bien hydratée et la protègent des agressions extérieures.\nAlgue Brune de Méditerranée : Cette algue est appréciée pour ses vertus adoucissantes et raffermissantes, aidant ainsi à préserver la douceur et la fermeté de la peau.\nConseils d’application :\nPour une utilisation optimale de ce soin hydratant, suivez ces recommandations :\nAppliquez le produit chaque matin sur le visage, le cou et le décolleté, après les avoir démaquillés.\nPour une hydratation complète, utilisez le soir le soin nuit « Hydratation & Confort » de la gamme Heliagreen."
+  },
+  {
+    "id": 216,
+    "slug": "heliabrine-solar-defense-50",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "HELIABRINE SOLAR DEFENSE 50",
+    "size": "",
+    "price": 370,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Top",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 8
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Protège efficacement la peau des rayons UVA + UVB et du vieillissement cutané prématuré grâce à l’action combinée de filtres organiques à large spectre d’absorption et d’un extrait de fleur de Tournesol.\n\nTexture légère et invisible qui pénètre rapidement.\n\nFormule recommandée pour les peaux très claires ou dans des conditions d’ensoleillement intense (tropiques, montagne)."
+  },
+  {
+    "id": 215,
+    "slug": "soin-lissant-et-repulpant-levres",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SOIN LISSANT ET REPULPANT LEVRES",
+    "size": "",
+    "price": 273,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ultra concentré en agents nutritifs (karité, huiles de pépins de raisins et son de riz), lissants et repulpants (acide hyaluronique, collagène marin), ce soin comble les ridules et préserve l’hydratation et l’élasticité des lèvres et de leurs contours.\nDès la première application, les lèvres sont visiblement redessinées. Plus souples et plus douces, elles paraissent naturellement plus volumineuses et plus jeunes.\n\nTexture légère et fondante qui pénètre rapidement et facilite la tenue du maquillage pour retrouver le sourire à tout moment de la journée."
+  },
+  {
+    "id": 214,
+    "slug": "heliabrine-huile-demaquilante-velours",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "HELIABRINE HUILE DEMAQUILANTE VELOURS",
+    "size": "",
+    "price": 500,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1630,15 +818,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "PEAUX GRASSES À IMPERFECTIONS MODÉRÉES À SÉVÈRES\nTRIO ACNE SOIN SKI conçu pour une application quotidienne, sa texture laisse un fini agréable, non gras et non collant, pour une absorption rapide. Grâce à sa formule régulateur de la sécrétion du sébum, mais aussi : anti-inflammatoire, anti-bactérien et un excellent apaisant des irritations de l’acné\n\nINDICATION :\n– Séborégulateur : Régule la sécrétion du sébum\n– Keratorégulateur\n– Anti-inflammatoire\n– Anti-bactérien\n– Apaisant : Apaise et calme les irritations\n\nUTILISATION :\nAppliquer DCP TRIO-ACNE SOIN S.K.I deux fois par jour sur une peau préalablement nettoyée avec DCP TRIO-ACNE GEL.\nS’applique directement sur les imperfections.\nEviter le contour des yeux.\n\nINGRÉDIENTS :\naqua, cetearyl alcohol, coco- caprylate/caprate, vitis vinifera seed oil, zinc oxide, salicylic acid, glycerin, butylene glycol, peg-60 almond glycerides, caprylyl glycol, carbomer, nordihydroguaiaretic acid, oleanolic acid, zea mays (corn) starch, niacinamide, glyceryl stearate, ceteareth-20, chlorhexidine undecylenate, allantoin, dehydroacetic acid, benzyl alcohol, butyrospermum parkii butter, ethylhexylglycerin, propanediol, xanthan gum, pyridoxine hcl, panthenol, hydrolyzed yeast protein, threonine, biotin, lactic acid, tocopherol, melaleuca alternifolia leaf oil."
+    "desc": "Enrichie en huile de Macadamia aux propriétés hydratantes exceptionnelles, cette huile assure un démaquillage très doux du visage et des yeux et protège le film hydrolipidique de la peau.\n\nAu contact de l’eau, elle se transforme en une délicieuse émulsion lactée qui dissout efficacement les impuretés, le sébum et tous types de maquillage, même waterproof. Parfaitement nettoyée, la peau est incroyablement douce et confortable, le teint net et clarifié."
   },
   {
-    "id": 544,
-    "slug": "trio-acne-gel",
-    "brand": "DCP",
-    "name": "TRIO-ACNE GEL",
+    "id": 213,
+    "slug": "masque-repulpant-collagene",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "MASQUE REPULPANT COLLAGENE",
     "size": "",
-    "price": 168,
+    "price": 220,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1652,15 +841,16 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "PEAUX GRASSES À IMPERFECTIONS MODÉRÉES À SÉVÈRES\nTRIO ACNE GEL MOUSSANT est un nettoyant moussant pour peaux mixtes et grasses à imperfections modérées à sévères. Ce gel moussant nettoie en douceur les impuretés et les bactéries responsables de l’acné, régule l’excès de sébum, purifie l’épiderme, prévient les éruptions cutanées et respecte le pH cutané.\n\nINDICATION :\n– Nettoie en douceur les peaux mixtes et grasses à imperfections.\n– Séborégulateur sans provoquer l’hyper-séborrhée réactionnelle.\n– Purifie et assainit l’épiderme tout en nettoyant en douceur la peau.\n– Prévient les éruptions cutanées\n– Réspecte le pH cutané\n\nUTILISATION :\nAppliquer, matin et soir, DCP TRIO-ACNE Gel sur une peau humide. Faire mousser avec un peu d’eau le gel, rincer abondamment à l’eau, puis sécher sans frotter.\nIdéal pour toutes les zones touchées par l’acné, y compris le visage, le dos et la poitrine.\n\nINGRÉDIENTS :\naqua, sodium laureth sulfate, lauryl glucoside, cocamide dea, propylene glycol, salicylic acid, pyridoxine hcl, hydrolyzed yeast protein, threonine, biotin, niacinamide, glycerin, sodium chloride, dehydroacetic acid, benzyl alcohol, coco-glucoside, glyceryl oleate, allantoin, lactic acid, lauryl glucoside, disodium edta, ci19140, ci42090"
+    "desc": "Véritable concentré de douceur et d’hydratation, ce soin allie bien-être et efficacité pour une peau repulpée et visiblement plus belle. Nous avons choisi d’associer la haute technologie de la Bio-cellulose, véritable ‘SECONDE PEAU’, aux pouvoirs reconstituants et hydratants du Collagène Marin et de l’Acide Hyaluronique. Idéalement hydratée et intensément ressourcée, la peau retrouve une nouvelle jeunesse.\n\nPrincipaux ingrédients :\n\nCollagène Marin\nAcide Hyaluronique\nGlycérine\nAloe Vera"
   },
   {
-    "id": 543,
-    "slug": "moist-intense",
-    "brand": "DCP",
-    "name": "MOIST INTENSE",
+    "id": 212,
+    "slug": "ampoules-au-collagene-marin",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "AMPOULES AU COLLAGENE MARIN",
     "size": "",
-    "price": 168,
+    "price": 890,
     "old": 0,
     "cat": "Visage",
     "badges": [
@@ -1674,15 +864,246 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "DCP MOIST INTENSE est spécialement conçue pour les peaux sèches à très sèches, cette crème hydratante profonde apporte une sensation de confort et de douceur absolue. Elle soulage les rougeurs, les picotements et procure une hydratation intense.\n\nINDICATION :\n– Crème hydratante profonde 72 H\n– Peaux sèches à très sèches\n\nUTILISATION :\nAppliquer DCP MOIST INTENSE chaque matin et soir sur l’ensemble du visage et du cou.\n\nPROPRIÉTÉS :\nDCP MOIST INTENSE réconforte complètement les peaux les plus sensibles, soulage les rougeurs et les picotements et hydrate intensément.\n\nUNE RESTAURATION DE LA BARRIÈRE CUTANÉE\nINGRÉDIENTS ACTIFS\n15% ACIDES AMINÉS : Facteurs naturels d’hydratation ( FNH – Plastification des Cornéocytes)\n5% ALOE VERA : Véritable concentré d’actifs hydratants, de vitamines (A, B et E), de minéraux, des acides aminés essentiels et de 99% d’eau.\n1% PENTAVITIN : Actif apaisant pour une hydratation en profondeur.\n1% CALENDULA : Antioxydant, protégeant de la dégénérescence cellulaire et captant\nles radicaux libres à l’origine du vieillissement cutané prématuré.\n1% KARITÉ : Riche en vitamines A, D, E et F, le karité possède de nombreuses proprié- tés réparatrices, il assouplit, adoucit et hydrate la peau en profondeur.\n1% PROVITAMINE B5 : Hydratant et émollient, la provitamine B5 réduit la perte en eau et maintient la douceur et l’élasticité de la peau."
+    "desc": "Cure anti-âge intensive destinée aux peaux matures, fatiguées ou dévitalisées. Hautement concentrées en Collagène Marin et Peptides anti-âges très performants, ces ampoules hydratent et nourrissent en profondeur la peau pour aider à maintenir sa densité et sa fermeté qui diminue avec l’âge. La texture très douce et confortable du sérum délivre au cœur des rides ses composantes hydratantes pour un effet lissant immédiat**. L’effet jeunesse est remarquable : dès le 6ème jour la peau paraît redensifiée, le taux de collagène dermique augmente de 186%*. Après 12 jours** de cure seulement, la peau semble repulpée : visiblement plus ferme, elle retrouve éclat et vitalité. Après 24 jours**, ces résultats s’intensifient : d’apparence plus lisse et moins marquée au réveil, la peau paraît visiblement plus jeune."
   },
   {
-    "id": 542,
-    "slug": "sunscreen-invisible",
-    "brand": "DCP",
-    "name": "SUNSCREEN INVISIBLE",
+    "id": 211,
+    "slug": "heliabrine-baume-54",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "HELIABRINE BAUME 54",
     "size": "",
-    "price": 158,
+    "price": 300,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ce baume réconfortant, nourrit intensément les peaux sèches à très sèches.\nIl contient un puissant cocktail de plantes pour affronter les conditions climatiques difficiles (froid, humidité).\nIl prévient les engelures et gerçures et renforce la barrière hydro-lipidique de la peau."
+  },
+  {
+    "id": 210,
+    "slug": "soin-multi-correction-capital-defense",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SOIN MULTI CORRECTION ( CAPITAL DEFENSE)",
+    "size": "",
+    "price": 370,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Effet lissant – diminution de l’apparence des rides/ridules de déshydratation dès la 1ère application.*\nPoches sous les yeux visiblement atténuées**\nCernes moins visibles**\n*Test instrumental effectué 2 heures après application. **Evaluation clinique réalisée sur 21 femmes après 28 jours d’utilisation biquotidienne"
+  },
+  {
+    "id": 209,
+    "slug": "creme-confort-32",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "CREME CONFORT 32",
+    "size": "",
+    "price": 650,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Idéale pour les peaux sèches, fragiles et exigeantes, la crème Confort 32 enveloppe la peau d’un confort infini et la protège des effets du temps. Enrichie en ingrédients végétaux hydratants, nourrissants et réparateurs, elle offre une hydratation et une protection longue durée. Intensément hydratée et plus résistante, la peau est souple, douce et visiblement plus belle. Appliquer par un léger massage sur le visage et le cou démaquillés. Texture riche recommandée pour les peaux sèches à très sèches ou en soin de nuit\n\nPrincipaux ingrédients :\n\nMélilot BIO\nMarguerite Bleue\nAllantoïne\nPro Vitamine B5\nHuile de Cameline\nHuile de Pépins de raisins\nImpérata Cylindrica\nGlycérine végétale\nAcide hyaluronique\nAlgisium C®\nSANS PARABEN"
+  },
+  {
+    "id": 208,
+    "slug": "masque-reequilibrant",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "MASQUE REEQUILIBRANT",
+    "size": "",
+    "price": 320,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ultra réconfortant, ce masque crème rétablit l’équilibre nécessaire au confort et à l’éclat des peaux fragiles grâce à un cocktail d’actifs apaisants, hydratants et réparateurs. \n\nVisiblement revitalisée, la peau est souple, douce et lumineuse."
+  },
+  {
+    "id": 207,
+    "slug": "ha-soin-hydratant-matifiant",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "HA SOIN HYDRATANT MATIFIANT",
+    "size": "",
+    "price": 250,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ce soin quotidien à la texture fraîche et légère hydrate, matifie et apaise dès la première application les peaux mixtes ou grasses.\nIl contient un actif breveté le Lipester®CSS qui aide à lutter contre le développement microbien et assainir la peau.\nDes poudres matifiantes SOFT FOCUS offrent un toucher velouté, estompent les imperfections et absorbent l'excès de sébum.\n\nLa peau retrouve rapidement douceur et souplesse, les sensations d’inconfort s’atténuent et les pores se resserrent.\n\nExcellente base de maquillage grâce à son fini mat et son action anti-brillance. Formule non grasse.\n\nLe soin hydratant matifiant HELIABRINE est également recommandé pour les peaux masculines."
+  },
+  {
+    "id": 206,
+    "slug": "ha-puriphyl-solution",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "HA PURIPHYL SOLUTION",
+    "size": "",
+    "price": 300,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Traitement de fond des peaux à problèmes. Combat la prolifération bactérienne. Assainit l’épiderme et lutte contre l’apparition des boutons et points noirs. La Solution doit être employée localement sur les zones à traiter.\n\nConseils d’utilisation :\n\nAppliquer le soir sur une peau parfaitement nettoyée.\nDès les premiers signes d’amélioration, espacer les applications en alternance avec la Lotion Tonique Clarifiante.\n\nPrincipaux ingrédients :\n\nLipacide C8CO\nExcipient alcoolisé"
+  },
+  {
+    "id": 205,
+    "slug": "ha-gel-nettoyant-moussant",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "HA GEL NETTOYANT MOUSSANT",
+    "size": "",
+    "price": 280,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés :\nNettoie, purifie et assainit l’épiderme sans l’agresser.\nDès deux semaines, les imperfections sont moins visibles, la peau est moins grasse, les impuretés sont éliminées.\nConseils d’utilisation :\nS’utilise matin et soir comme un savon. Rincer à l’eau.\nSécher la peau puis appliquer la Lotion Tonique Clarifiante pour resserrer les pores.\nPrincipes actifs :\nLipesters® CSS\nAllantoïne\nTilleul\nCamomille\nBleuet\nCalendula\nMillepertuis\nSANS SAVON\nSANS COLORANT\nSANS PARABEN"
+  },
+  {
+    "id": 204,
+    "slug": "serum-forfiant-cils-et-sorcils",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SERUM FORFIANT CILS ET SORCILS",
+    "size": "",
+    "price": 330,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ce sérum fortifiant a été conçu pour sublimer le regard en favorisant la pousse naturelle des cils et des sourcils.\n\nLa formule composée d’ANP® 2+, Tripeptide et Provitamine B5 permet de fortifier durablement les cils et les sourcils tout en stimulant leur croissance.\n\nElle protège, répare et renforce tous les types de cils et sourcils même fragilisés, fins ou clairsemés. Ce traitement convient également aux yeux sensibles et porteurs de lentilles.\n\nTransparent, le sérum peut s’appliquer seul ou sous le mascara dont il facilite l’application"
+  },
+  {
+    "id": 203,
+    "slug": "soin-anti-taches-anti-age",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "SOIN ANTI-TACHES ANTI-AGE",
+    "size": "",
+    "price": 650,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Une formule ultra-active pour lutter contre les marques du temps sur le visage (taches brunes) et les taches de grossesses. Un soin complet anti-âge qui redonne éclat et fermeté à l’épiderme.\nPrincipaux ingrédients :\nIparzine 4-A\nComplexe éclaircissant\nWHITESPHERE TM PREMIUM\nHuile de son de riz\nGlycérine végétale\nSANS PARABEN"
+  },
+  {
+    "id": 202,
+    "slug": "lait-corps",
+    "brand": "Héliabrine",
+    "brandSlug": "heliabrine",
+    "name": "LAIT CORPS",
+    "size": "",
+    "price": 360,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Top",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 8
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ce lait à la texture fine et délicate fond sur la peau et apporte hydratation et confort tout au long de la journée. La peau redevient uniforme et lumineuse grâce au complexe éclaircissant WHITESPHERETM PREMIUM qui corrige les irrégularités pigmentaires et prévient leur apparition. Les taches sont visiblement estompées dès le premier mois.\nPrincipaux ingrédients :\n– Complexe éclaircissant\nWHITESPHERE TM PREMIUM\nExtrait de soie pure\nHuile de son de riz\nGlycérine végétale\nSANS PARABEN"
+  },
+  {
+    "id": 201,
+    "slug": "sun-protect-spf-50",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "SUN PROTECT SPF 50+",
+    "size": "",
+    "price": 250,
     "old": 0,
     "cat": "Solaire",
     "badges": [
@@ -1696,15 +1117,200 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "SUNSCREEN INVISIBLE ultra protection SPF 50+ est une crème solaire invisible avec une formule innovante de triple action « Protection, Hydratation et Anti-âge », offre une protection maximale contre les rayons UVA/UVB et hydrate profondément tous les types de peau.\n\nINDICATIONS :\n– Protection maximale absorbante UVA / UVB 50+\n– Prévention du veillissement cutané\n– Crème solaire adaptée à tous les types de peau\n– Ultra hydratant\n– Non comédogène, hypoallergénique, sans paraben\n– Toucher sec, fini mat immaculé\n– Résiste à l’eau\n– Resiste à la sudadtion\n– Miscibilité avec l’huile\n\nUTILISATION :\nAppliquer généreusement et uniformément DCP SUNSCREEN INVISIBLE sur la peau sèche 30 minutes avant l’exposition au soleil et aussi souvent que nécessaire.\nRenouveler l’application toutes les deux heures ou aprés la natation ou la transpiration.\n\nUNE PROTECTION OPTIMALE : TINOSORB M + TINOSORB S + UVINUL A Plus\nINGRÉDIENTS ACTIFS :\nTinsorb M : Protection et absorption maximale\nTinisorb S : Protection et absorption maximale\nUvinul A Plus : Protection et absorption maximale\nAloe Vera : Hydratation maximale. Renforcer la barrière cutanée\nVitamine E : Vieillissement cutané"
+    "desc": "HTCEUTIC Sun Protect SPF 50+ est une crème solaire\nvisage à très haute protection, spécialement formulée\npour les peaux sujettes à l’hyperpigmentation.\nSa texture légère et non grasse assure une application\nagréable et un fini invisible, adaptée à un usage quotidien."
   },
   {
-    "id": 541,
-    "slug": "sunscreen-hydro",
-    "brand": "DCP",
-    "name": "SUNSCREEN HYDRO",
+    "id": 200,
+    "slug": "white-cream",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "WHITE CREAM",
     "size": "",
-    "price": 242,
+    "price": 250,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Top",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 8
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "HTCEUTIC White Cream agit grâce à une action\nenzymatique associée à une synergie d’actifs\ndépigmentants. Elle lisse le grain de peau et stimule\nen douceur le renouvellement cellulaire, révélant\nun teint visiblement plus uniforme et éclatant."
+  },
+  {
+    "id": 199,
+    "slug": "white-gel",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "WHITE GEL",
+    "size": "",
+    "price": 230,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Hautement concentré en actifs éclaircissants,\nHTCEUTIC White Gel nettoie en douceur et\nrévéle l’éclat naturel de votre peau."
+  },
+  {
+    "id": 198,
+    "slug": "aha-creme-post-peeling",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "AHA CRÉME POST-PEELING",
+    "size": "",
+    "price": 600,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nHTCEUTIC AHA crème post-peeling est une crème faciale apaisante, régénératrice, réparatrice et hydratante qui renforce et restructure la peau qui a déjà reçu un peeling médical.\nAide à corriger l’aspect de la peau après les traitements dermatologiques.\nIndications\nAide à corriger l’aspect de la peau après les traitements dermatologiques."
+  },
+  {
+    "id": 197,
+    "slug": "aha-gel-peeling-20",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "AHA GEL PEELING 20%",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nHTCEUTIC AHA 20% gel est un gel peeling conçu spécialement pour peaux grasses à base de 20% d’acide glycolique.\nIndications\nÀ base de 20% d’acide glycolique."
+  },
+  {
+    "id": 196,
+    "slug": "aha-creme-peeling-20",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "AHA CRÉME PEELING 20%",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nHTCEUTIC AHA 20% crème est une crème peeling conçue spécialement pour une application sur les peaux sèches à base de 20% d’acide glycolique.\nIndications\nÀ base de 20% d’acide glycolique."
+  },
+  {
+    "id": 195,
+    "slug": "aha-gel-peeling-15",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "AHA GEL PEELING 15%",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nHTCEUTIC AHA 15% gel est un gel peeling conçu spécialement pour peaux grasses à base de 15% d’acide glycolique.\nIndications\nÀ base de 15% d’acide glycolique."
+  },
+  {
+    "id": 194,
+    "slug": "aha-creme-peeling-15",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "AHA CRÉME PEELING 15%",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nHTCEUTIC AHA 15% crème est une crème peeling conçue spécialement pour une application sur les peaux sèches à base de 15% d’acide glycolique.\nIndications\nÀ base de 15% d’acide glycolique."
+  },
+  {
+    "id": 193,
+    "slug": "aha-gel-pre-peeling",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "AHA GEL PRE-PEELING",
+    "size": "",
+    "price": 200,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nHTCEUTIC AHA gel soft and smooth est un nettoyant hydratant pré-peeling.\nGel soft de couleur vert turquoise, nettoie en douceur, aide à, préparer la peau à recevoir les autres soins de la gamme HTCEUTIC AHA et surtout à recevoir le peeling médical.\nLaisse un pH idéal pour une action optimale des AHA.\nIndications\nHTCEUTIC AHA et surtout à recevoir le peeling médical.\nLaisse un pH idéal pour une action optimale des AHA."
+  },
+  {
+    "id": 192,
+    "slug": "creme-regenerante-spf-15",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "CRÉME RÉGÉNÉRANTE SPF 15",
+    "size": "",
+    "price": 280,
     "old": 0,
     "cat": "Solaire",
     "badges": [
@@ -1718,7 +1324,1019 @@ export const PRODUCTS: Product[] = [
     "rating": 5,
     "reviews": 0,
     "tint": "#F2F2F2",
-    "desc": "SUNSCREEN HYDRO ultra protection SPF 50+ est une crème solaire invisible avec une formule contenant « Tinosorb M, Tinosorb S, Emollionts et Aloe vera », offre une protection maximale contre les rayons UVA/UVB et hydrate profondément tous les types de peau.\n\nUTILISATION :\nAppliquer généreusement et uniformément DCP SUNSCREEN HYDRO sur la peau sèche 30 minutes avant l’exposition au soleil et aussi souvent que nécessaire.\nRenouveler l’application toutes les deux heures ou aprés la natation ou la transpiration.\n\nUNE PROTECTION OPTIMALE : TINOSORB M + TINOSORB S + UVINUL A Plus\nINDICATIONS :\n– Protection maximale absorbante UVA / UVB 50+\n– Prévention du veillissement cutané\n– Crème solaire adaptée à tous les types de peau\n– Ultra hydratant\n– Non comédogène, hypoallergénique, sans paraben\n– Toucher sec, fini mat immaculé\n– Résiste à l’eau\n– Resiste à la sudadtion\n– Miscibilité avec l’huile\n\nINGRÉDIENTS ACTIFS :\nTinsorb M : Protection et absorption maximale\nTinisorb S : Protection et absorption maximale\nUvinul A Plus : Protection et absorption maximale\nAloe Vera : Hydratation maximale. Renforcer la barrière cutanée\nVitamine E : Vieillissement cutané"
+    "desc": "Propriétés\nHTCEUTIC CRÈME RÉGÉNÉRANTE à base de Vit-A-Like est un soin quotidien qui possède des propriétés anti-âge et aide à stimuler le renouvellement cellulaire et la synthèse du collagène.\nIndications\nHTCEUTIC CRÈME RÉGÉNÉRANTE favorise la réduction des signes de l’âge : rides, ridules et décoloration du teint.\nPermet à la peau de retrouver sa souplesse et redonne ce résultat hydraté, jeune et raffermit.\nExcellente pour les peaux matures et sèches."
+  },
+  {
+    "id": 191,
+    "slug": "retinol-serum-2",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "RETINOL SERUM 2%",
+    "size": "",
+    "price": 250,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nRETINOL SERUM 2% est un soin de peau contre les signes de l’âge et l’irrégularité du teint.\nDestiné pour les peaux qui manquent de fermeté et les peaux grasses à tendance acnéique.\nIndications\nEfficace pour stopper et diminuer les signes de l’âge ( rides, ridules) et améliorer la texture et la pigmentation de la peau, Formule spéciale à 2% de Rétinol avec une synergie de plusieurs autres actifs pour un résultat anti-âge supérieur et surtout avec moins d’irritation."
+  },
+  {
+    "id": 190,
+    "slug": "retinol-serum-0-5",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "RETINOL SERUM 0.5%",
+    "size": "",
+    "price": 220,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nRETINOL SERUM 0.5% stimule l’élasticité de la peau, régénère les cellules et renforcela barrière cutanée agressée par les signes de l’âge.\nComplexe d’actifs pour une peau jeune et saine.\nPeaux fines.\nIndications\nRETINOL SERUM 0.5% est le soin quotidien qui réduit visiblement les rides, ridules et corrige le teint en améliorant sa pigmentation."
+  },
+  {
+    "id": 189,
+    "slug": "protek-spf-50",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "PROTEK SPF 50+",
+    "size": "",
+    "price": 240,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nPROTEK SPF 50+ protège les peaux les plus fragiles.\nGrâce à sa formule spécifique, PROTEK SPF 50+ redonne à la peau son confort habituel.\nIndications\n• Excellent pour les formulations\nesthétiques.\n• Renforce la protection sur tout le spectre\nUVA/UVB.\n• Réduction potentielle de l’irritation causée\npar les principes actifs pour une grande\nvariété de produits cosmétiques utilisant\ndes filtres UV inorganiques ou organiques.\n• Excellent pour les formulations résistantes\nà l’eau."
+  },
+  {
+    "id": 188,
+    "slug": "creme-booster",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "CRÉME BOOSTER",
+    "size": "",
+    "price": 160,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nLe soin Créme Booster, est un soin ultra concentré, renforce l’efficacité du C30-Sérum et offre une peau profondément hydratée, repulpée,jeune et lisse.\nTexture crème légère, le soin Créme Booster s’absorbe rapidement, et surtout, convient à tous les types de peau.\nIndications\nSa formule riche, combinant plusieurs actifs, permet de booster l’effet et le potentiel de la vitamine C et offre un éclat remarquable dès la première utilisation."
+  },
+  {
+    "id": 187,
+    "slug": "c30-serum",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "C30 SERUM",
+    "size": "",
+    "price": 280,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nHTCeutic C30-Serum est un Sérum concentré multi action antioxydant à base de Vitamine C pure à 30%.\nIndications\nHTCeutic C30-Serum devient le geste quotidien indispensable pour prévenir et corriger les signes de l’âge rides, ridules, teint terne.\nRésultats prouvés après les premières utilisations suivies de la HTCeutic crème booster."
+  },
+  {
+    "id": 186,
+    "slug": "creme-lavante",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "CRÉME LAVANTE",
+    "size": "",
+    "price": 180,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "HTCEUTIC CRÈME LAVANTE est un nettoyant surgras crémeux pour les peaux matures, sensibles et fragilisées."
+  },
+  {
+    "id": 185,
+    "slug": "mousse-nettoyante",
+    "brand": "HTCeutic",
+    "brandSlug": "htceutic",
+    "name": "MOUSSE NETTOYANTE",
+    "size": "",
+    "price": 200,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Propriétés\nMousse Nettoyante indispensable au rituel de la beauté des peaux asphyxées.\nIndications\nLa mousse HTCEUTIC, nettoie en douceur, assainit, élimine les impuretés et redonne à la peau son éclat habituel.\nGrâce à sa formule spécifique, HTCEUTIC MOUSSE réduit les sensations de sécheresse et de picotement tout en éliminant les impuretés qui asphyxient le teint."
+  },
+  {
+    "id": 184,
+    "slug": "lcp-lotion-anti-chute",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP lotion anti-chute",
+    "size": "",
+    "price": 433,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Top",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 8
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "La Lotion Anti-Chute LCP est un soin ciblé à action intensive, conçu pour freiner la chute de cheveux et stimuler la repousse dès la racine. Formulée à base de complexes anti-chute performants, elle agit directement sur le cuir chevelu pour renforcer l’ancrage du cheveu, prolonger son cycle de vie et favoriser une chevelure plus dense et plus résistante.\nSa texture légère et non grasse pénètre rapidement sans laisser de résidus, permettant une utilisation quotidienne sans alourdir les cheveux. Facile à appliquer grâce à son format spray, elle offre un geste précis et pratique pour un traitement efficace au quotidien.\nIdéale en cas de chute de cheveux, de perte de densité ou en complément d’une routine anti-chute complète.                                                           Action 3 en 1: Stimule, Redensifie, Booste\n0% alcool, 0% paraben"
+  },
+  {
+    "id": 183,
+    "slug": "lcp-masque-anti-chute",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP masque anti-chute",
+    "size": "",
+    "price": 193,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "LCP Masque Anti-chute est un soin capillaire intensif spécialement formulé pour renforcer les cheveux fragilisés et lutter efficacement contre la chute. Enrichi en actifs fortifiants et stimulants, il nourrit en profondeur le cuir chevelu, améliore la résistance de la fibre capillaire et favorise une chevelure plus dense et plus vigoureuse.\nSa texture onctueuse pénètre rapidement sans alourdir, laissant les cheveux doux, brillants et faciles à coiffer. Utilisé régulièrement, il aide à réduire la casse et la chute, stimuler la pousse et restaurer la vitalité et la brillance des cheveux.\nIdéal pour les cheveux affaiblis ou en période de chute.                                                                      Action 3 en 1: Renforce, Nourrit, Lisse\n0% alcool, 0% paraben"
+  },
+  {
+    "id": 182,
+    "slug": "lcp-shampoing-anti-chute",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Shampoing anti-chute",
+    "size": "",
+    "price": 193,
+    "old": 0,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "LCP shampoing anti-chute est un soin lavant expert formulé pour freiner la chute de cheveux et renforcer durablement la fibre capillaire. Grâce à l’association de plusieurs complexes anti-chute ciblés, il agit dès la racine pour stimuler le cuir chevelu, améliorer l’ancrage du cheveu et favoriser une croissance plus forte et plus résistante.\nSa formule nettoie en douceur tout en apportant les nutriments essentiels aux cheveux fragilisés, sans les alourdir. Le shampoing anti-chute LCP nettoie en douceur, protège le cuir chevelu, nourrit et aide à renforcer les cheveux sujets à la chute ou à la casse.                                                                         Action 3 en 1: Nettoie, Nourrit, Revitalise\n0% alcool, 0% paraben"
+  },
+  {
+    "id": 181,
+    "slug": "lcp-soin-reparateur-apaisant",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Soin Réparateur Apaisant",
+    "size": "",
+    "price": 80,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "À base d’une synergie des huiles végétales et d’autres\nactifs réparateurs, LCP Soin Réparateur Apaisant répare\nintensément les mains gercées, abîmées et fragilisées et\napaise les irritations de la main causées par les\ntiraillements et les rougeurs.\nUtilisation : Appliquer LCP Soin réparateur apaisant\ndeux à trois fois par jour en insistant sur les zones\ngercées et fragilisées.                                                                           Action 3 en 1: Repare, Réconforte, Apaise\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 180,
+    "slug": "lcp-baume-eclat-anti-age-mains",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Baume Eclat Anti-Âge Mains",
+    "size": "",
+    "price": 113,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "LCP Baume Eclat Anti-Âge Mains est formulé à base des actifs éclaircissants et du maquiGlow, LCP Baume éclat anti-âge favorise à éclaircir la peau de la main, à atténuer les taches brunes installées\net à prévenir l’apparition de nouvelles taches.\nQuotidiennement, le jour et le soir, appliquer LCP Baume éclat anti-âge après chaque lavage des mains ou sensation de mains déshydratées.                                                                        Action 3 en 1: Eclaircit, Hydrate, Atténue\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 179,
+    "slug": "lcp-baume-chauffant-mains-engelure",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Baume Chauffant Mains Engelure",
+    "size": "",
+    "price": 87,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "LCP Baume Chauffant Mains Engelures permet de procurer une\nsensation de chaleur grâce à une synergie d’huiles\nessentiels tonifiants et d’agents relipidant. LCP Baume\nChauffant stimule la circulation et réchauffe les mains\nfroides, idéal en hiver.\nAction 3 en 1: Exfolie, Nourrit, Adoucit\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 178,
+    "slug": "lcp-gommage-nourissant-pieds",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Gommage Nourissant Pieds",
+    "size": "",
+    "price": 90,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Gommage Nourissant LCP est un gommage doux et nourrissant qui exfolie la peau des pieds, élimine les cellules mortes et restaure leur douceur. Il exfolie en douceur, éliminant les cellules mortes sans agresser la peau.\nRiche en actifs, sa formule hydrate et adoucit intensément, nourrit et régénère la peau des pieds, tout en protègeant la barrière cutanée.\nL’huile essentielle de romarin que le gommage continent purifie et tonifie la peau, pour une sensation de fraîcheur immédiate.                                                                                    Action 3 en 1: Exfolie, Nourrit, Hydrate\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 177,
+    "slug": "lcp-creme-anti-callosites",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Crème Anti-callosités",
+    "size": "",
+    "price": 90,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Crème Anti-callosités LCP est une crème dermatologique kératorégulatrice intensive, spécialement formulée pour réduire efficacement les callosités, durillons et talons épaissis.  Avec ses 30% d'urée, la crème anti-callosités apporte une action kératorégulatrice intensive, réduisant efficacement les callosités et assouplissant la peau épaissie. Riche en actifs, la crème offre réparation, nutrition et souplesse aux pieds, combinée à une action antibactérienne et antifongique douce.                                                                                                           Action 3 en 1: Assouplit, Nourrit, Hydrate\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 176,
+    "slug": "lcp-baume-chauffant-pieds-secs",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Baume\nChauffant\nPieds Secs",
+    "size": "",
+    "price": 100,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Top",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 8
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Baume Chauffant Pieds Secs LCP est un baume dermatologique nourrissant et réchauffant, spécialement formulé pour les pieds secs à très secs, sujets aux talons fendillés et aux crevasses superficielles. Riche en actifs, ce baume nourrit et répare intensément, apaise et protège la peau des pieds, et lisse et assouplit la couche cornée.\nLa présence d'huiles essentielles assainissent la surface cutanée.\nCe baume apporte une sensation de réchauffement et de confort.                                                                                                               Action 3 en 1: Chauffe, Nourrit, Hydrate\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 175,
+    "slug": "lcp-soin-intense-pied-diabetique",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP Soin Intense Pied Diabétique",
+    "size": "",
+    "price": 90,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin intense pied diabétique LCP est un soin dermatologique intensif spécialement formulé pour les pieds diabétiques non ulcérés, secs et fragilisés. Le soin hydrate intensément grâce à l’urée.\nLe beurre de karité, le panthénol et la niacinamide restaurent la barrière cutanée, apaisent et favorisent la réparation.\nLa centella asiatica & la madécassoside offrent une action cicatrisante et anti-inflammatoire.\nL'huile de lentisque elle, offre un effet antimicrobien doux, limitant les risques d’infection superficielle.                                      Action 3 en 1: Soulage, Nourrit, Hydrate\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 174,
+    "slug": "lcp-baume-relipidant-atopique-creme-emolliente",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP baume relipidant atopique crème émolliente",
+    "size": "",
+    "price": 83,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Baume relipidant atopique LCP est une crème émolliente riche, formulée pour restaurer la barrière cutanée, réduire la perte en eau, nourrir intensément et apaiser les démangeaisons liées à la sécheresse atopique.                                                                                                                                                                         \nGrâce à sa composition enrichie en actifs relipidants et apaisants, il nourrit et apaise tout en aidant à restaurer la barrière cutanée, la protégeant des agressions extérieures. Sa formule haute tolérance convient à toute la famille, y compris les nourissons.                                                                                                                                                                                                                  Action 3 en 1: Nourrit, Apaise, Relipide\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 173,
+    "slug": "lcp-syndet-relipidant-atopique-gel-lavant",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP syndet relipidant atopique gel lavant",
+    "size": "",
+    "price": 67,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Syndet relipidant atopique LCP est un gel lavant ultra doux formulé sans savon, pour les peaux atopiques, sensibles à très sèches. Il nettoie sans agresser, relipide et apaise la peau en restaurant la barrière cutanée. \nGrâce à sa base lavante enrichie en actifs relipidants et apaisants, il nettoie tout en aidant à préserver et restaurer la barrière cutanée.\nSa formule haute tolérance convient à toute la famille, y compris les nourissons.                                                                                                                                       Action 3 en 1: Nettoie, Apaise, Relipide\n0% alcool, 0% paraben, 0% sulfate"
+  },
+  {
+    "id": 172,
+    "slug": "lcp-creme-solaire-matifiante",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP crème solaire matifiante",
+    "size": "",
+    "price": 83,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Crème solaire matifiante SPF50+ LCP est une crème solaire haute protection contre les rayons UV, tout en apportant un effet matifiant tout au long de la journée. Conçue pour les peaux grasses à tendances acneïque, elle aide à prévenir l’aggravation des lésions et l’apparition des taches brunes liées à l’exposition au soleil.                                                                                                                                      Soin en triple action: Traite, Assainit, Purifie.                                                                                                                                   0% Alcool, 0% Paraben, 0% sulfate"
+  },
+  {
+    "id": 171,
+    "slug": "lcp-soin-global",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP soin global",
+    "size": "",
+    "price": 66,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin global LCP est un soin complet visage et corps pour les peaux grasses à tendances\nacneïque. Il corrige les imperfections, purifie la peau, régule l’excès de sébum sans dessécher la peau, et réduit les rougeurs liées à l’acné. Il agit à chaque étape de la fromation de l’imperfection avec une action kératolytique, séborégulatrice et apaisante.                                                                              Soin en triple action: Traite, Assainit, Purifie.                                                          0% Alcool, 0% Paraben, 0% sulfate"
+  },
+  {
+    "id": 170,
+    "slug": "lcp-creme-hydratante-matifiante",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP crème hydratante matifiante",
+    "size": "",
+    "price": 66,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin global LCP est un soin complet visage et corps pour les peaux grasses à tendances\nacneïque. Il corrige les imperfections, purifie la peau, régule l’excès de sébum sans dessécher la peau, et réduit les rougeurs liées à l’acné. Il agit à chaque étape de la fromation de l’imperfection avec une action kératolytique, séborégulatrice et apaisante.                                                                              Crème en triple action: Matifie, Régule, Purifie.                                                          0% Alcool, 0% Paraben, 0% sulfate"
+  },
+  {
+    "id": 169,
+    "slug": "lcp-gel-nettoyant",
+    "brand": "LCP",
+    "brandSlug": "lcp",
+    "name": "LCP gel nettoyant",
+    "size": "",
+    "price": 66,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Gel nettoyant LCP est un nettoyant visage et corps pour les peaux grasses à tendances\nacneïque. Il nettoie efficacement, purifie la peau, régule l’excès de sébum sans dessécher la peau, calme les irritations, et aide à rééquilibrer la flore cutanée.\nGel en triple action: Nettoie, Purifie et Assainit.                                                                                                                                                                                      0% Alcool, 0% Paraben, 0% sulfate"
+  },
+  {
+    "id": 168,
+    "slug": "eclabiotic-gel-eclaircissant-exfoliant",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "ECLABIOTIC  GEL ÉCLAIRCISSANT EXFOLIANT",
+    "size": "",
+    "price": 250,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Ce gel nettoyant associe une double exfoliation – mécanique et\nchimique – pour lisser la peau, stimuler le renouvellement cellulaire et\nrévéler un teint visiblement plus lumineux. En affinant le grain de peau,\nce soin prépare idéalement la peau à mieux recevoir les actifs\ndépigmentants."
+  },
+  {
+    "id": 167,
+    "slug": "eclabiotic-intense",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "ECLABIOTIC INTENSE",
+    "size": "",
+    "price": 280,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Cette crème de nuit agit en profondeur pendant le repos cellulaire\npour corriger les taches pigmentaires, lisser le grain de peau et raviver\nl’éclat du teint. Sa formule réparatrice et éclaircissante cible\nla mélanogenèse tout en soutenant le renouvellement cutané. Nuit\naprès nuit, la peau est visiblement plus uniforme, reposée et lumineuse."
+  },
+  {
+    "id": 166,
+    "slug": "eclabiotic-solaire-teinte-spf50",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "ECLABIOTIC SOLAIRE TEINTÉ SPF50+",
+    "size": "",
+    "price": 160,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Cette crème solaire allie une très haute protection solaire à une action\nunifiante immédiate grâce à des filtres minéraux teintés. Elle prévient\nl’apparition des taches pigmentaires tout en les corrigeant\nprogressivement grâce à des actifs ciblés. Sa texture douce offre un fini\nnaturel, matifiant, idéal pour les peaux sujettes aux irrégularités du teint."
+  },
+  {
+    "id": 165,
+    "slug": "eclabiotic-solaire-invisible-spf50",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "ECLABIOTIC SOLAIRE INVISIBLE SPF50+",
+    "size": "",
+    "price": 160,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Cette crème allie une très haute protection solaire à une action ciblée\ncontre les taches pigmentaires. Invisible une fois appliquée, elle forme\nun bouclier contre les UVA et UVB tout en intervenant activement sur les\ndésordres pigmentaires."
+  },
+  {
+    "id": 164,
+    "slug": "eclabiotic-radiance",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "ECLABIOTIC RADIANCE",
+    "size": "",
+    "price": 280,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Cette crème légère combine efficacité éclaircissante et soin quotidien\npour corriger les taches pigmentaires et prévenir leur apparition.\nElle agit à la source des désordres pigmentaires tout en protégeant la\npeau contre les agressions extérieures. Grâce à une synergie d’actifs\npuissants, elle aide à unifier le teint, améliorer l’éclat et renforcer la\nbarrière cutanée."
+  },
+  {
+    "id": 163,
+    "slug": "baume-a-levres-eclaircissant",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "Baume à lèvres Eclaircissant",
+    "size": "",
+    "price": 120,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Baume à lèvres Éclaircissant offre à vos lèvres un éclat radieux et une hydratation intense, il nourrit, répare et illumine vos lèvres pour un sourire éblouissant au quotidien !"
+  },
+  {
+    "id": 162,
+    "slug": "baume-a-levres-tres-reparateur",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "Baume à lèvres Très réparateur",
+    "size": "",
+    "price": 75,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Baume à lèvres Trés réparateur offre à vos lèvres une réparation intense et un confort immédiat !"
+  },
+  {
+    "id": 161,
+    "slug": "sebiotic-serum-ai",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "SEBIOTIC SERUM AI",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Atténue les rougeurs dues à l’inflammation cutanée."
+  },
+  {
+    "id": 160,
+    "slug": "sebiotic-spf-50",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "SEBIOTIC SPF 50+",
+    "size": "",
+    "price": 140,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Protège, hydrate et matifie la peau à imperfections."
+  },
+  {
+    "id": 159,
+    "slug": "sebiotic-soin-protecteur-gelee",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "SEBIOTIC Soin protecteur gelée",
+    "size": "",
+    "price": 170,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Renforce la protection du biorythme cutané."
+  },
+  {
+    "id": 158,
+    "slug": "sebiotic-soin-reparateur-intense",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "SEBIOTIC Soin réparateur intense",
+    "size": "",
+    "price": 280,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Formule synergique alliant le potentiel des acides et des actifs aux propriétés\nkératolytiques, antibactériennes, purifiantes pour d’assurer une prise en\ncharge globale des facteurs de l’acné vulgaire et modérée.\nLe soin réparateur Sebiotic renforce la régénération de la peau pour une prise\nen charge globale des facteurs de l’acné."
+  },
+  {
+    "id": 157,
+    "slug": "sebiotic-mousse-purifiante",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "SEBIOTIC Mousse purifiante",
+    "size": "",
+    "price": 160,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "La mousse nettoyante Sebiotic netoie en profondeur une peau grasse sujette à l'acné Aide la peau à retrouver son calme et son équilibre cutané.\nFavorise à réduire les imperfection et la brillance dès les premières utilisations."
+  },
+  {
+    "id": 156,
+    "slug": "d-biotic-pulvobiotic-ph-5-5",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC PULVOBIOTIC  PH 5,5",
+    "size": "",
+    "price": 114,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Pulvobiotic pH 5.5 nettoie en douceurs les peaux délicates, sensibles et irritées. Adapté à toutes les muqueuses et à toute la famille même la femme enceinte."
+  },
+  {
+    "id": 155,
+    "slug": "d-biotic-pulvobiotic-ph-8",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC PULVOBIOTIC  PH 8",
+    "size": "",
+    "price": 95,
+    "old": 0,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Pulvobiotic pH 8 nettoie en douceur les zones à gênes intimes. Soulage les démangeaisons et les irritations intimes."
+  },
+  {
+    "id": 154,
+    "slug": "d-biotic-cicabiotic-75-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC CICABIOTIC 75 ML",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Cicabiotic Soin réparateur pour les cicatrices atténue visiblement l’apparence de la cicatrice, favorise le processus naturel de la réparation, aide à régénérer les cellules de la peau, atténue les rougeurs dues aux cicatrices."
+  },
+  {
+    "id": 153,
+    "slug": "d-biotic-rosabiotic-lotion-soin-intense-100-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC ROSABIOTIC LOTION SOIN INTENSE 100 ML",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Rosabiotic Lotion Soin intense est une lotion concentrée conçue pour atténuer les rougeurs sévères et la couperose. A base d’une synergie d’actifs exclusifs rougeurs et couperose, de la combinaison d’actifs pré-pro et post biotique et de 07 céramides."
+  },
+  {
+    "id": 152,
+    "slug": "d-biotic-rosabiotic-tri-phasique-nettoyant-200-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC ROSABIOTIC TRI-PHASIQUE NETTOYANT 200 ML",
+    "size": "",
+    "price": 260,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Rosabiotic Tri-phasique Nettoyant Huile en gel en lait est conçu en trois phases pour répondre aux attentes des peaux à rougeurs, sensibles et irritées."
+  },
+  {
+    "id": 151,
+    "slug": "d-biotic-rosabiotic-creme-peaux-a-rougeurs-installees-75-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC ROSABIOTIC CREME PEAUX A ROUGEURS INSTALLEES 75 ML",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Rosabiotic Crème est une crème apaisante à base d’ actifs qui réconforte et répare les peaux sensibles à rougeurs installées."
+  },
+  {
+    "id": 150,
+    "slug": "d-biotic-rosabiotic-creme-solaire-spf50-teinte-claire-75-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC ROSABIOTIC CREME SOLAIRE SPF50+ TEINTE CLAIRE 75 ML",
+    "size": "",
+    "price": 150,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic Rosabiotic SPF 50+ protège, répare, atténue et apaise les rougeurs. Sa teinte claire uniformise le teint et redonne une sensation de confiance même exposée au soleil."
+  },
+  {
+    "id": 149,
+    "slug": "d-biotic-velvet-50-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Velvet 50 ml",
+    "size": "",
+    "price": 270,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-Biotic Velvet Sunscreen offre une protection avancée contre les rayons UV grâce à son indice de protection solaire (SPF) élevé de 50+, toucher sec, sans eau."
+  },
+  {
+    "id": 148,
+    "slug": "d-biotic-spray-solaire-pediatrique-100-ml",
+    "brand": "D-Biotic",
+    "brandSlug": "d-biotic",
+    "name": "D-BIOTIC Spray solaire Pédiatrique 100 ml",
+    "size": "",
+    "price": 190,
+    "old": 0,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "Nouveau",
+        "bgColor": "",
+        "textColor": "",
+        "priority": 2
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "D-biotic spray solaire Pédiatrique est une combinaison puissante d’actifs à synergie maximale de protection, réparation et d’hydratation."
   }
 ];
 
@@ -1728,254 +2346,312 @@ export const PRODUCTS: Product[] = [
 // tag, so treating it as a closed set of keys breaks the build the moment
 // one of them is temporarily missing (e.g. a sparse/fresh media library).
 export const IMG: Record<string, string> = {
-  "Produit Para d'Hiver": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/para-dhiver.png",
-  "Soin Lavant Doux Apaisant": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/dbabcd47cbb09677dbdc9522d234cf1cf56f477ebe0eeec5587ab5c4b251c501a06b5ce0-1.jpg",
-  "Lipikar Huile Lavante AP+": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6e4125807e904b1b97094e2f31dfde0216d42a9b24f2e7030bee681caf19082c93e2fe47-1.jpg",
-  "Lipikar Syndet AP+ Crème Lavante Relipidante": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d6c6970696b61722d73796e6465742d61702d6372656d652d6c6176616e74652d72656c69706964616e74652d3230306d6cb35d7b94-1.jpg",
-  "Oméga 3 Capsules": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/736f6c6761722d6f6d6567612d332d6875696c652d64652d706f6973736f6e2d33302d63617073756c65732d666163651263002a-1.jpg",
-  "Acérola 1000 + Vitamine D3 Comprimés Effervescents": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/61726b6f706861726d612d616365726f6c612d313030302d766974616d696e652d64332d32302d636f6d7072696d65732d66616365caaf3dab-1.jpg",
-  "Vitamine D3 1000 UI Comprimés à Croquer": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/736f6c6761722d766974616d696e652d64332d313030302d75692d636f6d7072696d65732d612d63726f717565722d66616365559d5d9f-1.jpg",
-  "Brosse à Dents Parodontie": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/696e6176612d7061726f646f6e7469652d62726f7373652d612d64656e74732d6f7074696f6e911d4f9f-1.jpg",
-  "Dentifrice Complete Protection": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/696d672d3430303845b7ece2-1.jpg",
-  "Dentifrice Anti-Caries Professional": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/fc634fc4effad27bf8aca972f030f6be96fe7a886ae599ab22ade1381c93c1f693ff9eb9-1.jpg",
-  "Lait Solaire SPF50+ Très Haute Protection": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/736f6c616972652d74756265343061742d33353034313035303336373638a108d31b-1.jpg",
-  "Bébé 1er Change Crème": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/3336363134333430303835393711ea526d-1.jpg",
-  "Hydra Bébé Crème Visage à l'Avocat Bio": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6d757374656c612d68796472612d626562652d6372656d652d766973616765d73a64a1-1.jpg",
-  "Toleriane Fluide Correcteur Haute Couvrance SPF25": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d676162617269742d323285c4a0e5-1.jpg",
-  "Couvrance Mascara Haute Tolérance": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/30333238323737303339323835322d35633133336437312d666331342d343364382d613362662d3834613163623538343634396451e3c7-1.jpg",
-  "Couvrance Fond de Teint Correcteur Fluide SPF20": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/32b2b0f15a-1.jpg",
-  "Fusion Water Magic Fluide Solaire SPF50": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/1401349ec0627c69ea410f77a0289b1985bc6d0a514efbbcbc5230882b37b404b4f516f1-1.jpg",
-  "Capital Soleil Crème Solaire Onctueuse SPF50+": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/76696368792d6361706974616c2d736f6c65696c2d6372656d652d736f6c616972652d6f6e637475657573652d7370662d35302d6661636528286717-1.jpg",
-  "Anthelios UVMune 400 Fluide Solaire Invisible SPF50+": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d616e7468656c696f732d333333373837353739373539372d66726f6e742d30cd91eed6-1.jpg",
-  "Shampooing Quinine et Edelweiss Bio": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6b6c6f72616e652d7368616d706f6f696e672d616e74692d63687574652d3130306d6c2d666163657bf45b71-1.jpg",
-  "Phytocyane Shampooing Revigorant": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/333730313433363931353535312d313b5ccba9-1.jpg",
-  "Kelual DS Shampooing Traitant": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/696d672d363232347e982588-1.jpg",
-  "Shampoing Extra-Doux à l'Avoine": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6b6c6f72616e652d7368616d706f696e672d65787472612d646f75782d612d6c2d61766f696e652d3430306d6c44ecec60-1.jpg",
-  "Xémose C8+ Crème Relipidante Anti-Grattage": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/7572696167652d78656d6f73652d63382d6372656d652d72656c69706964616e74652d616e74692d67726174746167652d3230306d6c2d70726f64756974162710ee-1.jpg",
-  "Lait Hydratant Visage et Corps": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6365726176652d6c6169742d687964726174616e742d3233366d6c24673696-1.jpg",
-  "Cold Cream Crème Mains Concentrée": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/30333238323737303134353737392d33303831333964392d383033622d343233612d616334342d66393939643433383235656545b559c6-1.jpg",
-  "Rêve de Miel Gel Lavant Surgras": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6e7578652d726576652d64652d6d69656c2d67656c2d6c6176616e742d737572677261732d7669736167652d65742d636f7270732d3430306d6c30586bb9-1.jpg",
-  "Gel Moussant Nettoyant": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6365726176652d67656c2d6d6f757373616e742d38386d6c2d66616365beebfa83-1.jpg",
-  "Minéral 89 Booster Quotidien": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/3a085aa99720728e8ee34b35a5946b35a13c883a2e66b6aaea5c3ab87ed4e9bc291aadc3-1.jpg",
-  "Créaline H2O TS Eau Micellaire": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/62696f6465726d612d637265616c696e652d68326f2d74732d6561752d6d6963656c6c616972652d3235306d6c2d666163652df5b8cd-1.jpg",
-  "Effaclar Gel Moussant Purifiant": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d65666661636c61722d67656c2d6d6f757373616e742d707572696669616e742d3230306d6cb75ed8cb-1.jpg",
-  "SERUM APAISANT CAPPILAIRE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Serum-Apaisant-Cappilaire-1.jpg",
-  "MASQUE CAPILLAIRE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Masque-Capillaire-Nutritif-1.jpg",
-  "APRES SHAMP": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Baume-Apres-Shampooing-1.jpg",
-  "SHAMP ULTRA DOUX": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Family-Shampooing-Ultra-Doux-1.jpg",
-  "SHAMP FEMME 400 ml": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Shampooing-Fortifiant-Femme-400ml-1.jpg",
-  "SHAMP HOMME 400 ml": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Shampooing-Fortifiant-Homme-400ml-1.jpg",
-  "SHAMP FEMME 200 ml": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Shampooing-Fortifiant-Femme-200ml-1.jpg",
-  "SHAMP HOMME 200 ml": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Shampooing-Fortifiant-Homme-200ml-1.jpg",
-  "LOTION FEMME": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Lotion-Fortifiant-Femme-1.jpg",
-  "LOTION HOMME": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Lotion-Fortifiant-Homme-1.jpg",
-  "CAPSULE CHEVEUX": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Complements-Alimentaires-Cheveux-1.jpg",
-  "AMPOULES cheveux": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/ECRINAL-Ampoules-Anti-Chute-Cheveux-1.jpg",
-  "O-REGEN CREME EXFOLIANTE VISAGE 75ml": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/249-cv-1-7.png",
-  "O-REGEN CREME REQUILBRANTE 50ml": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/49-cv-1-soin%20hydratant%20(2)-1.png",
-  "SOIN EXFOLIANT VISAGE 75 ML": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/202-cv-1-H%C3%A9liabrine%20soin%20exfoliant%20caviar-1.png",
-  "BB CREAM SOIN TEINTE SPF 30": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-BB-Cream-Soin-Teinte-SPF-31.jpg",
-  "GINKGOMASK MASQUE ECLAT": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Ginkgomask-Masque-Eclat-1.jpg",
-  "MASQUE REEQUILIBRANT AU MELILOT BIO": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Masque-Reequilibrant-au-Melilot-Bio-1.jpg",
-  "SERUM NUTRIVITAMINE AU CALENDULA": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Serum-Nutrivitamine-au-Calendula-1.jpg",
-  "SERUM EXPERT FERMETE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Serum-Expert-Fermete-1.jpg",
-  "CREME HYDRA-PERLEE A L'ACIDE HYALURONIQUE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Hydra-Perlee-1.jpg",
-  "CREME HYDRA-SATINEE AU COLLAGENE MARIN": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Hydra-Satinee-1.jpg",
-  "GEL POST EPILATION": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Gel-Post-Epilation-1.jpg",
-  "SOIN DE NUIT": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Soin-de-Nuit-1.jpg",
-  "SOIN DE JOUR": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Soin-de-Jour-1.jpg",
-  "HELIABRINE SOLAR DEFENSE 50": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Creme-Solaire-1.jpg",
-  "SOIN LISSANT ET REPULPANT LEVRES": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Soin-Lissant-Levres-1.jpg",
-  "HELIABRINE HUILE DEMAQUILANTE VELOURS": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Huile-Demaquilante-Velours-1.jpg",
-  "MASQUE REPULPANT COLLAGENE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Masque-Repulpant-Collagene-1.jpg",
-  "AMPOULES AU COLLAGENE MARIN": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Ampoules-au-Collagene-Marin-1.jpg",
-  "HELIABRINE BAUME 54": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Baume-55.jpg",
-  "SOIN MULTI CORRECTION ( CAPITAL DEFENSE)": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Soin-Multi-Correction-1.jpg",
-  "CREME CONFORT 32": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Creme-Confort-33.jpg",
-  "MASQUE REEQUILIBRANT": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/39-cv-1-Masque%20m%C3%A9lilot%20web%202-1.png",
-  "HA SOIN HYDRATANT MATIFIANT": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-HA-Soin-Hydratant-Matifiant-1.jpg",
-  "HA PURIPHYL SOLUTION": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Puriphyl-Solution-1.jpg",
-  "HA GEL NETTOYANT MOUSSANT": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIABRINE-Gel-Nettoyant-Moussant-1.jpg",
-  "SOIN ANTI-TACHES ANTI-AGE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIXIENCE-White-Resolution-1.jpg",
-  "LAIT CORPS": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HELIXIENCE-Lait-Corps-1.jpg",
-  "SUN PROTECT SPF 50+": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-DEPIGMENTANT-SUN-PROTECT-1.png",
-  "WHITE CREAM": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-DEPIGMENTANT-WHITE-CREAM-1.png",
-  "WHITE GEL": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-DEPIGMENTANT-WHITE-GEL-1.png",
-  "AHA CRÉME POST-PEELING": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-AHA-POST-PEELING-1.jpg",
-  "AHA GEL PEELING 20%": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-AHA-20-GEL-1.jpg",
-  "AHA CRÉME PEELING 20%": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-AHA-20-CREME-1.jpg",
-  "AHA GEL PEELING 15%": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-AHA-15-GEL-1.jpg",
-  "AHA CRÉME PEELING 15%": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-AHA-15-CREME-1.jpg",
-  "AHA GEL PRE-PEELING": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-AHA-PRE-PEELING-1.jpg",
-  "CRÉME RÉGÉNÉRANTE SPF 15": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-CREME-REGENERANTE-1.jpg",
-  "RETINOL SERUM 2%": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-RETINOL-SERUM-3.jpg",
-  "RETINOL SERUM 0.5%": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-RETINOL-SERUM-6.jpg",
-  "PROTEK SPF 50+": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-PROTEK-SPF50-1.jpg",
-  "CRÉME BOOSTER": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-CREME-BOOSTER-1.jpg",
-  "C30 SERUM": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-C30-SERUM-1.jpg",
-  "CRÉME LAVANTE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-CREME-LAVANTE-1.jpg",
-  "MOUSSE NETTOYANTE": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/HTCEUTIC-MOUSSE-1.jpg",
-  "LCP lotion anti-chute": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/LCPHAIR-Lotion-Anti-Chute-200ml-1.jpg",
-  "LCP masque anti-chute": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/LCPHAIR-Masque-Anti-Chute-200ml-1.jpg",
-  "LCP Shampoing anti-chute": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/LCPHAIR-Shampoing-Anti-Chute-300ml-1.jpg"
+  "Produit Para d'Hiver": "/api/cms-media/ChatGPT%20Image%2017%20ao%C3%BBt%202026%2C%2013_44_36.png",
+  "Durcisseur Extra Fort Herôme pour ongles très fragiles": "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-3.png",
+  "Dissolvant soignant sans acétone Herôme": "/api/cms-media/herome-pack-durcisseur-fort-dissolvant-2.png",
+  "Pack Herôme Durcisseur Extra Fort pour ongles et Dissolvant soignant": "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-1.webp",
+  "Durcisseur Fort Herôme pour ongles fragiles": "/api/cms-media/herome-pack-durcisseur-fort-dissolvant-3.png",
+  "Pack Herôme Durcisseur Fort pour ongles et Dissolvant soignant": "/api/cms-media/herome-pack-durcisseur-fort-dissolvant-1.webp",
+  "Pack Repair Björn Axén, cheveux plus forts": "/api/cms-media/bjorn-axen-pack-repair-6.png",
+  "Pack Repair Björn Axén, routine en 2 étapes": "/api/cms-media/bjorn-axen-pack-repair-5.png",
+  "Pack Repair Björn Axén, shampooing et après-shampooing réparateurs": "/api/cms-media/bjorn-axen-pack-repair-4.png",
+  "Pack Repair Björn Axén, soin des cheveux abîmés": "/api/cms-media/bjorn-axen-pack-repair-3.png",
+  "Pack Repair Björn Axén, cheveux réparés dès la première utilisation": "/api/cms-media/bjorn-axen-pack-repair-2.png",
+  "Pack Repair Björn Axén : Repair Shampoo et Repair Conditioner, 250 ml chacun": "/api/cms-media/bjorn-axen-pack-repair-1.png",
+  "Logo Vichy": "/api/cms-media/logo-vichy.png",
+  "Logo Nuxe": "/api/cms-media/logo-nuxe.png",
+  "Logo La Roche-Posay": "/api/cms-media/logo-la-roche-posay.png",
+  "Logo CeraVe": "/api/cms-media/logo-cerave.png",
+  "Logo Bioderma": "/api/cms-media/logo-bioderma.png",
+  "Logo Avène": "/api/cms-media/logo-avene.png",
+  "Flacon Mousse Nettoyante Flash Éclat Novexpert à la vitamine C": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-6.jpg",
+  "Mousse Flash Éclat Novexpert : illumine instantanément le teint": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-5.jpg",
+  "Mousse Flash Éclat Novexpert : exfolie en douceur, effet peau neuve": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-4.jpg",
+  "Mousse Nettoyante Flash Éclat Novexpert : nettoie en profondeur": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-3.jpg",
+  "Pack Duo Mousse Novexpert : éclat et peau neuve en 20 secondes": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-2.jpg",
+  "Pack duo Mousse Nettoyante Flash Éclat Novexpert, deux flacons 150 ml": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-1.jpg",
+  "SERUM APAISANT CAPPILAIRE": "/api/cms-media/ECRINAL-Serum-Apaisant-Cappilaire.jpg",
+  "MASQUE CAPILLAIRE": "/api/cms-media/ECRINAL-Masque-Capillaire-Nutritif.jpg",
+  "APRES SHAMP": "/api/cms-media/ECRINAL-Baume-Apres-Shampooing.jpg",
+  "SHAMP ULTRA DOUX": "/api/cms-media/ECRINAL-Family-Shampooing-Ultra-Doux.jpg",
+  "SHAMP FEMME 400 ml": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Femme-400ml.jpg",
+  "SHAMP HOMME 400 ml": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Homme-400ml.jpg",
+  "SHAMP FEMME 200 ml": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Femme-200ml.jpg",
+  "SHAMP HOMME 200 ml": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Homme-200ml.jpg",
+  "LOTION FEMME": "/api/cms-media/ECRINAL-Lotion-Fortifiant-Femme.jpg",
+  "LOTION HOMME": "/api/cms-media/ECRINAL-Lotion-Fortifiant-Homme.jpg",
+  "CAPSULE CHEVEUX": "/api/cms-media/ECRINAL-Complements-Alimentaires-Cheveux.jpg",
+  "AMPOULES cheveux": "/api/cms-media/ECRINAL-Ampoules-Anti-Chute-Cheveux.jpg",
+  "O-REGEN CREME EXFOLIANTE VISAGE 75ml": "/api/cms-media/249-cv-1-6.png",
+  "O-REGEN CREME REQUILBRANTE 50ml": "/api/cms-media/49-cv-1-soin%2520hydratant%2520(2).png",
+  "SOIN EXFOLIANT VISAGE 75 ML": "/api/cms-media/202-cv-1-H%25C3%25A9liabrine%2520soin%2520exfoliant%2520caviar.png",
+  "BB CREAM SOIN TEINTE SPF 30": "/api/cms-media/HELIABRINE-BB-Cream-Soin-Teinte-SPF-30.jpg",
+  "GINKGOMASK MASQUE ECLAT": "/api/cms-media/HELIABRINE-Ginkgomask-Masque-Eclat.jpg",
+  "MASQUE REEQUILIBRANT AU MELILOT BIO": "/api/cms-media/HELIABRINE-Masque-Reequilibrant-au-Melilot-Bio.jpg",
+  "SERUM NUTRIVITAMINE AU CALENDULA": "/api/cms-media/HELIABRINE-Serum-Nutrivitamine-au-Calendula.jpg",
+  "SERUM EXPERT FERMETE": "/api/cms-media/HELIABRINE-Serum-Expert-Fermete.jpg",
+  "CREME HYDRA-PERLEE A L'ACIDE HYALURONIQUE": "/api/cms-media/HELIABRINE-Hydra-Perlee.jpg",
+  "CREME HYDRA-SATINEE AU COLLAGENE MARIN": "/api/cms-media/HELIABRINE-Hydra-Satinee.jpg",
+  "GEL POST EPILATION": "/api/cms-media/HELIABRINE-Gel-Post-Epilation.jpg",
+  "SOIN DE NUIT": "/api/cms-media/HELIABRINE-Soin-de-Nuit.jpg",
+  "SOIN DE JOUR": "/api/cms-media/HELIABRINE-Soin-de-Jour.jpg",
+  "HELIABRINE SOLAR DEFENSE 50": "/api/cms-media/HELIABRINE-Creme-Solaire.jpg",
+  "SOIN LISSANT ET REPULPANT LEVRES": "/api/cms-media/HELIABRINE-Soin-Lissant-Levres.jpg",
+  "HELIABRINE HUILE DEMAQUILANTE VELOURS": "/api/cms-media/HELIABRINE-Huile-Demaquilante-Velours.jpg",
+  "MASQUE REPULPANT COLLAGENE": "/api/cms-media/HELIABRINE-Masque-Repulpant-Collagene.jpg",
+  "AMPOULES AU COLLAGENE MARIN": "/api/cms-media/HELIABRINE-Ampoules-au-Collagene-Marin.jpg",
+  "HELIABRINE BAUME 54": "/api/cms-media/HELIABRINE-Baume-54.jpg",
+  "SOIN MULTI CORRECTION ( CAPITAL DEFENSE)": "/api/cms-media/HELIABRINE-Soin-Multi-Correction.jpg",
+  "CREME CONFORT 32": "/api/cms-media/HELIABRINE-Creme-Confort-32.jpg",
+  "MASQUE REEQUILIBRANT": "/api/cms-media/39-cv-1-Masque%2520m%25C3%25A9lilot%2520web%25202.png",
+  "HA SOIN HYDRATANT MATIFIANT": "/api/cms-media/HELIABRINE-HA-Soin-Hydratant-Matifiant.jpg",
+  "HA PURIPHYL SOLUTION": "/api/cms-media/HELIABRINE-Puriphyl-Solution.jpg",
+  "HA GEL NETTOYANT MOUSSANT": "/api/cms-media/HELIABRINE-Gel-Nettoyant-Moussant.jpg",
+  "SOIN ANTI-TACHES ANTI-AGE": "/api/cms-media/HELIXIENCE-White-Resolution.jpg",
+  "LAIT CORPS": "/api/cms-media/HELIXIENCE-Lait-Corps.jpg",
+  "SUN PROTECT SPF 50+": "/api/cms-media/HTCEUTIC-DEPIGMENTANT-SUN-PROTECT.png",
+  "WHITE CREAM": "/api/cms-media/HTCEUTIC-DEPIGMENTANT-WHITE-CREAM.png",
+  "WHITE GEL": "/api/cms-media/HTCEUTIC-DEPIGMENTANT-WHITE-GEL.png",
+  "AHA CRÉME POST-PEELING": "/api/cms-media/HTCEUTIC-AHA-POST-PEELING.jpg",
+  "AHA GEL PEELING 20%": "/api/cms-media/HTCEUTIC-AHA-20-GEL.jpg",
+  "AHA CRÉME PEELING 20%": "/api/cms-media/HTCEUTIC-AHA-20-CREME.jpg",
+  "AHA GEL PEELING 15%": "/api/cms-media/HTCEUTIC-AHA-15-GEL.jpg",
+  "AHA CRÉME PEELING 15%": "/api/cms-media/HTCEUTIC-AHA-15-CREME.jpg",
+  "AHA GEL PRE-PEELING": "/api/cms-media/HTCEUTIC-AHA-PRE-PEELING.jpg",
+  "CRÉME RÉGÉNÉRANTE SPF 15": "/api/cms-media/HTCEUTIC-CREME-REGENERANTE.jpg",
+  "RETINOL SERUM 2%": "/api/cms-media/HTCEUTIC-RETINOL-SERUM-2.jpg",
+  "RETINOL SERUM 0.5%": "/api/cms-media/HTCEUTIC-RETINOL-SERUM-05.jpg",
+  "PROTEK SPF 50+": "/api/cms-media/HTCEUTIC-PROTEK-SPF50.jpg",
+  "CRÉME BOOSTER": "/api/cms-media/HTCEUTIC-CREME-BOOSTER.jpg",
+  "C30 SERUM": "/api/cms-media/HTCEUTIC-C30-SERUM.jpg",
+  "CRÉME LAVANTE": "/api/cms-media/HTCEUTIC-CREME-LAVANTE.jpg",
+  "MOUSSE NETTOYANTE": "/api/cms-media/HTCEUTIC-MOUSSE.jpg",
+  "LCP lotion anti-chute": "/api/cms-media/LCPHAIR-Lotion-Anti-Chute-200ml.jpg"
 };
 
 // Per-product hero image, keyed by product id.
 const PRODUCT_IMAGE: Record<number, string> = {
-  "541": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-SUNSCREEN-HYDRO-1.jpg",
-  "542": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-INVISIBLE-1.jpg",
-  "543": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-MOIST-INTENSE-1.jpg",
-  "544": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-TRIO-ACNE-1.jpg",
-  "545": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-TRIO-ACNE-SKI-1.jpg",
-  "546": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-TRIO-ACNE-LOTION-1.jpg",
-  "547": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-NC10-1.jpg",
-  "548": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-LOTION-BHA-1.jpg",
-  "549": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-DEPI-CREME-1.jpg",
-  "550": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-DEPI-GEL-1.jpg",
-  "551": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-SYNDET-LIPIDIK-1.jpg",
-  "552": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-SOIN-LIPIDIK-1.jpg",
-  "553": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-KPP-SOIN-1.jpg",
-  "554": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-BAUM-ESSENTIEL-1.jpg",
-  "555": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-SEPTIPLUS-PH5-1.jpg",
-  "556": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-SEPTIPLUS-PH8-1.jpg",
-  "557": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-DEPI-PLUS-1.jpg",
-  "558": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-BASE-LAVANTE-DS+-1.jpg",
-  "559": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-LOTION-DS+-1.jpg",
-  "560": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-EMULSION-DS+-1.jpg",
-  "561": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-SEPTISCARS-1.jpg",
-  "562": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-CICASEPT-1.jpg",
-  "563": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-CICAPLUS-Z-1.jpg",
-  "564": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-PRURITUS-CONTROL-1.jpg",
-  "565": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-HAIRLOSS-SH-HOMMES-1.jpg",
-  "566": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-HAIRLOSS-SH-FEMMES-1.jpg",
-  "567": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-HAIRLOSS-LOTION-HOMMES-1.jpg",
-  "568": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-HAIRLOSS-LOTION-FEMMES-1.jpg",
-  "569": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-HAIRLOSS-SERUM-1.jpg",
-  "570": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-HAIRLOSS-MASQUE-1.jpg",
-  "571": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-KOPROZ-Mousse-Nettoyante-150ml-1.jpg",
-  "572": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-KOPROZ-50+-Creme-solaire-50ml-1.jpg",
-  "573": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-KOPROZ-AZ-50ml-1.jpg",
-  "574": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-KOPROZ-RP-70ml-1.jpg",
-  "575": "/assets/product-placeholder.svg",
-  "576": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/DCP-TRIO-ACNE-SUN-SPF50+-50ml-1.jpg",
-  "577": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/D-biotic-Gel-Surgras-240ml-1.jpg",
-  "578": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/D-biotic-Creme-Hydratante-Regenerante-75ml-1.jpg",
-  "579": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/D-biotic-Baume-Hydratant-Regenerant-150ml-1.jpg",
-  "580": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/D-biotic-Gel-Rugosites-240ml-1.jpg",
-  "581": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/D-biotic-Creme-Rugosites-150ml-1.jpg",
-  "582": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/D-biotic-Creme-Solaire-SPF50+-75ml-1.jpg",
-  "583": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/D-biotic-Creme-Emolliente-Pediatrique-200ml-1.jpg",
-  "785": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d65666661636c61722d67656c2d6d6f757373616e742d707572696669616e742d3230306d6cb75ed8cb-1.jpg",
-  "786": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/62696f6465726d612d637265616c696e652d68326f2d74732d6561752d6d6963656c6c616972652d3235306d6c2d666163652df5b8cd-1.jpg",
-  "787": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/3a085aa99720728e8ee34b35a5946b35a13c883a2e66b6aaea5c3ab87ed4e9bc291aadc3-1.jpg",
-  "788": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6365726176652d67656c2d6d6f757373616e742d38386d6c2d66616365beebfa83-1.jpg",
-  "789": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6e7578652d726576652d64652d6d69656c2d67656c2d6c6176616e742d737572677261732d7669736167652d65742d636f7270732d3430306d6c30586bb9-1.jpg",
-  "790": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/30333238323737303134353737392d33303831333964392d383033622d343233612d616334342d66393939643433383235656545b559c6-1.jpg",
-  "791": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6365726176652d6c6169742d687964726174616e742d3233366d6c24673696-1.jpg",
-  "792": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/7572696167652d78656d6f73652d63382d6372656d652d72656c69706964616e74652d616e74692d67726174746167652d3230306d6c2d70726f64756974162710ee-1.jpg",
-  "793": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6b6c6f72616e652d7368616d706f696e672d65787472612d646f75782d612d6c2d61766f696e652d3430306d6c44ecec60-1.jpg",
-  "794": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/696d672d363232347e982588-1.jpg",
-  "795": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/333730313433363931353535312d313b5ccba9-1.jpg",
-  "796": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6b6c6f72616e652d7368616d706f6f696e672d616e74692d63687574652d3130306d6c2d666163657bf45b71-1.jpg",
-  "797": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d616e7468656c696f732d333333373837353739373539372d66726f6e742d30cd91eed6-1.jpg",
-  "798": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/76696368792d6361706974616c2d736f6c65696c2d6372656d652d736f6c616972652d6f6e637475657573652d7370662d35302d6661636528286717-1.jpg",
-  "799": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/1401349ec0627c69ea410f77a0289b1985bc6d0a514efbbcbc5230882b37b404b4f516f1-1.jpg",
-  "800": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/32b2b0f15a-1.jpg",
-  "801": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/30333238323737303339323835322d35633133336437312d666331342d343364382d613362662d3834613163623538343634396451e3c7-1.jpg",
-  "802": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d676162617269742d323285c4a0e5-1.jpg",
-  "803": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6d757374656c612d68796472612d626562652d6372656d652d766973616765d73a64a1-1.jpg",
-  "804": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/3336363134333430303835393711ea526d-1.jpg",
-  "805": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/736f6c616972652d74756265343061742d33353034313035303336373638a108d31b-1.jpg",
-  "806": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/fc634fc4effad27bf8aca972f030f6be96fe7a886ae599ab22ade1381c93c1f693ff9eb9-1.jpg",
-  "807": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/696d672d3430303845b7ece2-1.jpg",
-  "808": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/696e6176612d7061726f646f6e7469652d62726f7373652d612d64656e74732d6f7074696f6e911d4f9f-1.jpg",
-  "809": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/736f6c6761722d766974616d696e652d64332d313030302d75692d636f6d7072696d65732d612d63726f717565722d66616365559d5d9f-1.jpg",
-  "810": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/61726b6f706861726d612d616365726f6c612d313030302d766974616d696e652d64332d32302d636f6d7072696d65732d66616365caaf3dab-1.jpg",
-  "811": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/736f6c6761722d6f6d6567612d332d6875696c652d64652d706f6973736f6e2d33302d63617073756c65732d666163651263002a-1.jpg",
-  "812": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6c612d726f6368652d706f7361792d6c6970696b61722d73796e6465742d61702d6372656d652d6c6176616e74652d72656c69706964616e74652d3230306d6cb35d7b94-1.jpg",
-  "813": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/6e4125807e904b1b97094e2f31dfde0216d42a9b24f2e7030bee681caf19082c93e2fe47-1.jpg",
-  "814": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/dbabcd47cbb09677dbdc9522d234cf1cf56f477ebe0eeec5587ab5c4b251c501a06b5ce0-1.jpg",
-  "880": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/images-1.jpg"
+  "148": "/assets/product-placeholder.svg",
+  "149": "/assets/product-placeholder.svg",
+  "150": "/assets/product-placeholder.svg",
+  "151": "/assets/product-placeholder.svg",
+  "152": "/assets/product-placeholder.svg",
+  "153": "/assets/product-placeholder.svg",
+  "154": "/assets/product-placeholder.svg",
+  "155": "/assets/product-placeholder.svg",
+  "156": "/assets/product-placeholder.svg",
+  "157": "/assets/product-placeholder.svg",
+  "158": "/assets/product-placeholder.svg",
+  "159": "/api/cms-media/D-biotic-Sebiotic-Soin-protecteur-gelee-50ml.jpg",
+  "160": "/api/cms-media/D-biotic-Sebiotic-Ecran-solaire-SPF-50%2B-50ml.jpg",
+  "161": "/api/cms-media/D-biotic-Sebiotic-Serum-AI-50ml.jpg",
+  "162": "/api/cms-media/D-biotic-Baume-a-levres-Tres-reparateur-15ml.jpg",
+  "163": "/api/cms-media/D-biotic-Baume-a-levres-Eclaircissant-15ml.jpg",
+  "164": "/api/cms-media/ECLABIOTIC-Radiance-SPF-30%2B-50ml.jpg",
+  "165": "/api/cms-media/ECLABIOTIC-Solaire-Invisible-SPF-50%2B-50ml.jpg",
+  "166": "/api/cms-media/ECLABIOTIC-Solaire-SPF-50%2B-50ml.jpg",
+  "167": "/api/cms-media/ECLABIOTIC-Intense-50ml.jpg",
+  "168": "/api/cms-media/ECLABIOTIC-Gel-200ml.jpg",
+  "169": "/api/cms-media/LCP-Gel-Nettoyant-350ml.jpg",
+  "170": "/api/cms-media/LCP-Creme-Matifiante-75ml.jpg",
+  "171": "/api/cms-media/LCP-Soin-Global-75ml.jpg",
+  "172": "/api/cms-media/LCP-Creme-Solaire-Matifiante-SPF50%2B-75ml.jpg",
+  "173": "/api/cms-media/LCP-Syndet-Lavant-Relipidant-240ml.jpg",
+  "174": "/api/cms-media/LCP-Baume-Relipidant-240ml.jpg",
+  "175": "/api/cms-media/LCP-Soin-Intense-PIEDS-DIABETIQUES-75ml.jpg",
+  "176": "/api/cms-media/LCP-Baume-Chauffant-PIEDS-SECS-100ml.jpg",
+  "177": "/api/cms-media/LCP-Creme-ANTI-CALLOSITES-75ml.jpg",
+  "178": "/api/cms-media/LCP-Gommage-NOURRISSANT-100ml.jpg",
+  "179": "/api/cms-media/LCP-Mains-Baume-Chauffant-Mains-Engelures-75ml.jpg",
+  "180": "/api/cms-media/LCP-Mains-Baume-Eclat-Anti-age-SPF-30%2B-75ml.jpg",
+  "181": "/api/cms-media/LCP-Mains-Soin-Reparateur-Apaisant-75ml.jpg",
+  "182": "/api/cms-media/LCPHAIR-Shampoing-Anti-Chute-300ml.jpg",
+  "183": "/api/cms-media/LCPHAIR-Masque-Anti-Chute-200ml.jpg",
+  "184": "/api/cms-media/LCPHAIR-Lotion-Anti-Chute-200ml.jpg",
+  "185": "/api/cms-media/HTCEUTIC-MOUSSE.jpg",
+  "186": "/api/cms-media/HTCEUTIC-CREME-LAVANTE.jpg",
+  "187": "/api/cms-media/HTCEUTIC-C30-SERUM.jpg",
+  "188": "/api/cms-media/HTCEUTIC-CREME-BOOSTER.jpg",
+  "189": "/api/cms-media/HTCEUTIC-PROTEK-SPF50.jpg",
+  "190": "/api/cms-media/HTCEUTIC-RETINOL-SERUM-05.jpg",
+  "191": "/api/cms-media/HTCEUTIC-RETINOL-SERUM-2.jpg",
+  "192": "/api/cms-media/HTCEUTIC-CREME-REGENERANTE.jpg",
+  "193": "/api/cms-media/HTCEUTIC-AHA-PRE-PEELING.jpg",
+  "194": "/api/cms-media/HTCEUTIC-AHA-15-CREME.jpg",
+  "195": "/api/cms-media/HTCEUTIC-AHA-15-GEL.jpg",
+  "196": "/api/cms-media/HTCEUTIC-AHA-20-CREME.jpg",
+  "197": "/api/cms-media/HTCEUTIC-AHA-20-GEL.jpg",
+  "198": "/api/cms-media/HTCEUTIC-AHA-POST-PEELING.jpg",
+  "199": "/api/cms-media/HTCEUTIC-DEPIGMENTANT-WHITE-GEL.png",
+  "200": "/api/cms-media/HTCEUTIC-DEPIGMENTANT-WHITE-CREAM.png",
+  "201": "/api/cms-media/HTCEUTIC-DEPIGMENTANT-SUN-PROTECT.png",
+  "202": "/api/cms-media/HELIXIENCE-Lait-Corps.jpg",
+  "203": "/api/cms-media/HELIXIENCE-White-Resolution.jpg",
+  "204": "/assets/product-placeholder.svg",
+  "205": "/api/cms-media/HELIABRINE-Gel-Nettoyant-Moussant.jpg",
+  "206": "/api/cms-media/HELIABRINE-Puriphyl-Solution.jpg",
+  "207": "/api/cms-media/HELIABRINE-HA-Soin-Hydratant-Matifiant.jpg",
+  "208": "/api/cms-media/39-cv-1-Masque%2520m%25C3%25A9lilot%2520web%25202.png",
+  "209": "/api/cms-media/HELIABRINE-Creme-Confort-32.jpg",
+  "210": "/api/cms-media/HELIABRINE-Soin-Multi-Correction.jpg",
+  "211": "/api/cms-media/HELIABRINE-Baume-54.jpg",
+  "212": "/api/cms-media/HELIABRINE-Ampoules-au-Collagene-Marin.jpg",
+  "213": "/api/cms-media/HELIABRINE-Masque-Repulpant-Collagene.jpg",
+  "214": "/api/cms-media/HELIABRINE-Huile-Demaquilante-Velours.jpg",
+  "215": "/api/cms-media/HELIABRINE-Soin-Lissant-Levres.jpg",
+  "216": "/api/cms-media/HELIABRINE-Creme-Solaire.jpg",
+  "217": "/api/cms-media/HELIABRINE-Soin-de-Jour.jpg",
+  "218": "/api/cms-media/HELIABRINE-Soin-de-Nuit.jpg",
+  "219": "/api/cms-media/HELIABRINE-Gel-Post-Epilation.jpg",
+  "220": "/api/cms-media/HELIABRINE-Hydra-Satinee.jpg",
+  "221": "/api/cms-media/HELIABRINE-Hydra-Perlee.jpg",
+  "222": "/api/cms-media/HELIABRINE-Serum-Expert-Fermete.jpg",
+  "223": "/api/cms-media/HELIABRINE-Serum-Nutrivitamine-au-Calendula.jpg",
+  "224": "/api/cms-media/HELIABRINE-Masque-Reequilibrant-au-Melilot-Bio.jpg",
+  "225": "/api/cms-media/HELIABRINE-Ginkgomask-Masque-Eclat.jpg",
+  "226": "/api/cms-media/HELIABRINE-BB-Cream-Soin-Teinte-SPF-30.jpg",
+  "227": "/api/cms-media/202-cv-1-H%25C3%25A9liabrine%2520soin%2520exfoliant%2520caviar.png",
+  "228": "/assets/product-placeholder.svg",
+  "229": "/assets/product-placeholder.svg",
+  "230": "/api/cms-media/49-cv-1-soin%2520hydratant%2520(2).png",
+  "231": "/api/cms-media/249-cv-1-6.png",
+  "232": "/api/cms-media/ECRINAL-Ampoules-Anti-Chute-Cheveux.jpg",
+  "233": "/api/cms-media/ECRINAL-Complements-Alimentaires-Cheveux.jpg",
+  "234": "/api/cms-media/ECRINAL-Lotion-Fortifiant-Homme.jpg",
+  "235": "/api/cms-media/ECRINAL-Lotion-Fortifiant-Femme.jpg",
+  "236": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Homme-200ml.jpg",
+  "237": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Femme-200ml.jpg",
+  "238": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Homme-400ml.jpg",
+  "239": "/api/cms-media/ECRINAL-Shampooing-Fortifiant-Femme-400ml.jpg",
+  "240": "/api/cms-media/ECRINAL-Family-Shampooing-Ultra-Doux.jpg",
+  "244": "/api/cms-media/ECRINAL-Baume-Apres-Shampooing.jpg",
+  "245": "/api/cms-media/ECRINAL-Masque-Capillaire-Nutritif.jpg",
+  "246": "/api/cms-media/ECRINAL-Serum-Apaisant-Cappilaire.jpg",
+  "247": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-1.jpg",
+  "248": "/api/cms-media/bjorn-axen-pack-repair-1.png",
+  "249": "/api/cms-media/herome-pack-durcisseur-fort-dissolvant-1.webp",
+  "250": "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-1.webp"
 };
 
 // Per-product gallery images (hero + alternates), keyed by product id.
 const PRODUCT_GALLERY: Record<number, string[]> = {
-  "541": [],
-  "542": [],
-  "543": [],
-  "544": [],
-  "545": [],
-  "546": [],
-  "547": [],
-  "548": [],
-  "549": [],
-  "550": [],
-  "551": [],
-  "552": [],
-  "553": [],
-  "554": [],
-  "555": [],
-  "556": [],
-  "557": [],
-  "558": [],
-  "559": [],
-  "560": [],
-  "561": [],
-  "562": [],
-  "563": [],
-  "564": [],
-  "565": [],
-  "566": [],
-  "567": [],
-  "568": [],
-  "569": [],
-  "570": [],
-  "571": [],
-  "572": [],
-  "573": [],
-  "574": [],
-  "575": [],
-  "576": [],
-  "577": [],
-  "578": [],
-  "579": [],
-  "580": [],
-  "581": [],
-  "582": [],
-  "583": [],
-  "785": [],
-  "786": [],
-  "787": [],
-  "788": [],
-  "789": [],
-  "790": [],
-  "791": [],
-  "792": [],
-  "793": [],
-  "794": [],
-  "795": [],
-  "796": [],
-  "797": [],
-  "798": [],
-  "799": [],
-  "800": [],
-  "801": [],
-  "802": [],
-  "803": [],
-  "804": [],
-  "805": [],
-  "806": [],
-  "807": [],
-  "808": [],
-  "809": [],
-  "810": [],
-  "811": [],
-  "812": [],
-  "813": [],
-  "814": [],
-  "880": [
-    "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/images.jpg",
-    "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/images-2.jpg"
+  "148": [],
+  "149": [],
+  "150": [],
+  "151": [],
+  "152": [],
+  "153": [],
+  "154": [],
+  "155": [],
+  "156": [],
+  "157": [],
+  "158": [],
+  "159": [],
+  "160": [],
+  "161": [],
+  "162": [],
+  "163": [],
+  "164": [],
+  "165": [],
+  "166": [],
+  "167": [],
+  "168": [],
+  "169": [],
+  "170": [],
+  "171": [],
+  "172": [],
+  "173": [],
+  "174": [],
+  "175": [],
+  "176": [],
+  "177": [],
+  "178": [],
+  "179": [],
+  "180": [],
+  "181": [],
+  "182": [],
+  "183": [],
+  "184": [],
+  "185": [],
+  "186": [],
+  "187": [],
+  "188": [],
+  "189": [],
+  "190": [],
+  "191": [],
+  "192": [],
+  "193": [],
+  "194": [],
+  "195": [],
+  "196": [],
+  "197": [],
+  "198": [],
+  "199": [],
+  "200": [],
+  "201": [],
+  "202": [],
+  "203": [],
+  "204": [],
+  "205": [],
+  "206": [],
+  "207": [],
+  "208": [],
+  "209": [],
+  "210": [],
+  "211": [],
+  "212": [],
+  "213": [],
+  "214": [],
+  "215": [],
+  "216": [],
+  "217": [],
+  "218": [],
+  "219": [],
+  "220": [],
+  "221": [],
+  "222": [],
+  "223": [],
+  "224": [],
+  "225": [],
+  "226": [],
+  "227": [],
+  "228": [],
+  "229": [],
+  "230": [],
+  "231": [],
+  "232": [],
+  "233": [],
+  "234": [],
+  "235": [],
+  "236": [],
+  "237": [],
+  "238": [],
+  "239": [],
+  "240": [],
+  "244": [],
+  "245": [],
+  "246": [],
+  "247": [
+    "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-2.jpg",
+    "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-3.jpg",
+    "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-4.jpg",
+    "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-5.jpg",
+    "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-6.jpg"
+  ],
+  "248": [
+    "/api/cms-media/bjorn-axen-pack-repair-2.png",
+    "/api/cms-media/bjorn-axen-pack-repair-3.png",
+    "/api/cms-media/bjorn-axen-pack-repair-4.png",
+    "/api/cms-media/bjorn-axen-pack-repair-5.png",
+    "/api/cms-media/bjorn-axen-pack-repair-6.png"
+  ],
+  "249": [
+    "/api/cms-media/herome-pack-durcisseur-fort-dissolvant-2.png",
+    "/api/cms-media/herome-pack-durcisseur-fort-dissolvant-3.png"
+  ],
+  "250": [
+    "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-2.png",
+    "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-3.png"
   ]
 };
 
