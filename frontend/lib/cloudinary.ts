@@ -204,6 +204,12 @@ const PRESET_DEFINITIONS = {
     gravity: "auto",
     sizes: "(max-width: 640px) 50vw, 33vw",
   },
+  /** The home page's round category photos. Never cropped or enlarged: the
+   * whole picture, fitted into the circle. */
+  categoryDisc: {
+    crop: "fit",
+    sizes: "128px",
+  },
   /** Small square avatars: cart lines, mega-menu promos, Instagram grid. */
   thumb: {
     crop: "fill",

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CloudinaryImage } from "@/components/CloudinaryImage";
 
 export type CtaBannerCopy = {
   eyebrow: string;
@@ -7,6 +8,10 @@ export type CtaBannerCopy = {
   ctaLabel: string;
   ctaUrl: string;
   bg: string;
+  /** Optional photograph behind the band. */
+  bgImage?: string;
+  /** 0–90: how much of `bg` is laid over the photograph as a veil. */
+  overlayOpacity?: number;
   textColor: string;
   ctaColor: string;
 };
@@ -34,17 +39,32 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
   // the fields has effectively turned it off.
   if (!copy.title?.trim() && !label) return null;
 
+  const bgColor = copy.bg || "var(--pdh-cream)";
+  const photo = copy.bgImage?.trim();
+  // The veil is the band's own colour over the photograph, so the text and
+  // button colours an editor already tuned against `bg` stay readable.
+  const veil = Math.min(90, Math.max(0, copy.overlayOpacity ?? 55)) / 100;
+
   return (
     <section
       style={{
-        background: copy.bg || "var(--pdh-cream)",
+        position: "relative",
+        overflow: "hidden",
+        background: bgColor,
         color: copy.textColor || "var(--pdh-ink)",
         padding: "clamp(48px,7vw,88px) var(--sec-pad-x)",
         marginBottom: "var(--sec-y)",
       }}
     >
+      {photo && (
+        <>
+          <CloudinaryImage preset="hero" src={photo} alt="" fill sizes="100vw" style={{ objectFit: "cover" }} />
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: bgColor, opacity: veil }} />
+        </>
+      )}
       <div
         style={{
+          position: "relative",
           maxWidth: "min(40em,100%)",
           margin: "0 auto",
           textAlign: "center",

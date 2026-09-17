@@ -2186,6 +2186,14 @@ export interface Home {
      */
     bg?: string | null;
     /**
+     * Photo de fond, facultative. Le fond coloré est posé dessus en voile pour garder le texte lisible.
+     */
+    bgImage?: (number | null) | Media;
+    /**
+     * Opacité du voile coloré sur la photo, en %. 0 = photo nue.
+     */
+    overlayOpacity?: number | null;
+    /**
      * Hex color, e.g. #E7EFF3
      */
     textColor?: string | null;
@@ -3375,6 +3383,8 @@ export interface HomeSelect<T extends boolean = true> {
         ctaLabel?: T;
         ctaUrl?: T;
         bg?: T;
+        bgImage?: T;
+        overlayOpacity?: T;
         textColor?: T;
         ctaColor?: T;
       };

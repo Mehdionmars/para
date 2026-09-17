@@ -641,6 +641,18 @@ export const Home: GlobalConfig = {
         { name: 'ctaLabel', type: 'text', defaultValue: 'Nous contacter' },
         { name: 'ctaUrl', type: 'text', defaultValue: '/contact' },
         colorField('bg', '#F7EEE5'),
+        {
+          ...imageField('bgImage', false),
+          admin: { description: "Photo de fond, facultative. Le fond coloré est posé dessus en voile pour garder le texte lisible." },
+        },
+        {
+          name: 'overlayOpacity',
+          type: 'number',
+          min: 0,
+          max: 90,
+          defaultValue: 55,
+          admin: { description: 'Opacité du voile coloré sur la photo, en %. 0 = photo nue.' },
+        },
         colorField('textColor', '#373020'),
         colorField('ctaColor', '#5E4074'),
       ],

@@ -214,6 +214,8 @@ export type LiveHomeContent = {
     ctaLabel: string;
     ctaUrl: string;
     bg: string;
+    bgImage: string;
+    overlayOpacity: number;
     textColor: string;
     ctaColor: string;
   };
@@ -520,6 +522,8 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       ctaLabel: home.ctaBannerCopy?.ctaLabel || "",
       ctaUrl: home.ctaBannerCopy?.ctaUrl || "/contact",
       bg: home.ctaBannerCopy?.bg || "#F7EEE5",
+      bgImage: resolveMediaUrl(home.ctaBannerCopy?.bgImage),
+      overlayOpacity: Math.min(90, Math.max(0, Number(home.ctaBannerCopy?.overlayOpacity ?? 55) || 0)),
       textColor: home.ctaBannerCopy?.textColor || "#373020",
       ctaColor: home.ctaBannerCopy?.ctaColor || "#5E4074",
     },

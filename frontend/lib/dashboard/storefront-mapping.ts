@@ -149,6 +149,9 @@ export type CtaBannerCopyDraft = {
   ctaLabel: string;
   ctaUrl: string;
   bg: string;
+  bgImage: ImageRef;
+  /** 0–90, the veil of `bg` laid over the photo. */
+  overlayOpacity: number;
   textColor: string;
   ctaColor: string;
 };
@@ -426,6 +429,8 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       ctaLabel: home.ctaBannerCopy?.ctaLabel || "",
       ctaUrl: home.ctaBannerCopy?.ctaUrl || "/contact",
       bg: home.ctaBannerCopy?.bg || "#F7EEE5",
+      bgImage: mediaRef(home.ctaBannerCopy?.bgImage),
+      overlayOpacity: clampNumber(Number(home.ctaBannerCopy?.overlayOpacity ?? 55), 0, 90),
       textColor: home.ctaBannerCopy?.textColor || "#373020",
       ctaColor: home.ctaBannerCopy?.ctaColor || "#5E4074",
     },
@@ -594,7 +599,7 @@ export function mapDraftToPayload(draft: HomeDraft): Record<string, unknown> {
     },
     campaignProducts: draft.campaignProducts.map((p) => p.id),
     dermoPicks: draft.dermoPicks.map((d) => ({ product: d.product?.id || null, actif: d.actif, claim: d.claim })),
-    ctaBannerCopy: { ...draft.ctaBannerCopy },
+    ctaBannerCopy: { ...draft.ctaBannerCopy, bgImage: img(draft.ctaBannerCopy.bgImage) },
     dermoCornerCopy: {
       eyebrow: draft.dermoCornerCopy.eyebrow,
       title: draft.dermoCornerCopy.title,

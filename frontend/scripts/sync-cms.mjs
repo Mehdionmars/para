@@ -394,6 +394,8 @@ async function syncHome() {
     ctaLabel: home.ctaBannerCopy?.ctaLabel || '',
     ctaUrl: home.ctaBannerCopy?.ctaUrl || '/contact',
     bg: home.ctaBannerCopy?.bg || '#F7EEE5',
+    bgImage: mediaURL(home.ctaBannerCopy?.bgImage),
+    overlayOpacity: Math.min(90, Math.max(0, Number(home.ctaBannerCopy?.overlayOpacity ?? 55) || 0)),
     textColor: home.ctaBannerCopy?.textColor || '#373020',
     ctaColor: home.ctaBannerCopy?.ctaColor || '#5E4074',
   }

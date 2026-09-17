@@ -231,6 +231,8 @@ export const CTA_BANNER_COPY = {
   "ctaLabel": "Nous contacter",
   "ctaUrl": "/contact",
   "bg": "#F7EEE5",
+  "bgImage": "",
+  "overlayOpacity": 55,
   "textColor": "#373020",
   "ctaColor": "#5E4074"
 };

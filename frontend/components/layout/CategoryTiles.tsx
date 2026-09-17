@@ -125,10 +125,13 @@ export function CategoryTiles({
                     alt=""
                     className="cat-tile-img"
                     fill
-                    preset="productThumbnail"
+                    preset="categoryDisc"
                     sizes="128px"
                     src={tile.image}
-                    style={{ objectFit: "cover" }}
+                    // contain, not cover: a photo that is not square was
+                    // enlarged and cut to fill the circle. The disc's own
+                    // background shows around it instead.
+                    style={{ objectFit: "contain" }}
                   />
                 ) : tile.isAll ? (
                   <LayoutGrid aria-hidden="true" className="cat-tile-mark" size={24} strokeWidth={1.5} />
