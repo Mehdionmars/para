@@ -263,7 +263,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <CartDrawer />
           <Toast />
           <FloatingActions />
-          {promoModal && <PromoModal config={promoModal} />}
+          {/* Not in the Storefront Builder preview: it opens on every page
+              load, and the preview reloads on every edit. */}
+          {promoModal && !isPreview && <PromoModal config={promoModal} />}
           <ScrollToTopOnReload />
         </StoreProvider>
       </body>
