@@ -1,6 +1,5 @@
 "use client";
 
-import { ChromePreview, CHROME_PREVIEW_DEFAULTS } from "@/components/dashboard/appearance/ChromePreview";
 import { ColorSection, type InheritedColors } from "@/components/dashboard/appearance/ColorSection";
 import { ArrayField } from "@/components/dashboard/storefront/ArrayField";
 import { CheckboxField, ColorField, EditorHeading, FieldGroup, NumberField, SelectField, TextField } from "@/components/dashboard/storefront/FieldKit";
@@ -18,6 +17,14 @@ import {
   type ThemeDraft,
   type TopBarDraft,
 } from "@/lib/dashboard/storefront-mapping";
+
+/** The storefront's own current chrome colours: what a surface with nothing
+ * configured looks like, shown as the inherited value of each colour field. */
+const CHROME_DEFAULTS = {
+  topBar: { bg: "#373020", text: "#F7EEE5" },
+  header: { bg: "#FFFFFF", text: "#373020", icon: "#373020", border: "#E7E1EC", link: "#373020" },
+  footer: { bg: "#373020", text: "#F7EEE5", heading: "#FFFFFF", link: "#F7EEE5", border: "#514936" },
+} as const;
 
 const ICON_LABELS: Record<string, string> = {
   MapPin: "Localisation",
@@ -40,33 +47,31 @@ const ICON_OPTIONS = HEADER_ACTION_ICONS.map((v) => ({ label: ICON_LABELS[v] || 
  */
 const INHERITED: Record<"topBar" | "header" | "footer", InheritedColors> = {
   topBar: {
-    backgroundColor: CHROME_PREVIEW_DEFAULTS.topBar.bg,
-    textColor: CHROME_PREVIEW_DEFAULTS.topBar.text,
-    linkColor: CHROME_PREVIEW_DEFAULTS.topBar.text,
-    hoverColor: CHROME_PREVIEW_DEFAULTS.topBar.text,
+    backgroundColor: CHROME_DEFAULTS.topBar.bg,
+    textColor: CHROME_DEFAULTS.topBar.text,
+    linkColor: CHROME_DEFAULTS.topBar.text,
+    hoverColor: CHROME_DEFAULTS.topBar.text,
   },
   header: {
-    backgroundColor: CHROME_PREVIEW_DEFAULTS.header.bg,
-    textColor: CHROME_PREVIEW_DEFAULTS.header.text,
-    linkColor: CHROME_PREVIEW_DEFAULTS.header.link,
+    backgroundColor: CHROME_DEFAULTS.header.bg,
+    textColor: CHROME_DEFAULTS.header.text,
+    linkColor: CHROME_DEFAULTS.header.link,
     hoverColor: "var(--pdh-plum)",
-    iconColor: CHROME_PREVIEW_DEFAULTS.header.icon,
-    borderColor: CHROME_PREVIEW_DEFAULTS.header.border,
+    iconColor: CHROME_DEFAULTS.header.icon,
+    borderColor: CHROME_DEFAULTS.header.border,
   },
   footer: {
-    backgroundColor: CHROME_PREVIEW_DEFAULTS.footer.bg,
-    textColor: CHROME_PREVIEW_DEFAULTS.footer.text,
-    headingColor: CHROME_PREVIEW_DEFAULTS.footer.heading,
-    linkColor: CHROME_PREVIEW_DEFAULTS.footer.link,
-    hoverColor: CHROME_PREVIEW_DEFAULTS.footer.link,
-    borderColor: CHROME_PREVIEW_DEFAULTS.footer.border,
-    iconColor: CHROME_PREVIEW_DEFAULTS.footer.text,
+    backgroundColor: CHROME_DEFAULTS.footer.bg,
+    textColor: CHROME_DEFAULTS.footer.text,
+    headingColor: CHROME_DEFAULTS.footer.heading,
+    linkColor: CHROME_DEFAULTS.footer.link,
+    hoverColor: CHROME_DEFAULTS.footer.link,
+    borderColor: CHROME_DEFAULTS.footer.border,
+    iconColor: CHROME_DEFAULTS.footer.text,
   },
 };
 
-/** Every chrome editor receives the whole appearance draft: the preview shows
- * all three surfaces at once, because a footer is judged against the header
- * above it, not on its own. */
+/** Every chrome editor receives the whole appearance draft. */
 export type ChromeAppearanceProps = {
   appearance: { topBar: ChromeColorsDraft; header: ChromeColorsDraft; footer: ChromeColorsDraft };
   onChangeAppearance: (surface: "topBar" | "header" | "footer", value: ChromeColorsDraft) => void;
@@ -81,28 +86,18 @@ function AppearanceBlock({
   onChangeAppearance,
 }: ChromeAppearanceProps & { surface: "topBar" | "header" | "footer"; title: string; description: string }) {
   return (
-    <div className="mt-6 border-t border-gray-100 pt-5 @container">
-      {/* Preview under the fields when there is no room, beside them when
-          there is — measured against this block, not the window.
-          `lg:` was a window breakpoint, and this editor only ever renders
-          inside the builder's 320px aside: on any laptop it fired, handed the
-          preview its full 260px and left the six colour inputs a sliver of
-          what remained. A container query asks the question that actually
-          matters, so the two columns appear only if the panel can hold them. */}
-      <div className="grid grid-cols-1 gap-5 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,260px)]">
-        <ColorSection
-          description={description}
-          fields={CHROME_SURFACE_FIELDS[surface]}
-          inherited={INHERITED[surface]}
-          onChange={(v) => onChangeAppearance(surface, v)}
-          showOpacity={surface === "topBar"}
-          title={title}
-          value={appearance[surface]}
-        />
-        <div className="@2xl:sticky @2xl:top-4 @2xl:self-start">
-          <ChromePreview focus={surface} footer={appearance.footer} header={appearance.header} topBar={appearance.topBar} />
-        </div>
-      </div>
+    // No miniature preview beside the fields: the builder's own preview of the
+    // real storefront already shows the result.
+    <div className="mt-6 border-t border-gray-100 pt-5">
+      <ColorSection
+        description={description}
+        fields={CHROME_SURFACE_FIELDS[surface]}
+        inherited={INHERITED[surface]}
+        onChange={(v) => onChangeAppearance(surface, v)}
+        showOpacity={surface === "topBar"}
+        title={title}
+        value={appearance[surface]}
+      />
     </div>
   );
 }
