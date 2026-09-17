@@ -19,7 +19,7 @@ function CoffretCard({ c }: { c: Coffret }) {
       type="button"
       role="listitem"
       onClick={() => toast.fire(c.toast)}
-      className="giftset-card tile-hover"
+      className="giftset-card"
       style={{
         position: "relative",
         height: 320,
@@ -34,8 +34,8 @@ function CoffretCard({ c }: { c: Coffret }) {
       }}
     >
       <CloudinaryImage preset="category" src={c.img} alt={c.title} fill sizes="380px" style={{ objectFit: "cover" }} />
-      <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 26%,rgba(var(--pdh-ink-rgb), 0.62) 58%,rgba(38,32,20,.9) 100%)" }} />
-      <div style={{ position: "relative", zIndex: 3, padding: 26 }}>
+      <div aria-hidden="true" className="giftset-scrim" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 26%,rgba(var(--pdh-ink-rgb), 0.62) 58%,rgba(38,32,20,.9) 100%)" }} />
+      <div className="giftset-copy" style={{ position: "relative", zIndex: 3, padding: 26 }}>
         {c.tag && (
           <span style={{ display: "inline-block", background: "var(--pdh-cream)", color: "var(--pdh-plum)", fontSize: 10, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 999 }}>
             {c.tag}

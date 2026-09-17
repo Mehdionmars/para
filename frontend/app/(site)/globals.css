@@ -963,6 +963,46 @@ button {
   }
 }
 
+/* Hovering a coffret shows the photograph alone: the copy slides down and
+   fades out line by line, the scrim goes with it, and the card neither lifts
+   nor casts a shadow. Pointer devices only — on touch there is no hover, and
+   the text is the only thing saying what the coffret is. Keyboard focus keeps
+   the copy for the same reason. */
+.giftset-scrim {
+  transition: opacity 0.45s ease;
+}
+.giftset-copy > * {
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+.giftset-copy > :nth-child(2) {
+  transition-delay: 0.04s;
+}
+.giftset-copy > :nth-child(3) {
+  transition-delay: 0.08s;
+}
+.giftset-copy > :nth-child(4) {
+  transition-delay: 0.12s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .giftset-card:hover:not(:focus-visible) .giftset-scrim {
+    opacity: 0;
+  }
+  .giftset-card:hover:not(:focus-visible) .giftset-copy > * {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .giftset-scrim,
+  .giftset-copy > * {
+    transition: opacity 0.2s ease;
+    transition-delay: 0s;
+  }
+  .giftset-card:hover .giftset-copy > * {
+    transform: none;
+  }
+}
+
 /* Hero slide art direction: only present when a slide has a dedicated
    mobile image configured (HeroCarousel renders both, CSS picks one). */
 .hero-mobile-img {

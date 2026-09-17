@@ -28,6 +28,10 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
   if (!banner || !banner.img) return null;
 
   const imageOnly = banner.imageMode === "imageOnly";
+  // The scrim exists to carry the copy's contrast. A banner saved in overlay
+  // mode with no title, text or button has no copy, and the scrim was then
+  // only a dark band across the bottom of the picture.
+  const hasOverlayCopy = Boolean(banner.title || banner.description || banner.ctaLabel);
   const href = banner.ctaUrl || "/catalogue";
   // imageOnly banners have their copy baked into the photo, so the whole
   // tile is one link — needs a real accessible name since no visible CTA
@@ -68,7 +72,7 @@ export function MarketingBanner({ banner }: { banner?: MarketingBannerData }) {
       ) : (
         <div className="marketing-banner" style={{ display: "flex", alignItems: "flex-end" }}>
           <BannerImage banner={banner} alt="" fit="cover" objectPosition={objectPosition} />
-          <div className="scrim-bottom" aria-hidden="true" style={{ position: "absolute", inset: 0 }} />
+          {hasOverlayCopy && <div className="scrim-bottom" aria-hidden="true" style={{ position: "absolute", inset: 0 }} />}
           {banner.badgeLabel && <BannerBadge label={banner.badgeLabel} />}
 
           <div className="overlay-card-content" style={{ position: "relative", zIndex: 2, padding: "clamp(24px,3.6vw,48px)", maxWidth: 560, color: "#fff" }}>
