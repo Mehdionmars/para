@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BundleUpsell } from "@/components/product/BundleUpsell";
+import { GiftOfferBanner } from "@/components/product/GiftOfferBanner";
 import { ProductDetail } from "@/components/product/ProductDetail";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { SimilarProducts } from "@/components/product/SimilarProducts";
@@ -13,7 +14,8 @@ import {
   fetchSimilarProducts,
   type LiveProductDetail,
 } from "@/lib/storefront/products";
-import { fetchRoutineOffer } from "@/lib/storefront/paymentSettings";
+import { isGiftBrand } from "@/lib/cart/gift";
+import { fetchGiftOffer, fetchRoutineOffer } from "@/lib/storefront/paymentSettings";
 import { routes } from "@/lib/routes";
 
 // Payload is the source of truth for this page — there is deliberately no
@@ -96,10 +98,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   // CmsUnavailableError deliberately propagates rather than being caught:
   // an unreachable CMS is a 500, not "this product was deleted".
   const product = await resolveProduct(slug);
-  const [similar, routinePicks, routineOffer] = await Promise.all([
+  const [similar, routinePicks, routineOffer, giftOffer] = await Promise.all([
     fetchSimilarProducts({ cat: product.cat, id: product.id }),
     fetchRoutineSuggestions(product),
     fetchRoutineOffer(),
+    fetchGiftOffer(),
   ]);
   const productName = product.name.split("\n")[0];
   const canonical = `${siteUrl}${routes.product(product.slug)}`;
@@ -156,6 +159,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           picking an option has to move the price, the stock, the SKU and —
           when the option ships one — the photograph. */}
       <ProductDetail product={product} />
+
+      {/* The brand gift offer, on that brand only. Checkout decides the gift
+          on the order; this says how to earn it. */}
+      {isGiftBrand(giftOffer, product.brand) && <GiftOfferBanner offer={giftOffer} />}
 
       {/* Directly under the buy box, where the decision is still open. Its
           suggestions are the editor's routine picks, then the same aisle, then

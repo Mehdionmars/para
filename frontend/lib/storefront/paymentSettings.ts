@@ -1,4 +1,6 @@
+import { GIFT_OFF, type GiftOffer, parseGiftOffer } from "@/lib/cart/gift";
 import { parseRoutineOffer, ROUTINE_OFF, type RoutineOffer } from "@/lib/cart/routine";
+import { type PayloadMediaRef, resolveMediaUrl } from "@/lib/storefront/products";
 
 const CMS_URL = process.env.CMS_URL || "http://localhost:3001";
 
@@ -155,5 +157,26 @@ export async function fetchRoutineOffer(): Promise<RoutineOffer> {
     return parseRoutineOffer(raw.routineOffer);
   } catch {
     return ROUTINE_OFF;
+  }
+}
+
+/**
+ * The gift offer as configured in payment-settings → Offre cadeau marque.
+ *
+ * Depth 1, unlike the two readers above: the storefront needs the brand's
+ * name (cart lines carry names, not ids) and the campaign visual's URL. Same
+ * cache tag, so saving the global purges it too. An unreachable CMS means no
+ * offer — promising a gift checkout would not grant is the bug to avoid.
+ */
+export async function fetchGiftOffer(): Promise<GiftOffer> {
+  try {
+    const res = await fetch(`${CMS_URL}/api/globals/payment-settings?depth=1`, {
+      next: { revalidate: 300, tags: [PAYMENT_SETTINGS_TAG] },
+    });
+    if (!res.ok) return GIFT_OFF;
+    const raw = (await res.json()) as { giftOffer?: unknown };
+    return parseGiftOffer(raw.giftOffer, (media) => resolveMediaUrl(media as PayloadMediaRef));
+  } catch {
+    return GIFT_OFF;
   }
 }

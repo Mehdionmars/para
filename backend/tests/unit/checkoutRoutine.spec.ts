@@ -33,9 +33,13 @@ vi.mock('@/lib/pricing', () => ({
 
 const { POST } = await import('@/app/api/checkout/route')
 
-type Product = { name: string; price: number; category: string; relatedProducts?: number[] }
+type Product = { name: string; price: number; category: string; relatedProducts?: number[]; brandId?: number }
 
-function makeEnv(products: Record<number, Product>, routineOffer?: Record<string, unknown>) {
+function makeEnv(
+  products: Record<number, Product>,
+  routineOffer?: Record<string, unknown>,
+  giftOffer?: Record<string, unknown>,
+) {
   const created: { collection: string; data?: Record<string, unknown> }[] = []
 
   const answer = async (sql: string, params: unknown[]) => {
@@ -47,7 +51,7 @@ function makeEnv(products: Record<number, Product>, routineOffer?: Record<string
         rowCount: 1,
         rows: [
           {
-            brand_id: null,
+            brand_id: p.brandId ?? null,
             category: p.category,
             discontinued: false,
             has_variants: false,
@@ -88,7 +92,7 @@ function makeEnv(products: Record<number, Product>, routineOffer?: Record<string
         .map((id) => ({ category: products[id].category, id, relatedProducts: products[id].relatedProducts ?? [] }))
       return { docs, totalDocs: docs.length }
     },
-    findGlobal: async () => ({ codEnabled: true, routineOffer }),
+    findGlobal: async () => ({ codEnabled: true, giftOffer, routineOffer }),
     logger: { error: () => {}, info: () => {}, warn: () => {} },
   }
 
@@ -185,5 +189,42 @@ describe('the routine offer at checkout', () => {
     expect(env.orderData().couponCode).toBeUndefined()
     // A coupon that did not discount this order must not count as used.
     expect(env.created.some((c) => c.collection === 'coupon-redemptions')).toBe(false)
+  })
+})
+
+describe('the gift offer at checkout', () => {
+  const FILORGA = 7
+  const GIFT_ON = { brand: FILORGA, enabled: true, giftName: 'Summer Trousse offerte', minItems: 3 }
+  const RANGE: Record<number, Product> = {
+    1: { brandId: FILORGA, category: 'Visage', name: 'Time-Filler 5XP', price: 605 },
+    2: { brandId: FILORGA, category: 'Visage', name: 'Optim-Eyes', price: 371 },
+    3: { brandId: 99, category: 'Visage', name: 'Autre marque', price: 200 },
+  }
+
+  it('writes the gift on the order once it holds enough units of the brand, without touching the total', async () => {
+    const env = makeEnv(RANGE, undefined, GIFT_ON)
+
+    const body = await (await post(checkout({ lines: [{ id: 1, qty: 2 }, { id: 2, qty: 1 }] }))).json()
+
+    expect(body).toMatchObject({ discount: 0, gift: 'Summer Trousse offerte', total: 1581 })
+    expect(env.orderData()).toMatchObject({ giftLabel: 'Summer Trousse offerte', total: 1581 })
+  })
+
+  it('does not count another brand towards the threshold', async () => {
+    const env = makeEnv(RANGE, undefined, GIFT_ON)
+
+    const body = await (await post(checkout({ lines: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }, { id: 3, qty: 1 }] }))).json()
+
+    expect(body.gift).toBeNull()
+    expect(env.orderData().giftLabel).toBeUndefined()
+  })
+
+  it('grants nothing while the offer is switched off, however much the cart holds', async () => {
+    const env = makeEnv(RANGE, undefined, { ...GIFT_ON, enabled: false })
+
+    const body = await (await post(checkout({ lines: [{ id: 1, qty: 5 }] }))).json()
+
+    expect(body.gift).toBeNull()
+    expect(env.orderData().giftLabel).toBeUndefined()
   })
 })

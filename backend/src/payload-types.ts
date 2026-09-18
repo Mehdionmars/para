@@ -605,6 +605,10 @@ export interface Order {
    */
   routineDiscount?: number | null;
   /**
+   * Cadeau à joindre au colis (offre cadeau marque). Vide si aucun.
+   */
+  giftLabel?: string | null;
+  /**
    * Code tel qu'appliqué.
    */
   couponCode?: string | null;
@@ -1523,6 +1527,7 @@ export interface OrdersSelect<T extends boolean = true> {
   shipping?: T;
   total?: T;
   routineDiscount?: T;
+  giftLabel?: T;
   couponCode?: T;
   coupon?: T;
   status?: T;

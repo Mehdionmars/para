@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { canEditContent } from '../access/roles'
 import { revalidateStorefront } from '../lib/revalidateStorefront'
+import { GIFT_MAX_ITEMS } from '../lib/giftOffer'
 import { ROUTINE_MAX_PERCENT } from '../lib/routineOffer'
 
 /**
@@ -153,6 +154,55 @@ export const PaymentSettings: GlobalConfig = {
           max: 3,
           min: 2,
           admin: { description: 'Produit consulté compris. Le bloc en propose trois au maximum.' },
+        },
+      ],
+    },
+    {
+      // Decided at checkout by lib/giftOffer.ts and written on the order, so
+      // the parcel is packed from the order rather than from memory. Off by
+      // default for the same reason as the routine offer.
+      name: 'giftOffer',
+      type: 'group',
+      label: 'Offre cadeau marque',
+      admin: {
+        description:
+          "Un cadeau ajouté à la commande dès qu'elle contient assez de produits d'une marque (ex. 3 produits Filorga achetés = trousse offerte). Vérifié au moment de la commande et inscrit sur celle-ci ; se cumule avec les remises.",
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: false,
+          label: "Activer l'offre cadeau",
+        },
+        {
+          name: 'brand',
+          type: 'relationship',
+          relationTo: 'brands',
+          label: 'Marque concernée',
+        },
+        {
+          name: 'minItems',
+          type: 'number',
+          defaultValue: 3,
+          label: 'Produits minimum de la marque',
+          max: GIFT_MAX_ITEMS,
+          min: 1,
+          admin: { description: 'Unités comptées : deux exemplaires du même produit comptent pour deux.' },
+        },
+        {
+          name: 'giftName',
+          type: 'text',
+          defaultValue: 'Summer Trousse offerte',
+          label: 'Nom du cadeau',
+          admin: { description: 'Affiché dans le panier et inscrit sur la commande.' },
+        },
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          label: "Visuel de l'offre",
+          admin: { description: 'Affiché sur les fiches produit de la marque et sur sa page.' },
         },
       ],
     },

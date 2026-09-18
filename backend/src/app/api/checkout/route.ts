@@ -13,6 +13,7 @@ import { notifyOrderEvent } from '../../../lib/notifications/service'
 import { notifyStockChange } from '../../../lib/notifications/stock'
 import { serverError } from '../../../lib/apiError'
 import { STOCK_DECREMENT_SQL, STOCK_RESTORE_SQL } from '../../../lib/inventorySql'
+import { resolveGift } from '../../../lib/giftOffer'
 import { evaluateCoupon, resolveShipping } from '../../../lib/pricing'
 import { parseRoutineLots, priceRoutineLots } from '../../../lib/routineOffer'
 import { withApiLog } from '../../../lib/withApiLog'
@@ -486,6 +487,14 @@ async function handlePOST(request: Request) {
       appliedCouponCode = null
     }
 
+    // The gift offer changes no amount, so it is decided alongside the
+    // discounts rather than instead of one — and from the resolved lines, not
+    // from anything the request says about a gift.
+    const gift = await resolveGift({
+      lines: resolved.map((l) => ({ brandId: l.brandId, quantity: l.quantity })),
+      payload,
+    })
+
     const shippingResult = await resolveShipping({
       city: body.city,
       payload,
@@ -517,6 +526,7 @@ async function handlePOST(request: Request) {
         couponCode: appliedCouponCode ?? undefined,
         discount,
         routineDiscount,
+        giftLabel: gift.giftLabel ?? undefined,
         paymentMethod,
         // Both carry a defaultValue in the collection but are `required`, so
         // the generated input type still expects them.
@@ -651,6 +661,7 @@ async function handlePOST(request: Request) {
       discount,
       orderNumber: order.orderNumber,
       routineDiscount,
+      gift: gift.giftLabel,
       shipping,
       shippingLabel: shippingResult.label,
       subtotal,

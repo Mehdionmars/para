@@ -4,9 +4,12 @@ import { notFound } from "next/navigation";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CatalogueView } from "@/components/catalogue/CatalogueView";
+import { GiftOfferBanner } from "@/components/product/GiftOfferBanner";
+import { isGiftBrand } from "@/lib/cart/gift";
 import { routes } from "@/lib/routes";
 import { fetchBrandBySlug } from "@/lib/storefront/brands";
 import { fetchAllBrandsWithCounts } from "@/lib/storefront/catalogue";
+import { fetchGiftOffer } from "@/lib/storefront/paymentSettings";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -49,7 +52,7 @@ export default async function BrandPage({
 }) {
   const { slug } = await params;
   const { q } = await searchParams;
-  const [brand, brands] = await Promise.all([fetchBrandBySlug(slug), fetchAllBrandsWithCounts()]);
+  const [brand, brands, giftOffer] = await Promise.all([fetchBrandBySlug(slug), fetchAllBrandsWithCounts(), fetchGiftOffer()]);
   if (!brand) notFound();
 
   const mark = (
@@ -98,6 +101,7 @@ export default async function BrandPage({
       initialBrand={brand.name}
       initialQuery={q ?? ""}
       pageIntro={`Tous les produits ${brand.name} disponibles chez Para d'Hiver.`}
+      pageAside={isGiftBrand(giftOffer, brand.name) ? <GiftOfferBanner linkToBrand={false} offer={giftOffer} /> : undefined}
       pageMark={mark}
       pageTitle={brand.name}
     />

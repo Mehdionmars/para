@@ -316,6 +316,14 @@ export const Orders: CollectionConfig = {
           min: 0,
         },
         {
+          // Snapshot of the gift the order earned (lib/giftOffer.ts), so the
+          // parcel is packed with it even if the offer is switched off later.
+          name: 'giftLabel',
+          type: 'text',
+          admin: { description: "Cadeau à joindre au colis (offre cadeau marque). Vide si aucun.", readOnly: true },
+          label: 'Cadeau offert',
+        },
+        {
           name: 'couponCode',
           type: 'text',
           // Snapshotted rather than only related: a coupon renamed or deleted

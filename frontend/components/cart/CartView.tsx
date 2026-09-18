@@ -1,12 +1,13 @@
 "use client";
 
-import { CheckCircle2, Copy, Minus, Plus, ShoppingBag, X } from "lucide-react";
+import { CheckCircle2, Copy, Gift, Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { ShippingOption } from "@/app/api/shipping-rules/route";
 import { BankTransferDetails } from "@/components/cart/BankTransferDetails";
 import { CheckoutField } from "@/components/cart/CheckoutField";
+import { type GiftOffer, giftProgress } from "@/lib/cart/gift";
 import { type RoutineOffer, routineDiscount } from "@/lib/cart/routine";
 import type { PaymentMethodCode, PaymentSettings } from "@/lib/storefront/paymentSettings";
 import { usePersistedFields } from "@/lib/usePersistedFields";
@@ -35,7 +36,15 @@ function newIdempotencyKey(): string {
   return `pdh-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-export function CartView({ payment, routineOffer }: { payment: PaymentSettings; routineOffer: RoutineOffer }) {
+export function CartView({
+  giftOffer,
+  payment,
+  routineOffer,
+}: {
+  giftOffer: GiftOffer;
+  payment: PaymentSettings;
+  routineOffer: RoutineOffer;
+}) {
   const cart = useCart();
   const [step, setStep] = useState<Step>("cart");
   // A ref, not state: changing it must never re-render, and the submit
@@ -165,6 +174,15 @@ export function CartView({ payment, routineOffer }: { payment: PaymentSettings; 
     ? `Offre routine (−${routineOffer.percent} %)`
     : `Réduction ${coupon ? `(${coupon.code})` : ""}`;
   const afterDiscount = Math.max(0, cart.subtotal - discount);
+  // The brand gift changes no amount and stacks with everything above. Same
+  // rule as /api/checkout, which is what writes it on the order.
+  const gift = giftProgress(giftOffer, cart.lines.map((l) => ({ brand: l.brand, qty: l.qty })));
+  const giftRow = gift.granted ? (
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13, marginBottom: 8, color: "var(--pdh-success)", fontWeight: 500 }}>
+      <span>{giftOffer.giftName}</span>
+      <span>Offert</span>
+    </div>
+  ) : null;
   const activeRule = shippingRules.find((r) => r.city === city);
   const shipping = activeRule
     ? activeRule.freeFrom !== null && afterDiscount >= activeRule.freeFrom
@@ -437,6 +455,24 @@ export function CartView({ payment, routineOffer }: { payment: PaymentSettings; 
               </div>
             </div>
 
+            {giftOffer.enabled && gift.count > 0 && (
+              <div aria-live="polite" className="gift-progress" data-granted={gift.granted}>
+                <Gift aria-hidden="true" className="gift-progress-icon" size={18} strokeWidth={1.7} />
+                <span>
+                  {gift.granted ? (
+                    <>
+                      Cadeau débloqué : <strong>{giftOffer.giftName}</strong>, joint à votre commande.
+                    </>
+                  ) : (
+                    <>
+                      Plus que <strong>{gift.remaining} produit{gift.remaining > 1 ? "s" : ""} {giftOffer.brandName}</strong> pour recevoir{" "}
+                      <strong>{giftOffer.giftName}</strong>.
+                    </>
+                  )}
+                </span>
+              </div>
+            )}
+
             <ul className="cart-line-list" style={{ listStyle: "none", margin: 0, padding: 0, border: "1px solid var(--pdh-plum-tint)", borderRadius: 18, overflow: "hidden" }}>
               {cart.lines.map((line, i) => {
                 // Everything below is the line's own snapshot, taken when it
@@ -616,6 +652,7 @@ export function CartView({ payment, routineOffer }: { payment: PaymentSettings; 
                     Le code {coupon.code} ne se cumule pas avec l&apos;offre routine : la remise la plus avantageuse est appliquée.
                   </p>
                 )}
+                {giftRow}
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, opacity: 0.7, marginBottom: 14 }}>
                   <span>Livraison{activeRule ? ` · ${activeRule.city}` : ""}</span>
                   <span>{shipping ? cart.money(shipping) : "Offerte"}</span>
@@ -780,6 +817,7 @@ export function CartView({ payment, routineOffer }: { payment: PaymentSettings; 
                     <span>−{cart.money(discount)}</span>
                   </div>
                 )}
+                {giftRow}
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, opacity: 0.7 }}>
                   <span>Livraison</span>
                   <span>{shipping ? cart.money(shipping) : "Offerte"}</span>
