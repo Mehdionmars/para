@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -86,25 +87,28 @@ export function DashboardBreadcrumb() {
           const href = `/${segments.slice(0, index + 1).join("/")}`;
           const isLast = index === segments.length - 1;
 
+          // The separator is a sibling of the item, never a child of it:
+          // both render an <li>, and an <li> inside an <li> is invalid HTML
+          // — React said so on every dashboard page load.
           return (
-            <BreadcrumbItem key={href}>
-              {isLast ? (
-                <BreadcrumbPage className="max-w-[40vw] truncate sm:max-w-none">
-                  {labelFor(segment)}
-                </BreadcrumbPage>
-              ) : (
-                <>
-                  {/* Intermediate crumbs below `sm` are dropped rather than
-                      wrapped: on a phone the bar has room for the current
-                      page and one ancestor, and a breadcrumb that wraps to a
-                      second line pushes the search field out of the header. */}
+            <Fragment key={href}>
+              <BreadcrumbItem>
+                {isLast ? (
+                  <BreadcrumbPage className="max-w-[40vw] truncate sm:max-w-none">
+                    {labelFor(segment)}
+                  </BreadcrumbPage>
+                ) : (
+                  /* Intermediate crumbs below `sm` are dropped rather than
+                     wrapped: on a phone the bar has room for the current
+                     page and one ancestor, and a breadcrumb that wraps to a
+                     second line pushes the search field out of the header. */
                   <BreadcrumbLink asChild className="hidden sm:inline-flex">
                     <Link href={href}>{labelFor(segment)}</Link>
                   </BreadcrumbLink>
-                  <BreadcrumbSeparator className="hidden sm:block" />
-                </>
-              )}
-            </BreadcrumbItem>
+                )}
+              </BreadcrumbItem>
+              {!isLast && <BreadcrumbSeparator className="hidden sm:block" />}
+            </Fragment>
           );
         })}
       </BreadcrumbList>
