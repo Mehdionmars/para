@@ -12,7 +12,7 @@ import { StatsRow, type Kpi } from "@/components/dashboard/stats/StatsRow";
 import { listRecentCoupons, type Coupon } from "@/lib/dashboard/coupons";
 import { dayKey, money, shortDate } from "@/lib/dashboard/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS } from "@/lib/dashboard/orders-types";
-import { payloadFetch } from "@/lib/dashboard/payload";
+import { payloadFetch, payloadFetchAll } from "@/lib/dashboard/payload";
 import { mediaSrc } from "@/lib/mediaSrc";
 import type { Product } from "@/lib/dashboard/products-types";
 
@@ -25,16 +25,18 @@ const DAY = 86_400_000;
 
 async function getProductStats(): Promise<ProductStats> {
   // `select` keeps this to the four numbers the cards need. Without it the
-  // same 1 000 rows arrive carrying every description and image URL in the
-  // catalogue, to compute four integers.
-  const res = await payloadFetch(
-    "/api/products?limit=1000&depth=0&select[price]=true&select[stock]=true&select[lowStockThreshold]=true&select[isPublished]=true",
-  );
-  if (!res.ok) return { total: 0, lowStock: 0, published: 0, catalogValue: 0 };
+  // same rows arrive carrying every description and image URL in the
+  // catalogue, to compute four integers. Paged, because the API caps a page
+  // at 100: asking for 1 000 returned the first hundred, so "Produits au
+  // catalogue" read 100 on a catalogue of 143 and the stock value with it.
+  const docs = await payloadFetchAll<{
+    price: number;
+    stock: number;
+    lowStockThreshold: number;
+    isPublished: boolean;
+  }>("/api/products?depth=0&select[price]=true&select[stock]=true&select[lowStockThreshold]=true&select[isPublished]=true");
 
-  const { docs } = (await res.json()) as {
-    docs: { price: number; stock: number; lowStockThreshold: number; isPublished: boolean }[];
-  };
+  if (!docs) return { total: 0, lowStock: 0, published: 0, catalogValue: 0 };
 
   return {
     catalogValue: docs.reduce((sum, p) => sum + p.price * (p.stock || 0), 0),
@@ -46,20 +48,27 @@ async function getProductStats(): Promise<ProductStats> {
 
 /**
  * One fetch, four jobs: the KPI cards, the sparklines, the calendar grid and
- * the recent list all read from this array. Loading it once is also what
- * bounds the calendar — it can only show months contained in the newest
- * 1 000 orders, which at the current volume is comfortably more than a year.
+ * the recent list all read from this array.
+ *
+ * Bounded by date rather than by row count. The window is what every figure
+ * on this page is about — this week against the previous one, a month of
+ * revenue, the calendar — and a row limit bounded it by volume instead: the
+ * API caps a page at 100, so a busy month would have silently truncated the
+ * comparison the header promises. Paged, so a hundred orders in the window
+ * is a second request rather than a wrong number.
  *
  * customerEmail joined the `select` for the new-customers card. It is the
  * identity the storefront actually collects at checkout; customerName is not
  * unique and not stable across two orders from the same person.
  */
 async function getOrders(): Promise<OverviewOrder[]> {
-  const res = await payloadFetch(
-    "/api/orders?limit=1000&depth=0&sort=-createdAt&select[orderNumber]=true&select[customerName]=true&select[customerEmail]=true&select[total]=true&select[status]=true&select[createdAt]=true",
+  // 400 days: the calendar browses months, and the year-ago month is the
+  // comparison an operator reaches for at the end of a season.
+  const since = new Date(Date.now() - 400 * DAY).toISOString();
+  const docs = await payloadFetchAll<OverviewOrder>(
+    `/api/orders?depth=0&sort=-createdAt&where[createdAt][greater_than]=${since}&select[orderNumber]=true&select[customerName]=true&select[customerEmail]=true&select[total]=true&select[status]=true&select[createdAt]=true`,
   );
-  if (!res.ok) throw new Error("Impossible de charger les commandes.");
-  const { docs } = (await res.json()) as { docs: OverviewOrder[] };
+  if (!docs) throw new Error("Impossible de charger les commandes.");
   return docs;
 }
 

@@ -1,14 +1,13 @@
-import { payloadFetch } from "./payload";
+import { payloadFetch, payloadFetchAll } from "./payload";
 import type { ProductQuery } from "./product-query";
 import type { Brand, Product } from "./products-types";
 
 export * from "./products-types";
 
 export async function listProducts(): Promise<Product[]> {
-  const res = await payloadFetch("/api/products?limit=1000&depth=1&sort=-createdAt");
-  if (!res.ok) throw new Error("Impossible de charger les produits.");
-  const data = await res.json();
-  return data.docs;
+  const docs = await payloadFetchAll<Product>("/api/products?depth=1&sort=-createdAt");
+  if (!docs) throw new Error("Impossible de charger les produits.");
+  return docs;
 }
 
 export type ProductPage = {

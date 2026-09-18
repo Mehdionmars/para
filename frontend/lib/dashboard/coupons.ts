@@ -19,7 +19,7 @@ export async function listRecentCoupons(limit = 6): Promise<Coupon[]> {
 
 /** Every code, newest first, for the Coupons page. */
 export async function listCoupons(): Promise<Coupon[]> {
-  const res = await payloadFetch("/api/coupons?limit=500&depth=0&sort=-createdAt");
+  const res = await payloadFetch("/api/coupons?limit=100&depth=0&sort=-createdAt");
   if (!res.ok) throw new Error("Impossible de charger les coupons.");
   const data = await res.json();
   return data.docs ?? [];

@@ -31,6 +31,34 @@ export async function payloadFetch(path: string, init: RequestInit = {}) {
   });
 }
 
+/**
+ * Every document of a collection, page by page.
+ *
+ * `limit=1000` looked like "all of them" and was not: the API caps a page at
+ * 100, answers with the first hundred and a `totalPages` nobody read. The
+ * products list showed 100 of 143, the orders list only the 100 most recent,
+ * and every figure derived from them was quietly computed on a slice.
+ *
+ * `path` carries the query without a limit; this adds `limit` and `page`.
+ * Pages are fetched in sequence — a few round trips of ~80ms each, where the
+ * alternative is a confidently wrong total.
+ */
+export async function payloadFetchAll<T>(path: string, perPage = 100): Promise<T[] | null> {
+  const join = path.includes("?") ? "&" : "?";
+  const all: T[] = [];
+
+  for (let page = 1; ; page++) {
+    const res = await payloadFetch(`${path}${join}limit=${perPage}&page=${page}`);
+    // A failed page is a failed list: returning what arrived so far would
+    // hand the caller a plausible, incomplete answer.
+    if (!res.ok) return null;
+
+    const data = (await res.json()) as { docs?: T[]; hasNextPage?: boolean };
+    all.push(...(data.docs ?? []));
+    if (!data.hasNextPage) return all;
+  }
+}
+
 /** Resolves the current dashboard session, or null if unauthenticated/expired. Use in Server Components/route handlers. */
 export async function getSessionUser(): Promise<SessionUser | null> {
   const store = await cookies();

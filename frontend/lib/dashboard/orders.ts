@@ -1,14 +1,13 @@
-import { payloadFetch } from "./payload";
+import { payloadFetch, payloadFetchAll } from "./payload";
 import { mediaSrc } from "@/lib/mediaSrc";
 import { ORDER_TYPES, STOCK_TYPES, type NotificationRow, type Order, type OrderStatusHistoryEntry } from "./orders-types";
 
 export * from "./orders-types";
 
 export async function listOrders(): Promise<Order[]> {
-  const res = await payloadFetch("/api/orders?limit=1000&depth=0&sort=-createdAt");
-  if (!res.ok) throw new Error("Impossible de charger les commandes.");
-  const data = await res.json();
-  return data.docs;
+  const docs = await payloadFetchAll<Order>("/api/orders?depth=0&sort=-createdAt");
+  if (!docs) throw new Error("Impossible de charger les commandes.");
+  return docs;
 }
 
 export async function getOrder(id: string): Promise<Order | null> {
