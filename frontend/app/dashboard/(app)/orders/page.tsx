@@ -10,8 +10,8 @@ export default async function OrdersPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Commandes</h1>
-        <p className="mt-1 text-sm text-gray-500">Commandes passées depuis le site public.</p>
+        <h1 className="text-xl font-semibold text-foreground">Commandes</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Commandes passées depuis le site public.</p>
       </div>
       <OrdersTable orders={orders} />
     </div>

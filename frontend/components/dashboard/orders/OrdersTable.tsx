@@ -3,7 +3,7 @@
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Badge } from "@/components/dashboard/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import {
   ORDER_STATUS_LABELS,
   ORDER_STATUS_OPTIONS,
@@ -44,18 +44,18 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="N° de commande, client…"
-            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+            className="h-9 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-violet-300"
+          className="h-9 rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-ring"
         >
           <option value="all">Tous les statuts</option>
           {ORDER_STATUS_OPTIONS.map((s) => (
@@ -64,15 +64,15 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
             </option>
           ))}
         </select>
-        <span className="text-sm text-gray-500">{rows.length} commande(s)</span>
+        <span className="text-sm text-muted-foreground">{rows.length} commande(s)</span>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100">
+            <tr className="border-b border-border">
               {["Commande", "Client", "Total", "Statut", "Paiement", "Date"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                <th key={h} className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                   {h}
                 </th>
               ))}
@@ -80,17 +80,17 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
           </thead>
           <tbody>
             {rows.map((o) => (
-              <tr key={o.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
+              <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/50">
                 <td className="px-4 py-3">
-                  <Link href={`/dashboard/orders/${o.id}`} className="font-medium text-violet-700 hover:underline">
+                  <Link href={`/dashboard/orders/${o.id}`} className="font-medium text-primary hover:underline">
                     {o.orderNumber}
                   </Link>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="text-gray-900">{o.customerName}</div>
-                  <div className="text-xs text-gray-500">{o.customerEmail}</div>
+                  <div className="text-foreground">{o.customerName}</div>
+                  <div className="text-xs text-muted-foreground">{o.customerEmail}</div>
                 </td>
-                <td className="px-4 py-3 font-medium text-gray-900">{money(o.total)}</td>
+                <td className="px-4 py-3 font-medium text-foreground">{money(o.total)}</td>
                 <td className="px-4 py-3">
                   <Badge variant={STATUS_VARIANT[o.status]}>{ORDER_STATUS_LABELS[o.status]}</Badge>
                 </td>
@@ -99,12 +99,12 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
                     {PAYMENT_STATUS_LABELS[o.paymentStatus]}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-gray-500">{new Date(o.createdAt).toLocaleDateString("fr-FR")}</td>
+                <td className="px-4 py-3 text-muted-foreground">{new Date(o.createdAt).toLocaleDateString("fr-FR")}</td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-gray-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted-foreground">
                   Aucune commande ne correspond à ces filtres.
                 </td>
               </tr>

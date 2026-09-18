@@ -3,16 +3,16 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Badge } from "@/components/dashboard/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/dashboard/cn";
 import { dayKey, longDate, money } from "@/lib/dashboard/format";
 import {
   ORDER_STATUS_BADGE,
-  ORDER_STATUS_DOT,
   ORDER_STATUS_LABELS,
   ORDER_STATUS_OPTIONS,
   type OrderStatus,
 } from "@/lib/dashboard/orders-types";
+import { ORDER_STATUS_TONE } from "@/lib/dashboard/orderStatusTone";
 
 export type CalendarOrder = {
   id: number;
@@ -107,11 +107,11 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
+    <div className="rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">Calendrier des commandes</h2>
-          <p className="mt-0.5 text-xs text-gray-500">
+          <h2 className="text-sm font-semibold text-foreground">Calendrier des commandes</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
             {monthTotal} commande{monthTotal > 1 ? "s" : ""} sur ce mois
           </p>
         </div>
@@ -121,18 +121,18 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
             type="button"
             onClick={() => shiftMonth(-1)}
             aria-label="Mois précédent"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="min-w-[9.5rem] text-center text-sm font-medium capitalize text-gray-900" aria-live="polite">
+          <span className="min-w-[9.5rem] text-center text-sm font-medium capitalize text-foreground" aria-live="polite">
             {monthLabel}
           </span>
           <button
             type="button"
             onClick={() => shiftMonth(1)}
             aria-label="Mois suivant"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -142,14 +142,14 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
               setCursor(new Date(today.getFullYear(), today.getMonth(), 1));
               setSelected(null);
             }}
-            className="ml-1 rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="ml-1 rounded-lg border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Aujourd&apos;hui
           </button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-1.5 border-b border-gray-100 px-5 py-3">
+      <div className="flex flex-wrap gap-1.5 border-b border-border px-5 py-3">
         <FilterChip active={status === "all"} onClick={() => setStatus("all")} label="Tous" />
         {present.map((s) => (
           <FilterChip
@@ -157,7 +157,7 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
             active={status === s}
             onClick={() => setStatus(s)}
             label={ORDER_STATUS_LABELS[s]}
-            dot={ORDER_STATUS_DOT[s]}
+            dot={ORDER_STATUS_TONE[s].dotClass}
           />
         ))}
       </div>
@@ -165,7 +165,7 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
       <div className="px-3 py-3 sm:px-5 sm:py-4">
         <div className="grid grid-cols-7 gap-1">
           {WEEKDAYS.map((d) => (
-            <div key={d} className="pb-1 text-center text-[11px] font-medium uppercase tracking-wide text-gray-400">
+            <div key={d} className="pb-1 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
               {d}
             </div>
           ))}
@@ -188,16 +188,16 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
                 aria-pressed={isSelected}
                 aria-label={`${longDate(date)} — ${dayOrders.length} commande(s)`}
                 className={cn(
-                  "flex min-h-[3.75rem] flex-col items-center gap-1 rounded-lg border p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                  "flex min-h-[3.75rem] flex-col items-center gap-1 rounded-lg border p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   isSelected
-                    ? "border-violet-300 bg-violet-50"
-                    : "border-transparent hover:border-gray-200 hover:bg-gray-50",
+                    ? "border-primary/40 bg-primary/10"
+                    : "border-transparent hover:border-border hover:bg-muted/50",
                 )}
               >
                 <span
                   className={cn(
                     "flex h-5 w-5 items-center justify-center rounded-full text-xs",
-                    isToday ? "bg-violet-600 font-semibold text-white" : "text-gray-600",
+                    isToday ? "bg-primary font-semibold text-primary-foreground" : "text-muted-foreground",
                   )}
                 >
                   {dayNumber}
@@ -205,10 +205,10 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
 
                 <span className="flex flex-wrap items-center justify-center gap-0.5">
                   {dayOrders.slice(0, 4).map((o) => (
-                    <span key={o.id} className={cn("h-1.5 w-1.5 rounded-full", ORDER_STATUS_DOT[o.status])} />
+                    <span key={o.id} className={cn("h-1.5 w-1.5 rounded-full", ORDER_STATUS_TONE[o.status].dotClass)} />
                   ))}
                   {dayOrders.length > 4 && (
-                    <span className="text-[10px] font-medium leading-none text-gray-400">
+                    <span className="text-[10px] font-medium leading-none text-muted-foreground">
                       +{dayOrders.length - 4}
                     </span>
                   )}
@@ -220,23 +220,23 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
       </div>
 
       {selected && (
-        <div className="border-t border-gray-100 px-5 py-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border-t border-border px-5 py-4">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {longDate(new Date(year, month, Number(selected.split("-")[2])))}
           </h3>
           {selectedOrders.length === 0 ? (
-            <p className="mt-2 text-sm text-gray-500">Aucune commande ce jour-là.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Aucune commande ce jour-là.</p>
           ) : (
-            <ul className="mt-2 flex flex-col divide-y divide-gray-50">
+            <ul className="mt-2 flex flex-col divide-y divide-border">
               {selectedOrders.slice(0, DAY_PREVIEW).map((o) => (
                 <li key={o.id}>
                   <Link
                     href={`/dashboard/orders/${o.id}`}
-                    className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm hover:text-violet-700"
+                    className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm hover:text-primary"
                   >
-                    <span className="font-medium text-gray-900">#{o.orderNumber}</span>
-                    <span className="min-w-0 flex-1 truncate text-gray-500">{o.customerName}</span>
-                    <span className="font-medium text-gray-900">{money(o.total)}</span>
+                    <span className="font-medium text-foreground">#{o.orderNumber}</span>
+                    <span className="min-w-0 flex-1 truncate text-muted-foreground">{o.customerName}</span>
+                    <span className="font-medium text-foreground">{money(o.total)}</span>
                     <Badge variant={ORDER_STATUS_BADGE[o.status]}>{ORDER_STATUS_LABELS[o.status]}</Badge>
                   </Link>
                 </li>
@@ -246,7 +246,7 @@ export function OrdersCalendar({ orders }: { orders: CalendarOrder[] }) {
           {dayOverflow > 0 && (
             <Link
               href="/dashboard/orders"
-              className="mt-2 inline-block text-sm font-medium text-violet-700 hover:underline"
+              className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
             >
               + {dayOverflow} autre{dayOverflow > 1 ? "s" : ""} — voir toutes les commandes
             </Link>
@@ -274,8 +274,8 @@ function FilterChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
-        active ? "border-violet-300 bg-violet-50 text-violet-700" : "border-gray-200 text-gray-600 hover:bg-gray-50",
+        "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        active ? "border-primary/40 bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50",
       )}
     >
       {dot && <span className={cn("h-2 w-2 rounded-full", dot)} />}

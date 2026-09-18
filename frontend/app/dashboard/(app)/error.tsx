@@ -3,7 +3,7 @@
 import { RotateCw, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
  * Catches anything thrown while rendering a dashboard page.

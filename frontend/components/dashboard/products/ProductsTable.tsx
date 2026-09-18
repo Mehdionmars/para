@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { CloudinaryImage, PRODUCT_PLACEHOLDER } from "@/components/CloudinaryImage";
-import { Badge } from "@/components/dashboard/ui/Badge";
-import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/dashboard/ui/Checkbox";
 import { MenuItem, MenuSeparator, Popover } from "@/components/dashboard/ui/Popover";
 import { Tooltip } from "@/components/dashboard/ui/Tooltip";
@@ -118,7 +118,7 @@ export function ProductsTable({
   return (
     <>
       {/* ------------------------------------------------ desktop table */}
-      <div className="hidden overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-xs md:block">
+      <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-xs md:block">
         <table className="w-full table-fixed text-sm">
           <caption className="sr-only">Catalogue produits, triable et sélectionnable</caption>
           <colgroup>
@@ -139,7 +139,7 @@ export function ProductsTable({
           </colgroup>
 
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50/50">
+            <tr className="border-b border-border bg-muted/50">
               {selectable && (
                 <th scope="col" className="px-4 py-2.5">
                   <Checkbox
@@ -153,7 +153,7 @@ export function ProductsTable({
                   />
                 </th>
               )}
-              {show("image") && <th scope="col" className="px-2 py-2.5 text-left text-xs font-medium text-gray-500">Img</th>}
+              {show("image") && <th scope="col" className="px-2 py-2.5 text-left text-xs font-medium text-muted-foreground">Img</th>}
               <HeaderCell column="name" query={query} onSort={onSort} />
               {show("brand") && <HeaderCell column="brand" query={query} onSort={onSort} />}
               {show("category") && <HeaderCell column="category" query={query} onSort={onSort} />}
@@ -165,7 +165,7 @@ export function ProductsTable({
               {show("status") && <HeaderCell column="status" query={query} onSort={onSort} />}
               {show("showcase") && <HeaderCell column="showcase" query={query} onSort={onSort} />}
               {show("updatedAt") && <HeaderCell column="updatedAt" query={query} onSort={onSort} />}
-              <th scope="col" className="px-4 py-2.5 text-right text-xs font-medium text-gray-500">
+              <th scope="col" className="px-4 py-2.5 text-right text-xs font-medium text-muted-foreground">
                 Actions
               </th>
             </tr>
@@ -181,7 +181,7 @@ export function ProductsTable({
               return (
                 <tr
                   key={p.id}
-                  className={`border-b border-gray-50 last:border-0 ${selected ? "bg-violet-50/50" : "hover:bg-gray-50/60"}`}
+                  className={`border-b border-border last:border-0 ${selected ? "bg-primary/10" : "hover:bg-muted/50"}`}
                 >
                   {selectable && (
                     <td className="px-4 py-2">
@@ -204,34 +204,34 @@ export function ProductsTable({
                     <div className="min-w-0">
                       {/* title= gives the full name on hover without a
                           JS tooltip on every one of 50 rows. */}
-                      <div className="truncate text-sm font-medium text-gray-900" title={p.name}>
+                      <div className="truncate text-sm font-medium text-foreground" title={p.name}>
                         {p.name}
                       </div>
                       {!show("brand") && brandName(p) && (
-                        <div className="truncate text-xs text-gray-500">{brandName(p)}</div>
+                        <div className="truncate text-xs text-muted-foreground">{brandName(p)}</div>
                       )}
                     </div>
                   </td>
 
                   {show("brand") && (
-                    <td className="truncate px-3 py-2 text-gray-600" title={brandName(p)}>
+                    <td className="truncate px-3 py-2 text-muted-foreground" title={brandName(p)}>
                       {brandName(p) || "—"}
                     </td>
                   )}
-                  {show("category") && <td className="truncate px-3 py-2 text-gray-600">{p.category}</td>}
-                  {show("sku") && <td className="truncate px-3 py-2 text-xs text-gray-500">{p.sku || "—"}</td>}
-                  {show("barcode") && <td className="truncate px-3 py-2 text-xs text-gray-500">{p.barcode || "—"}</td>}
+                  {show("category") && <td className="truncate px-3 py-2 text-muted-foreground">{p.category}</td>}
+                  {show("sku") && <td className="truncate px-3 py-2 text-xs text-muted-foreground">{p.sku || "—"}</td>}
+                  {show("barcode") && <td className="truncate px-3 py-2 text-xs text-muted-foreground">{p.barcode || "—"}</td>}
 
                   {show("price") && (
                     <td className="px-3 py-2">
-                      <span className="font-medium text-gray-900">{money(p.price)}</span>
+                      <span className="font-medium text-foreground">{money(p.price)}</span>
                       {!show("oldPrice") && !!p.oldPrice && (
-                        <span className="ml-1.5 text-xs text-gray-400 line-through">{money(p.oldPrice)}</span>
+                        <span className="ml-1.5 text-xs text-muted-foreground line-through">{money(p.oldPrice)}</span>
                       )}
                     </td>
                   )}
                   {show("oldPrice") && (
-                    <td className="px-3 py-2 text-xs text-gray-400">
+                    <td className="px-3 py-2 text-xs text-muted-foreground">
                       {p.oldPrice ? <span className="line-through">{money(p.oldPrice)}</span> : "—"}
                     </td>
                   )}
@@ -239,7 +239,7 @@ export function ProductsTable({
                   {show("stock") && (
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="tabular-nums text-gray-700">{p.stock}</span>
+                        <span className="tabular-nums text-foreground">{p.stock}</span>
                         <Badge variant={stock.variant}>{stock.label}</Badge>
                       </div>
                     </td>
@@ -255,7 +255,7 @@ export function ProductsTable({
                     </td>
                   )}
                   {show("updatedAt") && (
-                    <td className="px-3 py-2 text-xs text-gray-500">
+                    <td className="px-3 py-2 text-xs text-muted-foreground">
                       {p.updatedAt ? new Date(p.updatedAt).toLocaleDateString("fr-FR") : "—"}
                     </td>
                   )}
@@ -287,7 +287,7 @@ export function ProductsTable({
               aria-label="Sélectionner tous les produits de la page"
               disabled={busy}
             />
-            <span className="text-xs text-gray-500">Tout sélectionner sur cette page</span>
+            <span className="text-xs text-muted-foreground">Tout sélectionner sur cette page</span>
           </li>
         )}
 
@@ -300,7 +300,7 @@ export function ProductsTable({
             <li
               key={p.id}
               className={`flex gap-3 rounded-xl border p-3 ${
-                selected ? "border-violet-300 bg-violet-50/60" : "border-gray-100 bg-white"
+                selected ? "border-primary/40 bg-primary/10" : "border-border bg-card"
               }`}
             >
               {selectable && (
@@ -316,12 +316,12 @@ export function ProductsTable({
               <Thumbnail product={p} size={44} />
 
               <div className="min-w-0 flex-1">
-                <p className="line-clamp-2 text-sm font-medium leading-snug text-gray-900">{p.name}</p>
-                {brandName(p) && <p className="mt-0.5 text-xs text-gray-500">{brandName(p)}</p>}
+                <p className="line-clamp-2 text-sm font-medium leading-snug text-foreground">{p.name}</p>
+                {brandName(p) && <p className="mt-0.5 text-xs text-muted-foreground">{brandName(p)}</p>}
 
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
-                  <span className="font-medium text-gray-900">{money(p.price)}</span>
-                  <span className="text-gray-500">Stock : {p.stock}</span>
+                  <span className="font-medium text-foreground">{money(p.price)}</span>
+                  <span className="text-muted-foreground">Stock : {p.stock}</span>
                   <Badge variant={stock.variant}>{stock.label}</Badge>
                   <Badge variant={status.variant}>{status.label}</Badge>
                 </div>
@@ -347,7 +347,7 @@ function Thumbnail({ product, size }: { product: Product; size: number }) {
   const url = imageUrl(product);
   return (
     <div
-      className="relative shrink-0 overflow-hidden rounded-lg bg-gray-100"
+      className="relative shrink-0 overflow-hidden rounded-lg bg-muted"
       style={{ height: size, width: size }}
     >
       {/* preset="thumb" keeps this to a ~96px Cloudinary render — a 2000px
@@ -381,17 +381,17 @@ function HeaderCell({
   return (
     <th
       scope="col"
-      className="px-3 py-2.5 text-left text-xs font-medium text-gray-500"
+      className="px-3 py-2.5 text-left text-xs font-medium text-muted-foreground"
       aria-sort={active ? (query.dir === "asc" ? "ascending" : "descending") : undefined}
     >
       {field ? (
         <button
           type="button"
           onClick={() => onSort(field)}
-          className="inline-flex items-center gap-1 rounded hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+          className="inline-flex items-center gap-1 rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {COLUMN_LABELS[column]}
-          <Icon className={`h-3 w-3 ${active ? "text-violet-600" : "opacity-40"}`} aria-hidden="true" />
+          <Icon className={`h-3 w-3 ${active ? "text-primary" : "opacity-40"}`} aria-hidden="true" />
         </button>
       ) : (
         COLUMN_LABELS[column]

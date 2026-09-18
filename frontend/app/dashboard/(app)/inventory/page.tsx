@@ -64,44 +64,44 @@ export default async function InventoryPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Inventaire</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl font-semibold text-foreground">Inventaire</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Niveaux de stock par produit, réapprovisionnement traçable et éligibilité aux rails de la page
           d&apos;accueil.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Produits</div>
-          <div className="mt-1 text-xl font-semibold text-gray-900">{products.length}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Produits</div>
+          <div className="mt-1 text-xl font-semibold text-foreground">{products.length}</div>
         </div>
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Stock faible</div>
-          <div className="mt-1 text-xl font-semibold text-amber-600">{lowStockCount}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Stock faible</div>
+          <div className="mt-1 text-xl font-semibold text-warning-strong">{lowStockCount}</div>
         </div>
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Rupture</div>
-          <div className="mt-1 text-xl font-semibold text-red-600">{outOfStockCount}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Rupture</div>
+          <div className="mt-1 text-xl font-semibold text-destructive">{outOfStockCount}</div>
         </div>
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Expiration proche (60j)</div>
-          <div className="mt-1 text-xl font-semibold text-amber-600">{expiringProductIds.size}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Expiration proche (60j)</div>
+          <div className="mt-1 text-xl font-semibold text-warning-strong">{expiringProductIds.size}</div>
         </div>
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Réappro. récents</div>
-          <div className="mt-1 text-xl font-semibold text-gray-900">{recentRestocks}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Réappro. récents</div>
+          <div className="mt-1 text-xl font-semibold text-foreground">{recentRestocks}</div>
         </div>
       </div>
 
       <InventoryTable products={products} suppliers={suppliers} batchInfo={batchInfo} />
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">Derniers mouvements de stock</h2>
-        <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+        <h2 className="mb-3 text-sm font-semibold text-foreground">Derniers mouvements de stock</h2>
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">
+              <tr className="border-b border-border text-left text-xs font-medium text-muted-foreground">
                 <th className="px-4 py-3">Produit</th>
                 <th className="px-4 py-3">Variation</th>
                 <th className="px-4 py-3">Stock</th>
@@ -113,26 +113,26 @@ export default async function InventoryPage() {
             </thead>
             <tbody>
               {movements.map((m) => (
-                <tr key={m.id} className="border-b border-gray-50 last:border-0">
-                  <td className="px-4 py-3 text-gray-900">
+                <tr key={m.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3 text-foreground">
                     {typeof m.product === "object" && m.product ? m.product.name : "Produit supprimé"}
                   </td>
-                  <td className={`px-4 py-3 font-medium ${m.delta >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                  <td className={`px-4 py-3 font-medium ${m.delta >= 0 ? "text-success-strong" : "text-destructive"}`}>
                     {m.delta >= 0 ? "+" : ""}
                     {m.delta}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {m.previousStock} → {m.newStock}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{MOVEMENT_SOURCE_LABELS[m.source] || m.source}</td>
-                  <td className="px-4 py-3 text-gray-500">{m.batchNumber || "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{supplierName(m.supplier) || "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{new Date(m.createdAt).toLocaleDateString("fr-FR")}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{MOVEMENT_SOURCE_LABELS[m.source] || m.source}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{m.batchNumber || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{supplierName(m.supplier) || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{new Date(m.createdAt).toLocaleDateString("fr-FR")}</td>
                 </tr>
               ))}
               {movements.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-gray-400">
+                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">
                     Aucun mouvement de stock enregistré pour le moment.
                   </td>
                 </tr>

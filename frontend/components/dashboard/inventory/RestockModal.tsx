@@ -3,8 +3,8 @@
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { restockProduct } from "@/app/dashboard/(app)/inventory/actions";
-import { Button } from "@/components/dashboard/ui/Button";
-import { Input } from "@/components/dashboard/ui/Input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import type { Supplier } from "@/lib/dashboard/inventory";
 

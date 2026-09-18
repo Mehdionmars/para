@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { BulkOperation } from "@/app/dashboard/(app)/products/actions";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import { CATEGORY_OPTIONS, type Brand, type Product } from "@/lib/dashboard/products-types";
 

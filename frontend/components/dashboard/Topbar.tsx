@@ -1,84 +1,67 @@
 "use client";
 
-import { LogOut, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
-export function Topbar({ email }: { email: string }) {
+/**
+ * The header's search field.
+ *
+ * This file used to hold the account menu too — an avatar button with a
+ * hand-rolled dropdown: a `menuOpen` boolean, a full-screen invisible
+ * `<button>` as the click-outside catcher, no Escape handling and no focus
+ * return. That moved to the sidebar footer as DashboardUserMenu, on Radix's
+ * DropdownMenu, which is where shadcn's dashboards put an account and what
+ * freed this bar for the breadcrumb. The `email` prop went with it.
+ *
+ * A plain container, not a <header>: DashboardShell owns the bar itself — its
+ * height, border and background — and nesting a second <header> inside it
+ * duplicated all three.
+ */
+export function Topbar() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (query.trim()) router.push(`/dashboard/products?q=${encodeURIComponent(query.trim())}`);
   }
 
-  async function handleLogout() {
-    await fetch("/api/dashboard-auth/logout", { method: "POST" });
-    router.push("/dashboard/login");
-    router.refresh();
-  }
-
   return (
-    // A plain container, not a <header>: DashboardShell owns the bar itself
-    // — its height, border and background — and nesting a second <header>
-    // inside it duplicated all three.
-    //
-    // min-w-0 on this element and on the form is what actually lets them
+    // min-w-0 on the wrapper and on the form is what actually lets them
     // shrink: a flex child defaults to min-width:auto and refuses to go below
-    // its content, which is why the bar pushed the whole dashboard sideways
-    // on a phone.
-    <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:gap-4">
-      <form onSubmit={handleSearch} className="relative w-full min-w-0 max-w-sm">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <input
+    // its content, which is why the bar pushed the whole dashboard sideways on
+    // a phone.
+    //
+    // justify-end, because the breadcrumb now sits to the left of this field
+    // and the two should not drift apart as the trail grows; the search stays
+    // anchored to the right of the space it is given.
+    <div className="flex min-w-0 flex-1 items-center justify-end">
+      {/* max-w steps up: at 390px the header also carries the sidebar
+          trigger, the breadcrumb, the theme toggle and the bell, and a
+          20rem-wide field pushed the last two off the edge. */}
+      {/* Widths in three steps. Below `sm` the header is crowded, so the
+          field is capped tight. From `md` the parent stops flexing (the
+          ticker took the slack), so `w-full` has nothing to resolve against
+          and the field needs a real width. */}
+      <form
+        onSubmit={handleSearch}
+        className="relative w-full min-w-0 max-w-[9rem] sm:max-w-xs md:w-72 md:max-w-none"
+      >
+        <Search
+          className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher un produit…"
-          className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-sm text-gray-700 outline-none placeholder:text-gray-400 focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100"
+          aria-label="Rechercher un produit"
+          className="h-9 bg-muted/50 pl-8 transition-colors focus-visible:bg-card"
         />
       </form>
-
-      <div className="relative flex-none">
-        <button
-          type="button"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label={`Compte : ${email}`}
-          aria-expanded={menuOpen}
-          aria-haspopup="menu"
-          className="flex items-center gap-2.5 rounded-lg py-1.5 pl-1.5 text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 sm:pr-3"
-        >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
-            {email.slice(0, 1).toUpperCase()}
-          </span>
-          {/* The avatar initial already identifies the account; the full
-              address only earns its space once there is room for it. */}
-          <span className="hidden max-w-[160px] truncate text-gray-700 sm:inline">{email}</span>
-        </button>
-
-        {menuOpen && (
-          <>
-            <button
-              type="button"
-              aria-label="Fermer le menu"
-              className="fixed inset-0 z-10 cursor-default"
-              onClick={() => setMenuOpen(false)}
-            />
-            <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
-              >
-                <LogOut className="h-4 w-4" />
-                Se déconnecter
-              </button>
-            </div>
-          </>
-        )}
-      </div>
     </div>
   );
 }

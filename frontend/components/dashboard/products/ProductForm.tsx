@@ -9,9 +9,9 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { createProduct, updateProduct, type ProductInput } from "@/app/dashboard/(app)/products/actions";
 import { ProductPreview } from "@/components/dashboard/products/ProductPreview";
-import { Button } from "@/components/dashboard/ui/Button";
-import { Card, CardContent } from "@/components/dashboard/ui/Card";
-import { Input } from "@/components/dashboard/ui/Input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   BADGE_TYPE_DEFAULT_LABEL,
   BADGE_TYPES,
@@ -22,6 +22,7 @@ import {
   type Product,
   type VariantOptionType,
 } from "@/lib/dashboard/products-types";
+import { mediaSrc } from "@/lib/mediaSrc";
 
 const MAX_BADGES = 3;
 
@@ -74,8 +75,17 @@ const schema = z
 type FormInput = z.input<typeof schema>;
 type FormOutput = z.output<typeof schema>;
 
+/**
+ * The stored image, as something a browser can actually load.
+ *
+ * Through mediaSrc for the same reason ProductsTable does it: Payload serves
+ * its own uploads from /api/media/file/<name>, a path on the CMS origin, so
+ * the raw value 404s against the dashboard. This feeds both the main preview
+ * and the gallery thumbnails, which is why an existing product opened for
+ * editing showed empty frames where its photos should be.
+ */
 function imageUrl(image: Product["image"]) {
-  return typeof image === "object" && image ? image.url : "";
+  return typeof image === "object" && image ? mediaSrc(image.url) : "";
 }
 
 export function ProductForm({
@@ -320,19 +330,19 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      <div className="sticky top-0 z-30 -mx-6 -mt-6 flex items-center justify-between gap-4 border-b border-gray-100 bg-white/95 px-6 py-4 backdrop-blur">
+      <div className="sticky top-0 z-30 -mx-6 -mt-6 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-6 py-4 backdrop-blur">
         <div className="min-w-0">
-          <h1 className="truncate text-base font-semibold text-gray-900">
+          <h1 className="truncate text-base font-semibold text-foreground">
             {product ? "Modifier le produit" : duplicateOf ? "Dupliquer un produit" : "Ajouter un produit"}
           </h1>
           {submitError ? (
-            <p className="mt-0.5 truncate text-xs text-red-600">{submitError}</p>
+            <p className="mt-0.5 truncate text-xs text-destructive">{submitError}</p>
           ) : product ? (
-            <p className="mt-0.5 truncate text-xs text-gray-500">{product.name}</p>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">{product.name}</p>
           ) : duplicateOf ? (
             // Names the source so the operator can tell at a glance that this
             // is a copy and not the original they clicked from.
-            <p className="mt-0.5 truncate text-xs text-gray-500">
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
               Copie de « {duplicateOf.name} » — SKU, code-barres et stock à renseigner.
             </p>
           ) : null}
@@ -355,17 +365,17 @@ export function ProductForm({
           <Card>
             <CardContent className="flex flex-col gap-4">
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-600">Nom du produit</label>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Nom du produit</label>
                 <Input {...register("name")} placeholder="Ex. Effaclar Gel Moussant Purifiant" />
-                {showError("name") && errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
+                {showError("name") && errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Marque</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Marque</label>
                   <select
                     {...register("brand")}
-                    className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
                   >
                     <option value="">—</option>
                     {brands.map((b) => (
@@ -374,13 +384,13 @@ export function ProductForm({
                       </option>
                     ))}
                   </select>
-                  {showError("brand") && errors.brand && <p className="mt-1 text-xs text-red-600">{errors.brand.message}</p>}
+                  {showError("brand") && errors.brand && <p className="mt-1 text-xs text-destructive">{errors.brand.message}</p>}
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Catégorie</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Catégorie</label>
                   <select
                     {...register("category")}
-                    className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
                   >
                     <option value="">—</option>
                     {CATEGORY_OPTIONS.map((c) => (
@@ -389,42 +399,42 @@ export function ProductForm({
                       </option>
                     ))}
                   </select>
-                  {showError("category") && errors.category && <p className="mt-1 text-xs text-red-600">{errors.category.message}</p>}
+                  {showError("category") && errors.category && <p className="mt-1 text-xs text-destructive">{errors.category.message}</p>}
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-600">Description</label>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Description</label>
                 <textarea
                   {...register("description")}
                   rows={5}
-                  className="w-full rounded-lg border border-gray-200 bg-white p-3 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                  className="w-full rounded-lg border border-border bg-card p-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
                 />
-                {showError("description") && errors.description && <p className="mt-1 text-xs text-red-600">{errors.description.message}</p>}
+                {showError("description") && errors.description && <p className="mt-1 text-xs text-destructive">{errors.description.message}</p>}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="flex flex-col gap-4">
               <div>
-                <div className="text-sm font-medium text-gray-900">Variantes</div>
-                <p className="mt-0.5 text-xs text-gray-500">
+                <div className="text-sm font-medium text-foreground">Variantes</div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   Facultatif — sans variante, le produit utilise son propre prix/stock/SKU ci-dessus comme variante unique.
                 </p>
               </div>
 
-              <label className="flex items-center gap-2 text-sm text-gray-700">
-                <input type="checkbox" {...register("hasVariants")} className="h-4 w-4 rounded border-gray-300" />
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input type="checkbox" {...register("hasVariants")} className="h-4 w-4 rounded border-input" />
                 Ce produit possède plusieurs variantes
               </label>
 
               {hasVariants && (
                 <>
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-gray-600">Type de variante</label>
+                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Type de variante</label>
                     <select
                       {...register("variantOptionType")}
-                      className="h-9 w-56 rounded-lg border border-gray-200 bg-white px-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                      className="h-9 w-56 rounded-lg border border-border bg-card px-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
                     >
                       {VARIANT_OPTION_TYPES.map((t) => (
                         <option key={t.value} value={t.value}>
@@ -434,7 +444,7 @@ export function ProductForm({
                     </select>
                   </div>
 
-                  {errors.variants?.message && <p className="text-xs text-red-600">{errors.variants.message}</p>}
+                  {errors.variants?.message && <p className="text-xs text-destructive">{errors.variants.message}</p>}
 
                   <div className="flex flex-col gap-3">
                     {variantsArray.fields.map((field, index) => {
@@ -442,12 +452,12 @@ export function ProductForm({
                       const rowUploading = variantImages[field.id]?.uploading;
                       const rowErrors = errors.variants?.[index];
                       return (
-                        <div key={field.id} className="flex gap-3 rounded-lg border border-gray-200 p-3">
+                        <div key={field.id} className="flex gap-3 rounded-lg border border-border p-3">
                           <div className="flex flex-none flex-col items-center gap-1">
-                            <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-100">
+                            <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-muted">
                               {preview && <Image src={preview} alt="" fill className="object-cover" />}
                             </div>
-                            <label className="cursor-pointer text-center text-[10px] font-medium text-violet-700 hover:underline">
+                            <label className="cursor-pointer text-center text-[10px] font-medium text-primary hover:underline">
                               {rowUploading ? "…" : "Image"}
                               <input
                                 type="file"
@@ -462,45 +472,45 @@ export function ProductForm({
                           <div className="flex-1">
                             <div className="grid grid-cols-3 gap-3">
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Valeur</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Valeur</label>
                                 <Input {...register(`variants.${index}.optionValue`)} placeholder="50 ml" />
-                                {rowErrors?.optionValue && <p className="mt-1 text-xs text-red-600">{rowErrors.optionValue.message}</p>}
+                                {rowErrors?.optionValue && <p className="mt-1 text-xs text-destructive">{rowErrors.optionValue.message}</p>}
                               </div>
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">SKU</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">SKU</label>
                                 <Input {...register(`variants.${index}.sku`)} />
                               </div>
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Code-barres</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Code-barres</label>
                                 <Input {...register(`variants.${index}.barcode`)} />
                               </div>
                             </div>
                             <div className="mt-3 grid grid-cols-3 gap-3">
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Prix (MAD)</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Prix (MAD)</label>
                                 <Input type="number" step="0.01" {...register(`variants.${index}.price`)} />
-                                {rowErrors?.price && <p className="mt-1 text-xs text-red-600">{rowErrors.price.message}</p>}
+                                {rowErrors?.price && <p className="mt-1 text-xs text-destructive">{rowErrors.price.message}</p>}
                               </div>
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Ancien prix</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Ancien prix</label>
                                 <Input type="number" step="0.01" {...register(`variants.${index}.oldPrice`)} />
                               </div>
-                              <label className="flex items-end gap-2 pb-2 text-xs text-gray-700">
-                                <input type="checkbox" {...register(`variants.${index}.active`)} className="h-4 w-4 rounded border-gray-300" />
+                              <label className="flex items-end gap-2 pb-2 text-xs text-foreground">
+                                <input type="checkbox" {...register(`variants.${index}.active`)} className="h-4 w-4 rounded border-input" />
                                 Actif
                               </label>
                             </div>
                             <div className="mt-3 grid grid-cols-3 gap-3">
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Stock</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Stock</label>
                                 <Input type="number" {...register(`variants.${index}.stock`)} />
                               </div>
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Réservé</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Réservé</label>
                                 <Input type="number" {...register(`variants.${index}.reservedStock`)} />
                               </div>
                               <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Seuil stock faible</label>
+                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Seuil stock faible</label>
                                 <Input type="number" {...register(`variants.${index}.lowStockThreshold`)} />
                               </div>
                             </div>
@@ -510,7 +520,7 @@ export function ProductForm({
                             type="button"
                             onClick={() => variantsArray.remove(index)}
                             aria-label="Supprimer cette variante"
-                            className="flex-none text-gray-400 hover:text-red-600"
+                            className="flex-none text-muted-foreground hover:text-destructive"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -533,7 +543,7 @@ export function ProductForm({
                         stock: 0,
                       })
                     }
-                    className="flex items-center justify-center gap-1 self-start rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex items-center justify-center gap-1 self-start rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Ajouter une variante
@@ -545,16 +555,16 @@ export function ProductForm({
 
           <Card>
             <CardContent className="flex flex-col gap-3">
-              <div className="text-sm font-medium text-gray-900">Images</div>
+              <div className="text-sm font-medium text-foreground">Images</div>
 
               {/* Capped width: a full-column aspect-square grew with the
                   viewport — 891px tall at 1440px — and single-handedly made
                   this the longest card on the page. The main image only needs
                   to be recognisable, not life-size. */}
-              <div className="relative aspect-square w-full max-w-[260px] overflow-hidden rounded-xl bg-gray-100">
+              <div className="relative aspect-square w-full max-w-[260px] overflow-hidden rounded-xl bg-muted">
                 {imagePreview && <Image src={imagePreview} alt="" fill className="object-cover" />}
                 {imagePreview && (
-                  <span className="absolute left-2 top-2 rounded-full bg-violet-700 px-2 py-0.5 text-[10px] font-semibold text-white">
+                  <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-white">
                     Principale
                   </span>
                 )}
@@ -563,7 +573,7 @@ export function ProductForm({
               {gallery.length > 0 && (
                 <ul className="grid grid-cols-3 gap-2">
                   {gallery.map((g, i) => (
-                    <li key={g.id} className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+                    <li key={g.id} className="relative aspect-square overflow-hidden rounded-lg bg-muted">
                       <Image src={g.url} alt="" fill sizes="120px" className="object-cover" />
                       <div className="absolute inset-x-0 bottom-0 flex justify-center gap-0.5 bg-black/55 py-0.5">
                         <button
@@ -607,7 +617,7 @@ export function ProductForm({
                 </ul>
               )}
 
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-3 text-sm text-gray-600 hover:border-violet-300 hover:text-violet-700">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-input py-3 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary">
                 {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 {uploading ? "Envoi en cours…" : imageId ? "Ajouter des images" : "Choisir des images"}
                 <input
@@ -619,11 +629,11 @@ export function ProductForm({
                   disabled={uploading}
                 />
               </label>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Sélection multiple possible. La première image devient l&apos;image principale ; les suivantes
                 alimentent la galerie de la fiche produit.
               </p>
-              {uploadError && <p className="text-xs text-red-600">{uploadError}</p>}
+              {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
             </CardContent>
           </Card>
         </div>
@@ -636,23 +646,23 @@ export function ProductForm({
             <CardContent className="flex flex-col gap-4">
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Prix (MAD)</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Prix (MAD)</label>
                   <Input type="number" step="0.01" {...register("price")} />
-                  {showError("price") && errors.price && <p className="mt-1 text-xs text-red-600">{errors.price.message}</p>}
+                  {showError("price") && errors.price && <p className="mt-1 text-xs text-destructive">{errors.price.message}</p>}
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Ancien prix</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Ancien prix</label>
                   <Input type="number" step="0.01" {...register("oldPrice")} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Contenance</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Contenance</label>
                   <Input {...register("size")} placeholder="400 ml" />
                 </div>
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" {...register("isPublished")} className="h-4 w-4 rounded border-gray-300" />
+                <label className="flex items-center gap-2 text-sm text-foreground">
+                  <input type="checkbox" {...register("isPublished")} className="h-4 w-4 rounded border-input" />
                   Publié sur le site
                 </label>
               </div>
@@ -661,26 +671,26 @@ export function ProductForm({
 
           <Card>
             <CardContent className="flex flex-col gap-4">
-              <div className="text-sm font-medium text-gray-900">Stock</div>
+              <div className="text-sm font-medium text-foreground">Stock</div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">SKU</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">SKU</label>
                   <Input {...register("sku")} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Code-barres</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Code-barres</label>
                   <Input {...register("barcode")} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Seuil stock faible</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Seuil stock faible</label>
                   <Input type="number" {...register("lowStockThreshold")} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Stock</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Stock</label>
                   <Input type="number" {...register("stock")} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Réservé</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Réservé</label>
                   <Input type="number" {...register("reservedStock")} />
                 </div>
               </div>
@@ -691,14 +701,14 @@ export function ProductForm({
             <CardContent className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-gray-900">Badges</div>
-                  <p className="mt-0.5 text-xs text-gray-500">Pastilles affichées en haut à gauche de la carte produit — {MAX_BADGES} maximum, empilées dans cet ordre.</p>
+                  <div className="text-sm font-medium text-foreground">Badges</div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">Pastilles affichées en haut à gauche de la carte produit — {MAX_BADGES} maximum, empilées dans cet ordre.</p>
                 </div>
                 {badgesArray.fields.length < MAX_BADGES && (
                   <button
                     type="button"
                     onClick={() => badgesArray.append({ enabled: true, type: "top", text: "", bgColor: "", textColor: "" })}
-                    className="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Ajouter un badge
@@ -706,27 +716,27 @@ export function ProductForm({
                 )}
               </div>
 
-              {errors.badges?.message && <p className="text-xs text-red-600">{errors.badges.message}</p>}
+              {errors.badges?.message && <p className="text-xs text-destructive">{errors.badges.message}</p>}
 
               {badgesArray.fields.map((field, index) => {
                 const type = watch(`badges.${index}.type`) || "top";
                 return (
-                  <div key={field.id} className="flex flex-col gap-3 rounded-lg border border-gray-200 p-3">
+                  <div key={field.id} className="flex flex-col gap-3 rounded-lg border border-border p-3">
                     <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-2 text-xs text-gray-700">
-                        <input type="checkbox" {...register(`badges.${index}.enabled`)} className="h-4 w-4 rounded border-gray-300" />
+                      <label className="flex items-center gap-2 text-xs text-foreground">
+                        <input type="checkbox" {...register(`badges.${index}.enabled`)} className="h-4 w-4 rounded border-input" />
                         Actif
                       </label>
-                      <button type="button" onClick={() => badgesArray.remove(index)} aria-label="Supprimer ce badge" className="text-gray-400 hover:text-red-600">
+                      <button type="button" onClick={() => badgesArray.remove(index)} aria-label="Supprimer ce badge" className="text-muted-foreground hover:text-destructive">
                         <X className="h-4 w-4" />
                       </button>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-600">Type</label>
+                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Type</label>
                         <select
                           {...register(`badges.${index}.type`)}
-                          className="h-9 w-full rounded-lg border border-gray-200 bg-white px-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                          className="h-9 w-full rounded-lg border border-border bg-card px-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
                         >
                           {BADGE_TYPES.map((t) => (
                             <option key={t.value} value={t.value}>
@@ -736,7 +746,7 @@ export function ProductForm({
                         </select>
                       </div>
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-600">Texte</label>
+                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Texte</label>
                         <Input
                           {...register(`badges.${index}.text`)}
                           placeholder={type === "custom" ? "Texte requis" : BADGE_TYPE_DEFAULT_LABEL[type] || ""}
@@ -745,16 +755,16 @@ export function ProductForm({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-600">Couleur du fond</label>
+                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Couleur du fond</label>
                         <div className="flex items-center gap-2">
-                          <input type="color" {...register(`badges.${index}.bgColor`)} className="h-9 w-10 flex-none cursor-pointer rounded border border-gray-200 bg-white p-0.5" />
+                          <input type="color" {...register(`badges.${index}.bgColor`)} className="h-9 w-10 flex-none cursor-pointer rounded border border-border bg-card p-0.5" />
                           <Input {...register(`badges.${index}.bgColor`)} placeholder="Défaut du thème" />
                         </div>
                       </div>
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-600">Couleur du texte</label>
+                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Couleur du texte</label>
                         <div className="flex items-center gap-2">
-                          <input type="color" {...register(`badges.${index}.textColor`)} className="h-9 w-10 flex-none cursor-pointer rounded border border-gray-200 bg-white p-0.5" />
+                          <input type="color" {...register(`badges.${index}.textColor`)} className="h-9 w-10 flex-none cursor-pointer rounded border border-border bg-card p-0.5" />
                           <Input {...register(`badges.${index}.textColor`)} placeholder="Défaut du thème" />
                         </div>
                       </div>

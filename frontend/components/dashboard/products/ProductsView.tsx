@@ -11,7 +11,7 @@ import {
   type BulkOperation,
 } from "@/app/dashboard/(app)/products/actions";
 import { AlertDialog } from "@/components/dashboard/ui/AlertDialog";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/dashboard/ui/Toast";
 import { toSearchParams, type ProductQuery, type SortField } from "@/lib/dashboard/product-query";
 import type { Brand, Product } from "@/lib/dashboard/products-types";

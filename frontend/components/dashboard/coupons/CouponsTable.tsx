@@ -2,8 +2,8 @@
 
 import { Pencil, Plus, Search, TicketPercent } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Badge } from "@/components/dashboard/ui/Badge";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CouponFormModal } from "@/components/dashboard/coupons/CouponFormModal";
 import { couponState, COUPON_TYPE_LABELS, type Coupon } from "@/lib/dashboard/coupons-types";
 import { money, shortDate } from "@/lib/dashboard/format";

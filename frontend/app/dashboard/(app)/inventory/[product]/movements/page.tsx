@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Badge } from "@/components/dashboard/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/dashboard/guard";
 import { listProductMovements } from "@/lib/dashboard/inventory";
 import { getProduct } from "@/lib/dashboard/products";
@@ -29,20 +29,20 @@ export default async function ProductMovementsPage({ params }: { params: Promise
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <Link href="/dashboard/inventory" className="inline-flex items-center gap-1.5 text-xs font-medium text-violet-700 hover:underline">
+        <Link href="/dashboard/inventory" className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline">
           <ArrowLeft className="h-3.5 w-3.5" />
           Retour à l&apos;inventaire
         </Link>
-        <h1 className="mt-2 text-xl font-semibold text-gray-900">{product.name}</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="mt-2 text-xl font-semibold text-foreground">{product.name}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Historique complet des mouvements de stock — SKU {product.sku || "—"} · stock actuel {product.stock}
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">
+            <tr className="border-b border-border text-left text-xs font-medium text-muted-foreground">
               <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Variation</th>
@@ -59,27 +59,27 @@ export default async function ProductMovementsPage({ params }: { params: Promise
             {movements.map((m) => {
               const badge = SOURCE_BADGE[m.source] || { label: m.source, variant: "default" as const };
               return (
-                <tr key={m.id} className="border-b border-gray-50 last:border-0">
-                  <td className="px-4 py-3 text-gray-500">
+                <tr key={m.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {new Date(m.createdAt).toLocaleDateString("fr-FR")}{" "}
                     {new Date(m.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant={badge.variant}>{badge.label}</Badge>
                   </td>
-                  <td className={`px-4 py-3 font-medium ${m.delta >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                  <td className={`px-4 py-3 font-medium ${m.delta >= 0 ? "text-success-strong" : "text-destructive"}`}>
                     {m.delta >= 0 ? "+" : ""}
                     {m.delta}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {m.previousStock} → {m.newStock}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{typeof m.supplier === "object" && m.supplier ? m.supplier.name : "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{m.batchNumber || "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString("fr-FR") : "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{m.reference || "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{m.reason || "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-muted-foreground">{typeof m.supplier === "object" && m.supplier ? m.supplier.name : "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{m.batchNumber || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString("fr-FR") : "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{m.reference || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{m.reason || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
                     {typeof m.createdBy === "object" && m.createdBy ? m.createdBy.email : "—"}
                   </td>
                 </tr>
@@ -87,7 +87,7 @@ export default async function ProductMovementsPage({ params }: { params: Promise
             })}
             {movements.length === 0 && (
               <tr>
-                <td colSpan={10} className="px-4 py-10 text-center text-sm text-gray-400">
+                <td colSpan={10} className="px-4 py-10 text-center text-sm text-muted-foreground">
                   Aucun mouvement de stock pour ce produit.
                 </td>
               </tr>

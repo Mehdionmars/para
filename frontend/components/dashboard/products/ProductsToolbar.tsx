@@ -2,7 +2,7 @@
 
 import { Columns3, Download, Loader2, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/dashboard/ui/Checkbox";
 import { Popover } from "@/components/dashboard/ui/Popover";
 import { Tooltip } from "@/components/dashboard/ui/Tooltip";

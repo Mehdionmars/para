@@ -74,7 +74,7 @@ export function Popover({
           role="menu"
           aria-label={label}
           className={cn(
-            "absolute z-50 mt-2 max-h-[70vh] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-xl border border-gray-200 bg-white p-1 shadow-lg",
+            "absolute z-50 mt-2 max-h-[70vh] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-1 shadow-lg",
             align === "end" ? "right-0" : "left-0",
             panelClassName,
           )}
@@ -108,7 +108,7 @@ export function MenuItem({
       onClick={onClick}
       className={cn(
         "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors disabled:pointer-events-none disabled:opacity-40",
-        destructive ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-100",
+        destructive ? "text-destructive hover:bg-destructive/10" : "text-foreground hover:bg-muted",
       )}
     >
       {Icon && <Icon className="h-4 w-4 shrink-0 opacity-70" />}
@@ -118,5 +118,5 @@ export function MenuItem({
 }
 
 export function MenuSeparator() {
-  return <div role="separator" className="my-1 h-px bg-gray-100" />;
+  return <div role="separator" className="my-1 h-px bg-muted" />;
 }

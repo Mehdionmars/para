@@ -2,9 +2,9 @@
 
 import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Loader2, RotateCcw, Upload } from "lucide-react";
 import { useRef, useState } from "react";
-import { Badge } from "@/components/dashboard/ui/Badge";
-import { Button } from "@/components/dashboard/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/dashboard/cn";
 import { downloadCsvTemplate, downloadErrorReportCsv, downloadErrorReportXlsx, downloadXlsxTemplate } from "@/lib/dashboard/import-report";
 import {
@@ -199,7 +199,7 @@ export function ImportView() {
 
   return (
     <div className="flex flex-col gap-6">
-      {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>}
 
       {!validateData && (
         <Card>
@@ -238,19 +238,19 @@ export function ImportView() {
                 fileInputRef.current?.click();
               }}
               className={cn(
-                "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-16 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
-                dragActive ? "border-violet-400 bg-violet-50" : "border-gray-200 hover:border-gray-300",
+                "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-16 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                dragActive ? "border-primary/40 bg-primary/10" : "border-border hover:border-input",
               )}
             >
               {loading === "validate" ? (
-                <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               ) : (
-                <Upload className="h-8 w-8 text-gray-400" />
+                <Upload className="h-8 w-8 text-muted-foreground" />
               )}
-              <div className="text-sm font-medium text-gray-900">
+              <div className="text-sm font-medium text-foreground">
                 Glissez-déposez un fichier ici, ou cliquez pour choisir
               </div>
-              <div className="text-xs text-gray-500">Formats acceptés : .csv, .xlsx, .xls — 15 Mo max</div>
+              <div className="text-xs text-muted-foreground">Formats acceptés : .csv, .xlsx, .xls — 15 Mo max</div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -264,7 +264,7 @@ export function ImportView() {
       )}
 
       {file && validateData && (
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <FileSpreadsheet className="h-4 w-4" />
           {file.name}
           <Button variant="ghost" size="sm" onClick={handleReset} className="ml-auto">
@@ -282,7 +282,7 @@ export function ImportView() {
           <CardContent className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-3">
               {sheetNames.map((name) => (
-                <label key={name} className="flex items-center gap-2 text-sm text-gray-700">
+                <label key={name} className="flex items-center gap-2 text-sm text-foreground">
                   <input type="checkbox" checked={selectedSheets.has(name)} onChange={() => toggleSheet(name)} />
                   {name}
                 </label>
@@ -301,7 +301,7 @@ export function ImportView() {
             <CardTitle>Correspondance des colonnes</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4 text-xs text-gray-500">
+            <p className="mb-4 text-xs text-muted-foreground">
               Les colonnes détectées automatiquement sont pré-sélectionnées. Choisissez-en une autre, ou{" "}
               <strong>« Saisir manuellement »</strong> pour taper le nom exact d&apos;une colonne non détectée.
             </p>
@@ -311,11 +311,11 @@ export function ImportView() {
                 const detected = suggestedMapping[field];
                 return (
                   <div key={field}>
-                    <label className="mb-1.5 block text-xs font-medium text-gray-600" htmlFor={`map-${field}`}>
+                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground" htmlFor={`map-${field}`}>
                       {IMPORT_FIELD_LABELS[field]}
                     </label>
                     {field === "price" && (
-                      <p className="mb-1 text-[11px] text-violet-700">
+                      <p className="mb-1 text-[11px] text-primary">
                         Source : PPH (Prix Public de Vente) — utilisé tel quel, sans calcul de marge.
                       </p>
                     )}
@@ -325,14 +325,14 @@ export function ImportView() {
                         value={mapping[field] ?? ""}
                         onChange={(e) => handleMappingText(field, e.target.value)}
                         placeholder="Nom exact de la colonne"
-                        className="h-9 w-full rounded-lg border border-gray-200 px-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                        className="h-9 w-full rounded-lg border border-border px-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
                       />
                     ) : (
                       <select
                         id={`map-${field}`}
                         value={mapping[field] ?? AUTO}
                         onChange={(e) => handleMappingSelect(field, e.target.value)}
-                        className="h-9 w-full rounded-lg border border-gray-200 px-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                        className="h-9 w-full rounded-lg border border-border px-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
                       >
                         <option value={AUTO}>{detected ? `Auto : ${detected}` : "Auto (non détecté)"}</option>
                         {columns.map((c) => (
@@ -363,7 +363,7 @@ export function ImportView() {
             <SummaryCard label="Invalides" value={validateData.summary.invalid} tone={validateData.summary.invalid > 0 ? "danger" : "default"} />
           </div>
           {validateData.summary.toCreate > 0 && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Les {validateData.summary.toCreate} nouveau(x) produit(s) seront créés en <strong>brouillon</strong> avec un
               stock à <strong>0</strong>, sauf si le fichier précise déjà un statut publié et/ou une quantité en
               stock (colonnes reconnues : Statut, Stock) — sinon un administrateur doit les valider et les publier
@@ -382,7 +382,7 @@ export function ImportView() {
           </CardHeader>
           <CardContent className="max-h-[420px] overflow-auto p-0">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-gray-50 text-left text-xs font-medium text-gray-500">
+              <thead className="sticky top-0 bg-muted/50 text-left text-xs font-medium text-muted-foreground">
                 <tr>
                   <th className="px-4 py-2.5">Ligne</th>
                   <th className="px-4 py-2.5">Titre</th>
@@ -396,19 +396,19 @@ export function ImportView() {
               </thead>
               <tbody>
                 {previewRows.slice(0, PREVIEW_ROW_LIMIT).map((r) => (
-                  <tr key={`${r.sheet}-${r.rowIndex}`} className={cn("border-t border-gray-50", r.errors.length > 0 && "bg-red-50/60")}>
-                    <td className="px-4 py-2.5 text-gray-500">{r.rowIndex}</td>
-                    <td className="px-4 py-2.5 font-medium text-gray-900">{r.title || "—"}</td>
-                    <td className="px-4 py-2.5 text-gray-700">{r.sku || "—"}</td>
-                    <td className="px-4 py-2.5 text-gray-500">{r.brandName || "—"}</td>
-                    <td className="px-4 py-2.5 text-gray-500">{r.price ?? "—"}</td>
-                    <td className="px-4 py-2.5 text-gray-500">{r.stock ?? "—"}</td>
+                  <tr key={`${r.sheet}-${r.rowIndex}`} className={cn("border-t border-border", r.errors.length > 0 && "bg-destructive/10")}>
+                    <td className="px-4 py-2.5 text-muted-foreground">{r.rowIndex}</td>
+                    <td className="px-4 py-2.5 font-medium text-foreground">{r.title || "—"}</td>
+                    <td className="px-4 py-2.5 text-foreground">{r.sku || "—"}</td>
+                    <td className="px-4 py-2.5 text-muted-foreground">{r.brandName || "—"}</td>
+                    <td className="px-4 py-2.5 text-muted-foreground">{r.price ?? "—"}</td>
+                    <td className="px-4 py-2.5 text-muted-foreground">{r.stock ?? "—"}</td>
                     <td className="px-4 py-2.5">
                       <Badge variant={r.errors.length > 0 ? "danger" : r.isUpdate ? "info" : "success"}>
                         {r.errors.length > 0 ? "Erreur" : r.isUpdate ? "Mise à jour" : "Création"}
                       </Badge>
                     </td>
-                    <td className="px-4 py-2.5 text-xs text-red-600">
+                    <td className="px-4 py-2.5 text-xs text-destructive">
                       {[...r.errors, ...r.warnings].join(" · ")}
                     </td>
                   </tr>
@@ -434,19 +434,19 @@ export function ImportView() {
         <Card>
           <CardContent className="flex flex-col gap-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">
+              <span className="text-muted-foreground">
                 Lot {importProgress.done} / {importProgress.total}
               </span>
               {importSummary && (
-                <span className="text-gray-500">
+                <span className="text-muted-foreground">
                   {importSummary.created} créé(s) · {importSummary.updated} mis à jour · {importSummary.skipped} ignoré(s) ·{" "}
                   {importSummary.failed} échoué(s)
                 </span>
               )}
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-violet-600 transition-all"
+                className="h-full rounded-full bg-primary transition-all"
                 style={{ width: `${(importProgress.done / importProgress.total) * 100}%` }}
               />
             </div>
@@ -489,7 +489,7 @@ export function ImportView() {
               </CardHeader>
               <CardContent className="max-h-[320px] overflow-auto p-0">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-gray-50 text-left text-xs font-medium text-gray-500">
+                  <thead className="sticky top-0 bg-muted/50 text-left text-xs font-medium text-muted-foreground">
                     <tr>
                       <th className="px-4 py-2.5">Ligne</th>
                       <th className="px-4 py-2.5">SKU</th>
@@ -500,10 +500,10 @@ export function ImportView() {
                     {importResults
                       .filter((r) => r.status === "failed")
                       .map((r) => (
-                        <tr key={`${r.sheet}-${r.row}`} className="border-t border-gray-50">
-                          <td className="px-4 py-2.5 text-gray-500">{r.row}</td>
-                          <td className="px-4 py-2.5 text-gray-700">{r.sku || "—"}</td>
-                          <td className="px-4 py-2.5 text-red-600">{r.message}</td>
+                        <tr key={`${r.sheet}-${r.row}`} className="border-t border-border">
+                          <td className="px-4 py-2.5 text-muted-foreground">{r.row}</td>
+                          <td className="px-4 py-2.5 text-foreground">{r.sku || "—"}</td>
+                          <td className="px-4 py-2.5 text-destructive">{r.message}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -529,16 +529,16 @@ function SummaryCard({
   icon?: typeof CheckCircle2;
 }) {
   const toneClass = {
-    danger: "text-red-600",
-    default: "text-gray-900",
-    info: "text-sky-600",
-    success: "text-emerald-600",
+    danger: "text-destructive",
+    default: "text-foreground",
+    info: "text-info-strong",
+    success: "text-success-strong",
   }[tone];
   return (
     <Card>
       <CardContent className="flex items-center justify-between p-4">
         <div>
-          <div className="text-xs text-gray-500">{label}</div>
+          <div className="text-xs text-muted-foreground">{label}</div>
           <div className={cn("mt-1 text-xl font-semibold", toneClass)}>{value}</div>
         </div>
         {Icon && <Icon className={cn("h-5 w-5", toneClass)} />}

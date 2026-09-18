@@ -57,7 +57,7 @@ export function Tabs({ tabs, className }: { tabs: TabItem[]; className?: string 
 
   return (
     <div className={className}>
-      <div role="tablist" aria-label="Vues" className="flex flex-wrap gap-1 border-b border-gray-100 px-2">
+      <div role="tablist" aria-label="Vues" className="flex flex-wrap gap-1 border-b border-border px-2">
         {tabs.map((t) => {
           const selected = t.id === current.id;
           return (
@@ -75,10 +75,10 @@ export function Tabs({ tabs, className }: { tabs: TabItem[]; className?: string 
               onClick={() => setActive(t.id)}
               onKeyDown={onKeyDown}
               className={cn(
-                "-mb-px flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                "-mb-px flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 selected
-                  ? "border-violet-600 text-violet-700"
-                  : "border-transparent text-gray-500 hover:border-gray-200 hover:text-gray-900",
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:border-border hover:text-foreground",
               )}
             >
               {t.label}
@@ -86,7 +86,7 @@ export function Tabs({ tabs, className }: { tabs: TabItem[]; className?: string 
                 <span
                   className={cn(
                     "rounded-full px-1.5 py-0.5 text-xs font-semibold",
-                    selected ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500",
+                    selected ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
                   )}
                 >
                   {t.count}

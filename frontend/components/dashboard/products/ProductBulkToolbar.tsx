@@ -1,7 +1,7 @@
 "use client";
 
 import { Boxes, MoreHorizontal, Star, StarOff, Tag, Trash2, X } from "lucide-react";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { MenuItem, MenuSeparator, Popover } from "@/components/dashboard/ui/Popover";
 
 export type BulkAction =

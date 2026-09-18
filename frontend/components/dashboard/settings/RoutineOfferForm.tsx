@@ -3,7 +3,7 @@
 import { Check, Info } from "lucide-react";
 import { useState, useTransition } from "react";
 import { updateRoutineOffer } from "@/app/dashboard/(app)/settings/actions";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { ROUTINE_PERCENT_MAX, type RoutineOfferForm as RoutineOfferValues } from "@/lib/dashboard/paymentSettings-types";
 
 const field =

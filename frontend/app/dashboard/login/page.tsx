@@ -4,8 +4,8 @@ import { Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Button } from "@/components/dashboard/ui/Button";
-import { Input } from "@/components/dashboard/ui/Input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/dashboard/cn";
 
 function LoginForm() {

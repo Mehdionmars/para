@@ -3,7 +3,7 @@
 import { RotateCw, ServerCrash } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
  * The outer net: errors thrown by (app)/layout.tsx and by the login page.

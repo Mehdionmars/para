@@ -3,7 +3,7 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 
 /**
  * Confirmation for destructive or wide-reaching actions.
@@ -88,19 +88,19 @@ export function AlertDialog({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="alert-dialog-title"
-        className="relative w-full max-w-md rounded-2xl bg-white p-5 shadow-xl"
+        className="relative w-full max-w-md rounded-2xl bg-card p-5 shadow-xl"
       >
         <div className="flex gap-3">
           {destructive && (
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100">
-              <AlertTriangle className="h-4 w-4 text-red-600" aria-hidden="true" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-destructive/15">
+              <AlertTriangle className="h-4 w-4 text-destructive" aria-hidden="true" />
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h2 id="alert-dialog-title" className="text-sm font-semibold text-gray-900">
+            <h2 id="alert-dialog-title" className="text-sm font-semibold text-foreground">
               {title}
             </h2>
-            {description && <div className="mt-1.5 text-sm text-gray-600">{description}</div>}
+            {description && <div className="mt-1.5 text-sm text-muted-foreground">{description}</div>}
           </div>
         </div>
 

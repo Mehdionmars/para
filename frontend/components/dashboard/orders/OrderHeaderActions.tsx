@@ -4,7 +4,7 @@ import { AlertTriangle, ChevronDown, ExternalLink, Loader2, MoreVertical, Printe
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { updateOrderStatus } from "@/app/dashboard/(app)/orders/actions";
-import { Badge } from "@/components/dashboard/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import {
   ORDER_STATUS_BADGE,
   ORDER_STATUS_LABELS,
@@ -50,9 +50,9 @@ function useDismiss(open: boolean, close: () => void) {
 }
 
 const MENU_PANEL =
-  "absolute right-0 top-full z-30 mt-1.5 min-w-[220px] rounded-xl border border-gray-200 bg-white p-1 shadow-lg";
+  "absolute right-0 top-full z-30 mt-1.5 min-w-[220px] rounded-xl border border-border bg-card p-1 shadow-lg";
 const MENU_ITEM =
-  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 disabled:opacity-60";
+  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60";
 
 export function OrderHeaderActions({
   adminHref,
@@ -117,7 +117,7 @@ export function OrderHeaderActions({
             aria-expanded={statusOpen}
             aria-haspopup="menu"
             aria-label={`Statut : ${ORDER_STATUS_LABELS[status]}. Changer le statut`}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white pl-2.5 pr-2 text-sm text-gray-800 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card pl-2.5 pr-2 text-sm text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={() => {
               setMoreOpen(false);
               setPendingTarget(null);
@@ -126,14 +126,14 @@ export function OrderHeaderActions({
             type="button"
           >
             <Badge variant={ORDER_STATUS_BADGE[status]}>{ORDER_STATUS_LABELS[status]}</Badge>
-            <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-400" />
+            <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
           </button>
         )}
 
         {statusOpen && !pendingTarget && (
           <div className={MENU_PANEL} role="menu">
             {allowed.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-gray-500">
+              <p className="px-3 py-2 text-xs text-muted-foreground">
                 Statut définitif — cette commande ne peut plus changer d&apos;état.
               </p>
             ) : (
@@ -157,15 +157,15 @@ export function OrderHeaderActions({
 
         {pendingTarget && (
           <div className={`${MENU_PANEL} max-w-[min(320px,calc(100vw-2rem))] p-3`} role="dialog">
-            <p className="text-sm text-gray-900">
+            <p className="text-sm text-foreground">
               Passer <strong>{orderNumber}</strong> à <strong>{ORDER_STATUS_LABELS[pendingTarget]}</strong> ?
             </p>
             {restoresStock && (
-              <p className="mt-1.5 text-xs text-amber-700">Le stock des articles sera remis en rayon.</p>
+              <p className="mt-1.5 text-xs text-warning-strong">Le stock des articles sera remis en rayon.</p>
             )}
             <div className="mt-3 flex gap-2">
               <button
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-violet-700 px-3 text-xs font-medium text-white hover:bg-violet-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 disabled:opacity-60"
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
                 disabled={isPending}
                 onClick={() => apply(pendingTarget)}
                 type="button"
@@ -174,7 +174,7 @@ export function OrderHeaderActions({
                 Confirmer
               </button>
               <button
-                className="h-8 rounded-lg border border-gray-200 px-3 text-xs font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 disabled:opacity-60"
+                className="h-8 rounded-lg border border-border px-3 text-xs font-medium text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
                 disabled={isPending}
                 onClick={() => setPendingTarget(null)}
                 type="button"
@@ -189,7 +189,7 @@ export function OrderHeaderActions({
       {/* --------------------------------------------------------- print */}
       <Link
         aria-label="Imprimer le ticket de commande"
-        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-violet-700 px-2.5 text-sm font-medium text-white hover:bg-violet-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 sm:px-3"
+        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-primary px-2.5 text-sm font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-3"
         href={printHref}
         rel="noopener"
         target="_blank"
@@ -204,7 +204,7 @@ export function OrderHeaderActions({
           aria-expanded={moreOpen}
           aria-haspopup="menu"
           aria-label="Autres actions"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={() => {
             setStatusOpen(false);
             setMoreOpen((v) => !v);
@@ -217,15 +217,15 @@ export function OrderHeaderActions({
         {moreOpen && (
           <div className={MENU_PANEL} role="menu">
             <a className={MENU_ITEM} href={printHref} rel="noopener" role="menuitem" target="_blank">
-              <Printer aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-400" />
+              <Printer aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
               Imprimer le ticket
             </a>
             <a className={MENU_ITEM} href={receiptHref} rel="noopener" role="menuitem" target="_blank">
-              <ReceiptText aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-400" />
+              <ReceiptText aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
               Reçu client
             </a>
             <a className={MENU_ITEM} href={adminHref} rel="noopener" role="menuitem" target="_blank">
-              <ExternalLink aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-400" />
+              <ExternalLink aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
               Modifier dans l&apos;admin
             </a>
           </div>
@@ -233,7 +233,7 @@ export function OrderHeaderActions({
       </div>
 
       {error && (
-        <p className="flex w-full items-start gap-1.5 text-xs text-red-600" role="alert">
+        <p className="flex w-full items-start gap-1.5 text-xs text-destructive" role="alert">
           <AlertTriangle aria-hidden="true" className="mt-px h-3.5 w-3.5 shrink-0" />
           {error}
         </p>

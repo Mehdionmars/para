@@ -2,7 +2,7 @@
 
 import { ChevronDown, ChevronUp, Copy, GripVertical, Trash2 } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/dashboard/ui/Modal";
 
 /** Generic reorderable/duplicable/deletable array editor — backs every

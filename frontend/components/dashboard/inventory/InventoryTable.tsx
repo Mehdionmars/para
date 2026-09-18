@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Badge } from "@/components/dashboard/ui/Badge";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { Supplier } from "@/lib/dashboard/inventory";
 import { railEligibility, stockStatus, type Product } from "@/lib/dashboard/products-types";
 import { RestockModal } from "./RestockModal";

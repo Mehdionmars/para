@@ -25,7 +25,7 @@ import { FooterColumnsEditor, HeaderEditor, ThemeEditor, TopBarEditor } from "@/
 import { CategoryStripEditor, NavigationItemEditor } from "@/components/dashboard/storefront/NavigationEditors";
 import { NavigationList } from "@/components/dashboard/storefront/NavigationList";
 import { SectionList } from "@/components/dashboard/storefront/SectionList";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import {
   mapDraftToPayload,
@@ -255,7 +255,7 @@ function SectionEditor({
   brands: BrandOption[];
 }) {
   if (!selectedKey) {
-    return <p className="p-4 text-sm text-gray-400">Sélectionnez une section à gauche pour la modifier.</p>;
+    return <p className="p-4 text-sm text-muted-foreground">Sélectionnez une section à gauche pour la modifier.</p>;
   }
 
   // Rails are dynamic — one entry per configured rail, addressed as
@@ -263,7 +263,7 @@ function SectionEditor({
   if (selectedKey.startsWith("rail:")) {
     const railKey = selectedKey.slice("rail:".length);
     const railIndex = draft.rails.findIndex((r) => r.key === railKey);
-    if (railIndex === -1) return <p className="p-4 text-sm text-gray-400">Ce rail n&apos;existe plus.</p>;
+    if (railIndex === -1) return <p className="p-4 text-sm text-muted-foreground">Ce rail n&apos;existe plus.</p>;
     return (
       <SingleRailEditor
         rail={draft.rails[railIndex]}
@@ -280,7 +280,7 @@ function SectionEditor({
   const renderEditor = SECTION_EDITORS[selectedKey as SectionKey];
   if (!renderEditor) {
     return (
-      <p className="p-4 text-sm text-gray-500">
+      <p className="p-4 text-sm text-muted-foreground">
         Ce bloc n&apos;a pas encore de contenu éditable depuis le builder — seules sa visibilité et sa position
         peuvent être modifiées pour le moment.
       </p>
@@ -483,12 +483,12 @@ export function StorefrontBuilder({
   const previewSrc = `/api/dashboard-preview?next=${encodeURIComponent("/")}&v=${previewNonce}`;
 
   return (
-    <div className="flex h-full flex-col bg-gray-50">
+    <div className="flex h-full flex-col bg-muted/50">
       {/* Top bar */}
-      <div className="flex flex-none items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-2.5">
+      <div className="flex flex-none items-center justify-between gap-4 border-b border-border bg-card px-4 py-2.5">
         <div className="flex items-center gap-3">
-          <h1 className="text-sm font-semibold text-gray-900">Storefront Builder</h1>
-          <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-0.5">
+          <h1 className="text-sm font-semibold text-foreground">Storefront Builder</h1>
+          <div className="flex items-center gap-1 rounded-lg bg-muted p-0.5">
             {(
               [
                 ["home", "Contenu"],
@@ -501,7 +501,7 @@ export function StorefrontBuilder({
                 key={key}
                 type="button"
                 onClick={() => setActiveTab(key)}
-                className={`rounded-md px-2.5 py-1 text-xs font-medium ${activeTab === key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium ${activeTab === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {label}
               </button>
@@ -509,14 +509,14 @@ export function StorefrontBuilder({
           </div>
           <span
             className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-              active.status === "published" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
+              active.status === "published" ? "bg-success/10 text-success-strong" : "bg-warning/10 text-warning-strong"
             }`}
           >
             {active.status === "published" ? "Publié" : "Brouillon non publié"}
           </span>
         </div>
 
-        <div className="flex items-center gap-1 rounded-lg border border-gray-200 p-0.5">
+        <div className="flex items-center gap-1 rounded-lg border border-border p-0.5">
           {(Object.keys(VIEWPORTS) as (keyof typeof VIEWPORTS)[]).map((v) => {
             const Icon = v === "desktop" ? Monitor : v === "tablet" ? Tablet : Smartphone;
             return (
@@ -525,7 +525,7 @@ export function StorefrontBuilder({
                 type="button"
                 onClick={() => setViewport(v)}
                 aria-label={v}
-                className={`rounded p-1.5 ${viewport === v ? "bg-violet-100 text-violet-700" : "text-gray-400 hover:bg-gray-50"}`}
+                className={`rounded p-1.5 ${viewport === v ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-muted/50"}`}
               >
                 <Icon className="h-4 w-4" />
               </button>
@@ -534,19 +534,19 @@ export function StorefrontBuilder({
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-muted-foreground">
             {active.saveState === "saving" && (
               <span className="flex items-center gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" /> Enregistrement...
               </span>
             )}
             {active.saveState === "saved" && !active.dirty && "Brouillon enregistré"}
-            {active.saveState === "error" && <span className="text-red-600">{active.saveError}</span>}
+            {active.saveState === "error" && <span className="text-destructive">{active.saveError}</span>}
             {active.saveState === "idle" && active.dirty && "Modifications non enregistrées"}
           </span>
           {activeKind === "home" && (
             <>
-              <button type="button" onClick={home.undo} disabled={!home.canUndo} aria-label="Annuler" className="rounded p-1.5 text-gray-400 hover:bg-gray-100 disabled:opacity-30">
+              <button type="button" onClick={home.undo} disabled={!home.canUndo} aria-label="Annuler" className="rounded p-1.5 text-muted-foreground hover:bg-muted disabled:opacity-30">
                 <Undo2 className="h-4 w-4" />
               </button>
               <button
@@ -554,7 +554,7 @@ export function StorefrontBuilder({
                 onClick={home.redo}
                 disabled={!home.canRedo}
                 aria-label="Rétablir"
-                className="rounded p-1.5 text-gray-400 hover:bg-gray-100 disabled:opacity-30"
+                className="rounded p-1.5 text-muted-foreground hover:bg-muted disabled:opacity-30"
               >
                 <Redo2 className="h-4 w-4" />
               </button>
@@ -581,7 +581,7 @@ export function StorefrontBuilder({
 
       {confirmDiscard && (
         <Modal title="Annuler le brouillon ?" onClose={() => setConfirmDiscard(false)}>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Toutes les modifications non publiées seront perdues et la page reviendra à la dernière version publiée.
           </p>
           <div className="mt-4 flex justify-end gap-2">
@@ -606,7 +606,7 @@ export function StorefrontBuilder({
 
       {/* 3-column body */}
       <div className="flex min-h-0 flex-1">
-        <aside className="w-64 flex-none overflow-y-auto border-r border-gray-200 bg-white p-3">
+        <aside className="w-64 flex-none overflow-y-auto border-r border-border bg-card p-3">
           {activeTab === "home" ? (
             <>
             {/* The photo circles open the home page but are not a home
@@ -615,9 +615,9 @@ export function StorefrontBuilder({
             <button
               type="button"
               onClick={() => setActiveTab("navigation")}
-              className="mb-3 w-full rounded-md border border-dashed border-gray-300 px-2.5 py-2 text-left text-xs text-gray-600 hover:border-violet-300 hover:bg-violet-50"
+              className="mb-3 w-full rounded-md border border-dashed border-input px-2.5 py-2 text-left text-xs text-muted-foreground hover:border-primary/40 hover:bg-primary/10"
             >
-              <span className="block font-medium text-gray-800">Catégories rapides (ronds photo)</span>
+              <span className="block font-medium text-foreground">Catégories rapides (ronds photo)</span>
               Se modifient dans l&apos;onglet Navigation →
             </button>
             <SectionList
@@ -641,7 +641,7 @@ export function StorefrontBuilder({
               onAdd={handleAddNavItem}
             />
           ) : activeTab === "theme" ? (
-            <p className="p-2 text-xs text-gray-400">Couleurs et thèmes du storefront.</p>
+            <p className="p-2 text-xs text-muted-foreground">Couleurs et thèmes du storefront.</p>
           ) : (
             <div className="flex flex-col gap-1">
               {GLOBAL_ITEMS.map((item) => (
@@ -650,7 +650,7 @@ export function StorefrontBuilder({
                   type="button"
                   onClick={() => setGlobalSelectedKey(item.key)}
                   className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-sm font-medium ${
-                    globalSelectedKey === item.key ? "border-violet-300 bg-violet-50 text-violet-800" : "border-transparent text-gray-800 hover:bg-gray-50"
+                    globalSelectedKey === item.key ? "border-primary/40 bg-primary/10 text-primary" : "border-transparent text-foreground hover:bg-muted/50"
                   }`}
                 >
                   <PanelTop className="h-3.5 w-3.5 flex-none" />
@@ -661,17 +661,17 @@ export function StorefrontBuilder({
           )}
         </aside>
 
-        <div className="flex flex-1 items-start justify-center overflow-auto bg-gray-100 p-4">
+        <div className="flex flex-1 items-start justify-center overflow-auto bg-muted p-4">
           <iframe
             key={previewNonce}
             src={previewSrc}
             title="Aperçu du storefront"
-            className="h-full rounded-lg border border-gray-200 bg-white shadow-sm transition-all"
+            className="h-full rounded-lg border border-border bg-card shadow-sm transition-all"
             style={{ width: VIEWPORTS[viewport], maxWidth: "100%" }}
           />
         </div>
 
-        <aside className="w-80 flex-none overflow-y-auto border-l border-gray-200 bg-white p-4">
+        <aside className="w-80 flex-none overflow-y-auto border-l border-border bg-card p-4">
           {activeTab === "home" ? (
             <SectionEditor selectedKey={selectedKey} draft={draft} update={update} brands={brands} />
           ) : activeTab === "navigation" ? (
@@ -693,10 +693,10 @@ export function StorefrontBuilder({
                   brands={brands}
                 />
               ) : (
-                <p className="text-sm text-gray-400">Sélectionnez un lien à gauche pour le modifier.</p>
+                <p className="text-sm text-muted-foreground">Sélectionnez un lien à gauche pour le modifier.</p>
               )}
 
-              <div className="border-t border-gray-200 pt-5">
+              <div className="border-t border-border pt-5">
                 <CategoryStripEditor
                   value={navigation.draft.catStrip}
                   onChange={(catStrip) => navigation.setDraft({ ...navigation.draft, catStrip })}

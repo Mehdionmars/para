@@ -1,7 +1,7 @@
 import { PasswordForm } from "@/components/dashboard/settings/PasswordForm";
 import { PaymentMethodsForm } from "@/components/dashboard/settings/PaymentMethodsForm";
 import { RoutineOfferForm } from "@/components/dashboard/settings/RoutineOfferForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/dashboard/guard";
 import { getPaymentSettings, getRoutineOffer } from "@/lib/dashboard/paymentSettings";
 import { canEditContent, isStaffUser, ROLE_LABELS } from "@/lib/dashboard/roles";
@@ -20,8 +20,8 @@ export default async function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Paramètres</h1>
-        <p className="mt-1 text-sm text-gray-500">Votre compte et vos accès.</p>
+        <h1 className="text-xl font-semibold text-foreground">Paramètres</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Votre compte et vos accès.</p>
       </div>
 
       <Card>
@@ -29,13 +29,13 @@ export default async function SettingsPage() {
           <CardTitle>Profil</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 text-sm">
-          <div className="flex justify-between border-b border-gray-50 pb-3">
-            <span className="text-gray-500">Email</span>
-            <span className="font-medium text-gray-900">{user.email}</span>
+          <div className="flex justify-between border-b border-border pb-3">
+            <span className="text-muted-foreground">Email</span>
+            <span className="font-medium text-foreground">{user.email}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Rôle(s)</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-muted-foreground">Rôle(s)</span>
+            <span className="font-medium text-foreground">
               {user.roles.length ? user.roles.map((r) => ROLE_LABELS[r]).join(", ") : "—"}
             </span>
           </div>
@@ -55,7 +55,7 @@ export default async function SettingsPage() {
         <Card>
           <CardHeader className="flex-col items-start gap-1">
             <CardTitle>Modes de paiement</CardTitle>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Ce que la boutique accepte au checkout, et où envoyer un virement. Modifiable sans redéploiement.
             </p>
           </CardHeader>
@@ -69,7 +69,7 @@ export default async function SettingsPage() {
         <Card>
           <CardHeader className="flex-col items-start gap-1">
             <CardTitle>Offre routine</CardTitle>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Remise sur les lots composés depuis « Complétez votre routine » d&apos;une fiche produit. Vérifiée et
               appliquée au moment de la commande.
             </p>

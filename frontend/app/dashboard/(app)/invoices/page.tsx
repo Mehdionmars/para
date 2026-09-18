@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge } from "@/components/dashboard/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/dashboard/guard";
 import { listOrders } from "@/lib/dashboard/orders";
 import { PAYMENT_STATUS_LABELS, type PaymentStatus } from "@/lib/dashboard/orders-types";
@@ -32,32 +32,32 @@ export default async function InvoicesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Factures</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl font-semibold text-foreground">Factures</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Générées à partir des commandes confirmées — pas de système de facturation séparé, une facture correspond
           exactement à une commande payée ou en cours de traitement.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Factures</div>
-          <div className="mt-1 text-xl font-semibold text-gray-900">{invoices.length}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Factures</div>
+          <div className="mt-1 text-xl font-semibold text-foreground">{invoices.length}</div>
         </div>
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Montant total facturé</div>
-          <div className="mt-1 text-xl font-semibold text-gray-900">{money(totalInvoiced)}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Montant total facturé</div>
+          <div className="mt-1 text-xl font-semibold text-foreground">{money(totalInvoiced)}</div>
         </div>
-        <div className="rounded-xl border border-gray-200/70 bg-white shadow-xs p-4">
-          <div className="text-xs text-gray-500">Commandes non facturables</div>
-          <div className="mt-1 text-xl font-semibold text-gray-900">{orders.length - invoices.length}</div>
+        <div className="rounded-xl border border-border bg-card shadow-xs p-4">
+          <div className="text-xs text-muted-foreground">Commandes non facturables</div>
+          <div className="mt-1 text-xl font-semibold text-foreground">{orders.length - invoices.length}</div>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">
+            <tr className="border-b border-border text-left text-xs font-medium text-muted-foreground">
               <th className="px-4 py-3">N° facture</th>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Date</th>
@@ -68,16 +68,16 @@ export default async function InvoicesPage() {
           </thead>
           <tbody>
             {invoices.map((order) => (
-              <tr key={order.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
-                <td className="px-4 py-3 font-medium text-gray-900">{order.orderNumber}</td>
-                <td className="px-4 py-3 text-gray-700">{order.customerName}</td>
-                <td className="px-4 py-3 text-gray-500">{new Date(order.createdAt).toLocaleDateString("fr-FR")}</td>
-                <td className="px-4 py-3 font-medium text-gray-900">{money(order.total)}</td>
+              <tr key={order.id} className="border-b border-border last:border-0 hover:bg-muted/50">
+                <td className="px-4 py-3 font-medium text-foreground">{order.orderNumber}</td>
+                <td className="px-4 py-3 text-foreground">{order.customerName}</td>
+                <td className="px-4 py-3 text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("fr-FR")}</td>
+                <td className="px-4 py-3 font-medium text-foreground">{money(order.total)}</td>
                 <td className="px-4 py-3">
                   <Badge variant={PAYMENT_BADGE[order.paymentStatus]}>{PAYMENT_STATUS_LABELS[order.paymentStatus]}</Badge>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Link href={`/dashboard/orders/${order.id}`} className="text-xs font-medium text-violet-700 hover:underline">
+                  <Link href={`/dashboard/orders/${order.id}`} className="text-xs font-medium text-primary hover:underline">
                     Voir la commande
                   </Link>
                 </td>
@@ -85,7 +85,7 @@ export default async function InvoicesPage() {
             ))}
             {invoices.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-gray-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted-foreground">
                   Aucune facture pour le moment — les commandes payées apparaîtront ici.
                 </td>
               </tr>

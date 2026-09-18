@@ -3,7 +3,7 @@
 import { CheckCheck, Loader2 } from "lucide-react";
 import { useTransition } from "react";
 import { markAllRead } from "@/app/dashboard/(app)/notifications/actions";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/dashboard/ui/Toast";
 
 export function MarkAllReadButton({ count }: { count: number }) {

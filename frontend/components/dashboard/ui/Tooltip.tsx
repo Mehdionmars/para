@@ -37,7 +37,7 @@ export function Tooltip({
         <span
           id={id}
           role="tooltip"
-          className={`pointer-events-none absolute left-1/2 z-[120] -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white shadow-md ${
+          className={`pointer-events-none absolute left-1/2 z-[120] -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs font-medium text-white shadow-md ${
             side === "top" ? "bottom-full mb-1.5" : "top-full mt-1.5"
           }`}
         >

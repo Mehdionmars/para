@@ -10,8 +10,8 @@ export default async function CustomersPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Clients</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl font-semibold text-foreground">Clients</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Basé sur l&apos;historique des commandes — il n&apos;y a pas de comptes clients séparés sur le site.
         </p>
       </div>

@@ -10,7 +10,7 @@ import { CMS_URL } from "@/lib/dashboard/constants";
 import { requireRole } from "@/lib/dashboard/guard";
 import { getOrder, getOrderHistory, getOrderItemImages } from "@/lib/dashboard/orders";
 import { paymentMethodLabel, ORDER_STATUS_BADGE, ORDER_STATUS_LABELS, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
-import { Badge } from "@/components/dashboard/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { canEditOrders, isStaffUser } from "@/lib/dashboard/roles";
 
 function money(n: number) {
@@ -31,9 +31,9 @@ function Panel({
   bodyClassName?: string;
 }) {
   return (
-    <section className={`rounded-xl border border-gray-200 bg-white ${className}`}>
+    <section className={`rounded-xl border border-border bg-card ${className}`}>
       {title && (
-        <h2 className="border-b border-gray-100 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+        <h2 className="border-b border-border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
         </h2>
       )}
@@ -45,8 +45,8 @@ function Panel({
 function Line({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-0.5 text-sm">
-      <span className="shrink-0 text-gray-500">{label}</span>
-      <span className="min-w-0 break-words text-right text-gray-900">{value}</span>
+      <span className="shrink-0 text-muted-foreground">{label}</span>
+      <span className="min-w-0 break-words text-right text-foreground">{value}</span>
     </div>
   );
 }
@@ -82,11 +82,11 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           It is also the only panel on this page with two zones, which is what
           makes it read as the masthead rather than as the first of six equal
           cards. */}
-      <header className="rounded-xl border border-gray-200 bg-white">
+      <header className="rounded-xl border border-border bg-card">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-3 p-4">
         <Link
           aria-label="Retour aux commandes"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           href="/dashboard/orders"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
@@ -102,13 +102,13 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
               vocabulary is the one the orders table already uses, so the state
               a operator saw in the list is the state they see here. */}
           <div className="flex items-center gap-2">
-            <h1 className="truncate text-lg font-semibold text-gray-900">{order.orderNumber}</h1>
+            <h1 className="truncate text-lg font-semibold text-foreground">{order.orderNumber}</h1>
             <Badge className="shrink-0" variant={ORDER_STATUS_BADGE[order.status]}>
               {ORDER_STATUS_LABELS[order.status]}
             </Badge>
           </div>
           {/* One metadata line instead of three separate blocks. */}
-          <p className="mt-0.5 truncate text-xs text-gray-500">
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
             {new Date(order.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
             {" · "}
             {order.customerName}
@@ -133,7 +133,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
             finer — where the order is, not just what it is — so it belongs
             attached to the number, not five sections down between the
             addresses and the internal notes. */}
-        <div className="border-t border-gray-100 px-4 py-3.5">
+        <div className="border-t border-border px-4 py-3.5">
           <OrderTimelineCompact
             entries={history.map((h) => ({ at: h.createdAt, status: h.toStatus }))}
             status={order.status}
@@ -147,14 +147,14 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           list. */}
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Panel title={`Articles (${order.items.length})`} bodyClassName="p-0">
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-border">
             {order.items.map((item) => {
               const productId = typeof item.product === "object" && item.product ? item.product.id : item.product;
               const image = typeof productId === "number" ? images.get(productId) : undefined;
               const variantLabel = orderItemVariantLabel(item);
               return (
                 <li className="flex items-center gap-3 px-4 py-3" key={item.id}>
-                  <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                  <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                     {/* An order line snapshots the name and price, never the
                         image, so this comes from the product itself. A product
                         deleted since the sale has no entry and keeps the
@@ -171,25 +171,25 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-900" title={item.name}>
+                    <p className="truncate text-sm font-medium text-foreground" title={item.name}>
                       {item.name}
                     </p>
                     {/* Two lines of one product must never be mistaken for
                         each other: the option and its SKU are what tell the
                         operator which box to pick. */}
                     {(variantLabel || item.sku) && (
-                      <p className="mt-0.5 truncate text-xs text-gray-700">
+                      <p className="mt-0.5 truncate text-xs text-foreground">
                         {variantLabel && <span className="font-medium">{variantLabel}</span>}
-                        {variantLabel && item.sku && <span className="text-gray-400"> · </span>}
-                        {item.sku && <span className="text-gray-500">SKU {item.sku}</span>}
+                        {variantLabel && item.sku && <span className="text-muted-foreground"> · </span>}
+                        {item.sku && <span className="text-muted-foreground">SKU {item.sku}</span>}
                       </p>
                     )}
-                    <p className="mt-0.5 text-xs text-gray-500">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {item.quantity} × {money(item.price)}
                     </p>
                   </div>
 
-                  <span className="shrink-0 text-sm font-semibold tabular-nums text-gray-900">
+                  <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
                     {money(item.price * item.quantity)}
                   </span>
                 </li>
@@ -209,15 +209,18 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
             {discount > 0 && (
               <Line
                 label={`Réduction${order.couponCode ? ` (${order.couponCode})` : ""}`}
-                value={<span className="text-emerald-600">−{money(discount)}</span>}
+                value={<span className="text-success-strong">−{money(discount)}</span>}
               />
+            )}
+            {order.giftLabel && (
+              <Line label="Cadeau à joindre" value={<span className="font-medium text-success-strong">{order.giftLabel}</span>} />
             )}
             <Line label="Livraison" value={order.shipping ? money(order.shipping) : "Offerte"} />
           </div>
 
-          <div className="mt-3 flex items-baseline justify-between border-t border-gray-100 pt-3">
-            <span className="text-sm font-semibold text-gray-900">Total</span>
-            <span className="text-lg font-semibold tabular-nums text-violet-700">{money(order.total)}</span>
+          <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
+            <span className="text-sm font-semibold text-foreground">Total</span>
+            <span className="text-lg font-semibold tabular-nums text-primary">{money(order.total)}</span>
           </div>
         </Panel>
       </div>
@@ -232,19 +235,19 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           they are not. The divider does the same job for a tenth of the ink,
           and it becomes a stacked pair on a phone where columns cannot hold. */}
       <Panel title="Destinataire et livraison" bodyClassName="p-0">
-        <div className="grid grid-cols-1 divide-y divide-gray-100 md:grid-cols-2 md:divide-x md:divide-y-0">
+        <div className="grid grid-cols-1 divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0">
         <div className="p-4">
           {/* The two words the merge took away. The panel title names the
               domain; these name the columns inside it, so an operator still
               scans to "the address" rather than to "the right-hand side". */}
-          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Client</p>
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Client</p>
           <div className="flex flex-col gap-1 text-sm">
-            <p className="font-medium text-gray-900">{order.customerName}</p>
-            <a className="truncate text-violet-700 hover:underline" href={`mailto:${order.customerEmail}`}>
+            <p className="font-medium text-foreground">{order.customerName}</p>
+            <a className="truncate text-primary hover:underline" href={`mailto:${order.customerEmail}`}>
               {order.customerEmail}
             </a>
             {order.customerPhone && (
-              <a className="text-gray-600 hover:underline" href={`tel:${order.customerPhone}`}>
+              <a className="text-muted-foreground hover:underline" href={`tel:${order.customerPhone}`}>
                 {order.customerPhone}
               </a>
             )}
@@ -252,14 +255,14 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
         </div>
 
         <div className="p-4">
-          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Livraison</p>
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Livraison</p>
           <div className="flex flex-col gap-1 text-sm">
             {order.shippingAddress ? (
-              <p className="whitespace-pre-line break-words text-gray-700">{order.shippingAddress}</p>
+              <p className="whitespace-pre-line break-words text-foreground">{order.shippingAddress}</p>
             ) : (
-              <p className="text-gray-400">Aucune adresse renseignée</p>
+              <p className="text-muted-foreground">Aucune adresse renseignée</p>
             )}
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               {paymentMethodLabel(order.paymentMethod)}
               {" · "}
               {order.shipping ? money(order.shipping) : "Livraison offerte"}
@@ -280,13 +283,13 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           a top and a tail. A rule and a label are enough to say "there is more
           here"; the Collapsible rows bring their own dividers. */}
       <section>
-        <h2 className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+        <h2 className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Informations supplémentaires
         </h2>
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white/60">
+        <div className="overflow-hidden rounded-xl border border-border bg-card/60">
         <Collapsible hint={`${history.length} entrée${history.length > 1 ? "s" : ""}`} title="Historique des statuts">
           {history.length === 0 ? (
-            <p className="text-sm text-gray-500">Aucun changement enregistré.</p>
+            <p className="text-sm text-muted-foreground">Aucun changement enregistré.</p>
           ) : (
             <ul className="flex flex-col gap-2.5">
               {history
@@ -294,15 +297,15 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
                 .reverse()
                 .map((h) => (
                   <li className="text-sm" key={h.id}>
-                    <p className="text-gray-900">
+                    <p className="text-foreground">
                       {h.fromStatus ? `${ORDER_STATUS_LABELS[h.fromStatus]} → ` : ""}
                       <strong>{ORDER_STATUS_LABELS[h.toStatus]}</strong>
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(h.createdAt).toLocaleString("fr-FR")}
                       {h.changedByEmail ? ` · ${h.changedByEmail}` : ""}
                     </p>
-                    {h.reason && <p className="mt-0.5 text-xs text-gray-600">{h.reason}</p>}
+                    {h.reason && <p className="mt-0.5 text-xs text-muted-foreground">{h.reason}</p>}
                   </li>
                 ))}
             </ul>
@@ -321,9 +324,9 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
 
         <Collapsible title="Notes internes">
           {order.notes ? (
-            <p className="whitespace-pre-line text-sm text-gray-700">{order.notes}</p>
+            <p className="whitespace-pre-line text-sm text-foreground">{order.notes}</p>
           ) : (
-            <p className="text-sm text-gray-500">Aucune note.</p>
+            <p className="text-sm text-muted-foreground">Aucune note.</p>
           )}
         </Collapsible>
         </div>

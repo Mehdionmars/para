@@ -5,7 +5,7 @@ import { Printer } from "lucide-react";
 import { useEffect } from "react";
 import { paymentMethodLabel, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
 import type { Order } from "@/lib/dashboard/orders-types";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 
 /**
  * A branded receipt / invoice for a customer.
@@ -145,6 +145,12 @@ export function OrderReceipt({
               <div className="receipt-discount">
                 <dt>Remise{order.couponCode ? ` · ${order.couponCode}` : ""}</dt>
                 <dd>−{money(discount)}</dd>
+              </div>
+            )}
+            {order.giftLabel && (
+              <div>
+                <dt>Cadeau offert</dt>
+                <dd>{order.giftLabel}</dd>
               </div>
             )}
             <div>

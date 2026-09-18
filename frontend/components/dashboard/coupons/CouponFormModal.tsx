@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createCoupon, updateCoupon, type CouponInput } from "@/app/dashboard/(app)/coupons/actions";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import type { Coupon, CouponType } from "@/lib/dashboard/coupons-types";
 

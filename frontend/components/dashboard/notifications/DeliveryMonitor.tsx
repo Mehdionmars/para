@@ -3,8 +3,8 @@
 import { Loader2, RotateCw } from "lucide-react";
 import { useState, useTransition } from "react";
 import { retryDelivery } from "@/app/dashboard/(app)/notifications/actions";
-import { Badge } from "@/components/dashboard/ui/Badge";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/dashboard/ui/Toast";
 import { Tooltip } from "@/components/dashboard/ui/Tooltip";
 import {

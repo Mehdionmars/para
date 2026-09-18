@@ -3,8 +3,8 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { updatePassword } from "@/app/dashboard/(app)/settings/actions";
-import { Button } from "@/components/dashboard/ui/Button";
-import { Input } from "@/components/dashboard/ui/Input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export function PasswordForm() {
   const [password, setPassword] = useState("");

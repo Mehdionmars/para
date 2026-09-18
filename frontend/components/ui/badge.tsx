@@ -17,6 +17,25 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        // Semantic status variants, carried over from the hand-rolled kit this
+        // replaced. The label takes a *-strong token, not the base hue: a 10%
+        // tint over a light card leaves the base colour at roughly 2.3:1 as
+        // text, and the -strong variants are the same hue darkened for exactly
+        // that job, inverting in the dark theme where the tint sits on a
+        // near-black surface.
+        //
+        // Shape follows shadcn's rounded-md rather than the old kit's
+        // rounded-full, which is the point of consolidating: a status chip in
+        // a KPI card and the identical chip in the list 300px below it were
+        // different shapes.
+        success:
+          "border-success/30 bg-success/10 text-success-strong",
+        warning:
+          "border-warning/30 bg-warning/10 text-warning-strong",
+        danger:
+          "border-destructive/30 bg-destructive/10 text-destructive-strong",
+        info:
+          "border-info/30 bg-info/10 text-info-strong",
       },
     },
     defaultVariants: {

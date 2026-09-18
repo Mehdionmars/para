@@ -3,7 +3,7 @@
 import { Check, Info } from "lucide-react";
 import { useState, useTransition } from "react";
 import { updatePaymentSettings } from "@/app/dashboard/(app)/settings/actions";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/dashboard/cn";
 import {
   BANK_FIELD_LABELS,

@@ -1,6 +1,6 @@
 import { SearchX } from "lucide-react";
 import Link from "next/link";
-import { buttonVariants } from "@/components/dashboard/ui/Button";
+import { buttonVariants } from "@/components/ui/button";
 
 /**
  * Answers the `notFound()` calls raised by the record pages — an order,

@@ -31,15 +31,15 @@ const ICONS = {
 } as const;
 
 const STYLES = {
-  error: "border-red-200 bg-red-50 text-red-900",
-  info: "border-gray-200 bg-white text-gray-900",
-  success: "border-emerald-200 bg-emerald-50 text-emerald-900",
+  error: "border-destructive/30 bg-destructive/10 text-destructive-strong",
+  info: "border-border bg-card text-foreground",
+  success: "border-success/30 bg-success/10 text-success-strong",
 } as const;
 
 const ICON_COLOR = {
-  error: "text-red-600",
-  info: "text-gray-500",
-  success: "text-emerald-600",
+  error: "text-destructive",
+  info: "text-muted-foreground",
+  success: "text-success-strong",
 } as const;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

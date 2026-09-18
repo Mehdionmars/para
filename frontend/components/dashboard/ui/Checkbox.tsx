@@ -30,7 +30,7 @@ export const Checkbox = forwardRef<
         else if (forwardedRef) forwardedRef.current = node;
       }}
       className={cn(
-        "h-4 w-4 cursor-pointer rounded border-gray-300 accent-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-1",
+        "h-4 w-4 cursor-pointer rounded border-input accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
         className,
       )}
       {...props}

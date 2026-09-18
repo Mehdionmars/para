@@ -1,6 +1,6 @@
 import { Package, PackageSearch, Plus } from "lucide-react";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/dashboard/ui/Button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
  * Skeleton mirroring the real row layout — same heights, same column widths,

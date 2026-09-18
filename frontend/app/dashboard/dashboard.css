@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ============================================================
    Order receipt / invoice
@@ -354,104 +355,185 @@
 }
 
 /* ============================================================
-   shadcn/ui tokens
+   Design tokens — violet accent on a neutral base
    ============================================================
-   Added so the statistics-02 block can render inside the dashboard root,
-   which imports this file rather than app/shadcn.css. Importing that file
-   here instead would pull a second copy of the whole Tailwind build into the
-   same document, and its base layer would repaint the dashboard.
+   One system for the whole admin, light and dark.
 
-   Chosen to sit on the palette already in use: --border is gray-100 and
-   --muted-foreground gray-500, the exact values the dashboard's own cards and
-   labels use, so the block reads as part of this interface rather than as a
-   visitor from another design system.
+   This replaces two separate token blocks that used to live here: a
+   shadcn/ui set and a sidebar set, each hand-copied from app/shadcn.css and
+   each retuned to imitate the dashboard's older hand-built look (hex greys,
+   a violet that was not the violet in shadcn.css). Two copies of the same
+   vocabulary drift, and they had: the neutrals here were #6b7280-family
+   sRGB hex while shadcn.css had moved to oklch, so a component rendered a
+   different grey depending on which root it was mounted under.
 
-   Note the deliberate absence of shadcn's `* { border-color: var(--border) }`
-   base rule. That sets a default border colour on every element in the
-   document; here it is narrowed to the shadcn components that rely on it,
-   leaving the rest of the dashboard untouched. */
+   Why the values are not simply shadcn's neutral defaults: the storefront
+   and the login screen are violet, and an admin that drops the brand reads
+   as a different product. So the surfaces are neutral — that is what keeps
+   a dense interface calm — and violet is spent only where it carries
+   meaning: the active nav item, primary actions, focus rings, chart series.
+
+   Why oklch throughout: the greys are declared with zero chroma, which is
+   the only way to be sure a neutral is actually neutral. The hex greys this
+   replaces carried a slight blue cast that fought the violet.
+
+   Scope note: --success and --warning are local additions, not shadcn
+   tokens. The KPI trend badges were written as bg-teal-400/10 and
+   bg-orange-400/10 — fixed Tailwind colours with no dark variant, which
+   would have stayed pale mint on a near-black card. */
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --radius: 0.625rem;
 
-  --background: #ffffff;
+  /* The page is neutral-50 and cards are white, so a card reads as raised
+     without needing a shadow to say so. */
+  --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
 
-  --card: #ffffff;
-  --card-foreground: #111827; /* gray-900, matching the dashboard's headings */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
 
-  --primary: oklch(0.205 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  /* violet-600 — the one saturated colour in the light theme. */
+  --primary: oklch(0.541 0.281 293.009);
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: #f3f4f6; /* gray-100 */
-  --secondary-foreground: #111827;
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
 
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280; /* gray-500, the dashboard's label colour */
+  --muted: oklch(0.97 0 0);
+  /* 0.53, not Tailwind's 0.556. At 0.556 the header's search placeholder
+     computed to exactly 4.50:1 and muted text on the page background to
+     4.54:1 — passing by a rounding error. This buys a little real margin
+     across every secondary label without reading darker. */
+  --muted-foreground: oklch(0.53 0 0);
 
-  --accent: #f3f4f6;
-  --accent-foreground: #111827;
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
 
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
 
-  --border: rgb(229 231 235 / 0.7); /* gray-200 at 70%, the dashboard card rule */
-  --input: #e5e7eb;
-  --ring: #c4b5fd; /* violet-300, the dashboard's focus ring */
+  --success: oklch(0.696 0.14 164.6);
+  --warning: oklch(0.72 0.158 55.2);
+
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  /* violet-300: a ring wants to be visibly the brand without competing with
+     the filled violet-600 button it often sits on. */
+  --ring: oklch(0.811 0.111 293.571);
+
+  /* The sidebar keeps a white surface against the neutral-50 page — the
+     inverse of shadcn's default, where the sidebar is the tinted one. Here
+     the content area is what should recede. */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.439 0 0);
+  --sidebar-primary: oklch(0.541 0.281 293.009);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.969 0.016 293.756);
+  --sidebar-accent-foreground: oklch(0.491 0.27 292.581);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.811 0.111 293.571);
+
+  /* Chart series. chart-1 is the brand violet because the revenue line is
+     the one every chart leads with; the rest are spaced around the hue
+     circle far enough apart to stay separable, including for the red-green
+     confusions — no two neighbours here differ by hue alone. */
+  --chart-1: oklch(0.541 0.281 293.009);
+  --chart-2: oklch(0.7 0.12 183.6);
+  --chart-3: oklch(0.769 0.152 70.1);
+  --chart-4: oklch(0.645 0.203 16.4);
+  --chart-5: oklch(0.6 0.13 250.2);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+
+  /* violet-500, not the 600 above: the darker violet loses too much contrast
+     against a neutral-900 card to carry a label. */
+  --primary: oklch(0.606 0.25 292.717);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --success: oklch(0.765 0.14 164.6);
+  --warning: oklch(0.79 0.155 70.1);
+
+  /* Translucent white rather than a fixed grey, so one token sits correctly
+     on both the page and the lighter card. */
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.702 0.183 293.541);
+
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.87 0 0);
+  --sidebar-primary: oklch(0.606 0.25 292.717);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.283 0.141 291.089);
+  --sidebar-accent-foreground: oklch(0.811 0.111 293.571);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.702 0.183 293.541);
+
+  --chart-1: oklch(0.702 0.183 293.541);
+  --chart-2: oklch(0.755 0.12 183.6);
+  --chart-3: oklch(0.828 0.152 70.1);
+  --chart-4: oklch(0.712 0.194 16.4);
+  --chart-5: oklch(0.686 0.13 250.2);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
-
-@layer base {
-  /* shadcn's Card and Badge set a border *width* and expect the colour from
-     the global base rule. Supplying it only to them is what keeps that rule
-     from leaking onto the rest of the dashboard. */
-  [data-slot="card"],
-  [data-slot="badge"] {
-    border-color: var(--border);
-  }
-}
-
-/* ============================================================
-   shadcn sidebar tokens
-   ============================================================
-   The dashboard root imports this file, not app/shadcn.css, so the sidebar
-   primitives need their palette here too. Values chosen to reproduce the
-   sidebar the dashboard already had rather than to import shadcn's neutral
-   greys: white surface, gray-100 rules, and violet-50/violet-700 for the
-   active item — the same pair the old hand-written nav used. */
-:root {
-  --sidebar: #ffffff;
-  --sidebar-foreground: #4b5563; /* gray-600 */
-  --sidebar-primary: #6d28d9; /* violet-700 */
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f3ff; /* violet-50 — active and hover */
-  --sidebar-accent-foreground: #6d28d9;
-  --sidebar-border: #f3f4f6; /* gray-100 */
-  --sidebar-ring: #c4b5fd; /* violet-300 */
-}
-
-@theme inline {
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -460,4 +542,275 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  /* Narrower than shadcn's own `* { border-color: var(--border) }`, and
+     deliberately so. That rule repaints every bordered element in the
+     document; this admin still has ~1 100 hand-written border-gray-*
+     classes on legacy surfaces, and a global default would be fighting them
+     for the length of the migration.
+
+     [data-slot] is exactly the shadcn surface: every primitive it ships
+     stamps that attribute, so this reaches all of them — card, badge,
+     input, sidebar, sheet, dropdown, tooltip, separator — and nothing else.
+     Widen it to `*` once the token sweep reaches the last page. */
+  [data-slot] {
+    border-color: var(--border);
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Opt out of motion wholesale rather than per-component. tw-animate-css
+     drives every shadcn primitive's enter and exit, so honouring the
+     preference in one place covers the ones added later too. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+/*
+ * A scroll container with no visible scrollbar.
+ *
+ * Used on the sidebar, whose thirteen items across five groups overflow a
+ * short viewport (a 13" laptop with the browser chrome and a dock) and drew a
+ * permanent grey gutter down the middle of the chrome — beside the page's own
+ * scrollbar, so the admin showed two parallel bars.
+ *
+ * Scrolling itself is untouched: wheel, trackpad, keyboard, and
+ * scroll-into-view on focus all behave exactly as before. Only the paint is
+ * suppressed. Declared for the standards property, for Firefox, and for the
+ * WebKit pseudo-element, because no one of the three covers every engine.
+ */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * The header ticker: date, time and greeting, scrolling horizontally.
+ *
+ * The track holds the same content twice and translates by exactly -50%, so
+ * the moment the first copy leaves the viewport the second is sitting where
+ * the first began and the loop is seamless. Animating to -100% of a single
+ * copy instead would leave a visible empty gap on every pass.
+ *
+ * The mask fades both edges. Without it the text is guillotined mid-glyph at
+ * the container's border, which reads as a clipping bug rather than motion.
+ */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker {
+  overflow: hidden;
+  /* Both properties: Firefox and Safari still want the unprefixed and
+     -webkit- forms respectively for mask-image on a non-SVG mask. */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 2.5rem,
+    black calc(100% - 2.5rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 2.5rem,
+    black calc(100% - 2.5rem),
+    transparent
+  );
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 32s linear infinite;
+}
+
+/* Reading stops while you are pointing at it. */
+.ticker:hover .ticker-track,
+.ticker:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+/*
+ * Reduced motion needs its own rule here, not just the global one.
+ *
+ * The global opt-out collapses every animation to 0.01ms with one iteration,
+ * which for a marquee means it *completes* instantly — the track lands at
+ * translateX(-50%) and stays there, showing the second copy mid-sentence and
+ * looking broken. Stopping it at the start and hiding the duplicate is what
+ * "no motion" actually means for this component.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .ticker-track > [data-ticker-copy="2"] {
+    display: none;
+  }
+
+  .ticker {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* ============================================================
+   Status and information tones
+   ============================================================
+   The order lifecycle has eight states, and the dashboard shows them in
+   three places that must agree: the calendar's per-order dots, the filter
+   chips above it, and the status chart on the overview.
+
+   They did not agree. The dots came from ORDER_STATUS_DOT, a record of fixed
+   Tailwind utilities (bg-amber-500, bg-emerald-500, …) with no dark variant,
+   while the chart coloured its bars by array index off the chart-* ramp — so
+   "Livrée" was emerald in one panel and whatever fourth series colour in the
+   next. Neither was wrong on its own; together they taught the reader that
+   colour here means nothing.
+
+   Declared as tokens so one hue decision serves both, and so the dark theme
+   can lift lightness without shifting hue. The assignments keep the
+   semantics the old record already chose — amber waits, emerald completes,
+   red stops — because those were right and are what an operator has already
+   learned.
+
+   Non-colour codes carry the same information everywhere these appear: the
+   chart labels its rows, the chips name the status, and the calendar dots sit
+   inside a button whose accessible name states the day and the count. */
+:root {
+  --info: oklch(0.685 0.145 236.1);
+
+  --status-pending: oklch(0.769 0.152 70.1);
+  --status-confirmed: oklch(0.685 0.145 236.1);
+  --status-preparing: oklch(0.585 0.203 277.1);
+  --status-shipped: oklch(0.606 0.25 292.717);
+  --status-delivered: oklch(0.696 0.14 164.6);
+  --status-cancelled: oklch(0.637 0.237 25.3);
+  --status-returned: oklch(0.705 0.187 47.6);
+  --status-refunded: oklch(0.645 0.246 16.4);
+}
+
+.dark {
+  --info: oklch(0.746 0.13 236.1);
+
+  /* Lightness up, chroma slightly down: the light-theme values are tuned
+     against white and go muddy on a neutral-900 card. Hue is unchanged, so a
+     status keeps its identity across themes. */
+  --status-pending: oklch(0.828 0.152 70.1);
+  --status-confirmed: oklch(0.746 0.13 236.1);
+  --status-preparing: oklch(0.673 0.182 277.1);
+  --status-shipped: oklch(0.702 0.183 293.541);
+  --status-delivered: oklch(0.765 0.14 164.6);
+  --status-cancelled: oklch(0.704 0.191 22.216);
+  --status-returned: oklch(0.77 0.17 47.6);
+  --status-refunded: oklch(0.712 0.194 16.4);
+}
+
+@theme inline {
+  --color-info: var(--info);
+
+  --color-status-pending: var(--status-pending);
+  --color-status-confirmed: var(--status-confirmed);
+  --color-status-preparing: var(--status-preparing);
+  --color-status-shipped: var(--status-shipped);
+  --color-status-delivered: var(--status-delivered);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-status-returned: var(--status-returned);
+  --color-status-refunded: var(--status-refunded);
+}
+
+/* ============================================================
+   Typeface
+   ============================================================
+   The missing half of the font setup.
+
+   app/dashboard/layout.tsx loads Inter and exposes it as --font-inter, and
+   <body> carries `font-sans`. Nothing connected the two: Tailwind v4 is
+   css-first with no config file, and neither @theme block above declared a
+   font key — so `font-sans` resolved to Tailwind's own default stack and the
+   admin rendered in Segoe UI on Windows, Roboto elsewhere. Inter was
+   requested on every page load and its font face reported `unloaded`,
+   because nothing ever referenced it.
+
+   `inline` matters here: it makes the utility emit `var(--font-inter)`
+   rather than snapshotting the value at build time, which is what lets a
+   next/font variable — injected on <html> at runtime — actually reach it. */
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
+/* ============================================================
+   On-tint text
+   ============================================================
+   --success and --warning are tuned to be *drawn*: they stroke the KPI
+   sparkline, where a graphical object needs 3:1 and a mid-lightness green
+   reads well against a card.
+
+   As text on their own 10% tint they measured 2.32:1 and 2.37:1 against a
+   4.5:1 requirement — the trend badges were very nearly invisible in the
+   light theme, and only escaped notice because the seed data produces no
+   deltas, so the badges never render. The moment the shop has three orders
+   in two consecutive weeks they would have shipped unreadable.
+
+   Splitting the role rather than darkening --success fixes the badge without
+   dulling the sparkline. In the dark theme the tint sits on a near-black
+   card, so the text has to move the other way; these are the same values as
+   --success/--warning there, which already measured 7.5:1. */
+:root {
+  --success-strong: oklch(0.47 0.115 164.6);
+  --warning-strong: oklch(0.47 0.115 58.5);
+  --info-strong: oklch(0.48 0.13 245.2);
+  --destructive-strong: oklch(0.47 0.19 27.3);
+}
+
+.dark {
+  --success-strong: oklch(0.765 0.14 164.6);
+  --warning-strong: oklch(0.79 0.155 70.1);
+  --info-strong: oklch(0.77 0.12 236.1);
+  --destructive-strong: oklch(0.75 0.16 22.2);
+}
+
+@theme inline {
+  --color-success-strong: var(--success-strong);
+  --color-warning-strong: var(--warning-strong);
+  --color-info-strong: var(--info-strong);
+  --color-destructive-strong: var(--destructive-strong);
 }

@@ -64,24 +64,24 @@ export function OrderTimelineCompact({
                 aria-hidden="true"
                 className={`flex h-5 w-5 items-center justify-center rounded-full border-2 text-[10px] font-bold ${
                   current
-                    ? "border-violet-600 bg-violet-600 text-white"
+                    ? "border-primary bg-primary text-white"
                     : done
-                      ? "border-emerald-500 bg-emerald-500 text-white"
-                      : "border-gray-200 bg-white text-transparent"
+                      ? "border-success bg-success text-white"
+                      : "border-border bg-card text-transparent"
                 }`}
               >
                 {done && !current ? "✓" : "●"}
               </span>
               <span
                 className={`mt-1.5 text-[11px] leading-tight ${
-                  current ? "font-semibold text-violet-700" : done ? "text-gray-800" : "text-gray-400"
+                  current ? "font-semibold text-primary" : done ? "text-foreground" : "text-muted-foreground"
                 }`}
               >
                 {ORDER_STATUS_LABELS[step]}
               </span>
               {/* nowrap: "19 août, 15:10" broke onto three lines once the
                   column narrowed, which read as three separate values. */}
-              <span className="mt-0.5 whitespace-nowrap text-[10px] tabular-nums text-gray-400">
+              <span className="mt-0.5 whitespace-nowrap text-[10px] tabular-nums text-muted-foreground">
                 {shortTime(timeOf.get(step))}
               </span>
             </div>
@@ -89,7 +89,7 @@ export function OrderTimelineCompact({
             {!isLast && (
               <span
                 aria-hidden="true"
-                className={`mt-2.5 h-0.5 w-6 flex-none ${i < lastProgress ? "bg-emerald-500" : "bg-gray-200"}`}
+                className={`mt-2.5 h-0.5 w-6 flex-none ${i < lastProgress ? "bg-success" : "bg-border"}`}
               />
             )}
           </li>
@@ -100,12 +100,12 @@ export function OrderTimelineCompact({
         <li className="flex w-[88px] flex-none flex-col items-center px-1 text-center">
           <span
             aria-hidden="true"
-            className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-red-400 bg-red-400 text-[10px] font-bold text-white"
+            className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-destructive bg-destructive text-[10px] font-bold text-white"
           >
             !
           </span>
-          <span className="mt-1.5 text-[11px] font-semibold leading-tight text-red-600">{ended}</span>
-          <span className="mt-0.5 whitespace-nowrap text-[10px] tabular-nums text-gray-400">
+          <span className="mt-1.5 text-[11px] font-semibold leading-tight text-destructive">{ended}</span>
+          <span className="mt-0.5 whitespace-nowrap text-[10px] tabular-nums text-muted-foreground">
             {shortTime(timeOf.get(status))}
           </span>
         </li>

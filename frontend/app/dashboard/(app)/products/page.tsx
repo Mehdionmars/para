@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { ProductsView } from "@/components/dashboard/products/ProductsView";
-import { Button } from "@/components/dashboard/ui/Button";
+import { Button } from "@/components/ui/button";
 import { requireRole } from "@/lib/dashboard/guard";
 import { parseProductQuery } from "@/lib/dashboard/product-query";
 import { listBrands, listProductsPage } from "@/lib/dashboard/products";
@@ -29,8 +29,8 @@ export default async function ProductsPage({
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Produits</h1>
-          <p className="mt-1 text-sm text-gray-500">Gérez le catalogue Para d&apos;Hiver.</p>
+          <h1 className="text-xl font-semibold text-foreground">Produits</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Gérez le catalogue Para d&apos;Hiver.</p>
         </div>
         {canEditProducts(user) && (
           <Link href="/dashboard/products/new">

@@ -32,15 +32,15 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl"
+        className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl"
       >
-        <div className="flex items-center justify-between gap-4 border-b border-gray-100 px-5 py-4">
-          <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Fermer"
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>

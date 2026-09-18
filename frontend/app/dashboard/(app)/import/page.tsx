@@ -8,8 +8,8 @@ export default async function ImportPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Import produits</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl font-semibold text-foreground">Import produits</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Créez ou mettez à jour des produits en masse depuis un fichier CSV ou Excel. Le SKU fait foi : un SKU
           existant met à jour le produit, un nouveau SKU en crée un.
         </p>

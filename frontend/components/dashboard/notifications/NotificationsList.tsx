@@ -4,7 +4,7 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { markRead } from "@/app/dashboard/(app)/notifications/actions";
-import { Badge } from "@/components/dashboard/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/dashboard/ui/Toast";
 import { NotificationIcon, RelativeTime } from "@/components/notifications/notification-icon";
 import {
