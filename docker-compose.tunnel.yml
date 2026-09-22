@@ -3,9 +3,12 @@
 #   TUNNEL_TOKEN=<token from the Cloudflare dashboard> \
 #   docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d
 #
-# Replaces docker-compose.https.yml rather than joining it: Cloudflare
+# Supersedes docker-compose.https.yml for the public names: Cloudflare
 # terminates TLS with a publicly trusted certificate, so the Caddy front and
-# its self-signed local CA have nothing left to do. Run one or the other.
+# its self-signed local CA have nothing left to do for them. The two overlays
+# do not conflict, though — this one publishes no ports — and the host runs
+# both, so Caddy still answers on the LAN address for a browser that reaches
+# the box by IP.
 #
 # The tunnel dials out to Cloudflare, so nothing here publishes a port and the
 # host needs no public address — which is the point, on a machine sitting on a
@@ -13,16 +16,51 @@
 #
 # Routes are configured in the dashboard (Zero Trust > Networks > Tunnels >
 # Published application routes), not here, because a token-managed tunnel
-# takes its configuration from Cloudflare. The topology this project expects:
+# takes its configuration from Cloudflare. What this tunnel publishes today:
 #
-#   paradhiver.ma        -> http://frontend:3000   storefront
-#   admin.paradhiver.ma  -> http://frontend:3000   dashboard
-#   api.paradhiver.ma    -> http://backend:3001    Payload CMS
+#   preprod.paradhiver.ma        -> http://frontend:3000   storefront
+#   admin-preprod.paradhiver.ma  -> http://frontend:3000   dashboard
 #
-# Both frontend routes point at the same service on purpose: the dashboard is
-# part of the storefront app, and proxy.ts decides which of the two to serve
-# from the Host header. The `admin.` prefix is what it matches on, and
-# admin.paradhiver.ma is already its hardcoded ADMIN_HOST.
+# and what it is being moved to, one cutover away:
+#
+#   paradhiver.ma                -> http://frontend:3000   storefront
+#   www.paradhiver.ma            -> http://frontend:3000   storefront
+#   admin.paradhiver.ma          -> http://frontend:3000   dashboard
+#
+# The public names currently resolve to a Vercel deployment that PRODUCT.md
+# does not describe and that cannot work: Vercel has no route to the CMS —
+# there is no public one to have — so CMS_URL is unset there, and the guard in
+# frontend/lib/dashboard/constants.ts refuses to load. PRODUCT.md's topology
+# is the intended one and the public domain comes back here. Until the DNS
+# records and the routes above both exist, the first pair is still the honest
+# list; do not add a route for a name the box is not yet answering for.
+#
+# Worth saying plainly, because the names suggest otherwise: this is one
+# stack. Adding the public names to this tunnel does not create an
+# environment — it makes paradhiver.ma and preprod.paradhiver.ma two doors
+# onto the same containers and the same Postgres. A real preprod needs a
+# second compose project, with its own database and its own tunnel.
+#
+# api.paradhiver.ma has no DNS record at all, and never has — it was the
+# example in the CMS_URL error message in frontend/lib/dashboard/constants.ts
+# until that message was corrected to name this network. The storefront reaches
+# the CMS over the compose network (CMS_URL=http://backend:3001) and a human
+# reaches it through Caddy's :3443 on the LAN, so publishing a public route
+# would only put the Payload admin login on the internet.
+#
+# Getting these names wrong is the failure this list exists to prevent. A DNS
+# record pointing at a tunnel that publishes no route for that hostname is
+# answered with Cloudflare's Error 1033, which reads like the tunnel is down
+# while every container on the host is healthy and serving.
+#
+# Both routes point at the same service on purpose: the dashboard is part of
+# the storefront app, and proxy.ts decides which of the two to serve from the
+# Host header. It matches when the first label is `admin` or begins with
+# `admin-`, and the flattened `admin-preprod` spelling is deliberate:
+# Cloudflare's Universal SSL certificate covers `paradhiver.ma` and
+# `*.paradhiver.ma` and stops there, so a two-label
+# `admin.preprod.paradhiver.ma` would be served a certificate that does not
+# match it and fail in the browser before any of this is reached.
 #
 # Service names are used as origins because cloudflared shares the compose
 # network — the traffic between it and the apps never leaves the host.

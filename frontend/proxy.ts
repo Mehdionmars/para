@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { PREVIEW_PREFIX, SESSION_COOKIE } from "@/lib/dashboard/constants";
+// From ./routing, never from ./constants: that module throws when CMS_URL is
+// unset, and a throw in this file's import graph answers every matched route
+// with a bare 500. See lib/dashboard/routing.ts.
+import { PREVIEW_PREFIX, SESSION_COOKIE } from "@/lib/dashboard/routing";
 
 const ADMIN_HOST = "admin.paradhiver.ma";
 

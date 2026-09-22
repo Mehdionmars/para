@@ -16,10 +16,22 @@ export const NAV_COLLECTION_ROUTES = [
   { label: 'Nouveautés', value: '/shop/nouveautes' },
 ] as const
 
+// Every entry here has a route in the storefront. The institutional pages
+// below were added with those routes: before them, a nav or footer item
+// meant to point at the FAQ or the delivery terms had nowhere to go, which
+// is why nine of the fifteen footer links all resolved to /services.
 export const NAV_PAGE_ROUTES = [
   { label: 'Accueil', value: '/' },
   { label: 'Services', value: '/services' },
   { label: 'Contact', value: '/contact' },
+  { label: 'À propos', value: '/a-propos' },
+  { label: 'Questions fréquentes', value: '/faq' },
+  { label: 'Livraison', value: '/livraison' },
+  { label: 'Retours et remboursements', value: '/retours' },
+  { label: 'Le journal (blog)', value: '/blog' },
+  { label: 'Conditions générales de vente', value: '/cgv' },
+  { label: 'Politique de confidentialité', value: '/politique-confidentialite' },
+  { label: 'Mentions légales', value: '/mentions-legales' },
 ] as const
 
 export const NAV_BADGE_COLORS = ['none', 'plum', 'teal', 'sale'] as const
