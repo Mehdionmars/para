@@ -74,6 +74,9 @@ export interface Config {
     products: Product;
     services: Service;
     stores: Store;
+    pages: Page;
+    posts: Post;
+    faqs: Faq;
     orders: Order;
     suppliers: Supplier;
     inventory: Inventory;
@@ -109,6 +112,9 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     stores: StoresSelect<false> | StoresSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     suppliers: SuppliersSelect<false> | SuppliersSelect<true>;
     inventory: InventorySelect<false> | InventorySelect<true>;
@@ -556,6 +562,156 @@ export interface Store {
    */
   mapUrl?: string | null;
   order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Pages institutionnelles. Le slug correspond à une route du site — une page enregistrée sous un slug absent de la liste n'aurait nulle part où s'afficher.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  /**
+   * Le H1 de la page.
+   */
+  title: string;
+  /**
+   * La route qui affichera cette page. Une seule page par slug.
+   */
+  slug: 'a-propos' | 'cgv' | 'mentions-legales' | 'politique-confidentialite' | 'livraison' | 'retours';
+  /**
+   * Brouillon = la page répond toujours, mais affiche "en cours de publication" et n'est pas indexée par Google.
+   */
+  status: 'draft' | 'published';
+  /**
+   * Chapô affiché sous le titre. Optionnel.
+   */
+  intro?: string | null;
+  /**
+   * Une entrée par article ou par rubrique. L'ordre ici est l'ordre affiché, et chaque section reçoit son propre lien ancré.
+   */
+  sections?:
+    | {
+        title: string;
+        body?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
+  seo?: {
+    /**
+     * Vide = le titre de la page suivi de "— Para d'Hiver".
+     */
+    metaTitle?: string | null;
+    /**
+     * Vide = l'introduction. 150-160 caractères conseillés.
+     */
+    metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Articles du blog. Un article publié apparaît sur /blog et dans le sitemap.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  slug?: string | null;
+  /**
+   * Résumé affiché sur la carte de l'article et utilisé comme description SEO par défaut.
+   */
+  excerpt?: string | null;
+  /**
+   * Image de couverture. Sans elle, la carte affiche un aplat de la charte.
+   */
+  featuredImage?: (number | null) | Media;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  category?: ('conseils' | 'routines' | 'ingredients' | 'actualites') | null;
+  /**
+   * Ex. "Dr. Untel, pharmacien". Optionnel.
+   */
+  author?: string | null;
+  status: 'draft' | 'published';
+  /**
+   * Date affichée et date de tri. Vide à la publication = maintenant.
+   */
+  publishedAt?: string | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Questions fréquentes affichées sur /faq, groupées par catégorie.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  /**
+   * Une réponse courte vaut mieux qu'un paragraphe. Les liens internes sont autorisés.
+   */
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Sert de titre de groupe sur la page.
+   */
+  category: 'commande' | 'livraison' | 'paiement' | 'retours' | 'produits';
+  /**
+   * Ordre d'affichage dans sa catégorie. Les plus petits d'abord.
+   */
+  order?: number | null;
+  published?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1217,6 +1373,18 @@ export interface PayloadLockedDocument {
         value: number | Store;
       } | null)
     | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: number | Faq;
+      } | null)
+    | ({
         relationTo: 'orders';
         value: number | Order;
       } | null)
@@ -1496,6 +1664,67 @@ export interface StoresSelect<T extends boolean = true> {
       };
   mapUrl?: T;
   order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  intro?: T;
+  sections?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  featuredImage?: T;
+  content?: T;
+  category?: T;
+  author?: T;
+  status?: T;
+  publishedAt?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  question?: T;
+  answer?: T;
+  category?: T;
+  order?: T;
+  published?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2598,6 +2827,25 @@ export interface PaymentSetting {
      */
     minItems?: number | null;
   };
+  /**
+   * Un cadeau ajouté à la commande dès qu'elle contient assez de produits d'une marque (ex. 3 produits Filorga achetés = trousse offerte). Vérifié au moment de la commande et inscrit sur celle-ci ; se cumule avec les remises.
+   */
+  giftOffer?: {
+    enabled?: boolean | null;
+    brand?: (number | null) | Brand;
+    /**
+     * Unités comptées : deux exemplaires du même produit comptent pour deux.
+     */
+    minItems?: number | null;
+    /**
+     * Affiché dans le panier et inscrit sur la commande.
+     */
+    giftName?: string | null;
+    /**
+     * Affiché sur les fiches produit de la marque et sur sa page.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3021,7 +3269,7 @@ export interface Theme {
 export interface Navigation {
   id: number;
   /**
-   * Bande de catégories horizontale affichée sous l'en-tête, sur mobile uniquement (masquée à partir de 768px, où ces liens sont déjà dans le menu principal).
+   * Les ronds photo en haut de la page d'accueil, sur téléphone et tablette (masqués à partir de 1024px, où le menu principal les remplace). Désactivée, la boutique affiche une sélection par défaut.
    */
   catStrip?: {
     enabled?: boolean | null;
@@ -3045,7 +3293,21 @@ export interface Navigation {
           category?: (number | null) | Category;
           brand?: (number | null) | Brand;
           collectionRoute?: ('/catalogue' | '/marques' | '/collections' | '/shop/soldes' | '/shop/nouveautes') | null;
-          pageRoute?: ('/' | '/services' | '/contact') | null;
+          pageRoute?:
+            | (
+                | '/'
+                | '/services'
+                | '/contact'
+                | '/a-propos'
+                | '/faq'
+                | '/livraison'
+                | '/retours'
+                | '/blog'
+                | '/cgv'
+                | '/politique-confidentialite'
+                | '/mentions-legales'
+              )
+            | null;
           /**
            * e.g. /marques
            */
@@ -3069,7 +3331,21 @@ export interface Navigation {
         category?: (number | null) | Category;
         brand?: (number | null) | Brand;
         collectionRoute?: ('/catalogue' | '/marques' | '/collections' | '/shop/soldes' | '/shop/nouveautes') | null;
-        pageRoute?: ('/' | '/services' | '/contact') | null;
+        pageRoute?:
+          | (
+              | '/'
+              | '/services'
+              | '/contact'
+              | '/a-propos'
+              | '/faq'
+              | '/livraison'
+              | '/retours'
+              | '/blog'
+              | '/cgv'
+              | '/politique-confidentialite'
+              | '/mentions-legales'
+            )
+          | null;
         /**
          * e.g. /marques
          */
@@ -3619,6 +3895,15 @@ export interface PaymentSettingsSelect<T extends boolean = true> {
         percent?: T;
         minItems?: T;
       };
+  giftOffer?:
+    | T
+    | {
+        enabled?: T;
+        brand?: T;
+        minItems?: T;
+        giftName?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -4005,6 +4290,9 @@ export interface TaskCreateCollectionExport {
       | 'products'
       | 'services'
       | 'stores'
+      | 'pages'
+      | 'posts'
+      | 'faqs'
       | 'orders'
       | 'suppliers'
       | 'inventory'

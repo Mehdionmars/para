@@ -13,13 +13,16 @@ import { Brands } from './collections/Brands'
 import { Categories } from './collections/Categories'
 import { CouponRedemptions } from './collections/CouponRedemptions'
 import { Coupons } from './collections/Coupons'
+import { Faqs } from './collections/Faqs'
 import { InstagramPosts } from './collections/InstagramPosts'
 import { Inventory } from './collections/Inventory'
 import { Media, MAX_UPLOAD_BYTES } from './collections/Media'
 import { Notifications } from './collections/Notifications'
 import { OrderStatusHistory } from './collections/OrderStatusHistory'
+import { Pages } from './collections/Pages'
 import { PaymentEvents } from './collections/PaymentEvents'
 import { Orders } from './collections/Orders'
+import { Posts } from './collections/Posts'
 import { PushSubscriptions } from './collections/PushSubscriptions'
 import { Products } from './collections/Products'
 import { Services } from './collections/Services'
@@ -142,6 +145,13 @@ export default buildConfig({
     Products,
     Services,
     Stores,
+    // Editorial content: the institutional pages, the blog and the FAQ.
+    // Grouped here rather than scattered among the commerce collections so
+    // the admin sidebar reads as two jobs — running the shop, and writing
+    // what the shop says about itself.
+    Pages,
+    Posts,
+    Faqs,
     Orders,
     Suppliers,
     Inventory,

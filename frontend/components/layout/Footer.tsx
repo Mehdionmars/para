@@ -9,19 +9,22 @@ import { STORES } from "@/data/stores";
 /**
  * Legal notices.
  *
- * These three were a single hard-coded string of plain text — legally
- * required documents that no one could open. They are a list now, and each
- * one becomes a real link the moment `href` is filled in.
+ * These three were plain text with no href: the routes did not exist, and
+ * `Footer.tsx` said so — "pointing at them would trade dead text for a 404".
+ * The routes exist now (/mentions-legales, /politique-confidentialite, /cgv),
+ * and each answers 200 whether or not the pharmacy has published the document
+ * yet: an unwritten page renders "en cours de publication" with a way to
+ * reach a human, and marks itself noindex until it has content. So a link is
+ * now always better than dead text.
  *
- * The hrefs are deliberately absent: /mentions-legales, /confidentialite and
- * /cgv do not exist yet, and pointing at them would trade dead text for a
- * 404. The documents themselves are legal copy for the pharmacy to supply —
- * not something to generate.
+ * `/politique-confidentialite`, not the `/confidentialite` this comment used
+ * to name: one canonical URL per document, and nothing ever shipped pointing
+ * at the shorter form, so there is no redirect to add.
  */
-const LEGAL: { label: string; href?: string }[] = [
-  { label: "Mentions légales" },
-  { label: "Politique de confidentialité" },
-  { label: "CGV" },
+const LEGAL: { label: string; href: string }[] = [
+  { href: "/mentions-legales", label: "Mentions légales" },
+  { href: "/politique-confidentialite", label: "Politique de confidentialité" },
+  { href: "/cgv", label: "CGV" },
 ];
 
 /**
@@ -246,13 +249,9 @@ export function Footer({ columns = FOOTER_COLUMNS }: { columns?: FooterColumn[] 
         <ul style={{ listStyle: "none", display: "flex", flexWrap: "wrap", gap: "6px 18px", margin: 0, padding: 0 }}>
           {LEGAL.map((item) => (
             <li key={item.label}>
-              {item.href ? (
-                <Link className="chrome-footer-link" href={item.href}>
-                  {item.label}
-                </Link>
-              ) : (
-                item.label
-              )}
+              <Link className="chrome-footer-link" href={item.href}>
+                {item.label}
+              </Link>
             </li>
           ))}
         </ul>

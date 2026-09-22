@@ -262,13 +262,25 @@ export const SiteChrome: GlobalConfig = {
           ],
         },
       ],
+      // Each href points at the route its label promises.
+      //
+      // Nine of these fifteen links used to resolve to /services — not
+      // because /services was right, but because it was the only static page
+      // that existed: "Articles", "FAQ", "Livraison" and "Routines" all
+      // landed on the in-store treatments page. The institutional routes now
+      // exist, so the defaults name them.
+      //
+      // This is the default for a fresh install only. An existing database
+      // already holds its own footerColumns rows, and Payload does not
+      // re-apply a defaultValue to a global that has been saved — the live
+      // links have to be updated in the admin (Storefront Builder > Global).
       defaultValue: [
         {
           title: 'À propos',
           visible: true,
           links: [
-            { label: 'Notre pharmacie', href: '/services', visible: true },
-            { label: 'Nos pharmaciens', href: '/services', visible: true },
+            { label: 'Notre pharmacie', href: '/a-propos', visible: true },
+            { label: 'Nos services', href: '/services', visible: true },
             { label: 'Contact', href: '/contact', visible: true },
           ],
         },
@@ -286,20 +298,20 @@ export const SiteChrome: GlobalConfig = {
           title: 'Conseils',
           visible: true,
           links: [
+            { label: 'Le journal', href: '/blog', visible: true },
+            { label: 'Rituels', href: '/rituels', visible: true },
             { label: 'Conseils pharmaceutiques', href: '/services', visible: true },
-            { label: 'Articles', href: '/services', visible: true },
-            { label: 'Routines', href: '/services', visible: true },
-            { label: 'Préoccupations', href: '/services', visible: true },
+            { label: 'Coffrets & cadeaux', href: '/collections', visible: true },
           ],
         },
         {
-          title: 'Services',
+          title: 'Aide',
           visible: true,
           links: [
-            { label: 'Livraison', href: '/services', visible: true },
-            { label: 'Scanner ordonnance', href: '/services', visible: true },
-            { label: 'Contact', href: '/contact', visible: true },
-            { label: 'FAQ', href: '/services', visible: true },
+            { label: 'Livraison', href: '/livraison', visible: true },
+            { label: 'Retours et remboursements', href: '/retours', visible: true },
+            { label: 'Suivre ma commande', href: '/suivi-commande', visible: true },
+            { label: 'FAQ', href: '/faq', visible: true },
           ],
         },
       ],
