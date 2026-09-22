@@ -1,6 +1,13 @@
-// Kept separate from payload.ts (which imports next/headers) so proxy.ts
-// (Edge middleware — no next/headers there) can use these without pulling
-// server-only code into the Edge bundle.
+// Kept separate from payload.ts (which imports next/headers) so the routing
+// constants can be used without pulling server-only code into the Edge bundle.
+//
+// That separation was not enough on its own. This module also *throws* when
+// CMS_URL is missing, and proxy.ts imported SESSION_COOKIE and PREVIEW_PREFIX
+// from here — so the guard below ran inside the middleware and took every
+// matched route down with it, /api/health included. Those two names now live
+// in ./routing, which reads no environment and cannot fail, and are only
+// re-exported here. Read the note at the top of that file before moving
+// anything that touches process.env into it.
 
 /**
  * Base URL of the Payload backend.
@@ -37,25 +44,20 @@ const isServer = typeof window === "undefined";
 
 if (isServer && isProduction && !isBuildPhase && !process.env.CMS_URL?.trim()) {
   throw new Error(
-    "CMS_URL is required in production (e.g. https://api.paradhiver.ma). " +
+    // The example is the compose-network address on purpose. This was
+    // "https://api.paradhiver.ma", a hostname that has never had a DNS record
+    // — the CMS is deliberately not published, so anyone who followed the
+    // suggestion was sent to configure a backend that does not exist.
+    "CMS_URL is required in production (e.g. http://backend:3001). " +
       "See frontend/.env.example.",
   );
 }
 
 export const CMS_URL = process.env.CMS_URL?.trim() || "http://localhost:3001";
-export const SESSION_COOKIE = "dashboard_token";
 
 /**
- * Path prefix that serves the storefront verbatim, on whatever host asked.
- *
- * The Storefront Builder previews the shop in an iframe from inside the
- * dashboard, and that iframe has to load from the dashboard's own host: draft
- * mode is carried by a host-only cookie, so a shop hostname would never
- * receive it and would render the published page instead of the draft being
- * edited.
- *
- * Asking the admin host for "/" does not work either — proxy.ts rewrites it
- * to /dashboard, which is how the builder ended up previewing itself. This
- * prefix is the exemption, stripped in proxy.ts before routing.
+ * Defined in ./routing, re-exported here so every existing importer keeps
+ * working. Importing them *from here* re-arms the guard above — which is
+ * correct for anything that also reads the CMS, and wrong for the proxy.
  */
-export const PREVIEW_PREFIX = "/preview";
+export { PREVIEW_PREFIX, SESSION_COOKIE } from "./routing";

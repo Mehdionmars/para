@@ -1,5 +1,3 @@
-import { CMS_URL } from "@/lib/dashboard/constants";
-
 /**
  * The one URL an outside monitor needs.
  *
@@ -20,9 +18,22 @@ import { CMS_URL } from "@/lib/dashboard/constants";
  * ## What it deliberately does not say
  *
  * This endpoint is unauthenticated and public. It reports `ok` or `down` and
- * which of two layers failed — never the error text, the backend's address, or
- * a stack. A connection error carries host names and, for a database, the
+ * which of three layers failed — never the error text, the backend's address,
+ * or a stack. A connection error carries host names and, for a database, the
  * connection string; none of that belongs in a response anyone can request.
+ * "config" is a layer name and nothing more: it says the deployment is
+ * misconfigured without saying which value or what it should be.
+ *
+ * ## Why CMS_URL is read here and not imported
+ *
+ * lib/dashboard/constants exports it, and throws on import when it is unset in
+ * production. Importing it here would mean this route dies exactly when it has
+ * something worth saying, which is what happened on the public domain: the
+ * same guard, reached through proxy.ts, answered every matched route with a
+ * bare 500 — this one included — so the monitor could only report "down" with
+ * nothing to point at. The guard is deliberately kept (a server with no
+ * backend should fail, not quietly serve an empty shop); it is this probe that
+ * has to outlive it.
  *
  * ## Timing
  *
@@ -38,9 +49,20 @@ const UPSTREAM_TIMEOUT_MS = 4_000;
 
 export async function GET() {
   const started = Date.now();
+  const cmsUrl = process.env.CMS_URL?.trim();
+
+  if (!cmsUrl) {
+    // No fallback to localhost here, on purpose. Reaching a port on the
+    // container itself would report "backend" and send whoever is reading
+    // this looking for a backend that was never addressed in the first place.
+    return Response.json(
+      { status: "down", layer: "config", ms: Date.now() - started },
+      { headers: { "Cache-Control": "no-store" }, status: 503 },
+    );
+  }
 
   try {
-    const res = await fetch(`${CMS_URL}/api/health`, {
+    const res = await fetch(`${cmsUrl}/api/health`, {
       cache: "no-store",
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
