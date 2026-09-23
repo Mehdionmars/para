@@ -110,6 +110,33 @@ const colorField = (name: string, defaultValue: string) =>
     defaultValue,
   }) as const
 
+/**
+ * Where a square offer tile leads.
+ *
+ * Free text rather than a relationship, deliberately. The destinations these
+ * tiles need are not one kind of thing — a product (/produit/<slug>), a
+ * category or aisle (/shop/<slug>), a curated route (/collections,
+ * /shop/soldes) — and a polymorphic relationship across three collections
+ * plus a custom-URL escape hatch is four fields and a migration to express
+ * what one path already says. The Navigation global pays that price because
+ * its links are the site's spine and must never break; an offer tile that
+ * points somewhere stale shows the "bientôt disponible" state, which
+ * /shop/<slug> already renders for any unknown slug.
+ *
+ * Empty is the supported state: the tile keeps the catalogue link every tile
+ * had before this field existed.
+ */
+const ctaUrlField = () =>
+  ({
+    name: 'ctaUrl',
+    type: 'text',
+    admin: {
+      description:
+        'Destination de la tuile, ex. /produit/mon-produit, /shop/solaire, /collections. Vide = le catalogue.',
+    },
+    label: 'Lien',
+  }) as const
+
 // Shared by marketingBanners' eyebrow/title/description fields — hidden
 // when the campaign's image already has its own text baked in.
 // The editorial copy fields only mean anything once the rail has an image to
@@ -340,10 +367,14 @@ export const Home: GlobalConfig = {
     {
       name: 'ctaPair1',
       type: 'array',
-      admin: { description: 'Two-tile CTA banner right under the hero (exactly 2 tiles).' },
+      admin: {
+        description:
+          'Offres spéciales — tuiles carrées cliquables sous le hero. Chaque tuile mène à sa propre destination ; laisser "Lien" vide renvoie au catalogue. Ajoutez-en autant que nécessaire : la grille suit le nombre.',
+      },
       fields: [
         { name: 'eyebrow', type: 'text' },
         { name: 'title', type: 'text', required: true },
+        ctaUrlField(),
         colorField('bg', '#EFE6F3'),
         imageField(),
       ],
@@ -539,10 +570,14 @@ export const Home: GlobalConfig = {
     {
       name: 'ctaPair2',
       type: 'array',
-      admin: { description: 'Second two-tile CTA banner, further down the page (exactly 2 tiles).' },
+      admin: {
+        description:
+          'Second bloc de tuiles carrées cliquables, plus bas dans la page (« Nos sélections »). Même fonctionnement que le premier.',
+      },
       fields: [
         { name: 'eyebrow', type: 'text' },
         { name: 'title', type: 'text', required: true },
+        ctaUrlField(),
         colorField('bg', '#F2E9F2'),
         imageField(),
       ],

@@ -145,12 +145,22 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
       onBlur={() => setEngaged(false)}
       style={{
         position: "relative",
+        // Height untouched — only the width changes.
         height: "clamp(430px,44vw,520px)",
-        maxWidth: "min(1280px,100%)",
-        width: "calc(100% - clamp(28px,6.8vw,64px))",
-        margin: "clamp(16px,2vw,24px) auto 0",
+        // Edge to edge. It was capped at min(1280px,100%) with side gutters
+        // and a rounded frame, which read as a card floating on the page; the
+        // phone rules below have always overridden all three to make it the
+        // top of the page instead, and this brings the desktop in line.
+        //
+        // The photograph is what goes full width. The copy card and the two
+        // arrows stay on the site's 1280px column (see .home-hero-copy-wrap
+        // and the buttons below), so nothing drifts into the far corners of a
+        // wide monitor.
+        width: "100%",
+        maxWidth: "100%",
+        margin: "clamp(16px,2vw,24px) 0 0",
         overflow: "hidden",
-        borderRadius: "clamp(12px,1.4vw,18px)",
+        borderRadius: 0,
         background: "#2f1f3d",
       }}
     >
@@ -296,6 +306,12 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
               style={{
                 position: "relative",
                 width: "100%",
+                // The section is edge to edge now, so the copy is what keeps
+                // the hero tied to the rest of the page: capped at the same
+                // 1280px every other section uses and centred, instead of
+                // being pushed to the far right of a 2560px monitor.
+                maxWidth: "min(1280px,100%)",
+                margin: "0 auto",
                 display: "flex",
                 justifyContent: slide.align === "left" ? "flex-start" : "flex-end",
                 padding: "0 clamp(72px,6vw,88px)",
@@ -414,7 +430,12 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
             className="hero-nav-btn"
             style={{
               position: "absolute",
-              insetInlineStart: 18,
+              // Held on the 1280px column, like the copy card: pinned at 18px
+              // from the section's own edge, the arrows would sit in the far
+              // corners of a wide monitor, a screen's width away from the
+              // slide they control. `max()` falls back to 18px as soon as the
+              // viewport is narrower than the column.
+              insetInlineStart: "max(18px, calc((100% - 1280px) / 2 + 18px))",
               top: "50%",
               transform: "translateY(-50%)",
               width: 38,
@@ -439,7 +460,7 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
             className="hero-nav-btn"
             style={{
               position: "absolute",
-              insetInlineEnd: 18,
+              insetInlineEnd: "max(18px, calc((100% - 1280px) / 2 + 18px))",
               top: "50%",
               transform: "translateY(-50%)",
               width: 38,

@@ -5196,6 +5196,30 @@ section.rail-editorial {
    eyebrow, a 42px CTA, all tuned for a 174px-wide tile) is gone with it. It
    could no longer apply to anything, and `git show` on this commit has it if
    the section ever comes back to mobile. */
+/* "Offres spéciales": square, clickable tiles.
+
+   Squares rather than the wide rectangles .cta-pair-grid produced, because
+   the block's job changed: it is no longer two decorative banners but a shelf
+   of picture links to products and selections, and a square is the shape a
+   product photograph wants.
+
+   minmax(…, 300px) is the important half. auto-fit collapses its empty tracks
+   and lets the survivors take 1fr, so two tiles in a 1280px row would have
+   become two 630px squares — half a screen tall each. Capping the track and
+   centring the row keeps two tiles at a sensible size and lets four, five or
+   six fill the width as they are added.
+
+   Visible on phones, unlike .cta-pair-grid which is display:none there. A
+   titled section of offers that vanishes on the device most of the traffic
+   arrives on would be a bug, and two squares side by side fit a 375px screen
+   comfortably. */
+.cta-square-grid {
+  display: grid;
+  gap: clamp(14px, 2vw, 24px);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 300px));
+  justify-content: center;
+}
+
 .cta-pair-grid {
   display: grid;
   gap: clamp(14px, 2vw, 24px);
