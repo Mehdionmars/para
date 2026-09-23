@@ -174,3 +174,81 @@ export function megaMenuFromCategoryTree(tree: CategoryTree, slug: string): Mega
 
   return { subtitle: "", columns, promo: null };
 }
+
+/**
+ * Accent-free, lowercase, punctuation turned into single spaces, and each
+ * word stripped of a trailing "s".
+ *
+ * The plural stripping is what makes "SOINS SOLAIRES" find the Solaire
+ * category, and "nos nettoyants" find Nettoyants — a tile's copy is almost
+ * never in the same number as the category's name. It runs on both sides, so
+ * it is a normalisation and not a guess: "corps" and "corp" both reduce to
+ * "corp", and match each other rather than anything else.
+ *
+ * Words of three letters or fewer keep their "s" — "des", "les", "nos" are
+ * not plurals of anything, and shortening them only creates collisions.
+ */
+function normalise(value: string): string {
+  const words = value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => (word.length > 3 && word.endsWith("s") ? word.slice(0, -1) : word));
+
+  return ` ${words.join(" ")} `;
+}
+
+/**
+ * The category a piece of editorial copy is talking about.
+ *
+ * Used by the square offer tiles, whose destination field is not migrated
+ * yet: "Révélez la beauté de vos cheveux" leads to /shop/cheveux rather than
+ * to the whole catalogue, which is where every tile pointed because the href
+ * was hardcoded.
+ *
+ * Whole words only, and that restriction is the point. A substring match
+ * would tie "Nos soins corps et cheveux" to whichever name happened to appear
+ * first, and worse, would find "or" inside "corps". Padding both sides with
+ * spaces in `normalise` is what makes ` cheveux ` fail to match ` cheveux-secs `
+ * — the slug is normalised too, so hyphens are already spaces.
+ *
+ * Top-level categories are tried before their children, and the longest name
+ * wins among equals: a tile about "Protection solaire" should land on the
+ * Solaire category, not on a "Protection" column inside another one.
+ *
+ * Returns null rather than guessing. A tile reading "Prenez soin de votre
+ * peau" names no category — "peau" is not one, and it could as honestly mean
+ * Visage or Corps — so it keeps the catalogue link instead of being sent
+ * somewhere plausible but wrong. A wrong destination is worse than a general
+ * one: the visitor does not know they were misrouted.
+ */
+export function findCategoryHrefInText(tree: CategoryTree, ...texts: (string | undefined)[]): string | null {
+  const haystack = normalise(texts.filter(Boolean).join(" "));
+  if (haystack.trim().length === 0) return null;
+
+  const candidates: { name: string; slug: string; depth: number }[] = [];
+  for (const root of tree.roots.values()) {
+    candidates.push({ name: root.name, slug: root.slug, depth: 0 });
+    for (const child of root.children) {
+      candidates.push({ name: child.name, slug: child.slug, depth: 1 });
+      for (const grandchild of child.children) {
+        candidates.push({ name: grandchild.name, slug: grandchild.slug, depth: 2 });
+      }
+    }
+  }
+
+  const matches = candidates.filter((c) => {
+    const name = normalise(c.name);
+    const slug = normalise(c.slug);
+    return haystack.includes(name) || haystack.includes(slug);
+  });
+
+  if (matches.length === 0) return null;
+
+  matches.sort((a, b) => a.depth - b.depth || b.name.length - a.name.length);
+  return routes.category(matches[0].slug);
+}
