@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOrManager, canEditContent, staffOnlyInAdmin } from '../access/roles'
+import { revalidateStorefront } from '../lib/revalidateStorefront'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -16,6 +17,27 @@ export const Categories: CollectionConfig = {
     description:
       'Navbar / mega-menu taxonomy. Level 0 (no parent) = navbar entries. Level 1 (parent = a level-0 category) = mega-menu columns. Level 2 (parent = a level-1 category) = items inside a column. Services is intentionally not modeled here — it stays a plain top-level nav link.',
     useAsTitle: 'name',
+  },
+  hooks: {
+    // Purges the cached navigation, under the same tag the Navigation global
+    // uses.
+    //
+    // This tree is no longer read only by the admin: the storefront builds a
+    // mega menu from it for every nav entry whose columns nobody filled in
+    // (see frontend/lib/storefront/categoryTree.ts). Without this hook a new
+    // sub-category, a rename or a reordering waited up to an hour for the
+    // cache to expire on its own — and the editor had no way to tell whether
+    // the save had worked.
+    afterChange: [
+      async ({ req }) => {
+        await revalidateStorefront(req.payload, ['navigation'])
+      },
+    ],
+    afterDelete: [
+      async ({ req }) => {
+        await revalidateStorefront(req.payload, ['navigation'])
+      },
+    ],
   },
   fields: [
     {
