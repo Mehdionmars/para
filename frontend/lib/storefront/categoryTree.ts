@@ -71,20 +71,33 @@ function parentId(parent: RawCategory["parent"]): number | null {
 export const EMPTY_CATEGORY_TREE: CategoryTree = { roots: new Map() };
 
 export async function fetchCategoryTree(): Promise<CategoryTree> {
-  let res: Response;
-  try {
-    // depth=0 keeps `parent` a bare id, which is all the tree needs and
-    // avoids Payload expanding every ancestor on every row.
-    res = await fetch(`${CMS_URL}/api/categories?limit=500&depth=0&sort=order`, {
-      next: { revalidate: 3600, tags: [CATEGORY_TREE_TAG] },
-    });
-  } catch {
-    return EMPTY_CATEGORY_TREE;
-  }
-  if (!res.ok) return EMPTY_CATEGORY_TREE;
+  // Page by page, because the API caps a page at 100 whatever the limit says.
+  // `limit=500` read as "all of them" and returned the first hundred of 121:
+  // the categories past that row simply did not exist as far as the menus and
+  // the offer tiles were concerned — which is why "Révélez la beauté de vos
+  // cheveux" could not find Cheveux and kept the catalogue link.
+  const docs: RawCategory[] = [];
+  for (let page = 1; ; page++) {
+    let res: Response;
+    try {
+      // depth=0 keeps `parent` a bare id, which is all the tree needs and
+      // avoids Payload expanding every ancestor on every row.
+      res = await fetch(`${CMS_URL}/api/categories?limit=100&page=${page}&depth=0&sort=order`, {
+        next: { revalidate: 3600, tags: [CATEGORY_TREE_TAG] },
+      });
+    } catch {
+      return EMPTY_CATEGORY_TREE;
+    }
+    if (!res.ok) return EMPTY_CATEGORY_TREE;
 
-  const data = await res.json().catch(() => null);
-  const docs = (data?.docs ?? []) as RawCategory[];
+    const data = await res.json().catch(() => null);
+    if (!data) return EMPTY_CATEGORY_TREE;
+
+    docs.push(...((data.docs ?? []) as RawCategory[]));
+    // A half-built tree would quietly hide whole aisles from the menu, so a
+    // page that fails takes the tree with it rather than shortening it.
+    if (!data.hasNextPage) break;
+  }
 
   const nodes = new Map<number, CategoryNode>();
   for (const doc of docs) {
