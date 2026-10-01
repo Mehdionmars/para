@@ -12,6 +12,12 @@ import { type ChromeAppearance, toChromeAppearance } from "@/lib/chromeAppearanc
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { routes } from "@/lib/routes";
 import { resolveMediaUrl, type PayloadMediaRef } from "@/lib/storefront/products";
+import {
+  EMPTY_CATEGORY_TREE,
+  fetchCategoryTree,
+  megaMenuFromCategoryTree,
+  type CategoryTree,
+} from "@/lib/storefront/categoryTree";
 import type { FooterColumn, HeaderAction, HeaderSearchConfig, Logo, TopBarConfig } from "@/data/siteChrome";
 import type { Theme } from "@/data/theme";
 import type { MegaMenuContent, NavAnimationType, NavBadge, NavItem } from "@/data/nav";
@@ -329,55 +335,101 @@ export const NAVIGATION_TAG = "navigation";
  * one-hour window is only the fallback for a missed purge.
  */
 export async function fetchPublishedNavigation(): Promise<LiveNavigation> {
-  const res = await fetch(`${CMS_URL}/api/globals/navigation?depth=1`, {
-    next: { revalidate: 3600, tags: [NAVIGATION_TAG] },
-  });
+  // The tree is fetched alongside the global, not lazily inside the mapper:
+  // it is needed for every item that has no columns of its own, and one
+  // request for the whole taxonomy beats one per nav entry.
+  const [res, tree] = await Promise.all([
+    fetch(`${CMS_URL}/api/globals/navigation?depth=1`, {
+      next: { revalidate: 3600, tags: [NAVIGATION_TAG] },
+    }),
+    fetchCategoryTree(),
+  ]);
   if (!res.ok) throw new Error(`Failed to fetch navigation (${res.status})`);
-  return mapNavigation(await res.json());
+  return mapNavigation(await res.json(), tree);
 }
 
 export async function fetchLiveNavigation(): Promise<LiveNavigation> {
-  const res = await fetch(`${CMS_URL}/api/globals/navigation?draft=true&depth=1`, { cache: "no-store" });
+  const [res, tree] = await Promise.all([
+    fetch(`${CMS_URL}/api/globals/navigation?draft=true&depth=1`, { cache: "no-store" }),
+    fetchCategoryTree(),
+  ]);
   if (!res.ok) throw new Error(`Failed to fetch draft navigation content (${res.status})`);
-  return mapNavigation(await res.json());
+  return mapNavigation(await res.json(), tree);
+}
+
+/** `/shop/visage` -> `visage`. Anything else -> "", so only real category
+ * routes are looked up in the tree: /marques, /catalogue and a custom URL
+ * have no sub-categories to show. */
+function categorySlugFromHref(href: string): string {
+  const match = /^\/shop\/([^/?#]+)$/.exec(href);
+  return match ? match[1] : "";
 }
 
 /** Shared by the draft and published fetchers so the two can never map the
  * same document differently. */
-function mapNavigation(nav: { items?: RawNavItem[]; catStrip?: RawCategoryStrip }): LiveNavigation {
+function mapNavigation(
+  nav: { items?: RawNavItem[]; catStrip?: RawCategoryStrip },
+  tree: CategoryTree = EMPTY_CATEGORY_TREE,
+): LiveNavigation {
   const items = ((nav.items || []) as RawNavItem[]).filter((i) => i.visible !== false);
 
+  const megaMenu: Record<string, MegaMenuContent> = {};
+
+  for (const item of items) {
+    const mm = item.megaMenu || {};
+
+    const configured: MegaMenuContent | null = item.megaMenuEnabled
+      ? {
+          subtitle: mm.subtitle || "",
+          columns: (mm.columns || []).map((col) => ({
+            title: col.title,
+            links: (col.links || [])
+              .filter((l) => l.visible !== false)
+              .map((l) => ({ href: resolveLiveNavHref(l), label: l.label, ...navPresentation(l) })),
+          })),
+          promo: mm.promo?.title
+            ? {
+                img: resolveMediaUrl(mm.promo.image),
+                title: mm.promo.title,
+                description: mm.promo.description || "",
+                ctaLabel: mm.promo.ctaLabel || "",
+                ctaUrl: mm.promo.ctaUrl || "/catalogue",
+              }
+            : null,
+        }
+      : null;
+
+    // A configured menu wins, and keeps winning even when its columns are
+    // empty but it carries a promo tile — that is a deliberate editorial
+    // panel, not an unfilled one.
+    const hasConfiguredContent = Boolean(
+      configured && (configured.columns.some((c) => c.links.length > 0) || configured.promo),
+    );
+
+    if (hasConfiguredContent) {
+      megaMenu[item.label] = configured as MegaMenuContent;
+      continue;
+    }
+
+    // Nothing configured: build the panel from the category tree. This is
+    // what makes every category open its sub-categories on hover without an
+    // editor retyping a taxonomy the database already holds.
+    const fromTree = megaMenuFromCategoryTree(tree, categorySlugFromHref(resolveLiveNavHref(item)));
+    if (fromTree) {
+      megaMenu[item.label] = { ...fromTree, subtitle: mm.subtitle || "" };
+    }
+  }
+
+  // megaKey is set from the resolved menus rather than from megaMenuEnabled:
+  // an entry whose panel came from the tree has to be hoverable too, and one
+  // flagged enabled with nothing to show must not open an empty white card.
   const navItems: NavItem[] = items.map((item) => ({
     href: resolveLiveNavHref(item),
     label: item.label,
-    megaKey: item.megaMenuEnabled ? item.label : undefined,
+    megaKey: megaMenu[item.label] ? item.label : undefined,
     openInNewTab: item.openInNewTab || undefined,
     ...navPresentation(item),
   }));
-
-  const megaMenu: Record<string, MegaMenuContent> = {};
-  for (const item of items) {
-    if (!item.megaMenuEnabled) continue;
-    const mm = item.megaMenu || {};
-    megaMenu[item.label] = {
-      subtitle: mm.subtitle || "",
-      columns: (mm.columns || []).map((col) => ({
-        title: col.title,
-        links: (col.links || [])
-          .filter((l) => l.visible !== false)
-          .map((l) => ({ href: resolveLiveNavHref(l), label: l.label, ...navPresentation(l) })),
-      })),
-      promo: mm.promo?.title
-        ? {
-            img: resolveMediaUrl(mm.promo.image),
-            title: mm.promo.title,
-            description: mm.promo.description || "",
-            ctaLabel: mm.promo.ctaLabel || "",
-            ctaUrl: mm.promo.ctaUrl || "/catalogue",
-          }
-        : null,
-    };
-  }
 
   return { categoryStrip: mapCategoryStrip(nav.catStrip), megaMenu, navItems };
 }

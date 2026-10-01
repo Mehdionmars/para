@@ -5,6 +5,11 @@ change as the `/a-propos`, `/cgv`, `/faq`, `/livraison`, `/retours`,
 `/mentions-legales` and `/blog` routes. They need three new tables before an
 editor can write anything into them.
 
+A later change added one field, `ctaUrl`, to the `ctaPair1` and `ctaPair2`
+arrays on the Home global — the destination of each square tile in the
+"Offres spéciales" block. It needs one column on each of those two tables.
+Everything below applies to both; generate them together.
+
 ## Why there is no migration file in this commit
 
 Two reasons, both deliberate.
@@ -32,6 +37,8 @@ Every page reads its collection over REST and handles the failure:
 - `/livraison` still shows the real tariffs — it reads `shipping-rules`,
   which already exists.
 - `sitemap.xml` lists only what is actually published.
+- The square offer tiles keep the `/catalogue` link every tile had before
+  `ctaUrl` existed, so the block works now and becomes addressable later.
 
 So the routes are live and correct before this runs, and fill in afterwards.
 A 404 in the footer was the thing worth avoiding, and it is already gone.
@@ -76,3 +83,7 @@ its own shapes — but a stale generated file hides the next drift.
 3. **Write the FAQ.** Admin → Faqs. Do not restate delivery fees or times as
    prose: `/livraison` reads them from `shipping-rules`, and a second copy
    diverges the first time a tariff changes. Link to the page instead.
+4. **Point the offer tiles somewhere.** Admin → Home → Offres spéciales (and
+   the second block). Each tile's "Lien" takes a path —
+   `/produit/<slug>`, `/shop/<slug>`, `/collections`. Left empty it keeps
+   going to the catalogue, which is what every tile did before.

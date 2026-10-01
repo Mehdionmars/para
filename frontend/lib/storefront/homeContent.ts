@@ -36,7 +36,7 @@ const resolveIcon = (name: string | undefined) => ICONS[name || ""] || Truck;
 type RelRef = { id?: number; name?: string; slug?: string; logo?: PayloadMediaRef } | number | null | undefined;
 const relId = (ref: RelRef): number | null => (typeof ref === "object" && ref ? (ref.id ?? null) : typeof ref === "number" ? ref : null);
 
-type RawCtaTile = { eyebrow?: string; title: string; bg?: string; image?: PayloadMediaRef };
+type RawCtaTile = { eyebrow?: string; title: string; bg?: string; image?: PayloadMediaRef; ctaUrl?: string };
 type RawMarketingBanner = {
   campaign?: string;
   imageMode?: "overlay" | "imageOnly";
@@ -179,8 +179,8 @@ export type LiveHomeContent = {
     promoEyebrow: string; promoTitle: string; promoCtaLabel: string; promoCtaUrl: string; promoImage: string;
   };
   servicesTeaserCopy: { eyebrow: string; title: string; subtitle: string };
-  ctaPair1: { eyebrow: string; title: string; bg: string; img: string }[];
-  ctaPair2: { eyebrow: string; title: string; bg: string; img: string }[];
+  ctaPair1: { eyebrow: string; title: string; bg: string; img: string; ctaUrl?: string }[];
+  ctaPair2: { eyebrow: string; title: string; bg: string; img: string; ctaUrl?: string }[];
   marketingBanners: {
     campaign: string;
     imageMode: "overlay" | "imageOnly";
@@ -286,7 +286,16 @@ export type LiveHomeContent = {
   };
 };
 
-const ctaTile = (t: RawCtaTile) => ({ eyebrow: t.eyebrow || "", title: t.title, bg: t.bg || "", img: resolveMediaUrl(t.image) });
+/** `ctaUrl` is emitted only when the CMS has one, so a tile from a database
+ * where the field has not been migrated yet stays `undefined` and CtaPair
+ * falls back to the catalogue — the link every tile had before. */
+const ctaTile = (t: RawCtaTile) => ({
+  eyebrow: t.eyebrow || "",
+  title: t.title,
+  bg: t.bg || "",
+  img: resolveMediaUrl(t.image),
+  ...(t.ctaUrl?.trim() ? { ctaUrl: t.ctaUrl.trim() } : {}),
+});
 
 /** Cache tag the CMS purges when the Home global is saved. */
 export const HOME_TAG = "home";

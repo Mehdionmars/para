@@ -37,6 +37,7 @@ import * as migration_20260916_150000_featured_promo_fields from './20260916_150
 import * as migration_20260916_190000_gift_offer from './20260916_190000_gift_offer';
 import * as migration_20260917_010000_coffret_product from './20260917_010000_coffret_product';
 import * as migration_20260917_020000_cta_banner_bg_image from './20260917_020000_cta_banner_bg_image';
+import * as migration_20260923_100000_cta_tile_url from './20260923_100000_cta_tile_url';
 
 export const migrations = [
   {
@@ -238,5 +239,10 @@ export const migrations = [
     up: migration_20260917_020000_cta_banner_bg_image.up,
     down: migration_20260917_020000_cta_banner_bg_image.down,
     name: '20260917_020000_cta_banner_bg_image'
+  },
+  {
+    up: migration_20260923_100000_cta_tile_url.up,
+    down: migration_20260923_100000_cta_tile_url.down,
+    name: '20260923_100000_cta_tile_url'
   },
 ];
