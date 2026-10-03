@@ -232,6 +232,47 @@ export async function fetchCategoryCounts(): Promise<Map<Category, number>> {
   return counts;
 }
 
+/**
+ * How many sellable products sit in each aisle (Products.subCategory).
+ *
+ * The facets endpoint only counts broad categories, and 83 of 222 products are
+ * not shelved into an aisle yet, so some aisles are empty. The home page's
+ * aisle index uses this to stop offering a shelf that leads to "0 produit".
+ *
+ * Pages through `select`-ed rows (one field, depth 0) because the API caps a
+ * page at 100 whatever the limit says. Any failure returns an empty map, which
+ * the caller reads as "unknown" and shows every aisle.
+ */
+export async function fetchAisleCounts(): Promise<Map<string, number>> {
+  const fetchPageOf = async (page: number) => {
+    const params = new URLSearchParams();
+    params.set("where", JSON.stringify({ and: VISIBLE }));
+    params.set("select[subCategory]", "true");
+    params.set("depth", "0");
+    params.set("limit", "100");
+    params.set("page", String(page));
+    const res = await fetch(`${CMS_URL}/api/products?${params.toString()}`, { next: { revalidate: 120 } });
+    if (!res.ok) throw new Error(`aisle counts: ${res.status}`);
+    return (await res.json()) as { docs?: { subCategory?: string | null }[]; totalPages?: number };
+  };
+
+  try {
+    const first = await fetchPageOf(1);
+    const rest = await Promise.all(
+      Array.from({ length: Math.max((first.totalPages ?? 1) - 1, 0) }, (_, i) => fetchPageOf(i + 2)),
+    );
+    const counts = new Map<string, number>();
+    for (const page of [first, ...rest]) {
+      for (const doc of page.docs ?? []) {
+        if (doc.subCategory) counts.set(doc.subCategory, (counts.get(doc.subCategory) ?? 0) + 1);
+      }
+    }
+    return counts;
+  } catch {
+    return new Map();
+  }
+}
+
 /** Payload's `sort`, from the UI's sort value. "pertinence" is rating then
  * review count, the same two-key ordering the in-memory version applied. */
 function sortParam(sort: CatalogueQuery["sort"]): string {

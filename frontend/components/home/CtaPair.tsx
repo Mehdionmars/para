@@ -56,65 +56,32 @@ export function CtaPair({ tiles, title = "Offres spéciales" }: { tiles: CtaTile
 
       <div className="cta-square-grid">
         {tiles.map((tile) => (
-          <Link
-            key={tile.title || tile.img}
-            href={tile.ctaUrl?.trim() || DEFAULT_TILE_HREF}
-            className="tile-hover overlay-card-tile"
-            style={{
-              position: "relative",
-              // Square, and no minHeight: the ratio is what makes every tile
-              // in the row the same size no matter how much copy it carries.
-              aspectRatio: "1 / 1",
-              borderRadius: 20,
-              overflow: "hidden",
-              background: tile.bg,
-              display: "flex",
-              alignItems: "flex-end",
-            }}
-          >
-            <CloudinaryImage
-              preset="editorial"
-              src={tile.img}
-              alt=""
-              fill
-              sizes="(max-width: 767px) 50vw, 300px"
-              style={{ objectFit: "cover", objectPosition: framingToObjectPosition(tile.imageFraming) }}
-            />
-            {/* Bottom-up, not side-on: the copy sits across the foot of a
-                square instead of in its left half, so a side scrim would
-                darken the wrong edge. */}
-            <div className="overlay-card-scrim scrim-bottom" aria-hidden="true" style={{ position: "absolute", inset: 0 }} />
-            <div
-              className="overlay-card-content"
-              style={{ position: "relative", zIndex: 3, padding: 22, color: "var(--pdh-cream)", width: "100%" }}
-            >
+          <Link key={tile.title || tile.img} href={tile.ctaUrl?.trim() || DEFAULT_TILE_HREF} className="tile-hover" style={{ display: "block" }}>
+            <div style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: tile.bg }}>
+              <CloudinaryImage
+                preset="editorial"
+                src={tile.img}
+                alt=""
+                fill
+                sizes="(max-width: 767px) 50vw, 300px"
+                style={{ objectFit: "cover", objectPosition: framingToObjectPosition(tile.imageFraming) }}
+              />
+            </div>
+            {/* Copy sits under the picture, not on it: the photograph stays
+                legible and the title needs no scrim. The tile itself is the
+                link, so the call to action stays a <span>. */}
+            <div style={{ padding: "14px 2px 0", textAlign: toCtaAlign(tile.ctaAlign), color: "var(--pdh-ink)" }}>
               {tile.eyebrow && (
-                <div
-                  style={{
-                    fontFamily: "var(--font-poppins)",
-                    fontSize: 10,
-                    letterSpacing: ".16em",
-                    textTransform: "uppercase",
-                    opacity: 0.85,
-                    marginBottom: 7,
-                  }}
-                >
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--pdh-plum)", marginBottom: 6 }}>
                   {tile.eyebrow}
                 </div>
               )}
-              <div className="overlay-card-title" style={{ marginBottom: 14 }}>
+              <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: "clamp(19px,1.9vw,23px)", lineHeight: 1.15, textWrap: "balance" }}>
                 {tile.title}
               </div>
-              {/* The tile itself is the link, so this stays a <span>: a real
-                  <a> here would nest one control inside another. */}
-              <div className="overlay-card-actions" data-cta-align={toCtaAlign(tile.ctaAlign)}>
-                <span
-                  className="btn-plum overlay-card-cta"
-                  style={{ display: "inline-block", padding: "10px 22px", fontSize: 11, textTransform: "uppercase" }}
-                >
-                  Découvrir
-                </span>
-              </div>
+              <span style={{ display: "inline-block", marginTop: 10, fontSize: 11, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)" }}>
+                Découvrir →
+              </span>
             </div>
           </Link>
         ))}

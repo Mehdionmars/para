@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { payloadFetch } from "@/lib/dashboard/payload";
 import type { ProductQuery } from "@/lib/dashboard/product-query";
-import { listProductIds } from "@/lib/dashboard/products";
-import type { Product, ProductBadge, ProductVariant, VariantOptionType } from "@/lib/dashboard/products-types";
+import { listProductIds, searchRoutinePicks, type RoutineFilters } from "@/lib/dashboard/products";
+import type { Product, ProductBadge, RoutinePick, ProductVariant, VariantOptionType } from "@/lib/dashboard/products-types";
 
 export type ProductInput = {
   name: string;
@@ -29,6 +29,8 @@ export type ProductInput = {
   variantOptionType?: VariantOptionType;
   variants?: ProductVariant[];
   isPublished: boolean;
+  /** "Complétez votre routine" picks, in display order. Omitted: untouched. */
+  relatedProducts?: number[];
 };
 
 function cleanPayload(input: ProductInput) {
@@ -43,6 +45,14 @@ function cleanPayload(input: ProductInput) {
     // at all, so an existing one is never wiped by omission.
     gallery: gallery ? gallery.map((id) => ({ image: id })) : undefined,
   };
+}
+
+export async function searchRoutineProducts(
+  query: string,
+  exclude: number[],
+  filters: RoutineFilters = {},
+): Promise<RoutinePick[]> {
+  return searchRoutinePicks(query, exclude, filters);
 }
 
 export async function createProduct(input: ProductInput) {

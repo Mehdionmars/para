@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { BRANDS } from "@/data/home";
+import { BRAND_LOGO_FILES } from "@/lib/brandWordmarks";
 import { routes } from "@/lib/routes";
 
 export type MarqueeBrand = { name: string; slug: string; logo: string };
@@ -91,7 +92,8 @@ export function BrandsMarquee({ brands }: { brands?: MarqueeBrand[] } = {}) {
 
         <div className="brand-wall-track" ref={scroller}>
           {items.map((brand, i) => {
-            const inner = brand.logo ? (
+            const logo = brand.logo || BRAND_LOGO_FILES[brand.slug] || "";
+            const inner = logo ? (
               // The image fills this box, not the cell: `fill` positions it
               // against its nearest positioned parent, and against the cell
               // itself a wide mark ran edge to edge, touching the tile.
@@ -103,7 +105,7 @@ export function BrandsMarquee({ brands }: { brands?: MarqueeBrand[] } = {}) {
                   crop="limit"
                   fill
                   sizes="(max-width: 767px) 45vw, 360px"
-                  src={brand.logo}
+                  src={logo}
                   style={{ objectFit: "contain" }}
                 />
               </span>

@@ -83,6 +83,11 @@ const nextConfig: NextConfig = {
         destination: "/marques/:slug",
         permanent: true,
       },
+      {
+        source: "/cadeaux-bon-plan-beaute-bon-plan-beaute",
+        destination: "/collections",
+        permanent: false,
+      },
     ];
   },
 

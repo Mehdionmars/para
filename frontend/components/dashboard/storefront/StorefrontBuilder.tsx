@@ -1,5 +1,6 @@
 "use client";
 
+import { LinkBrandsProvider } from "@/components/dashboard/storefront/LinkPicker";
 import { Loader2, Monitor, PanelTop, Redo2, RotateCcw, Smartphone, Tablet, Undo2 } from "lucide-react";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
@@ -287,7 +288,7 @@ function SectionEditor({
     );
   }
 
-  return <>{renderEditor({ draft, update, brands })}</>;
+  return <LinkBrandsProvider brands={brands}>{renderEditor({ draft, update, brands })}</LinkBrandsProvider>;
 }
 
 const GLOBAL_ITEMS = [

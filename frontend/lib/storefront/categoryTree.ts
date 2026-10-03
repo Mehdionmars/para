@@ -1,5 +1,6 @@
 import type { MegaColumn, MegaMenuContent } from "@/data/nav";
 import { routes } from "@/lib/routes";
+import { resolveMediaUrl, type PayloadMediaRef } from "@/lib/storefront/products";
 
 const CMS_URL = process.env.CMS_URL || "http://localhost:3001";
 
@@ -44,6 +45,10 @@ export type CategoryNode = {
   slug: string;
   parent: number | null;
   order: number;
+  /** Resolved URL of the category's photograph, "" when none was uploaded. */
+  image: string;
+  /** Wide photograph behind the page title, "" when none was uploaded. */
+  banner: string;
   children: CategoryNode[];
 };
 
@@ -59,6 +64,8 @@ type RawCategory = {
   parent?: number | { id?: number } | null;
   order?: number;
   isActive?: boolean;
+  image?: PayloadMediaRef;
+  banner?: PayloadMediaRef;
 };
 
 function parentId(parent: RawCategory["parent"]): number | null {
@@ -80,9 +87,9 @@ export async function fetchCategoryTree(): Promise<CategoryTree> {
   for (let page = 1; ; page++) {
     let res: Response;
     try {
-      // depth=0 keeps `parent` a bare id, which is all the tree needs and
-      // avoids Payload expanding every ancestor on every row.
-      res = await fetch(`${CMS_URL}/api/categories?limit=100&page=${page}&depth=0&sort=order`, {
+      // depth=1 resolves `image` to its URL; `parent` then arrives as a
+      // shallow object, which parentId() already reads.
+      res = await fetch(`${CMS_URL}/api/categories?limit=100&page=${page}&depth=1&sort=order`, {
         next: { revalidate: 3600, tags: [CATEGORY_TREE_TAG] },
       });
     } catch {
@@ -115,6 +122,8 @@ export async function fetchCategoryTree(): Promise<CategoryTree> {
       slug,
       parent: parentId(doc.parent),
       order: typeof doc.order === "number" ? doc.order : 0,
+      image: resolveMediaUrl(doc.image),
+      banner: resolveMediaUrl(doc.banner),
       children: [],
     });
   }
@@ -137,6 +146,28 @@ export async function fetchCategoryTree(): Promise<CategoryTree> {
   }
 
   return { roots };
+}
+
+/**
+ * The banner for a category's page: its own, else the nearest ancestor's, so a
+ * sub-category with no photo of its own sits under its parent's. "" when
+ * neither has one.
+ */
+export function findCategoryBanner(tree: CategoryTree, slug: string): string {
+  const walk = (node: CategoryNode, inherited: string): string | null => {
+    const banner = node.banner || inherited;
+    if (node.slug === slug) return banner;
+    for (const child of node.children) {
+      const hit = walk(child, banner);
+      if (hit !== null) return hit;
+    }
+    return null;
+  };
+  for (const root of tree.roots.values()) {
+    const hit = walk(root, "");
+    if (hit !== null) return hit;
+  }
+  return "";
 }
 
 const MAX_COLUMNS = 5;

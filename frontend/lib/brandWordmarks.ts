@@ -76,7 +76,18 @@ export const BRAND_WORDMARKS: Record<string, WordmarkSpec> = {
  * storefront picks it up everywhere a brand is signed, with no other change.
  * See public/assets/brands/README.md.
  */
-export const BRAND_LOGO_FILES: Record<string, string> = {};
+export const BRAND_LOGO_FILES: Record<string, string> = {
+  arkopharma: "/assets/brands/arkopharma.svg",
+  bioderma: "/assets/brands/bioderma.svg",
+  cerave: "/assets/brands/cerave.svg",
+  "d-biotic": "/assets/brands/d-biotic.svg",
+  elmex: "/assets/brands/elmex.svg",
+  "la-roche-posay": "/assets/brands/la-roche-posay.svg",
+  nuxe: "/assets/brands/nuxe.svg",
+  parodontax: "/assets/brands/parodontax.svg",
+  saforelle: "/assets/brands/saforelle.svg",
+  uriage: "/assets/brands/uriage.svg",
+};
 
 export function wordmarkSpec(slug: string | null | undefined): WordmarkSpec {
   return (slug && BRAND_WORDMARKS[slug]) || DEFAULT_SPEC;

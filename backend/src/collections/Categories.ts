@@ -87,6 +87,24 @@ export const Categories: CollectionConfig = {
       defaultValue: true,
     },
     {
+      name: 'image',
+      type: 'upload',
+      admin: {
+        description:
+          "Optionnel. Photo affichée dans le méga-menu quand cette catégorie de premier niveau est survolée. Sans photo, le méga-menu n'affiche que les colonnes et le produit vedette.",
+      },
+      relationTo: 'media',
+    },
+    {
+      name: 'banner',
+      type: 'upload',
+      admin: {
+        description:
+          "Optionnel. Grande photo en largeur (format conseillé 16:3, ex. 2560 × 480) affichée derrière le titre de la page de cette catégorie. Les sous-catégories reprennent celle de leur catégorie parente si elles n'en ont pas.",
+      },
+      relationTo: 'media',
+    },
+    {
       name: 'icon',
       type: 'text',
       admin: { description: 'Optional lucide-react icon name, e.g. "Sparkles". Rarely needed below level 0.' },

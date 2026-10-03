@@ -33,11 +33,23 @@ export const CollectionsPage: GlobalConfig = {
       fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'sub', type: 'textarea' },
-        { name: 'count', type: 'text', admin: { description: 'e.g. "24 produits"' } },
+        { name: 'count', type: 'text', admin: { hidden: true, description: 'Ancien champ : le nombre de produits est maintenant calculé.' } },
         {
           name: 'image',
           type: 'upload',
           relationTo: 'media',
+        },
+        {
+          name: 'slug',
+          type: 'text',
+          admin: { description: 'Adresse de la page : /collections/<slug>. Laissez vide pour la déduire du titre.' },
+        },
+        {
+          name: 'products',
+          type: 'relationship',
+          admin: { description: 'Les produits de la page de cette collection. Le nombre affiché sur la carte en découle.' },
+          hasMany: true,
+          relationTo: 'products',
         },
       ],
     },

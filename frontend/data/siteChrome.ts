@@ -36,7 +36,7 @@ export const TOPBAR_CONFIG: TopBarConfig = {
 };
 
 export const LOGO: Logo = {
-  "img": "/api/cms-media/logo.webp",
+  "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/logo-transparent.png",
   "wordmark": "PARA D'HIVER",
   "href": "/"
 };
@@ -49,14 +49,14 @@ export const HEADER_SEARCH: HeaderSearchConfig = {
 export const HEADER_ACTIONS: HeaderAction[] = [
   {
     "key": "services",
-    "label": "Magasin et services",
+    "label": "Services et magasins",
     "icon": "MapPin",
     "href": "/services"
   },
   {
     "key": "contact",
     "label": "Contact",
-    "icon": "MessageCircle",
+    "icon": "Phone",
     "href": "/contact"
   },
   {

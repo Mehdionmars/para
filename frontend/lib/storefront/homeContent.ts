@@ -551,7 +551,7 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       title: home.dermoCornerCopy?.title || "La sélection dermatologique du moment",
       subtitle: home.dermoCornerCopy?.subtitle || "",
       ctaLabel: home.dermoCornerCopy?.ctaLabel || "Voir le rayon dermo",
-      ctaUrl: home.dermoCornerCopy?.ctaUrl || "/catalogue",
+      ctaUrl: home.dermoCornerCopy?.ctaUrl || "/shop/dermocosmetique",
       picksTitle: home.dermoCornerCopy?.picksTitle || "Nos soins dermo favoris",
       img: resolveMediaUrl(home.dermoCornerCopy?.image),
       autoplay: home.dermoCornerCopy?.autoplay !== false,

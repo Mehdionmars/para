@@ -58,18 +58,25 @@ export function MobileSearchOverlay({ onClose, navItems = [] }: { onClose: () =>
   const shortcuts = navItems.filter((item) => !item.openInNewTab).slice(0, 8);
 
   return createPortal(
+    <>
+    {/* A sheet, not a page: the home stays visible, dimmed, under it, and a tap there closes the search. */}
+    <div aria-hidden="true" onClick={onClose} className="mnav-backdrop" />
     <div
       role="dialog"
       aria-modal="true"
       aria-label="Recherche"
       style={{
         position: "fixed",
-        inset: 0,
-        zIndex: 100,
+        top: 0,
+        left: 0,
+        right: 0,
+        maxHeight: "min(82dvh, 680px)",
+        zIndex: 101,
         background: "#FFFFFF",
+        boxShadow: "0 12px 32px rgba(0,0,0,.18)",
         display: "flex",
         flexDirection: "column",
-        animation: "rise .3s cubic-bezier(.22,1,.36,1) both",
+        animation: "sheet-in .26s cubic-bezier(.22,1,.36,1) both",
         fontFamily: "var(--font-poppins)",
       }}
     >
@@ -163,7 +170,8 @@ export function MobileSearchOverlay({ onClose, navItems = [] }: { onClose: () =>
           </nav>
         )}
       </div>
-    </div>,
+    </div>
+    </>,
     document.body,
   );
 }

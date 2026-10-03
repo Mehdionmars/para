@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { ProductPicker, type PickedProduct } from "@/components/dashboard/storefront/ProductPicker";
 import { routes } from "@/lib/routes";
+
+type BrandOption = { id: number; name: string; slug: string };
+
+const LinkBrandsContext = createContext<BrandOption[]>([]);
+
+/** Lets every link field below it offer the brand list without each editor threading it. */
+export function LinkBrandsProvider({ brands, children }: { brands: BrandOption[]; children: ReactNode }) {
+  return <LinkBrandsContext.Provider value={brands}>{children}</LinkBrandsContext.Provider>;
+}
 
 const CATEGORY_ROUTES = [
   { label: "Visage", value: routes.category("visage") },
   { label: "Corps", value: routes.category("corps") },
   { label: "Cheveux", value: routes.category("cheveux") },
+  { label: "Dermocosmétique", value: routes.category("dermocosmetique") },
   { label: "Solaire", value: routes.category("solaire") },
   { label: "Maquillage", value: routes.category("maquillage") },
   { label: "Bébé & Maman", value: routes.category("bebe-maman") },
@@ -21,7 +31,11 @@ const INTERNAL_PAGES = [
   { label: "Accueil", value: routes.home() },
   { label: "Catalogue complet", value: routes.catalogue() },
   { label: "Toutes les marques", value: routes.brands() },
+  { label: "Coffrets & cadeaux", value: "/collections" },
+  { label: "Rituels", value: routes.rituals() },
   { label: "Services", value: "/services" },
+  { label: "À propos", value: "/a-propos" },
+  { label: "Livraison", value: "/livraison" },
   { label: "Contact", value: "/contact" },
   { label: "Favoris", value: "/favoris" },
 ];
@@ -55,13 +69,15 @@ export function LinkPicker({
   label,
   value,
   onChange,
-  brands,
+  brands: brandsProp,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  brands: { id: number; name: string; slug: string }[];
+  brands?: BrandOption[];
 }) {
+  const brandsFromContext = useContext(LinkBrandsContext);
+  const brands = brandsProp ?? brandsFromContext;
   const [kind, setKind] = useState<Kind>(() => inferKind(value));
   const inputCls = "w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400";
 

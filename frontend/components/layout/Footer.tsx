@@ -3,7 +3,8 @@ import type { CSSProperties } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { PaymentBadges } from "@/components/layout/PaymentBadges";
 import { INSTAGRAM_SECTION } from "@/data/home";
-import { FOOTER_COLUMNS, type FooterColumn } from "@/data/siteChrome";
+import { CloudinaryImage } from "@/components/CloudinaryImage";
+import { FOOTER_COLUMNS, LOGO, type FooterColumn, type Logo } from "@/data/siteChrome";
 import { STORES } from "@/data/stores";
 
 /**
@@ -68,7 +69,7 @@ function ContactRow({ icon: Icon, children }: { icon: typeof MapPin; children: R
   );
 }
 
-export function Footer({ columns = FOOTER_COLUMNS }: { columns?: FooterColumn[] } = {}) {
+export function Footer({ columns = FOOTER_COLUMNS, logo = LOGO }: { columns?: FooterColumn[]; logo?: Logo } = {}) {
   const store = STORES[0];
   // "Horaires à compléter / —" is the unset state of the CMS field. An
   // opening time nobody has filled in is worse than no opening time, so the
@@ -87,8 +88,8 @@ export function Footer({ columns = FOOTER_COLUMNS }: { columns?: FooterColumn[] 
       style={{
         background: "var(--chrome-footer-bg, var(--pdh-plum-dark))",
         color: "var(--chrome-footer-text, var(--pdh-cream))",
-        borderTop: "3px solid var(--pdh-teal)",
-        padding: "clamp(44px,5vw,68px) 0 24px",
+        // Bottom room for the floating WhatsApp button, so at the end of the page it sits below the links, not over them.
+        padding: "clamp(44px,5vw,68px) 0 88px",
       }}
     >
       <div
@@ -108,12 +109,12 @@ export function Footer({ columns = FOOTER_COLUMNS }: { columns?: FooterColumn[] 
         }}
       >
         <div>
-          <div style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: 36, lineHeight: 0.9, letterSpacing: "-.05em" }}>
-            PD
-          </div>
-          <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 10, letterSpacing: ".34em", marginTop: 4 }}>
-            PARA D&apos;HIVER
-          </div>
+          <Link href={logo.href} aria-label="Para d'Hiver — Accueil" style={{ display: "inline-flex", alignItems: "center", gap: 14, color: "inherit" }}>
+            <span style={{ position: "relative", width: 64, height: 64, flex: "none" }}>
+              <CloudinaryImage preset="brand" src={logo.img} alt="" fill sizes="64px" style={{ objectFit: "contain" }} />
+            </span>
+            <span style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 15, letterSpacing: ".3em" }}>{logo.wordmark}</span>
+          </Link>
           <p style={{ fontSize: 12.5, lineHeight: 1.8, opacity: 0.72, maxWidth: 300, margin: "16px 0 0" }}>
             Parapharmacie en ligne. Produits authentiques, conseils de pharmaciens, livraison partout au Maroc.
           </p>

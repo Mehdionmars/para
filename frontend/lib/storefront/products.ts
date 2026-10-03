@@ -331,6 +331,54 @@ export async function fetchDiscountedProducts(limit: number): Promise<LiveProduc
 }
 
 /**
+ * The newest in-stock products of one broad category, or of the whole shop when
+ * `category` is omitted.
+ *
+ * Deliberately no `fetchFallback`. A rail promises a selection and may pad it;
+ * a shelf is labelled "Visage", so padding it with hair care is a lie the
+ * shopper can see. An empty answer (or an unreachable CMS) returns [] and the
+ * shelf removes itself. Products with a photograph lead, since a third of the
+ * catalogue has none yet and a shelf should not open on placeholders.
+ */
+export async function fetchShelfProducts(category: string | null, limit: number): Promise<LiveProduct[]> {
+  const and: Record<string, unknown>[] = [...BASE_ELIGIBILITY];
+  if (category) and.push({ category: { equals: category } });
+  const docs = await fetchProducts({ and }, limit * 3, "-createdAt");
+  return docs
+    .map(toLiveProduct)
+    .sort((a, b) => Number(Boolean(b.image)) - Number(Boolean(a.image)))
+    .slice(0, limit);
+}
+
+/**
+ * One real product to headline a category in the mega menu: the editor's
+ * "featured" flag wins, then the newest in-stock product, and only a product
+ * with a photograph qualifies — a menu card with a grey box is worse than no
+ * card. Cached and tagged like the rest of the navigation, because the header
+ * renders on every page and must not hit the CMS once per category per view.
+ */
+export async function fetchMegaMenuFeatured(categoryName: string): Promise<LiveProduct | null> {
+  const params = new URLSearchParams();
+  params.set("where", JSON.stringify({ and: [...BASE_ELIGIBILITY, { category: { equals: categoryName } }] }));
+  params.set("limit", "12");
+  params.set("depth", "1");
+  params.set("sort", "-featured,-createdAt");
+
+  let res: Response;
+  try {
+    res = await fetch(`${CMS_URL}/api/products?${params.toString()}`, {
+      next: { revalidate: 3600, tags: ["navigation", "products"] },
+    });
+  } catch {
+    return null;
+  }
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null);
+  const docs = (data?.docs ?? []) as PayloadProductDoc[];
+  return docs.map(toLiveProduct).find((p) => p.image) ?? null;
+}
+
+/**
  * The products behind the "featured + promo banner" block.
  *
  * `featured` is an editor's flag on the product itself, so the block follows

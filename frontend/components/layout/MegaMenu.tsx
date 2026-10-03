@@ -5,6 +5,7 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { useState } from "react";
 import { NavItemLabel } from "@/components/layout/NavItemLabel";
+import { money } from "@/data/products";
 import { MEGA_MENU, type MegaLink, type MegaMenuContent } from "@/data/nav";
 import { navItemClassName, navItemStyle } from "@/lib/navStyle";
 
@@ -76,8 +77,13 @@ export function MegaMenu({
   const content = megaMenu[activeKey];
   const columns = content?.columns || [];
   const promo = content?.promo;
-  if (columns.length === 0 && !promo) return null;
-  const maxColumns = promo ? 4 : 5;
+  const categoryCard = promo ? null : content?.categoryCard;
+  const featured = content?.featured;
+  // The right-hand aside: an editor's promo tile, else the category's own
+  // photograph, then the featured product under it. Each part is optional.
+  const hasAside = Boolean(promo || categoryCard || featured);
+  if (columns.length === 0 && !hasAside) return null;
+  const maxColumns = hasAside ? 4 : 5;
 
   return (
     // Two elements on purpose: the `rise` reveal animation's keyframes end at
@@ -138,7 +144,7 @@ export function MegaMenu({
           style={{
             padding: "clamp(24px,2.4vw,32px)",
             display: "grid",
-            gridTemplateColumns: `repeat(${Math.min(columns.length, maxColumns)},1fr)${promo ? " minmax(220px,280px)" : ""}`,
+            gridTemplateColumns: `repeat(${Math.min(columns.length, maxColumns)},1fr)${hasAside ? " minmax(220px,280px)" : ""}`,
             gap: "clamp(18px,2.6vw,34px)",
           }}
         >
@@ -159,13 +165,39 @@ export function MegaMenu({
             </div>
           ))}
 
+          {hasAside && (
+            <div role="none" style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
+          {categoryCard && (
+            <Link
+              href={categoryCard.href}
+              className="tile-hover"
+              style={{
+                position: "relative",
+                minHeight: featured ? 132 : 180,
+                flex: featured ? "0 0 auto" : 1,
+                borderRadius: 14,
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "flex-end",
+              }}
+            >
+              <CloudinaryImage preset="thumb" src={categoryCard.img} alt="" fill sizes="280px" style={{ objectFit: "cover" }} />
+              <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(var(--pdh-ink-rgb), 0) 40%,rgba(47,31,61,.82) 100%)" }} />
+              <div style={{ position: "relative", zIndex: 3, padding: 16, color: "var(--pdh-cream)" }}>
+                <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 19, lineHeight: 1.1 }}>{categoryCard.name}</div>
+                <div style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", marginTop: 8 }}>Voir tout →</div>
+              </div>
+            </Link>
+          )}
+
           {promo && (
             <Link
               href={promo.ctaUrl || "/catalogue"}
               className="tile-hover"
               style={{
                 position: "relative",
-                minHeight: 180,
+                minHeight: featured ? 132 : 180,
+                flex: featured ? "0 0 auto" : 1,
                 borderRadius: 14,
                 overflow: "hidden",
                 display: "flex",
@@ -184,6 +216,52 @@ export function MegaMenu({
                 )}
               </div>
             </Link>
+          )}
+
+          {featured && (
+            <Link
+              href={featured.href}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "72px 1fr",
+                gap: 12,
+                alignItems: "center",
+                padding: categoryCard || promo ? "12px 0 0" : 0,
+                borderTop: categoryCard || promo ? "1px solid rgba(var(--pdh-ink-rgb), 0.14)" : "none",
+              }}
+            >
+              <div style={{ position: "relative", width: 72, height: 72, borderRadius: 8, overflow: "hidden", background: "#F7F4F1" }}>
+                <CloudinaryImage preset="thumb" src={featured.img} alt="" fill sizes="72px" style={{ objectFit: "contain" }} />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 9.5, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--pdh-plum)" }}>Produit vedette</div>
+                {featured.brand && (
+                  <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", marginTop: 3, color: "var(--pdh-ink)" }}>{featured.brand}</div>
+                )}
+                <div
+                  style={{
+                    fontSize: 12.5,
+                    lineHeight: 1.3,
+                    marginTop: 2,
+                    color: "var(--pdh-ink)",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {featured.name}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginTop: 4, color: "var(--pdh-ink)" }}>
+                  {money(featured.price)}
+                  {featured.old > 0 && (
+                    <span style={{ fontWeight: 400, marginLeft: 8, color: "#8a8174", textDecoration: "line-through", fontSize: 11.5 }}>{money(featured.old)}</span>
+                  )}
+                </div>
+              </div>
+            </Link>
+          )}
+            </div>
           )}
         </div>
       </div>

@@ -38,6 +38,9 @@ import * as migration_20260916_190000_gift_offer from './20260916_190000_gift_of
 import * as migration_20260917_010000_coffret_product from './20260917_010000_coffret_product';
 import * as migration_20260917_020000_cta_banner_bg_image from './20260917_020000_cta_banner_bg_image';
 import * as migration_20260923_100000_cta_tile_url from './20260923_100000_cta_tile_url';
+import * as migration_20261003_100000_category_image from './20261003_100000_category_image';
+import * as migration_20261003_110000_category_banner from './20261003_110000_category_banner';
+import * as migration_20261003_120000_collection_cards_page from './20261003_120000_collection_cards_page';
 
 export const migrations = [
   {
@@ -244,5 +247,20 @@ export const migrations = [
     up: migration_20260923_100000_cta_tile_url.up,
     down: migration_20260923_100000_cta_tile_url.down,
     name: '20260923_100000_cta_tile_url'
+  },
+  {
+    up: migration_20261003_100000_category_image.up,
+    down: migration_20261003_100000_category_image.down,
+    name: '20261003_100000_category_image'
+  },
+  {
+    up: migration_20261003_110000_category_banner.up,
+    down: migration_20261003_110000_category_banner.down,
+    name: '20261003_110000_category_banner'
+  },
+  {
+    up: migration_20261003_120000_collection_cards_page.up,
+    down: migration_20261003_120000_collection_cards_page.down,
+    name: '20261003_120000_collection_cards_page'
   },
 ];

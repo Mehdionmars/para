@@ -5,6 +5,7 @@ import { MEGA_MENU, NAV_ITEMS } from "@/data/nav";
 import type { Category } from "@/data/products";
 import { routes } from "@/lib/routes";
 import { fetchCategoryNameBySlug } from "@/lib/storefront/categories";
+import { fetchCategoryTree, findCategoryBanner } from "@/lib/storefront/categoryTree";
 import { REAL_CATEGORY_BY_SLUG } from "@/lib/storefront/shopTaxonomy";
 import { fetchAllBrandsWithCounts } from "@/lib/storefront/catalogue";
 
@@ -150,12 +151,15 @@ export default async function ShopCategoryPage({
   // in each list, and the narrower filter is the one the visitor asked for.
   const subCategory = SUB_CATEGORY_SLUGS.has(slug) ? slug : "";
 
+  const banner = findCategoryBanner(await fetchCategoryTree(), slug);
+
   return (
     <CatalogueView
       initialQuery={q ?? ""}
       initialCategory={subCategory ? "" : REAL_CATEGORY_BY_SLUG[slug] || (QUICK_FILTER_BY_SLUG[slug] ? "" : label)}
       initialSubCategory={subCategory}
       initialQuick={QUICK_FILTER_BY_SLUG[slug] || ""}
+      pageImage={banner}
       pageTitle={label}
     />
   );

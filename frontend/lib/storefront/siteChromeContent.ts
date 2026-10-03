@@ -11,7 +11,7 @@
 import { type ChromeAppearance, toChromeAppearance } from "@/lib/chromeAppearance";
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { routes } from "@/lib/routes";
-import { resolveMediaUrl, type PayloadMediaRef } from "@/lib/storefront/products";
+import { fetchMegaMenuFeatured, resolveMediaUrl, type PayloadMediaRef } from "@/lib/storefront/products";
 import {
   EMPTY_CATEGORY_TREE,
   fetchCategoryTree,
@@ -345,7 +345,7 @@ export async function fetchPublishedNavigation(): Promise<LiveNavigation> {
     fetchCategoryTree(),
   ]);
   if (!res.ok) throw new Error(`Failed to fetch navigation (${res.status})`);
-  return mapNavigation(await res.json(), tree);
+  return withFeaturedProducts(mapNavigation(await res.json(), tree), tree);
 }
 
 export async function fetchLiveNavigation(): Promise<LiveNavigation> {
@@ -354,7 +354,40 @@ export async function fetchLiveNavigation(): Promise<LiveNavigation> {
     fetchCategoryTree(),
   ]);
   if (!res.ok) throw new Error(`Failed to fetch draft navigation content (${res.status})`);
-  return mapNavigation(await res.json(), tree);
+  return withFeaturedProducts(mapNavigation(await res.json(), tree), tree);
+}
+
+/**
+ * Adds one featured product to the mega menu of every top-level category.
+ *
+ * Done after the sync mapping because it needs the catalogue. A category that
+ * has no eligible product with a photograph, or a CMS that does not answer,
+ * simply gets no card: the menu opens exactly as it did before.
+ */
+async function withFeaturedProducts(nav: LiveNavigation, tree: CategoryTree): Promise<LiveNavigation> {
+  const megaMenu = { ...nav.megaMenu };
+  await Promise.all(
+    nav.navItems.map(async (item) => {
+      if (!item.megaKey || !megaMenu[item.megaKey]) return;
+      const root = tree.roots.get(categorySlugFromHref(item.href));
+      if (!root) return;
+      const product = await fetchMegaMenuFeatured(root.name).catch(() => null);
+      if (!product) return;
+      megaMenu[item.megaKey] = {
+        ...megaMenu[item.megaKey],
+        featured: {
+          brand: product.brand,
+          href: routes.product(product.slug),
+          img: product.image,
+          name: product.name,
+          old: product.old,
+          price: product.price,
+          size: product.size,
+        },
+      };
+    }),
+  );
+  return { ...nav, megaMenu };
 }
 
 /** `/shop/visage` -> `visage`. Anything else -> "", so only real category
@@ -406,8 +439,13 @@ function mapNavigation(
       configured && (configured.columns.some((c) => c.links.length > 0) || configured.promo),
     );
 
+    const root = tree.roots.get(categorySlugFromHref(resolveLiveNavHref(item)));
+    const categoryCard = root?.image
+      ? { href: routes.category(root.slug), img: root.image, name: root.name }
+      : null;
+
     if (hasConfiguredContent) {
-      megaMenu[item.label] = configured as MegaMenuContent;
+      megaMenu[item.label] = { ...(configured as MegaMenuContent), categoryCard };
       continue;
     }
 
@@ -416,7 +454,7 @@ function mapNavigation(
     // editor retyping a taxonomy the database already holds.
     const fromTree = megaMenuFromCategoryTree(tree, categorySlugFromHref(resolveLiveNavHref(item)));
     if (fromTree) {
-      megaMenu[item.label] = { ...fromTree, subtitle: mm.subtitle || "" };
+      megaMenu[item.label] = { ...fromTree, categoryCard, subtitle: mm.subtitle || "" };
     }
   }
 

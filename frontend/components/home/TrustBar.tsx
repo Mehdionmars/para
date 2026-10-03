@@ -11,28 +11,25 @@ export function TrustBar({ badges }: { badges?: TrustBadge[] } = {}) {
         className="trust-bar"
         role="list"
         style={{
-          border: "1px solid var(--pdh-plum-tint)",
-          borderRadius: 18,
-          padding: "16px 24px",
+          padding: "8px 0",
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,208px),1fr))",
-          gap: 16,
-          background: "#fff",
+          gap: 24,
         }}
       >
         {items.map((badge) => (
-          <div className="trust-badge" key={badge.title} role="listitem" style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
-            <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--pdh-plum-tint)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
-              <badge.icon aria-hidden="true" size={16} strokeWidth={1.6} />
+          <div className="trust-badge" key={badge.title} role="listitem" style={{ display: "flex", alignItems: "center", gap: 14, justifyContent: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
+              <badge.icon aria-hidden="true" size={26} strokeWidth={1.5} />
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 500 }}>{badge.title}</div>
+              <div style={{ fontSize: 15.5, fontWeight: 500 }}>{badge.title}</div>
               {/* Was 10.5px at opacity .55 — measured 3.30:1 on this bar's own
                   white ground, the worst text on the home page. The claims
                   underneath these four icons (livraison, paiement, circuit
                   pharmaceutique, pharmaciens 7j/7) are the page's proof that
                   the shop is real; they were the least legible thing on it. */}
-              <div style={{ fontSize: 12, color: "var(--pdh-ink-soft)", marginTop: 1 }}>{badge.sub}</div>
+              <div style={{ fontSize: 13.5, color: "var(--pdh-ink-soft)", marginTop: 5 }}>{badge.sub}</div>
             </div>
           </div>
         ))}

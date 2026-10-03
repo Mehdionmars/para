@@ -4,6 +4,10 @@ import { BrandsFeaturedSection } from "@/components/home/BrandsFeaturedSection";
 import { BrandsMarquee } from "@/components/home/BrandsMarquee";
 import { CampaignSection } from "@/components/home/CampaignSection";
 import { CtaBanner } from "@/components/home/CtaBanner";
+import { GuidanceCards } from "@/components/home/GuidanceCards";
+import { CategoryShelves } from "@/components/home/CategoryShelves";
+import { Counter } from "@/components/home/Counter";
+import { CategoryTiles } from "@/components/layout/CategoryTiles";
 import { CtaPair, type CtaTile } from "@/components/home/CtaPair";
 import { DermoCorner } from "@/components/home/DermoCorner";
 import { GiftSetsCarousel } from "@/components/home/GiftSetsCarousel";
@@ -31,13 +35,13 @@ import {
   type SectionEntryKey,
   type SectionKey,
 } from "@/data/home";
-import { CategoryTiles } from "@/components/layout/CategoryTiles";
-import { CATEGORY_STRIP } from "@/data/nav";
 import { fetchLiveHomeContent, fetchPublishedHomeContent } from "@/lib/storefront/homeContent";
-import { fetchLiveNavigation, fetchPublishedNavigation } from "@/lib/storefront/siteChromeContent";
 import { fetchInstagramPosts } from "@/lib/storefront/instagram";
-import { fetchDiscountedProducts, fetchFeaturedProducts, fetchRailProducts } from "@/lib/storefront/products";
+import { fetchDiscountedProducts, fetchFeaturedProducts, fetchRailProducts, fetchShelfProducts } from "@/lib/storefront/products";
+import { routes } from "@/lib/routes";
 import { fetchCategoryCounts } from "@/lib/storefront/catalogue";
+import { CATEGORY_STRIP } from "@/data/nav";
+import { fetchLiveNavigation, fetchPublishedNavigation } from "@/lib/storefront/siteChromeContent";
 import {
   EMPTY_CATEGORY_TREE,
   fetchCategoryTree,
@@ -183,6 +187,26 @@ function pickActiveMarketingBanner<T extends { active: boolean; startDate: strin
   });
 }
 
+/**
+ * Offers sit below the shelves, not above them.
+ *
+ * The homepage opens on the pharmacy and its aisles; the promotional blocks
+ * (promotions grid, featured promo, banner) follow the last product rail. This
+ * is done on the resolved order rather than in the CMS, so the Storefront
+ * Builder keeps working as before and an editor cannot put a sale back on top
+ * by accident. A page with no rail leaves the order as it is.
+ */
+const PROMOTION_KEYS: SectionEntryKey[] = ["promotionsGrid", "featuredPromo", "marketingBanner"];
+
+function relegatePromotions(keys: SectionEntryKey[]): SectionEntryKey[] {
+  if (!keys.some((key) => key.startsWith("rail:"))) return keys;
+  const promos = PROMOTION_KEYS.filter((key) => keys.includes(key));
+  if (promos.length === 0) return keys;
+  const rest = keys.filter((key) => !PROMOTION_KEYS.includes(key));
+  const insertAt = rest.reduce((at, key, i) => (key.startsWith("rail:") ? i : at), -1) + 1;
+  return [...rest.slice(0, insertAt), ...promos, ...rest.slice(insertAt)];
+}
+
 export default async function HomePage() {
   // When the Storefront Builder's Preview is active (Next Draft Mode), pull
   // section order/visibility, rail config, CTA banners and Instagram config
@@ -199,7 +223,7 @@ export default async function HomePage() {
     : await fetchPublishedHomeContent().catch(() => null);
 
   // The quick-category strip is Navigation content, not Home content, but it
-  // renders here because above the hero is the only place it belongs.
+  // sits above the hero, so the page fetches it with the same draft/published rule.
   const navigation = isPreview
     ? await fetchLiveNavigation().catch(() => null)
     : await fetchPublishedNavigation().catch(() => null);
@@ -209,7 +233,8 @@ export default async function HomePage() {
   const brandsFeatured = live?.brandsFeatured ?? BRANDS_FEATURED;
   const marketingBanners = live?.marketingBanners ?? MARKETING_BANNERS;
   const ctaPair1 = live?.ctaPair1 ?? CTA_PAIR_1;
-  const ctaPair2 = live?.ctaPair2 ?? CTA_PAIR_2;  const ctaBannerCopy = live?.ctaBannerCopy ?? CTA_BANNER_COPY;
+  const ctaPair2 = live?.ctaPair2 ?? CTA_PAIR_2;
+  const ctaBannerCopy = live?.ctaBannerCopy ?? CTA_BANNER_COPY;
   const instagramSection = live?.instagramSection ?? INSTAGRAM_SECTION;
   const sectionOrder = live?.sections ?? SECTION_ORDER;
   const heroSlides = live?.heroSlides;
@@ -235,18 +260,18 @@ export default async function HomePage() {
   // Rail copy/config is synced content (data/home.ts, or live draft above);
   // the actual products shown are resolved live against Payload/Postgres on
   // every request either way — a product with stock 0 never appears here.
-  const [railProducts, instagramPosts, promotionProducts, featuredProducts, categoryCounts] = await Promise.all([
+  const [railProducts, instagramPosts, promotionProducts, featuredProducts, categoryCounts, visageShelf, cheveuxShelf, corpsShelf] = await Promise.all([
     Promise.all(rails.map((rail) => fetchRailProducts(rail))),
     fetchInstagramPosts(instagramSection.postCount),
     // Same live resolution as the rails: an offer edited in the admin is
     // correct on the next request, not at the next sync-cms.
     fetchDiscountedProducts(promotionsGridCopy?.limit || 8).catch(() => null),
     fetchFeaturedProducts(featuredPromoCopy?.limit || 3).catch(() => []),
-    // Only so the category strip can stop offering a shelf with nothing on
-    // it. Shares the catalogue's own 120-second cached facets request, so it
-    // adds no round trip the shop was not already making; a failure returns
-    // an empty map and every chip is shown, exactly as before.
     fetchCategoryCounts().catch(() => new Map()),
+    // The shelves: live, never padded (see fetchShelfProducts).
+    fetchShelfProducts("Visage", 8).catch(() => []),
+    fetchShelfProducts("Cheveux", 8).catch(() => []),
+    fetchShelfProducts("Corps", 8).catch(() => []),
   ]);
   const railProductsByKey = new Map(rails.map((rail, i) => [rail.key, railProducts[i]]));
   const activeBanner = pickActiveMarketingBanner(marketingBanners, Date.now());
@@ -314,19 +339,34 @@ export default async function HomePage() {
   }
 
   const order = withMissingSections(sectionOrder.length > 0 ? sectionOrder : DEFAULT_ORDER);
-  const visibleKeys = order
-    .filter((s) => s.visible && (s.key !== "marketingBanner" || activeBanner))
-    .map((s) => s.key);
+  const visibleKeys = relegatePromotions(
+    order.filter((s) => s.visible && (s.key !== "marketingBanner" || activeBanner)).map((s) => s.key),
+  );
 
   // Grouped from the order that actually renders, so reordering sections in
   // the Storefront Builder regroups the bands with no code change.
   const movements = groupIntoMovements(visibleKeys);
 
+  // The aisle index and the counter are fixed, code-owned blocks: not entries
+  // in the Storefront Builder, so no ordering or hiding there can break the
+  // page's spine. The index follows the hero (or opens the page when the hero
+  // is hidden); the counter opens the closing movement (or closes the page
+  // when there is none).
+  const shelves = [
+    { title: "Visage", href: routes.category("visage"), products: visageShelf, image: categoryTree.roots.get("visage")?.image },
+    { title: "Cheveux", href: routes.category("cheveux"), products: cheveuxShelf, image: categoryTree.roots.get("cheveux")?.image },
+    { title: "Corps", href: routes.category("corps"), products: corpsShelf, image: categoryTree.roots.get("corps")?.image },
+  ];
+  // The aisle index ("Quel est votre souci ?") lives on /catalogue.
+  const aisleIndex = <CategoryShelves shelves={shelves} />;
+  const hasHero = visibleKeys.includes("hero");
+  const firstCloseRun = movements.findIndex((run) => run.movement === "close");
+
   return (
     <>
-      {/* Deliberately the first thing under the header: a returning shopper
-          wants the aisle before the campaign. */}
       <CategoryTiles categoryCounts={categoryCounts} strip={categoryStrip} />
+
+      {hasHero ? null : aisleIndex}
 
       {movements.map((run, i) => {
         // classifyMovements has already demoted any stranded rail, so a run
@@ -335,12 +375,28 @@ export default async function HomePage() {
 
         return (
           <div key={`${run.movement}-${i}`} className={className}>
+            {i === firstCloseRun ? (
+              <>
+                <GuidanceCards />
+                <Counter />
+              </>
+            ) : null}
             {run.keys.map((key) => (
-              <Fragment key={key}>{renderSection(key)}</Fragment>
+              <Fragment key={key}>
+                {renderSection(key)}
+                {key === "hero" ? aisleIndex : null}
+              </Fragment>
             ))}
           </div>
         );
       })}
+
+      {firstCloseRun === -1 ? (
+        <div className="home-movement">
+          <GuidanceCards />
+          <Counter />
+        </div>
+      ) : null}
     </>
   );
 }

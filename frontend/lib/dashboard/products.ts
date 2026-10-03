@@ -1,6 +1,6 @@
 import { payloadFetch, payloadFetchAll } from "./payload";
 import type { ProductQuery } from "./product-query";
-import type { Brand, Product } from "./products-types";
+import { toRoutinePick, type Brand, type Product, type RoutinePick } from "./products-types";
 
 export * from "./products-types";
 
@@ -118,4 +118,47 @@ export async function listBrands(): Promise<Brand[]> {
   if (!res.ok) throw new Error("Impossible de charger les marques.");
   const data = await res.json();
   return data.docs;
+}
+
+/** The picks behind a product's saved ids, in the editor's order. Ids that no
+ * longer resolve (deleted product) are dropped rather than shown blank. */
+export async function getRoutinePicks(ids: number[]): Promise<RoutinePick[]> {
+  if (ids.length === 0) return [];
+  const params = new URLSearchParams({ depth: "1", limit: String(ids.length) });
+  ids.forEach((id, i) => params.set(`where[id][in][${i}]`, String(id)));
+  const res = await payloadFetch(`/api/products?${params.toString()}`);
+  if (!res.ok) return [];
+  const docs: Product[] = (await res.json()).docs ?? [];
+  const byId = new Map(docs.map((d) => [d.id, toRoutinePick(d)]));
+  return ids.flatMap((id) => byId.get(id) ?? []);
+}
+
+export type RoutineFilters = { brand?: number; category?: string };
+
+/** Products an editor can add to a routine: published, not archived, narrowed
+ * by what was typed (name, SKU or brand) and by the brand / category chosen.
+ * With nothing typed and no filter it lists the catalogue alphabetically, so
+ * the picker can offer suggestions before the editor knows what to type. */
+export async function searchRoutinePicks(
+  query: string,
+  exclude: number[],
+  filters: RoutineFilters = {},
+): Promise<RoutinePick[]> {
+  const q = query.trim();
+  const params = new URLSearchParams({ depth: "1", limit: "10", sort: "name" });
+  let i = 0;
+  const and = (path: string, value: string) => params.set(`where[and][${i++}]${path}`, value);
+  and("[isPublished][equals]", "true");
+  and("[discontinued][not_equals]", "true");
+  exclude.forEach((id) => and("[id][not_equals]", String(id)));
+  if (filters.brand) and("[brand][equals]", String(filters.brand));
+  if (filters.category) and("[category][equals]", filters.category);
+  if (q) {
+    const group = i++;
+    ["name", "sku", "brand.name"].forEach((f, j) => params.set(`where[and][${group}][or][${j}][${f}][like]`, q));
+  }
+  const res = await payloadFetch(`/api/products?${params.toString()}`);
+  if (!res.ok) return [];
+  const docs: Product[] = (await res.json()).docs ?? [];
+  return docs.map(toRoutinePick);
 }

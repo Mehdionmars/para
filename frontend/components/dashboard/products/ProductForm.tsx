@@ -9,6 +9,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { createProduct, updateProduct, type ProductInput } from "@/app/dashboard/(app)/products/actions";
 import { ProductPreview } from "@/components/dashboard/products/ProductPreview";
+import { RoutinePicker } from "@/components/dashboard/products/RoutinePicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import {
   type BadgeType,
   type Brand,
   type Product,
+  type RoutinePick,
   type VariantOptionType,
 } from "@/lib/dashboard/products-types";
 import { mediaSrc } from "@/lib/mediaSrc";
@@ -92,8 +94,11 @@ export function ProductForm({
   brands,
   product,
   duplicateOf,
+  routinePicks = [],
 }: {
   brands: Brand[];
+  /** Saved "Complétez votre routine" picks, already hydrated, in order. */
+  routinePicks?: RoutinePick[];
   product?: Product;
   /**
    * Seeds a *new* product from an existing one (dashboard "Dupliquer").
@@ -122,6 +127,7 @@ export function ProductForm({
       .map((row) => (typeof row?.image === "object" && row.image ? { id: row.image.id, url: imageUrl(row.image) } : null))
       .filter((g): g is { id: number; url: string } => Boolean(g)),
   );
+  const [picks, setPicks] = useState<RoutinePick[]>(routinePicks);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [submitError, setSubmitError] = useState("");
@@ -317,7 +323,10 @@ export function ProductForm({
   async function onSubmit(values: FormOutput) {
     setSubmitError("");
     try {
-      const input: ProductInput = { ...values, gallery: gallery.map((g) => g.id), image: imageId };
+      const input: ProductInput = { ...values, gallery: gallery.map((g) => g.id),
+        image: imageId,
+        relatedProducts: picks.map((p) => p.id),
+      };
       if (product) await updateProduct(product.id, input);
       else await createProduct(input);
     } catch (err) {
@@ -550,6 +559,19 @@ export function ProductForm({
                   </button>
                 </>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent>
+              <RoutinePicker
+                picks={picks}
+                onChange={setPicks}
+                brands={brands}
+                selfId={product?.id}
+                currentBrand={Number(watch("brand")) || undefined}
+                currentCategory={watch("category") || undefined}
+              />
             </CardContent>
           </Card>
 

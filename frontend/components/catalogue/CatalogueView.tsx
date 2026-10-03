@@ -4,6 +4,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Breadcrumbs, type BreadcrumbItem } from "@/components/Breadcrumbs";
+import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductGridSkeleton } from "@/components/skeleton";
 import { routes } from "@/lib/routes";
@@ -13,6 +14,7 @@ import type { Category } from "@/data/products";
 import type { CatalogueFacets, CatalogueProduct, StorefrontBrand } from "@/lib/storefront/catalogue";
 import { BrandsRail, CatalogueHero, EditorialPair, ReassuranceStrip, ServiceStrip } from "./CatalogueSections";
 import { Filters } from "./Filters";
+import type { SortValue } from "./Filters";
 import { FiltersDrawer } from "./FiltersDrawer";
 import { UniverseCarousel } from "./UniverseCarousel";
 
@@ -28,13 +30,6 @@ const CATEGORY_VALUES: Category[] = [
   "Hygiène",
 ];
 
-const SORT_OPTIONS: { value: "pertinence" | "price-asc" | "price-desc" | "newest"; label: string }[] = [
-  { label: "Pertinence", value: "pertinence" },
-  { label: "Prix croissant", value: "price-asc" },
-  { label: "Prix décroissant", value: "price-desc" },
-  { label: "Nouveautés", value: "newest" },
-];
-
 const EMPTY_FACETS: CatalogueFacets = { brands: [], categories: [], inStockCount: 0, totalCount: 0 };
 const PAGE_SIZE = 24;
 
@@ -43,10 +38,12 @@ export function CatalogueView({
   initialCategory = "",
   initialSubCategory = "",
   initialTag = "",
+  initialIds,
   initialBrand = "",
   initialQuick = "",
   pageTitle,
   pageIntro,
+  pageImage,
   pageMark,
   pageAside,
   breadcrumbExtra,
@@ -61,6 +58,8 @@ export function CatalogueView({
    * a thing this view does. */
   initialSubCategory?: string;
   initialTag?: string;
+  /** A hand-picked selection (a collection page): only these products, in addition to any filter the visitor adds. An empty list shows nothing, never the whole catalogue. */
+  initialIds?: number[];
   /** Real brand name (not slug) — resolved server-side from the URL's brand slug. */
   initialBrand?: string;
   /** One of QUICK_FILTERS' own values — lets /shop/soldes and /shop/nouveautes
@@ -68,6 +67,8 @@ export function CatalogueView({
   initialQuick?: string;
   pageTitle?: string;
   pageIntro?: string;
+  /** A wide photograph drawn behind the title block of a category page. */
+  pageImage?: string;
   /** Shown above the title on a non-editorial page — the brand's logo on
    * /marques/[slug]. Rendered by the server page and passed down as is. */
   pageMark?: React.ReactNode;
@@ -92,6 +93,7 @@ export function CatalogueView({
    */
   editorial?: boolean;
 }) {
+  const idsKey = initialIds ? initialIds.join(",") : null;
   const gridRef = useRef<HTMLDivElement>(null);
 
   const [activeCategories, setActiveCategories] = useState<Set<Category>>(() => {
@@ -118,10 +120,9 @@ export function CatalogueView({
   const [brand, setBrand] = useState(initialBrand);
   const [maxPrice, setMaxPrice] = useState(399);
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [sort, setSort] = useState<(typeof SORT_OPTIONS)[number]["value"]>("pertinence");
+  const [sort, setSort] = useState<SortValue>("pertinence");
   const [tag, setTagState] = useState(initialTag);
   const [quick, setQuick] = useState(initialQuick);
-  const [filtersOpen, setFiltersOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [limit, setLimit] = useState(PAGE_SIZE);
 
@@ -143,6 +144,10 @@ export function CatalogueView({
     activeCategories.forEach((c) => params.append("cat", c));
     if (brand) params.set("brand", brand);
     if (initialSubCategory) params.set("sub", initialSubCategory);
+    if (idsKey !== null) {
+      if (idsKey === "") params.append("id", "0");
+      else idsKey.split(",").forEach((id) => params.append("id", id));
+    }
     if (tag) params.set("tag", tag);
     if (quick) params.set("quick", quick);
     if (maxPrice < 399) params.set("maxPrice", String(maxPrice));
@@ -184,7 +189,7 @@ export function CatalogueView({
     })();
 
     return () => controller.abort();
-  }, [initialQuery, initialSubCategory, activeCategories, brand, tag, quick, maxPrice, inStockOnly, sort, limit, forcedEmptyCategoryLabel]);
+  }, [initialQuery, initialSubCategory, idsKey, activeCategories, brand, tag, quick, maxPrice, inStockOnly, sort, limit, forcedEmptyCategoryLabel]);
 
   // Sets loading eagerly, from the event handler that triggers the fetch
   // effect below — not from inside the effect itself, so a filter click
@@ -234,6 +239,11 @@ export function CatalogueView({
 
   const filtersProps = useMemo(
     () => ({
+      sort,
+      onSortChange: (v: SortValue) => {
+        resetPaging();
+        setSort(v);
+      },
       activeBrand: brand,
       activeCategories,
       activeTag: tag,
@@ -253,7 +263,7 @@ export function CatalogueView({
         setMaxPrice(v);
       },
     }),
-    [brand, activeCategories, tag, facets, inStockOnly, maxPrice, selectBrand, setTag, toggleCategory],
+    [sort, brand, activeCategories, tag, facets, inStockOnly, maxPrice, selectBrand, setTag, toggleCategory],
   );
 
   // One removable chip per active refinement, replacing the twenty-one pills
@@ -336,6 +346,14 @@ export function CatalogueView({
 
       {editorial ? (
         <CatalogueHero intro={heroIntro} title={heroTitle} />
+      ) : pageImage ? (
+        <div className="cat-banner">
+          <CloudinaryImage alt="" className="cat-banner__img" crop="limit" fill priority sizes="(max-width: 1280px) 100vw, 1280px" src={pageImage} />
+          <div className="cat-banner__body">
+            <h1 style={{ fontFamily: "var(--font-alta)", fontSize: "clamp(30px,4.2vw,52px)", fontWeight: 200, margin: 0 }}>{heroTitle}</h1>
+            <p style={{ fontSize: 13.5, lineHeight: 1.75, margin: "12px 0 0", opacity: 0.7 }}>{heroIntro}</p>
+          </div>
+        </div>
       ) : (
         <div style={{ marginTop: 10, maxWidth: 760 }}>
           {pageMark}
@@ -354,17 +372,12 @@ export function CatalogueView({
 
       <div
         className="catalogue-mobile-toolbar"
-        ref={gridRef}
         style={{
           alignItems: "center",
-          borderBottom: "1px solid var(--pdh-plum-tint)",
           display: "flex",
-          flexWrap: "wrap",
           gap: 16,
           justifyContent: "space-between",
           marginTop: "clamp(34px,4vw,56px)",
-          paddingBottom: 18,
-          scrollMarginTop: 150,
         }}
       >
         <div style={{ fontSize: 14 }}>
@@ -372,66 +385,34 @@ export function CatalogueView({
           {initialQuery ? ` pour « ${initialQuery} »` : ""}
         </div>
 
-        <div className="catalogue-mobile-controls" style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 14 }}>
-          <button
-            aria-pressed={filtersOpen}
-            className="link-hover"
-            onClick={() => {
-              if (window.matchMedia("(max-width: 899px)").matches) setDrawerOpen(true);
-              else setFiltersOpen((v) => !v);
-            }}
-            style={{
-              alignItems: "center",
-              border: "1px solid var(--pdh-plum-border)",
-              borderRadius: 999,
-              color: "var(--pdh-ink)",
-              cursor: "pointer",
-              display: "flex",
-              fontSize: 12,
-              fontWeight: 600,
-              gap: 9,
-              letterSpacing: ".1em",
-              minHeight: 44,
-              padding: "9px 18px",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-            }}
-            type="button"
-          >
-            <SlidersHorizontal aria-hidden="true" size={14} strokeWidth={1.7} />
-            Filtrer
-          </button>
-          <label className="catalogue-sort-control" style={{ alignItems: "center", display: "flex", fontSize: 12, gap: 8 }}>
-            <span style={{ opacity: 0.55 }}>Trier par</span>
-            <select
-              onChange={(e) => {
-                resetPaging();
-                setSort(e.target.value as typeof sort);
-              }}
-              style={{
-                background: "#fff",
-                border: "1px solid var(--pdh-plum-border)",
-                borderRadius: 999,
-                color: "var(--pdh-ink)",
-                cursor: "pointer",
-                fontSize: 12.5,
-                minHeight: 44,
-                padding: "9px 14px",
-              }}
-              value={sort}
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        <button
+          className="link-hover catalogue-mobile-filter-btn"
+          onClick={() => setDrawerOpen(true)}
+          style={{
+            alignItems: "center",
+            border: "1px solid var(--pdh-plum-border)",
+            borderRadius: 999,
+            color: "var(--pdh-ink)",
+            cursor: "pointer",
+            display: "flex",
+            fontSize: 12,
+            fontWeight: 600,
+            gap: 9,
+            letterSpacing: ".1em",
+            minHeight: 44,
+            padding: "9px 18px",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+          }}
+          type="button"
+        >
+          <SlidersHorizontal aria-hidden="true" size={14} strokeWidth={1.7} />
+          Filtrer
+        </button>
       </div>
 
       {activeChips.length > 0 && (
-        <div aria-label="Filtres actifs" role="group" style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 16 }}>
+        <div aria-label="Filtres actifs" className="catalogue-active-chips" role="group" style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 16 }}>
           {activeChips.map((chip) => (
             <button
               aria-label={`Retirer le filtre ${chip.label}`}
@@ -458,14 +439,12 @@ export function CatalogueView({
         </div>
       )}
 
-      <div style={{ alignItems: "flex-start", display: "flex", flexWrap: "wrap", gap: "clamp(18px,2.4vw,30px)", paddingTop: "clamp(18px,2.2vw,26px)" }}>
-        {filtersOpen && (
-          <div className="catalogue-sidebar">
-            <Filters {...filtersProps} />
-          </div>
-        )}
+      <div className="catalogue-body" ref={gridRef} style={{ scrollMarginTop: 150, alignItems: "flex-start", display: "flex", gap: "clamp(18px,2.4vw,30px)", paddingTop: "clamp(18px,2.2vw,26px)" }}>
+        <div className="catalogue-sidebar">
+          <Filters {...filtersProps} />
+        </div>
 
-        <div style={{ flex: "999 1 420px", minWidth: 0 }}>
+        <div style={{ flex: "1 1 0", minWidth: 0 }}>
           {/* First load has no grid to dim — the previous `opacity: 0.5`
               only worked once results existed, so the very first paint was a
               blank column. Skeletons hold the grid's real shape instead.

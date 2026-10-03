@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReservationView } from "@/components/services/ReservationView";
 import { SERVICES } from "@/data/services";
-import { SERVICE_ICONS, fetchServiceById } from "@/lib/storefront/services";
+import { fetchServiceById } from "@/lib/storefront/services";
 
 export function generateStaticParams() {
   return SERVICES.map((s) => ({ id: String(s.id) }));
@@ -29,10 +29,7 @@ export default async function ReservePage({ params }: { params: Promise<{ id: st
   if (!service) notFound();
 
   // `icon` is a React component and cannot cross into a client component.
-  // Its name can, so the icon is looked up by name and the rest of the
-  // service goes over as plain data.
-  const { icon, ...serializable } = service;
-  const iconName = Object.entries(SERVICE_ICONS).find(([, c]) => c === icon)?.[0];
+  const { icon: _icon, ...serializable } = service;
 
-  return <ReservationView service={serializable} iconName={iconName} />;
+  return <ReservationView service={serializable} />;
 }

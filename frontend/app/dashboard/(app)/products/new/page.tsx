@@ -1,6 +1,6 @@
 import { ProductForm } from "@/components/dashboard/products/ProductForm";
 import { requireRole } from "@/lib/dashboard/guard";
-import { getProduct, listBrands } from "@/lib/dashboard/products";
+import { getProduct, getRoutinePicks, listBrands } from "@/lib/dashboard/products";
 import { canEditProducts } from "@/lib/dashboard/roles";
 import type { Product } from "@/lib/dashboard/products-types";
 
@@ -46,5 +46,9 @@ export default async function NewProductPage({
 
   const [brands, source] = await Promise.all([listBrands(), from ? getProduct(from) : Promise.resolve(null)]);
 
-  return <ProductForm brands={brands} duplicateOf={source ? asDuplicate(source) : undefined} />;
+  const routinePicks = await getRoutinePicks(
+    (source?.relatedProducts ?? []).map((r) => (typeof r === "object" ? r.id : r)),
+  );
+
+  return <ProductForm brands={brands} duplicateOf={source ? asDuplicate(source) : undefined} routinePicks={routinePicks} />;
 }

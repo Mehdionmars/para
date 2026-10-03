@@ -173,7 +173,7 @@ export function MarketingBannersEditor({ value, onChange }: { value: MarketingBa
               </>
             )}
             <TextField label="Texte du bouton" value={b.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-            <TextField label="Lien du bouton" value={b.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} placeholder="/catalogue" />
+            <LinkPicker label="Lien du bouton" value={b.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
             <div className="grid grid-cols-2 gap-3">
               {b.imageMode !== "imageOnly" && (
                 <SelectField
@@ -207,19 +207,20 @@ export function MarketingBannersEditor({ value, onChange }: { value: MarketingBa
 export function CtaPairEditor({ title, value, onChange }: { title: string; value: CtaTile[]; onChange: (v: CtaTile[]) => void }) {
   return (
     <>
-      <EditorHeading title={title} description="Exactement 2 tuiles côte à côte." />
+      <EditorHeading title={title} description="Chaque tuile est un lien carré vers sa propre destination. Ajoutez-en autant que nécessaire : la grille suit le nombre." />
       <ArrayField<CtaTile>
         items={value}
         onChange={onChange}
         renderLabel={(t) => t.title || "Nouvelle tuile"}
         itemName="cette tuile"
         addLabel="Ajouter une tuile"
-        onAdd={() => ({ eyebrow: "", title: "Nouveau titre", bg: "#EFE6F3", image: { url: "" } })}
+        onAdd={() => ({ eyebrow: "", title: "Nouveau titre", bg: "#EFE6F3", image: { url: "" }, ctaUrl: "" })}
         renderItem={(t, _i, update) => (
           <FieldGroup>
             <ImagePicker label="Image" imageId={t.image.id} imageUrl={t.image.url} onChange={(id, url) => update({ image: { id, url } })} />
             <TextField label="Eyebrow" value={t.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
             <TextField label="Titre" value={t.title} onChange={(title) => update({ title })} />
+            <LinkPicker label="Lien de la tuile" value={t.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
             <TextField label="Couleur de fond" value={t.bg} onChange={(bg) => update({ bg })} placeholder="#EFE6F3" />
           </FieldGroup>
         )}
@@ -279,7 +280,7 @@ function RailFields({
 
       <NumberField label="Nombre de produits max" value={r.limit} min={1} max={24} onChange={(limit) => update({ limit })} />
       <TextField label="Texte du CTA" value={r.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-      <TextField label="Lien du CTA" value={r.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} placeholder="/catalogue" />
+      <LinkPicker label="Lien du CTA" value={r.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
       <SelectField
         label="Identité éditoriale"
         value={r.badgeStyle}
@@ -436,7 +437,7 @@ export function CtaBannerEditor({ value, onChange }: { value: CtaBannerCopyDraft
       <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
       <TextAreaField label="Texte de soutien" value={value.description} onChange={(description) => update({ description })} />
       <TextField label="Texte du bouton" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-      <TextField label="Lien du bouton" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+      <LinkPicker label="Lien du bouton" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
       <ColorField label="Fond" value={value.bg} onChange={(bg) => update({ bg })} />
       <ImagePicker
         label="Image (facultative) — affichée à côté du texte"
@@ -461,7 +462,7 @@ export function DermoCornerCopyEditor({ value, onChange }: { value: DermoCornerC
       <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
       <TextAreaField label="Sous-titre" value={value.subtitle} onChange={(subtitle) => update({ subtitle })} />
       <TextField label="Texte du CTA" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-      <TextField label="Lien du CTA" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+      <LinkPicker label="Lien du CTA" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
       <TextField label="Titre du carrousel produits (section séparée)" value={value.picksTitle} onChange={(picksTitle) => update({ picksTitle })} />
       <CheckboxField label="Défilement automatique" checked={value.autoplay} onChange={(autoplay) => update({ autoplay })} />
       {value.autoplay && (
@@ -494,7 +495,7 @@ export function ImageCarouselEditor({
         <TextField label="Titre" value={copy.title} onChange={(title) => update({ title })} />
         <TextAreaField label="Sous-titre" value={copy.subtitle} onChange={(subtitle) => update({ subtitle })} />
         <TextField label="Texte du CTA" value={copy.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-        <TextField label="Lien du CTA" value={copy.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} placeholder="/catalogue" />
+        <LinkPicker label="Lien du CTA" value={copy.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
         <TextField label="Titre du carrousel" value={copy.picksTitle} onChange={(picksTitle) => update({ picksTitle })} />
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-600">Produits affichés (8 maximum)</span>
@@ -519,7 +520,7 @@ export function FeaturedPromoEditor({ value, onChange }: { value: FeaturedPromoC
         <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
         <TextField label="Sous-titre (facultatif)" value={value.subtitle} onChange={(subtitle) => update({ subtitle })} />
         <TextField label="Texte du lien « Voir tout »" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-        <TextField label="Lien « Voir tout »" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+        <LinkPicker label="Lien « Voir tout »" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
         <NumberField
           label="Produits à côté de la tuile (3 = une ligne, 7 = deux lignes)"
           value={value.limit}
@@ -541,7 +542,7 @@ export function FeaturedPromoEditor({ value, onChange }: { value: FeaturedPromoC
         />
         <TextField label="Titre de la tuile" value={value.promoTitle} onChange={(promoTitle) => update({ promoTitle })} />
         <TextField label="Texte du bouton" value={value.promoCtaLabel} onChange={(promoCtaLabel) => update({ promoCtaLabel })} />
-        <TextField label="Lien du bouton" value={value.promoCtaUrl} onChange={(promoCtaUrl) => update({ promoCtaUrl })} />
+        <LinkPicker label="Lien du bouton" value={value.promoCtaUrl} onChange={(promoCtaUrl) => update({ promoCtaUrl })} />
       </FieldGroup>
     </>
   );
@@ -576,7 +577,7 @@ export function CoffretsCopyEditor({ value, onChange }: { value: CoffretsCopy; o
       <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
       <TextField label="Sous-titre" value={value.subtitle} onChange={(subtitle) => update({ subtitle })} />
       <TextField label='Texte du lien "Tous les coffrets"' value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-      <TextField label="Lien" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+      <LinkPicker label="Lien" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
       <SelectField
         label="Disposition"
         value={value.layout}
@@ -639,7 +640,7 @@ export function CoffretsEditor({ value, onChange }: { value: Coffret[]; onChange
             <NumberField label={c.product ? "Prix (MAD) — ignoré, prix du produit" : "Prix (MAD)"} value={c.price} min={0} onChange={(price) => update({ price })} />
             <CheckboxField label='Afficher "à partir de"' checked={c.priceFrom} onChange={(priceFrom) => update({ priceFrom })} />
             <TextField label="Texte du CTA" value={c.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-            {!c.product && <TextField label="Lien du CTA" value={c.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />}
+            {!c.product && <LinkPicker label="Lien du CTA" value={c.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />}
             <TextField label="Message de confirmation" value={c.toast} onChange={(toast) => update({ toast })} />
           </FieldGroup>
         )}
@@ -671,7 +672,7 @@ export function CampaignEditor({
         <TextField label="Titre" value={copy.title} onChange={(title) => update({ title })} />
         <TextAreaField label="Description" value={copy.description} onChange={(description) => update({ description })} />
         <TextField label="Texte du bouton" value={copy.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-        <TextField label="Lien du bouton" value={copy.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} placeholder="/catalogue" />
+        <LinkPicker label="Lien du bouton" value={copy.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
         <TextField label="Titre du rail produits" value={copy.railTitle} onChange={(railTitle) => update({ railTitle })} />
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-600">Produits affichés</span>
@@ -777,7 +778,7 @@ export function InstagramEditor({ value, onChange }: { value: Instagram; onChang
         <TextField label="Nom d'utilisateur" value={value.username} onChange={(username) => update({ username })} />
         <NumberField label="Nombre de posts" value={value.postCount} min={2} max={12} onChange={(postCount) => update({ postCount })} />
         <TextField label="Texte du bouton" value={value.ctaText} onChange={(ctaText) => update({ ctaText })} />
-        <TextField label="Lien du bouton" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+        <LinkPicker label="Lien du bouton" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
       </FieldGroup>
     </>
   );
@@ -826,7 +827,7 @@ export function ServicesEditor({ value, onChange }: { value: ServiceCard[]; onCh
             <TextField label="Titre" value={s.title} onChange={(title) => update({ title })} />
             <TextAreaField label="Sous-titre" value={s.sub} onChange={(sub) => update({ sub })} />
             <TextField label="Texte du bouton" value={s.cta} onChange={(cta) => update({ cta })} />
-            <TextField label="Lien" value={s.href} onChange={(href) => update({ href })} />
+            <LinkPicker label="Lien" value={s.href} onChange={(href) => update({ href })} />
             <SelectField label="Icône" value={s.icon} onChange={(icon) => update({ icon })} options={SERVICE_ICONS} />
           </FieldGroup>
         )}
@@ -915,7 +916,7 @@ export function SummerEditCopyEditor({ value, onChange }: { value: SummerEditCop
           <TextField label="Titre (ligne 2, couleur accent)" value={value.titleAccent} onChange={(titleAccent) => update({ titleAccent })} />
           <TextAreaField label="Description" value={value.description} onChange={(description) => update({ description })} />
           <TextField label="Texte du CTA" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-          <TextField label="Lien du CTA" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} placeholder="/catalogue" />
+          <LinkPicker label="Lien du CTA" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
         </FieldGroup>
       </div>
 

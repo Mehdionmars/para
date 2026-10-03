@@ -408,7 +408,7 @@ async function syncHome() {
     title: home.dermoCornerCopy?.title || 'La sélection dermatologique du moment',
     subtitle: home.dermoCornerCopy?.subtitle || '',
     ctaLabel: home.dermoCornerCopy?.ctaLabel || 'Voir le rayon dermo',
-    ctaUrl: home.dermoCornerCopy?.ctaUrl || '/catalogue',
+    ctaUrl: home.dermoCornerCopy?.ctaUrl || '/shop/dermocosmetique',
     picksTitle: home.dermoCornerCopy?.picksTitle || 'Nos soins dermo favoris',
     img: mediaURL(home.dermoCornerCopy?.image),
     autoplay: home.dermoCornerCopy?.autoplay !== false,
@@ -751,11 +751,14 @@ export const SERVICES_TEASER = ${withIconRefs(JSON.stringify(servicesTeaser, nul
 
 async function syncCollectionsPage() {
   const page = await fetchGlobal('collections-page', 1)
+  const slugify = (t) =>
+    String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
   const cards = (page.cards || []).map((c) => ({
     title: c.title,
     sub: c.sub || '',
-    count: c.count || '',
+    slug: (c.slug || '').trim() || slugify(c.title),
     img: mediaURL(c.image),
+    productIds: (c.products || []).map((p) => (typeof p === 'object' && p ? p.id : p)).filter((n) => Number.isInteger(n)),
   }))
   return cards
 }
@@ -1182,7 +1185,17 @@ export type MegaLink = {
 };
 export type MegaColumn = { title: string; links: MegaLink[] };
 export type MegaPromo = { img: string; title: string; description: string; ctaLabel: string; ctaUrl: string };
-export type MegaMenuContent = { subtitle: string; columns: MegaColumn[]; promo: MegaPromo | null };
+/** A real in-stock product, picked by the storefront for a top-level category. */
+export type MegaFeatured = { name: string; brand: string; size: string; price: number; old: number; img: string; href: string };
+/** The category's own photograph (Categories → Image) and its landing link. */
+export type MegaCategoryCard = { name: string; img: string; href: string };
+export type MegaMenuContent = {
+  subtitle: string;
+  columns: MegaColumn[];
+  promo: MegaPromo | null;
+  categoryCard?: MegaCategoryCard | null;
+  featured?: MegaFeatured | null;
+};
 
 export type NavItem = {
   label: string;
@@ -1236,7 +1249,7 @@ async function main() {
   // for the same never[]-on-empty reason as Coffret above.
   const homeWithCollections = homeContent.replace(
     'export const FREE_SHIPPING_THRESHOLD',
-    `export type CollectionCard = { title: string; sub: string; count: string; img: string };\n\nexport const COLLECTIONS: CollectionCard[] = ${JSON.stringify(collectionsCards, null, 2)};\n\nexport const FREE_SHIPPING_THRESHOLD`,
+    `export type CollectionCard = { title: string; sub: string; slug: string; img: string; productIds: number[] };\n\nexport const COLLECTIONS: CollectionCard[] = ${JSON.stringify(collectionsCards, null, 2)};\n\nexport const FREE_SHIPPING_THRESHOLD`,
   )
   writeGenerated('home.ts', homeWithCollections)
   writeGenerated('catalogue.ts', catalogueContent)

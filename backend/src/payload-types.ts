@@ -307,6 +307,14 @@ export interface Category {
   order?: number | null;
   isActive?: boolean | null;
   /**
+   * Optionnel. Photo affichée dans le méga-menu quand cette catégorie de premier niveau est survolée. Sans photo, le méga-menu n'affiche que les colonnes et le produit vedette.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Optionnel. Grande photo en largeur (format conseillé 16:3, ex. 2560 × 480) affichée derrière le titre de la page de cette catégorie. Les sous-catégories reprennent celle de leur catégorie parente si elles n'en ont pas.
+   */
+  banner?: (number | null) | Media;
+  /**
    * Optional lucide-react icon name, e.g. "Sparkles". Rarely needed below level 0.
    */
   icon?: string | null;
@@ -1545,6 +1553,8 @@ export interface CategoriesSelect<T extends boolean = true> {
   parent?: T;
   order?: T;
   isActive?: T;
+  image?: T;
+  banner?: T;
   icon?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2218,12 +2228,16 @@ export interface Home {
       }[]
     | null;
   /**
-   * Two-tile CTA banner right under the hero (exactly 2 tiles).
+   * Offres spéciales — tuiles carrées cliquables sous le hero. Chaque tuile mène à sa propre destination ; laisser "Lien" vide renvoie au catalogue. Ajoutez-en autant que nécessaire : la grille suit le nombre.
    */
   ctaPair1?:
     | {
         eyebrow?: string | null;
         title: string;
+        /**
+         * Destination de la tuile, ex. /produit/mon-produit, /shop/solaire, /collections. Vide = le catalogue.
+         */
+        ctaUrl?: string | null;
         /**
          * Hex color, e.g. #E7EFF3
          */
@@ -2344,12 +2358,16 @@ export interface Home {
       }[]
     | null;
   /**
-   * Second two-tile CTA banner, further down the page (exactly 2 tiles).
+   * Second bloc de tuiles carrées cliquables, plus bas dans la page (« Nos sélections »). Même fonctionnement que le premier.
    */
   ctaPair2?:
     | {
         eyebrow?: string | null;
         title: string;
+        /**
+         * Destination de la tuile, ex. /produit/mon-produit, /shop/solaire, /collections. Vide = le catalogue.
+         */
+        ctaUrl?: string | null;
         /**
          * Hex color, e.g. #E7EFF3
          */
@@ -2862,10 +2880,18 @@ export interface CollectionsPage {
         title: string;
         sub?: string | null;
         /**
-         * e.g. "24 produits"
+         * Ancien champ : le nombre de produits est maintenant calculé.
          */
         count?: string | null;
         image?: (number | null) | Media;
+        /**
+         * Adresse de la page : /collections/<slug>. Laissez vide pour la déduire du titre.
+         */
+        slug?: string | null;
+        /**
+         * Les produits de la page de cette collection. Le nombre affiché sur la carte en découle.
+         */
+        products?: (number | Product)[] | null;
         id?: string | null;
       }[]
     | null;
@@ -3566,6 +3592,7 @@ export interface HomeSelect<T extends boolean = true> {
     | {
         eyebrow?: T;
         title?: T;
+        ctaUrl?: T;
         bg?: T;
         image?: T;
         id?: T;
@@ -3616,6 +3643,7 @@ export interface HomeSelect<T extends boolean = true> {
     | {
         eyebrow?: T;
         title?: T;
+        ctaUrl?: T;
         bg?: T;
         image?: T;
         id?: T;
@@ -3920,6 +3948,8 @@ export interface CollectionsPageSelect<T extends boolean = true> {
         sub?: T;
         count?: T;
         image?: T;
+        slug?: T;
+        products?: T;
         id?: T;
       };
   updatedAt?: T;

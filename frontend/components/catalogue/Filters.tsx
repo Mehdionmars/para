@@ -5,7 +5,18 @@ import { useState } from "react";
 import type { Category } from "@/data/products";
 import type { CatalogueFacets } from "@/lib/storefront/catalogue";
 
+export type SortValue = "pertinence" | "price-asc" | "price-desc" | "newest";
+
+export const SORT_OPTIONS: { value: SortValue; label: string }[] = [
+  { label: "Pertinence", value: "pertinence" },
+  { label: "Prix croissant", value: "price-asc" },
+  { label: "Prix décroissant", value: "price-desc" },
+  { label: "Nouveautés", value: "newest" },
+];
+
 type Props = {
+  sort: SortValue;
+  onSortChange: (value: SortValue) => void;
   facets: CatalogueFacets;
   activeCategories: Set<Category>;
   onToggleCategory: (category: Category) => void;
@@ -105,9 +116,9 @@ function CheckRow({ checked, onClick, label, count }: { checked: boolean; onClic
 }
 
 export function Filters({
+  sort,
+  onSortChange,
   facets,
-  activeCategories,
-  onToggleCategory,
   activeBrand,
   onSelectBrand,
   maxPrice,
@@ -119,56 +130,18 @@ export function Filters({
   onSelectNeed,
 }: Props) {
   return (
-    <aside style={{ flex: "0 1 240px", minWidth: 210, position: "sticky", top: 150 }}>
+    <aside style={{ width: "100%" }}>
       <div style={{ fontSize: 13, fontWeight: 600, padding: "0 2px 14px", borderBottom: "1px solid var(--pdh-plum-tint)" }}>Filtrer</div>
 
-      <AccordionSection title="Catégories" defaultOpen>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 9,
-            // Hold the space this list is about to need, and only while it is
-            // empty.
-            //
-            // Facets arrive from a client fetch. This section is the first one
-            // and open by default, so for the ~360ms before they land it was a
-            // header with nothing under it, and when the rows appeared they
-            // pushed the four sections below — Marques, Prix, Disponibilité,
-            // Besoins, 50px of header each — down the column. That single
-            // reflow measured CLS 0.053 on every /shop/* and /marques/* page,
-            // the worst on the site, and a MutationObserver put it at 367ms:
-            // "Catégories" going from empty to filled.
-            //
-            // 288px, measured rather than derived: nine rows of 24px with
-            // eight 9px gaps. The list is always the nine broad categories,
-            // including the ones at count 0, so one number serves every page
-            // that shifts.
-            //
-            // It was 240.75 until CheckRow gained its 24px floor just above;
-            // the two numbers move together, and 288 was read off the live
-            // page with that min-height applied rather than multiplied out.
-            //
-            // Two earlier guesses bracketed it and both moved the column: 215
-            // (seven rows, from a screen probe that had only seen part of the
-            // sidebar) left 0.0052, and 279 (nine rows at an assumed 23px, a
-            // figure taken from a collapsing section *header*, not a row)
-            // overshot and pushed CLS up to 0.0076. Over-reserving shifts
-            // exactly as much as under-reserving, in the other direction.
-            //
-            // /catalogue does not shift at all and is not the case being sized
-            // for. The reservation is conditional on the list being empty, so
-            // nothing holds blank space once the facets land.
-            minHeight: facets.categories.length === 0 ? 288 : undefined,
-          }}
-        >
-          {facets.categories.map(({ value, count }) => (
-            <CheckRow key={value} checked={activeCategories.has(value)} onClick={() => onToggleCategory(value)} label={value} count={count} />
+      <AccordionSection title="Trier par" defaultOpen>
+        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+          {SORT_OPTIONS.map((opt) => (
+            <CheckRow key={opt.value} checked={sort === opt.value} onClick={() => onSortChange(opt.value)} label={opt.label} />
           ))}
         </div>
       </AccordionSection>
 
-      <AccordionSection title="Marques">
+      <AccordionSection title="Marques" defaultOpen>
         <div style={{ display: "flex", flexDirection: "column", gap: 9, maxHeight: 220, overflowY: "auto" }}>
           {facets.brands.map(({ name, count }) => (
             <CheckRow key={name} checked={activeBrand === name} onClick={() => onSelectBrand(name)} label={name} count={count} />

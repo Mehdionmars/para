@@ -416,6 +416,50 @@ button {
     transform: none;
   }
 }
+@keyframes drawer-in {
+  from {
+    transform: translateX(-24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.mnav-scroll {
+  scrollbar-width: none;
+}
+
+.mnav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mnav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 14, 26, 0.45);
+  animation: backdrop-in 0.25s ease both;
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -1287,12 +1331,71 @@ a.giftset-card-media:focus-visible {
   }
 }
 
+.cat-banner {
+  align-items: center;
+  display: flex;
+  margin-top: 10px;
+  min-height: clamp(150px, 19vw, 240px);
+  overflow: hidden;
+  position: relative;
+}
+.cat-banner__img {
+  object-fit: cover;
+  object-position: right center;
+}
+.cat-banner::after {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 45%, rgba(255, 255, 255, 0) 70%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+.cat-banner__body {
+  max-width: 560px;
+  padding: clamp(20px, 3vw, 44px);
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 640px) {
+  .cat-banner {
+    display: block;
+    min-height: 0;
+    padding-top: 128px;
+  }
+  .cat-banner__img {
+    bottom: auto !important;
+    height: 128px !important;
+  }
+  .cat-banner::after {
+    display: none;
+  }
+  .cat-banner__body {
+    padding: 18px 2px 4px;
+  }
+}
+
 .catalogue-sidebar {
   display: none;
 }
+.catalogue-mobile-toolbar,
+.catalogue-active-chips {
+  display: flex;
+}
 @media (min-width: 900px) {
+  .catalogue-mobile-toolbar,
+  .catalogue-active-chips {
+    display: none !important;
+  }
+  .catalogue-body {
+    margin-top: clamp(20px, 2.6vw, 34px);
+  }
   .catalogue-sidebar {
+    align-self: flex-start;
     display: block;
+    flex: 0 0 240px;
+    position: sticky;
+    top: 150px;
+    width: 240px;
   }
 }
 
@@ -1320,16 +1423,6 @@ a.giftset-card-media:focus-visible {
   box-shadow: 0 16px 30px -8px rgba(37, 211, 102, 0.75);
 }
 
-/* Stepped aside over the footer, where it used to cover the link column.
-   `animation: none` is load-bearing: the entrance `rise` runs with
-   fill-mode `both`, so its final frame (opacity 1, transform none) keeps
-   winning over these declarations until the animation itself is cancelled. */
-.fab-whatsapp[data-hidden="true"] {
-  animation: none;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px) scale(0.9);
-}
 /* Bottom-left, opposite WhatsApp — which is what the phone breakpoint below
    already did, and for the reason spelled out there: two circles sharing one
    corner read as a single control cluster and the thumb (or cursor) reaching
@@ -1886,8 +1979,8 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 .search-input {
-  border: 1px solid transparent;
-  background: #f2f0ed;
+  border: 1px solid rgba(26,26,26,.16);
+  background: #fff;
   outline: none;
   color: var(--pdh-ink);
   transition: border-color 0.2s, background 0.2s;
@@ -3228,170 +3321,6 @@ nav[aria-label^="Fil d"] a::after {
     min-height: 44px;
   }
 
-  /* 75vh with a 560px floor left nothing under it: measured against the
-     101px of topbar + header, the section below the hero showed 110px on a
-     390px phone and, on a 320x568 screen, the floor pushed the hero past the
-     bottom of the viewport so the next section showed nothing at all. A
-     visitor had no signal that the page continued.
-
-     58vh with a lower floor and ceiling keeps the hero the dominant thing on
-     first paint while letting the rail beneath it break the fold — roughly
-     250px of it on a common phone, which is enough to read its heading and
-     know to scroll. The copy card is 197px, so even at the 400px floor the
-     photograph keeps the larger share. */
-  /* Wider than tall, which 58vh was not.
-
-     Measured on a 390x844 phone: the hero came out 490px against 390 of
-     width — a portrait block — and the copy card, which the note above
-     sized at 197px, has since grown to 269. That left 201px of photograph
-     with nothing in it above the card, which is what a visitor reads as a
-     gap rather than as an image.
-
-     44vh with a 360 floor and a 430 ceiling lands the hero at or just under
-     its own width at every common phone size, so it reads as a banner. The
-     card keeps its full height; what shrinks is the empty band over it. The
-     fold argument the note above makes still holds, more so: a shorter hero
-     shows more of the rail beneath it, not less. */
-  /* The photograph, whole; the copy card beneath it.
-
-     The card used to sit over the bottom of the photo, and on a phone it
-     covered a third of it — the products in the shot were hidden behind the
-     text that was selling them. Below 768px the hero stops being a fixed-
-     height frame with layers inside and becomes two blocks in flow: the photo
-     at the campaign artwork's own ratio (1408x768), then the card. Desktop,
-     where the card sits beside the subject rather than on it, is unchanged.
-
-     The slides still crossfade: they share one grid cell instead of being
-     absolutely positioned, so the hero is as tall as its tallest slide. */
-  .home-hero {
-    width: 100% !important;
-    height: auto !important;
-    display: grid;
-    margin-top: 0 !important;
-    /* Square, edge to edge. The rounded bottom corners read as a card
-       floating on the page; a phone hero is the top of the page itself, and
-       the two notches of background showing under it were the only thing
-       between the photograph and the section beneath it. */
-    border-radius: 0 !important;
-    /* The page ground behind the card, not the plum the photo sat on. */
-    background: #fff !important;
-  }
-
-  .home-hero-slide {
-    position: relative !important;
-    inset: auto !important;
-    grid-area: 1 / 1;
-    flex-direction: column;
-    align-items: stretch !important;
-  }
-
-  .home-hero-photo {
-    position: relative !important;
-    inset: auto !important;
-    width: 100%;
-    aspect-ratio: 1408 / 768;
-    overflow: hidden;
-  }
-
-  /* The seam under the hero. A movement boundary is 88px at this width; under
-     a photo and its card that read as an empty band before "Les nouveautés",
-     not as a pause. The hero now ends in a card, which already separates it. */
-  .home-movement:has(.home-hero) + .home-movement {
-    margin-top: 28px;
-  }
-
-  /* The category strip costs the fold 61px.
-   *
-   * On a 320x568 screen the 400px floor above already left only ~6px of the
-   * rail beneath the hero showing once the strip was added — below the 40px
-   * the fold test requires, and below what a visitor reads as "there is more".
-   * The floor is what binds on a short screen (58vh of 568 is 329px), so it
-   * is the floor that gives the space back. Taller phones are unaffected:
-   * they are sized by the 58vh, not by this. */
-  /* Short screens are bound by the floor, not by the 44vh, so the floor is
-     what has to give the fold its space back. 300px still clears the copy
-     card, which is what the hero has to hold. */
-
-  /* height:100% is what makes the align-items below do anything at all: the
-     slide is a flex row with align-items:center, so this wrap was only ever
-     as tall as its own content and got centred as a unit — its internal
-     flex-end had no free space to push against. Stretched to the slide, the
-     card finally lands on the bottom edge instead of floating mid-image.
-
-     The old 78px of bottom padding was clearance for the WhatsApp button
-     back when it sat at bottom:80px. That button is docked in the corner
-     now, so the padding is just a gap the card is held above; 20px is the
-     breathing room a rounded white card wants against the hero's edge. */
-  .home-hero-copy-wrap {
-    justify-content: stretch !important;
-    padding: 14px 14px 6px !important;
-  }
-
-  /* The copy card was taking 47% of the hero on a 390px phone — half the
-     photograph, for a badge, a headline, three lines of teaser and a button.
-     The type comes down a step and the description is capped at two lines,
-     which lands the card near a third of the hero and gives the image back
-     the top two thirds. Desktop keeps its own scale, untouched. */
-  .home-hero-copy {
-    width: 100% !important;
-    max-width: none !important;
-    padding: 15px 16px !important;
-    border-radius: 16px !important;
-    /* On the page now, not floating over a photo: a hairline, no shadow. */
-    border: 1px solid var(--pdh-plum-tint);
-    box-shadow: none !important;
-  }
-
-  /* The eyebrow pill: same shape, less bulk. */
-  .home-hero-copy > span:first-child {
-    font-size: 9.5px !important;
-    padding: 5px 11px !important;
-  }
-
-  /* h1 too: the first slide's title is the page's h1, and the step down
-     only ever reached the h2 of the others. */
-  .home-hero-copy h1,
-  .home-hero-copy h2 {
-    font-size: clamp(21px, 6.2vw, 27px) !important;
-    line-height: 1.08 !important;
-    margin-top: 11px !important;
-  }
-
-  /* Two lines is a teaser; the page behind the button is where the rest of
-     the sentence belongs. Without the cap a long CMS description quietly
-     grows the card back to half the hero. */
-  .home-hero-copy p {
-    font-size: 13px !important;
-    line-height: 1.5 !important;
-    margin-top: 8px !important;
-    margin-bottom: 12px !important;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .home-hero-actions {
-    display: grid !important;
-    grid-template-columns: 1fr;
-    gap: 8px !important;
-  }
-
-  /* A button is as wide as its label here too — the same rule the campaign
-     cards follow. min-height keeps it comfortably tappable without the
-     padding that full width was standing in for. */
-  .home-hero-actions > * {
-    width: fit-content;
-    min-height: 44px;
-    padding: 12px 24px !important;
-    font-size: 11px !important;
-  }
-
-  .hero-nav-btn {
-    display: none !important;
-  }
-
   .mobile-rail-section {
     padding: 26px 14px !important;
   }
@@ -3466,21 +3395,9 @@ nav[aria-label^="Fil d"] a::after {
     backdrop-filter: blur(14px);
   }
 
-  .catalogue-mobile-controls {
-    width: 100%;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-    gap: 10px !important;
-  }
-
-  .catalogue-mobile-controls button,
-  .catalogue-sort-control,
-  .catalogue-sort-control select {
-    width: 100%;
-  }
-
-  .catalogue-sort-control span {
-    display: none;
+  .catalogue-mobile-filter-btn {
+    justify-content: center;
+    min-width: 140px;
   }
 
   .catalogue-grid {
@@ -3975,7 +3892,7 @@ nav[aria-label^="Fil d"] a::after {
   font-size: var(--fs-deck);
   line-height: var(--lh-prose);
   color: var(--pdh-ink-soft);
-  margin: 10px 0 0;
+  margin: clamp(14px, 1.6vw, 18px) 0 0;
   /* Nothing on the page was over measure (36–54ch, checked live), so this is
      a guard against a long CMS subtitle rather than a correction. */
   max-width: 62ch;
@@ -5220,6 +5137,31 @@ section.rail-editorial {
   justify-content: center;
 }
 
+/* Phone: the square shelf is a row that scrolls sideways, a sliver of the next
+   tile showing. Desktop keeps the centred grid. */
+@media (max-width: 767px) {
+  .cta-square-grid {
+    display: flex;
+    justify-content: flex-start;
+    margin-inline: calc(var(--sec-pad-x) * -1);
+    padding-inline: var(--sec-pad-x);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--sec-pad-x);
+    scrollbar-width: none;
+  }
+
+  .cta-square-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cta-square-grid > * {
+    flex: 0 0 min(62vw, 260px);
+    scroll-snap-align: start;
+  }
+}
+
 .cta-pair-grid {
   display: grid;
   gap: clamp(14px, 2vw, 24px);
@@ -5378,12 +5320,13 @@ a.brand-wall-cell:focus-visible {
    missing image — most brands in this shop have no logo uploaded yet. */
 .brand-wall-name {
   font-family: var(--font-alta);
-  font-weight: 300;
-  font-size: 15px;
-  letter-spacing: 0.04em;
+  font-weight: 400;
+  font-size: clamp(20px, 2.2vw, 28px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   line-height: 1.2;
   text-align: center;
-  color: var(--pdh-plum);
+  color: rgb(var(--pdh-ink-rgb));
 }
 
 .brand-wall-nav {
@@ -5697,4 +5640,832 @@ a.brand-wall-cell:focus-visible {
 }
 .gift-progress strong {
   font-weight: 600;
+}
+
+/* ============================================================
+   Home — the pharmacy counter, set in type
+   ============================================================
+   The homepage opens on what the shop is for, not on a campaign:
+   a large headline beside one photograph, then the aisles as an
+   index. One accent (plum), hairline rules, no cards, no pills.
+
+   Everything here is prefixed `pdh-` or `aisle-`; the hero was
+   previously a photograph with a white card laid over it
+   (.home-hero*), which is gone. */
+
+/* ---- Hero ---------------------------------------------------- */
+.pdh-hero {
+  position: relative;
+  background: #fff;
+}
+
+.pdh-hero-stage {
+  touch-action: pan-y;
+  display: grid;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(28px, 3vw, 40px) var(--sec-pad-x) 0;
+}
+
+/* Every slide shares one grid cell, so the hero is as tall as its tallest
+   slide and the crossfade needs no absolute positioning. */
+.pdh-hero-slide {
+  grid-area: 1 / 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 32px);
+  opacity: 0;
+  visibility: hidden;
+  /* Out fast, in after it has gone: two headlines never share a rectangle. */
+  transition:
+    opacity 200ms ease-in,
+    visibility 0s linear 200ms;
+}
+
+.pdh-hero-slide[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 420ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+}
+
+.pdh-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.pdh-hero-title {
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: clamp(36px, 9.4vw, 44px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--pdh-ink);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.pdh-hero-sub {
+  font-size: var(--fs-body);
+  line-height: var(--lh-prose);
+  color: var(--pdh-ink-soft);
+  max-width: 40ch;
+  margin: 16px 0 0;
+}
+
+.pdh-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 24px;
+  row-gap: 4px;
+  margin-top: 24px;
+}
+
+.pdh-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 26px;
+  background: var(--pdh-plum);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.pdh-hero-cta:hover {
+  background: var(--pdh-plum-dark);
+}
+
+.pdh-hero-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--pdh-ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--pdh-plum-divider);
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.2s;
+}
+
+.pdh-hero-link:hover {
+  text-decoration-color: var(--pdh-plum);
+}
+
+.pdh-hero-tag {
+  margin: 24px 0 0;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--pdh-muted-text);
+}
+
+.pdh-hero-photo {
+  position: relative;
+  aspect-ratio: 1408 / 768;
+  overflow: hidden;
+  background: var(--pdh-sand);
+  border-radius: 2px;
+}
+
+/* Phone: label, headline and sub on top, then the picture, then the button.
+   The copy wrapper dissolves so its pieces can be ordered around the photo. */
+@media (max-width: 767px) {
+  .pdh-hero-slide {
+    gap: 0;
+  }
+
+  .pdh-hero-copy {
+    display: contents;
+  }
+
+  .pdh-hero-tag {
+    order: 1;
+    margin: 0 0 12px;
+  }
+
+  .pdh-hero-title {
+    order: 2;
+  }
+
+  .pdh-hero-sub {
+    order: 3;
+    margin-top: 12px;
+  }
+
+  .pdh-hero-photo {
+    order: 4;
+    margin-top: 20px;
+  }
+
+  .pdh-hero-actions {
+    order: 5;
+    margin-top: 20px;
+  }
+}
+
+.pdh-hero-dots {
+  display: flex;
+  justify-content: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 6px var(--sec-pad-x) 0;
+}
+
+.pdh-hero-dot {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.pdh-hero-dot::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  height: 2px;
+  background: var(--pdh-plum-divider, #d9cfe0);
+  transition: background 0.2s;
+}
+
+.pdh-hero-dot[aria-current="true"]::before {
+  background: var(--pdh-plum);
+}
+
+.pdh-hero-cta:focus-visible,
+.pdh-hero-link:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+  .pdh-hero-slide {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(36px, 5vw, 72px);
+    align-items: stretch;
+  }
+
+  .pdh-hero-copy {
+    justify-content: center;
+    padding-bottom: 28px;
+  }
+
+  .pdh-hero-title {
+    font-size: clamp(40px, 4.7vw, 64px);
+  }
+
+  .pdh-hero-sub {
+    margin-top: 22px;
+  }
+
+  .pdh-hero-actions {
+    margin-top: 32px;
+  }
+
+  .pdh-hero-tag {
+    margin-top: clamp(32px, 5vw, 64px);
+  }
+
+  .pdh-hero-photo {
+    aspect-ratio: auto;
+    min-height: clamp(380px, 38vw, 520px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdh-hero-slide,
+  .pdh-hero-slide[data-active="true"] {
+    transition: none;
+  }
+}
+
+/* ---- Guidance cards ------------------------------------------- */
+.guidance {
+  padding: clamp(40px, 5vw, 72px) var(--sec-pad-x) clamp(48px, 6vw, 88px);
+}
+
+.guidance-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.guidance-title {
+  font-size: var(--fs-feature);
+  line-height: var(--lh-display);
+}
+
+.guidance-deck {
+  margin: clamp(14px, 1.6vw, 18px) 0 clamp(22px, 2.8vw, 34px);
+}
+
+.guidance-row {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  margin: 0 calc(var(--sec-pad-x) * -1);
+  padding: 0 var(--sec-pad-x) 4px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--sec-pad-x);
+  scrollbar-width: none;
+}
+
+.guidance-row::-webkit-scrollbar {
+  display: none;
+}
+
+.guidance-row > li {
+  flex: 0 0 clamp(148px, 40vw, 184px);
+  scroll-snap-align: start;
+}
+
+.guidance-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: 1 / 1.12;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--pdh-plum-tint);
+  color: var(--pdh-ink);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.guidance-label {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.005em;
+}
+
+.guidance-icon {
+  align-self: flex-end;
+  width: 62%;
+  height: auto;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.guidance-icon .a,
+.guidance-icon .b {
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.guidance-icon .a {
+  stroke: var(--pdh-teal);
+}
+
+.guidance-icon .b {
+  stroke: var(--pdh-plum);
+}
+
+.guidance-card:hover {
+  border-color: var(--pdh-plum);
+  background: var(--pdh-cream, #faf6f1);
+}
+
+.guidance-card:hover .guidance-icon {
+  transform: translateY(-3px);
+}
+
+.guidance-card:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+  .guidance-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .guidance-row > li {
+    flex: none;
+  }
+
+  .guidance-card {
+    aspect-ratio: 1 / 0.82;
+  }
+
+  .guidance-icon {
+    width: 54%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guidance-icon {
+    transition: none;
+  }
+
+  .guidance-card:hover .guidance-icon {
+    transform: none;
+  }
+}
+
+/* ---- Aisle index ---------------------------------------------- */
+.aisle-index {
+  padding: clamp(56px, 7vw, 104px) var(--sec-pad-x) 0;
+}
+
+.aisle-index-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.aisle-index-head {
+  display: grid;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: clamp(24px, 3vw, 44px);
+}
+
+.aisle-index-head .sec-title {
+  font-size: var(--fs-feature);
+  line-height: var(--lh-display);
+}
+
+.aisle-index-head .sec-deck {
+  margin-top: 0;
+}
+
+.aisle-index-all {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pdh-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--pdh-plum-divider);
+  text-underline-offset: 5px;
+}
+
+.aisle-index-all:hover {
+  text-decoration-color: var(--pdh-plum);
+}
+
+.aisle-index-groups {
+  display: grid;
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.aisle-group-title {
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+
+.aisle-group-title a {
+  color: var(--pdh-ink);
+}
+
+.aisle-group-title a:hover {
+  color: var(--pdh-plum);
+}
+
+.aisle-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid rgba(var(--pdh-ink-rgb), 0.16);
+}
+
+.aisle-list li {
+  border-top: 1px solid rgba(var(--pdh-ink-rgb), 0.16);
+}
+
+.aisle-row {
+  display: grid;
+  grid-template-columns: 2.4ch minmax(0, 1fr) auto 1.2em;
+  align-items: baseline;
+  column-gap: 12px;
+  min-height: 48px;
+  padding: 12px 0;
+  color: var(--pdh-ink);
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.aisle-row-num,
+.aisle-row-count {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--pdh-muted-text);
+}
+
+.aisle-row-name {
+  min-width: 0;
+}
+
+.aisle-row-arrow {
+  grid-column: 4;
+  justify-self: end;
+  color: var(--pdh-ink-soft);
+  transition:
+    transform 0.2s,
+    color 0.2s;
+}
+
+.aisle-row:hover .aisle-row-name,
+.aisle-row:hover .aisle-row-arrow {
+  color: var(--pdh-plum);
+}
+
+.aisle-row:hover .aisle-row-arrow {
+  transform: translateX(3px);
+}
+
+.aisle-row:focus-visible,
+.aisle-group-title a:focus-visible,
+.aisle-index-all:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
+
+@media (min-width: 900px) {
+  .aisle-index-head {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: clamp(36px, 5vw, 72px);
+  }
+
+  .aisle-index-head .sec-deck {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .aisle-index-all {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .aisle-index-groups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+/* ---- Counter --------------------------------------------------- */
+.pdh-counter {
+  padding: 0 var(--sec-pad-x) clamp(48px, 6vw, 88px);
+}
+
+.pdh-counter-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.pdh-counter-address {
+  font-style: normal;
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: clamp(24px, 2.8vw, 32px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--pdh-ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.pdh-counter-locality {
+  color: var(--pdh-ink-soft);
+}
+
+.pdh-counter-actions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid rgba(var(--pdh-ink-rgb), 0.16);
+}
+
+.pdh-counter-actions li {
+  border-top: 1px solid rgba(var(--pdh-ink-rgb), 0.16);
+}
+
+.pdh-counter-actions a {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) 1.2em;
+  align-items: baseline;
+  column-gap: 12px;
+  min-height: 52px;
+  padding: 14px 0;
+  color: var(--pdh-ink);
+  font-size: 16px;
+}
+
+.pdh-counter-actions a::after {
+  content: "→";
+  grid-column: 3;
+  justify-self: end;
+  color: var(--pdh-ink-soft);
+  transition: transform 0.2s;
+}
+
+.pdh-counter-actions a:hover .pdh-counter-value {
+  color: var(--pdh-plum);
+}
+
+.pdh-counter-actions a:hover::after {
+  transform: translateX(3px);
+}
+
+.pdh-counter-actions a:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
+
+.pdh-counter-label {
+  font-size: 12.5px;
+  color: var(--pdh-muted-text);
+}
+
+.pdh-counter-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  transition: color 0.2s;
+}
+
+@media (min-width: 900px) {
+  .pdh-counter-inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(36px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .pdh-counter-address {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .pdh-counter-lead {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .pdh-counter-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aisle-row-arrow,
+  .pdh-counter-actions a::after {
+    transition: none;
+  }
+}
+
+/* ---- Category shelves + catalogue wall (home) ---- */
+.shelf {
+  padding: clamp(48px, 6vw, 88px) var(--sec-pad-x) 0;
+}
+
+.shelf-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.shelf-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+  margin-bottom: clamp(20px, 2.6vw, 34px);
+}
+
+.shelf-title {
+  font-family: var(--font-alta);
+  font-weight: 300;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--pdh-ink);
+}
+
+.shelf-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pdh-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--pdh-plum-divider);
+  text-underline-offset: 5px;
+}
+
+.shelf-all:hover {
+  text-decoration-color: var(--pdh-plum);
+}
+
+.shelf-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 22px;
+}
+
+.shelf-filters a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--pdh-ink-soft);
+}
+
+.shelf-filters a:hover {
+  color: var(--pdh-plum);
+}
+
+.shelf-filters a.shelf-all {
+  color: var(--pdh-ink);
+}
+
+.shelf-all:focus-visible,
+.shelf-filters a:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
+
+.shelf-scroller {
+  position: relative;
+}
+
+/* One row at every width. A sliver of the next card shows, so the row reads as
+   scrollable without a bar drawn through the product names. */
+.shelf-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  margin-inline: calc(var(--sec-pad-x) * -1);
+  padding-inline: var(--sec-pad-x);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--sec-pad-x);
+  scrollbar-width: none;
+  --rail-cols: 2.15;
+}
+
+.shelf-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.shelf-grid > * {
+  flex: 0 0 calc((100% - (var(--rail-cols) - 1) * 14px) / var(--rail-cols));
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+/* The category's photograph opens the row, as tall as the cards beside it. */
+.shelf-photo-item {
+  display: flex;
+}
+
+.shelf-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  overflow: hidden;
+  background: var(--pdh-sand);
+}
+
+.shelf-photo-label {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-family: var(--font-alta);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--pdh-ink);
+}
+
+.shelf-arrow {
+  position: absolute;
+  top: 38%;
+  z-index: 2;
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #fff;
+  color: var(--pdh-ink);
+  border: 1px solid rgba(var(--pdh-ink-rgb), 0.2);
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.shelf-arrow:hover {
+  border-color: var(--pdh-plum);
+}
+
+.shelf-arrow:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
+
+.shelf-arrow--prev {
+  left: -22px;
+}
+
+.shelf-arrow--next {
+  right: -22px;
+}
+
+@media (min-width: 600px) {
+  .shelf-grid {
+    --rail-cols: 3.15;
+  }
+}
+
+@media (min-width: 900px) {
+  .shelf-grid {
+    gap: 28px;
+    --rail-cols: 4.25;
+  }
+
+  .shelf-grid > * {
+    flex-basis: calc((100% - (var(--rail-cols) - 1) * 28px) / var(--rail-cols));
+  }
+
+  .shelf-arrow {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf-grid {
+    scroll-snap-type: none;
+  }
 }

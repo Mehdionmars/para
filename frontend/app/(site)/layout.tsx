@@ -252,6 +252,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html dir={SITE_DIR} lang={SITE_LOCALE} className={`${alta.variable} ${poppins.variable} ${cairo.variable}`}>
       {/* Horizontal overflow is clipped in globals.css (html, body). */}
       <body style={{ minHeight: "100vh" }}>
+        {/* Home direction (seed 49b3833f): the pharmacy counter, set in type.
+            Big Alta headline beside one photograph, then the 19 aisles as a
+            ruled numbered index, then shelves, then the counter (address,
+            phone, WhatsApp). One accent: plum. Hairline rules instead of
+            cards; no pills, no kicker above headings, no snow. Offers sit
+            below the shelves. Never invent reviews, named staff, team photos
+            or opening hours. Source: .pdh-* / .aisle-* in globals.css. */}
         {/* Values are hex/number-validated above (safeHex, chromeAppearanceCss),
             never raw operator text. */}
         <style dangerouslySetInnerHTML={{ __html: rootStyle }} />
@@ -259,7 +266,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <TopBar config={topBarConfig} />
           <Header logo={logo} headerSearch={headerSearch} headerActions={headerActions} navItems={navItems} megaMenu={megaMenu} />
           <main>{children}</main>
-          <Footer columns={footerColumns} />
+          <Footer columns={footerColumns} logo={logo} />
           <CartDrawer />
           <Toast />
           <FloatingActions />

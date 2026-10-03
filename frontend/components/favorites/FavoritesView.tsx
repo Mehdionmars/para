@@ -121,8 +121,6 @@ export function FavoritesView() {
           style={{
             textAlign: "center",
             padding: "clamp(60px,8vw,100px) 20px",
-            borderRadius: "clamp(16px,2vw,24px)",
-            background: "var(--pdh-sand)",
           }}
         >
           <div
@@ -131,7 +129,6 @@ export function FavoritesView() {
               width: 56,
               height: 56,
               borderRadius: "50%",
-              background: "rgba(94,64,116,.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

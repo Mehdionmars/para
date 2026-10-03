@@ -2,6 +2,8 @@
 // components (e.g. ProductForm) can import this without dragging in
 // next/headers via lib/dashboard/payload.ts.
 
+import { mediaSrc } from "@/lib/mediaSrc";
+
 export const CATEGORY_OPTIONS = [
   "Visage",
   "Corps",
@@ -94,6 +96,8 @@ export type Product = {
   variantOptionType?: VariantOptionType | null;
   variants?: ProductVariant[];
   isPublished: boolean;
+  /** "Produits associés (routine)": ids, or populated documents. */
+  relatedProducts?: (number | { id: number })[] | null;
   featured?: boolean;
   discontinued?: boolean;
   /** Payload timestamp. Displayed as a column, and used as the reference for
@@ -120,4 +124,26 @@ export function railEligibility(product: Pick<Product, "stock" | "isPublished" |
   if (!product.isPublished) return "draft";
   if (product.stock <= 0) return "out-of-stock";
   return "eligible";
+}
+
+/** A product as the routine picker shows it: enough to recognise it, no more. */
+export type RoutinePick = {
+  id: number;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  /** Whether the storefront would actually offer it (published, in stock). */
+  available: boolean;
+};
+
+export function toRoutinePick(doc: Product): RoutinePick {
+  return {
+    available: doc.isPublished && !doc.discontinued && doc.stock > 0,
+    brand: typeof doc.brand === "object" && doc.brand ? doc.brand.name : "",
+    id: doc.id,
+    image: typeof doc.image === "object" && doc.image ? mediaSrc(doc.image.url) : "",
+    name: doc.name.split("\n")[0],
+    price: doc.price,
+  };
 }

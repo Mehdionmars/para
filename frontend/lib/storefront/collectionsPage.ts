@@ -6,15 +6,25 @@ const CMS_URL = process.env.CMS_URL || "http://localhost:3001";
 /** Cache tag the CMS purges when the Collections page global is saved. */
 export const COLLECTIONS_PAGE_TAG = "collections-page";
 
-type RawCard = { title?: string; sub?: string; count?: string; image?: PayloadMediaRef };
+type RawCard = {
+  title?: string;
+  sub?: string;
+  slug?: string;
+  image?: PayloadMediaRef;
+  products?: ({ id?: number } | number)[];
+};
+
+export function slugifyTitle(title: string): string {
+  return title
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 /**
  * The `/collections` cards, live.
- *
- * The page read `COLLECTIONS` out of the generated `data/home.ts`, so the
- * whole landing page was frozen until the next `sync-cms` and redeploy —
- * even though Payload has carried a `collections-page` global for it all
- * along. The global was simply never fetched.
  *
  * Snapshot stays the fallback, and an empty `cards` array falls back too: a
  * global nobody has filled in yet should show the last known good page, not
@@ -38,10 +48,18 @@ export async function fetchCollectionCards(): Promise<CollectionCard[]> {
       (c): CollectionCard => ({
         title: c.title!.trim(),
         sub: c.sub?.trim() || "",
-        count: c.count?.trim() || "",
+        slug: c.slug?.trim() || slugifyTitle(c.title!),
         img: resolveMediaUrl(c.image) || "",
+        productIds: (c.products || [])
+          .map((p) => (typeof p === "object" && p ? p.id : p))
+          .filter((n): n is number => Number.isInteger(n)),
       }),
     );
 
   return cards.length > 0 ? cards : COLLECTIONS;
+}
+
+export async function fetchCollectionBySlug(slug: string): Promise<CollectionCard | null> {
+  const cards = await fetchCollectionCards();
+  return cards.find((c) => c.slug === slug) ?? null;
 }

@@ -29,6 +29,8 @@ function node(name: string, children: CategoryNode[] = [], order = 0): CategoryN
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, ""),
     parent: null,
+    image: "",
+    banner: "",
     order,
     children,
   };

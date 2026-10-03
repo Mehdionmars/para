@@ -180,7 +180,18 @@ export function Header({
           <Menu aria-hidden="true" size={24} strokeWidth={1.6} />
         </button>
 
-        <Link href={logo.href} aria-label="Para d'Hiver — Accueil" style={{ flex: "none", display: "flex", alignItems: "center", gap: 10 }}>
+        <Link
+          href={logo.href}
+          aria-label="Para d'Hiver — Accueil"
+          // Already on the page the logo points to, Next does nothing: the
+          // click has to take the visitor to the top itself.
+          onClick={(event) => {
+            if (pathname !== logo.href || event.metaKey || event.ctrlKey || event.shiftKey) return;
+            event.preventDefault();
+            const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+          }}
+          style={{ flex: "none", display: "flex", alignItems: "center", gap: 10 }}>
           <span className="logo-mark" style={{ position: "relative", width: 42, height: 42, flex: "none" }}>
             <CloudinaryImage preset="brand" src={logo.img} alt="" fill sizes="42px" style={{ objectFit: "contain" }} />
           </span>

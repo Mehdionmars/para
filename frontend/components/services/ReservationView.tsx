@@ -4,19 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/context/toast-context";
-import { Baby, Droplet, Feather, Palette, ScanFace, Scissors, type LucideIcon } from "lucide-react";
 import { type Service, servicePriceLabel } from "@/data/services";
-
-/**
- * The icon arrives as a name, not as a component.
- *
- * `Service.icon` is a React function component, and a server component cannot
- * hand a function to a client one — this page answered 500 on every visit
- * ("Functions cannot be passed directly to Client Components"), on the
- * committed code as well. A name crosses that boundary fine and is resolved
- * back into a component here.
- */
-const ICONS: Record<string, LucideIcon> = { Baby, Droplet, Feather, Palette, ScanFace, Scissors };
 
 const DAY_NAMES = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 const MONTH_NAMES = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -37,8 +25,7 @@ function formatDateLabel(d: Date): string {
   return `${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 }
 
-export function ReservationView({ service, iconName }: { service: Omit<Service, "icon">; iconName?: string }) {
-  const Icon = (iconName && ICONS[iconName]) || Feather;
+export function ReservationView({ service }: { service: Omit<Service, "icon"> }) {
   const router = useRouter();
   const toast = useToast();
   const dates = buildUpcomingDates(7);
@@ -57,7 +44,7 @@ export function ReservationView({ service, iconName }: { service: Omit<Service, 
   }
 
   return (
-    <div style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px)" }}>
+    <div style={{ maxWidth: "min(1280px,100%)", margin: "0 auto", padding: "clamp(28px,3.6vw,48px) clamp(14px,3.4vw,32px) clamp(8px,1.2vw,16px)" }}>
       <nav aria-label="Fil d'Ariane" style={{ fontSize: 11.5, letterSpacing: ".1em", opacity: 0.55, marginBottom: 20 }}>
         <Link href="/services" className="link-hover" style={{ color: "inherit" }}>
           Services
@@ -156,9 +143,6 @@ export function ReservationView({ service, iconName }: { service: Omit<Service, 
         <div className="booking-form__summary" style={{ border: "1px solid rgba(94,64,116,.14)", borderRadius: 20, padding: 26, background: "var(--pdh-sand)" }}>
           <div style={{ fontFamily: "var(--font-alta)", fontSize: 24, fontWeight: 300, marginBottom: 18 }}>Récapitulatif</div>
           <div style={{ display: "flex", gap: 14, alignItems: "center", paddingBottom: 18, borderBottom: "1px solid rgba(94,64,116,.14)" }}>
-            <div style={{ width: 64, height: 64, borderRadius: 16, background: service.bg, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--pdh-plum)", flex: "none" }}>
-              <Icon aria-hidden="true" size={26} strokeWidth={1.4} />
-            </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>{service.title}</div>
               <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>

@@ -118,7 +118,7 @@ export type HeroSlide = {
   image: ImageRef;
   mobileImage: ImageRef;
 };
-export type CtaTile = { eyebrow: string; title: string; bg: string; image: ImageRef };
+export type CtaTile = { eyebrow: string; title: string; bg: string; image: ImageRef; ctaUrl: string };
 export type Rail = {
   key: string;
   eyebrow: string;
@@ -339,8 +339,8 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       startDate: b.startDate || "",
       endDate: b.endDate || "",
     })),
-    ctaPair1: (home.ctaPair1 || []).map((t: any) => ({ eyebrow: t.eyebrow || "", title: t.title || "", bg: t.bg || "", image: mediaRef(t.image) })),
-    ctaPair2: (home.ctaPair2 || []).map((t: any) => ({ eyebrow: t.eyebrow || "", title: t.title || "", bg: t.bg || "", image: mediaRef(t.image) })),
+    ctaPair1: (home.ctaPair1 || []).map((t: any) => ({ eyebrow: t.eyebrow || "", title: t.title || "", bg: t.bg || "", image: mediaRef(t.image), ctaUrl: t.ctaUrl || "" })),
+    ctaPair2: (home.ctaPair2 || []).map((t: any) => ({ eyebrow: t.eyebrow || "", title: t.title || "", bg: t.bg || "", image: mediaRef(t.image), ctaUrl: t.ctaUrl || "" })),
     rails: (home.rails || []).map((r: any) => ({
       key: r.key || "",
       eyebrow: r.eyebrow || "",
@@ -440,7 +440,7 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       title: home.dermoCornerCopy?.title || "",
       subtitle: home.dermoCornerCopy?.subtitle || "",
       ctaLabel: home.dermoCornerCopy?.ctaLabel || "Voir le rayon dermo",
-      ctaUrl: home.dermoCornerCopy?.ctaUrl || "/catalogue",
+      ctaUrl: home.dermoCornerCopy?.ctaUrl || "/shop/dermocosmetique",
       picksTitle: home.dermoCornerCopy?.picksTitle || "Nos soins dermo favoris",
       image: mediaRef(home.dermoCornerCopy?.image),
       autoplay: home.dermoCornerCopy?.autoplay !== false,
@@ -534,8 +534,8 @@ export function mapDraftToPayload(draft: HomeDraft): Record<string, unknown> {
       startDate: b.startDate || null,
       endDate: b.endDate || null,
     })),
-    ctaPair1: draft.ctaPair1.map((t) => ({ eyebrow: t.eyebrow, title: t.title, bg: t.bg, image: img(t.image) })),
-    ctaPair2: draft.ctaPair2.map((t) => ({ eyebrow: t.eyebrow, title: t.title, bg: t.bg, image: img(t.image) })),
+    ctaPair1: draft.ctaPair1.map((t) => ({ eyebrow: t.eyebrow, title: t.title, bg: t.bg, image: img(t.image), ctaUrl: t.ctaUrl.trim() })),
+    ctaPair2: draft.ctaPair2.map((t) => ({ eyebrow: t.eyebrow, title: t.title, bg: t.bg, image: img(t.image), ctaUrl: t.ctaUrl.trim() })),
     rails: draft.rails.map((r) => ({
       key: r.key,
       eyebrow: r.eyebrow,
