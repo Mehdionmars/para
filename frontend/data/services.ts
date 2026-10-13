@@ -8,6 +8,9 @@ const ICONS: Record<string, LucideIcon> = { Baby, Feather, Palette, ScanFace, Sc
 
 export type ServiceStep = { n: string; title: string; sub: string };
 
+/** One line of the price list. `price: null` reads "À demander"; `from` reads "À partir de". */
+export type ServicePrice = { label: string; price: number | null; from: boolean };
+
 export type Service = {
   id: number;
   img: string;
@@ -21,246 +24,630 @@ export type Service = {
   desc: string;
   benefits: string[];
   steps: ServiceStep[];
+  prices: ServicePrice[];
 };
 
 export const SERVICES: Service[] = [
   {
-    "id": 6,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/baby.png",
-    "title": "Atelier future maman",
-    "sub": "Routine grossesse et post-partum, sélection de soins sûrs pour vous et bébé.",
-    "price": 0,
-    "duration": "60 min",
-    "expert": "Pharmacienne",
-    "bg": "#F2E9F2",
-    "icon": ICONS.Baby,
-    "desc": "Un atelier en petit comité pour composer une routine sûre pendant la grossesse et l'allaitement : ingrédients à éviter, vergetures, peau du nourrisson et premiers gestes d'hygiène.",
-    "benefits": [
-      "Liste d'ingrédients à éviter",
-      "Routine vergetures et tiraillements",
-      "Soins bébé validés pédiatrie",
-      "Atelier en petit groupe (6 personnes)"
-    ],
-    "steps": [
-      {
-        "n": "1",
-        "title": "Accueil",
-        "sub": "Tour de table et attentes."
-      },
-      {
-        "n": "2",
-        "title": "Ingrédients",
-        "sub": "Ce qu'on évite, ce qu'on garde."
-      },
-      {
-        "n": "3",
-        "title": "Routine",
-        "sub": "Corps, visage et soins bébé."
-      },
-      {
-        "n": "4",
-        "title": "Questions",
-        "sub": "Échange libre avec la pharmacienne."
-      }
-    ]
-  },
-  {
-    "id": 5,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/arbre-marques.png",
-    "title": "Épilation",
-    "sub": "Cire tiède hypoallergénique, protocole apaisant avant et après séance.",
-    "price": 99,
-    "duration": "20 min",
-    "expert": "Esthéticienne",
-    "bg": "#EAF3F0",
-    "icon": ICONS.Feather,
-    "desc": "Épilation à la cire tiède hypoallergénique, précédée d'un nettoyage antiseptique doux et suivie d'un soin apaisant post-épilation pour limiter rougeurs et poils incarnés.",
-    "benefits": [
-      "Cire tiède hypoallergénique",
-      "Soin apaisant post-épilation inclus",
-      "Zones visage et corps",
-      "Conseils anti-poils incarnés"
-    ],
-    "steps": [
-      {
-        "n": "1",
-        "title": "Préparation",
-        "sub": "Nettoyage antiseptique de la zone."
-      },
-      {
-        "n": "2",
-        "title": "Épilation",
-        "sub": "Cire tiède, travail par bandes."
-      },
-      {
-        "n": "3",
-        "title": "Apaisement",
-        "sub": "Soin calmant et rafraîchissant."
-      },
-      {
-        "n": "4",
-        "title": "Conseils",
-        "sub": "Gommage et hydratation à domicile."
-      }
-    ]
-  },
-  {
-    "id": 4,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/maquillage.png",
-    "title": "Conseil maquillage",
-    "sub": "Teint, correction et sélection de produits adaptés à votre carnation.",
-    "price": 249,
-    "duration": "45 min",
-    "expert": "Make-up artist",
-    "bg": "#F3EEF7",
-    "icon": ICONS.Palette,
-    "desc": "Une séance pour trouver la bonne teinte de fond de teint et apprendre des gestes simples : correction des rougeurs, sublimation du regard, tenue longue durée. Le montant est déduit de vos achats du jour.",
-    "benefits": [
-      "Recherche de teinte en lumière neutre",
-      "Gestes simples à reproduire seule",
-      "Déduit de vos achats du jour",
-      "Sélection adaptée aux peaux sensibles"
-    ],
-    "steps": [
-      {
-        "n": "1",
-        "title": "Analyse",
-        "sub": "Carnation, sous-ton et attentes."
-      },
-      {
-        "n": "2",
-        "title": "Teint",
-        "sub": "Test de 2 à 3 teintes en lumière du jour."
-      },
-      {
-        "n": "3",
-        "title": "Démonstration",
-        "sub": "Application guidée sur un demi-visage."
-      },
-      {
-        "n": "4",
-        "title": "Sélection",
-        "sub": "Liste des produits testés."
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/cheveux.png",
-    "title": "Soin capillaire",
-    "sub": "Diagnostic du cuir chevelu et soin ciblé chute, pellicules ou cheveux abîmés.",
-    "price": 199,
-    "duration": "40 min",
-    "expert": "Experte cheveux",
-    "bg": "#F5F0E3",
+    "id": 15,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-cheveux.webp",
+    "title": "Cheveux",
+    "sub": "Coupe, coloration, mèches, balayage et coiffage par nos coiffeuses.",
+    "price": 15,
+    "duration": "20 min – 3 h",
+    "expert": "Coiffeuse",
+    "bg": "#F3ECE6",
     "icon": ICONS.Scissors,
-    "desc": "Diagnostic du cuir chevelu à la caméra, puis soin traitant appliqué en cabine : lotion anti-chute, protocole anti-pellicules ou masque de reconstruction selon le besoin identifié.",
+    "desc": "Coupe, couleur, mèches, balayage, brushing ou coiffure d'événement : nos coiffeuses prennent le temps du conseil avant chaque prestation, et utilisent des produits professionnels adaptés à votre type de cheveux.",
     "benefits": [
-      "Diagnostic caméra du cuir chevelu",
-      "Soin traitant appliqué en cabine",
-      "Protocole à poursuivre à la maison",
-      "Suivi photo d'une séance à l'autre"
+      "Conseil couleur et coupe avant la prestation",
+      "Produits professionnels",
+      "Coiffures d'événement sur demande"
+    ],
+    "steps": [
+      {
+        "n": "1",
+        "title": "Conseil",
+        "sub": "On définit ensemble le résultat souhaité."
+      },
+      {
+        "n": "2",
+        "title": "Shampoing",
+        "sub": "Adapté à votre cuir chevelu."
+      },
+      {
+        "n": "3",
+        "title": "Prestation",
+        "sub": "Coupe, couleur ou coiffage."
+      },
+      {
+        "n": "4",
+        "title": "Finition",
+        "sub": "Brushing ou mise en forme."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Mèches",
+        "price": 400,
+        "from": false
+      },
+      {
+        "label": "Racines mèches",
+        "price": 200,
+        "from": false
+      },
+      {
+        "label": "Ombré",
+        "price": 800,
+        "from": false
+      },
+      {
+        "label": "Application coloration",
+        "price": 100,
+        "from": false
+      },
+      {
+        "label": "Coloration racines",
+        "price": 150,
+        "from": false
+      },
+      {
+        "label": "Coloration",
+        "price": 300,
+        "from": false
+      },
+      {
+        "label": "Balayage",
+        "price": 500,
+        "from": false
+      },
+      {
+        "label": "Rinçage",
+        "price": 150,
+        "from": false
+      },
+      {
+        "label": "Coupe",
+        "price": 50,
+        "from": false
+      },
+      {
+        "label": "Pointes",
+        "price": 20,
+        "from": false
+      },
+      {
+        "label": "Shampoing spécial",
+        "price": 20,
+        "from": false
+      },
+      {
+        "label": "Shampoing",
+        "price": 15,
+        "from": false
+      },
+      {
+        "label": "Touching",
+        "price": 20,
+        "from": false
+      },
+      {
+        "label": "Brushing",
+        "price": 35,
+        "from": true
+      },
+      {
+        "label": "Wavy",
+        "price": 80,
+        "from": false
+      },
+      {
+        "label": "Babyliss",
+        "price": 100,
+        "from": false
+      },
+      {
+        "label": "Demi-coiffure",
+        "price": 150,
+        "from": false
+      },
+      {
+        "label": "Chignon",
+        "price": null,
+        "from": false
+      },
+      {
+        "label": "Coupe frange",
+        "price": 20,
+        "from": false
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-bar-a-soins.webp",
+    "title": "Bar à soins",
+    "sub": "Soins profonds pour cheveux secs, abîmés ou fragilisés.",
+    "price": 150,
+    "duration": "30 – 90 min",
+    "expert": "Coiffeuse",
+    "bg": "#EAF3F0",
+    "icon": ICONS.Droplet,
+    "desc": "Un soin choisi selon l'état de vos cheveux et de votre cuir chevelu : hydratation, réparation des longueurs ou soin anti-chute. Le soin complet associe plusieurs étapes pour un résultat plus durable.",
+    "benefits": [
+      "Diagnostic du cheveu et du cuir chevelu",
+      "Soin adapté : hydratant, réparateur ou anti-chute",
+      "Conseils pour prolonger le soin à la maison"
     ],
     "steps": [
       {
         "n": "1",
         "title": "Diagnostic",
-        "sub": "Caméra cuir chevelu et fibre."
+        "sub": "État des longueurs et du cuir chevelu."
+      },
+      {
+        "n": "2",
+        "title": "Soin",
+        "sub": "Application et temps de pose."
+      },
+      {
+        "n": "3",
+        "title": "Rinçage",
+        "sub": "Puis séchage ou brushing."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Soin cheveux express",
+        "price": 150,
+        "from": false
+      },
+      {
+        "label": "Soin cheveux hydratant",
+        "price": 200,
+        "from": false
+      },
+      {
+        "label": "Soin cheveux réparateur",
+        "price": 250,
+        "from": false
+      },
+      {
+        "label": "Soin complet",
+        "price": 450,
+        "from": false
+      },
+      {
+        "label": "Soin anti-chute",
+        "price": 300,
+        "from": false
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-lissage.webp",
+    "title": "Lissage",
+    "sub": "Des cheveux lisses, disciplinés et brillants pendant des semaines.",
+    "price": 600,
+    "duration": "2 – 4 h",
+    "expert": "Coiffeuse",
+    "bg": "#F2E9F2",
+    "icon": ICONS.Scissors,
+    "desc": "Un lissage longue durée qui discipline les frisottis et facilite le coiffage au quotidien. Le tarif dépend de la longueur et de l'épaisseur des cheveux : il est confirmé avant la prestation.",
+    "benefits": [
+      "Cheveux lisses et brillants",
+      "Coiffage plus rapide au quotidien",
+      "Tarif confirmé avant de commencer"
+    ],
+    "steps": [
+      {
+        "n": "1",
+        "title": "Conseil",
+        "sub": "Longueur, épaisseur et tarif."
+      },
+      {
+        "n": "2",
+        "title": "Application",
+        "sub": "Mèche par mèche."
+      },
+      {
+        "n": "3",
+        "title": "Lissage",
+        "sub": "Au fer, pour fixer le soin."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Lissage",
+        "price": 600,
+        "from": true
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-soins-visage.jpg",
+    "title": "Soins de visage",
+    "sub": "Nettoyage, éclat et Hydrafacial pour une peau nette et lumineuse.",
+    "price": 100,
+    "duration": "30 – 75 min",
+    "expert": "Esthéticienne",
+    "bg": "#F3ECE6",
+    "icon": ICONS.ScanFace,
+    "desc": "Du nettoyage de base au soin Hydrafacial, chaque soin commence par l'observation de votre peau pour choisir les bons produits. Le modelage peut s'ajouter à n'importe quel soin.",
+    "benefits": [
+      "Soin choisi selon votre type de peau",
+      "Hydrafacial disponible",
+      "Conseils de routine à la maison"
+    ],
+    "steps": [
+      {
+        "n": "1",
+        "title": "Démaquillage",
+        "sub": "Et observation de la peau."
       },
       {
         "n": "2",
         "title": "Nettoyage",
-        "sub": "Shampooing adapté au diagnostic."
+        "sub": "Gommage et extraction si besoin."
       },
       {
         "n": "3",
         "title": "Soin",
-        "sub": "Application du traitement ciblé."
+        "sub": "Masque et sérum adaptés."
       },
       {
         "n": "4",
-        "title": "Conseils",
-        "sub": "Routine et fréquence recommandées."
+        "title": "Finition",
+        "sub": "Hydratation et protection."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Soin basic nettoyant",
+        "price": 250,
+        "from": false
+      },
+      {
+        "label": "Soin spécifique éclat",
+        "price": 400,
+        "from": false
+      },
+      {
+        "label": "Soin Hydrafacial",
+        "price": 500,
+        "from": false
+      },
+      {
+        "label": "Modelage",
+        "price": 100,
+        "from": false
       }
     ]
   },
   {
-    "id": 2,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/visage.png",
-    "title": "Soin du visage éclat",
-    "sub": "Nettoyage profond, gommage doux et masque hydratant adaptés aux peaux sensibles.",
-    "price": 299,
-    "duration": "45 min",
+    "id": 19,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-ongles.webp",
+    "title": "Ongles",
+    "sub": "Manucure, pédicure, vernis permanent, gel et faux ongles.",
+    "price": 10,
+    "duration": "15 – 90 min",
+    "expert": "Prothésiste ongulaire",
+    "bg": "#F2E9F2",
+    "icon": ICONS.Palette,
+    "desc": "Manucure et pédicure classiques ou spa, vernis permanent, gel, BIAB et faux ongles, avec ou sans design. Le matériel est désinfecté entre chaque cliente.",
+    "benefits": [
+      "Matériel désinfecté entre chaque cliente",
+      "Large choix de couleurs",
+      "Designs sur demande"
+    ],
+    "steps": [
+      {
+        "n": "1",
+        "title": "Préparation",
+        "sub": "Limage et soin des cuticules."
+      },
+      {
+        "n": "2",
+        "title": "Pose",
+        "sub": "Vernis, gel ou faux ongles."
+      },
+      {
+        "n": "3",
+        "title": "Finition",
+        "sub": "Top coat et huile nourrissante."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Manucure",
+        "price": 70,
+        "from": false
+      },
+      {
+        "label": "Manucure spa",
+        "price": 90,
+        "from": false
+      },
+      {
+        "label": "Pédicure",
+        "price": 100,
+        "from": false
+      },
+      {
+        "label": "Pédicure spa",
+        "price": 140,
+        "from": false
+      },
+      {
+        "label": "Vernis permanent",
+        "price": 100,
+        "from": false
+      },
+      {
+        "label": "Pose vernis",
+        "price": 40,
+        "from": false
+      },
+      {
+        "label": "BIAB + manucure",
+        "price": 200,
+        "from": false
+      },
+      {
+        "label": "Faux ongles",
+        "price": 80,
+        "from": false
+      },
+      {
+        "label": "Dépose",
+        "price": 50,
+        "from": false
+      },
+      {
+        "label": "Gel",
+        "price": 250,
+        "from": false
+      },
+      {
+        "label": "Remplissage gel",
+        "price": 80,
+        "from": false
+      },
+      {
+        "label": "Design",
+        "price": 10,
+        "from": false
+      },
+      {
+        "label": "Pose French",
+        "price": 15,
+        "from": false
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-cils-sourcils.jpg",
+    "title": "Cils et sourcils",
+    "sub": "Extensions cil à cil, cils en soie et teinture des sourcils.",
+    "price": 20,
+    "duration": "15 min – 2 h",
     "expert": "Esthéticienne",
-    "bg": "#F5E8EC",
-    "icon": ICONS.Droplet,
-    "desc": "Un protocole en cabine pensé pour les peaux fatiguées par le froid : double nettoyage, exfoliation enzymatique, massage drainant et masque hydratant. Sans parfum, adapté aux peaux réactives.",
+    "bg": "#EAF3F0",
+    "icon": ICONS.ScanFace,
+    "desc": "Des cils plus longs et un regard intensifié, du plus naturel au plus marqué : extensions cil à cil, faux cils ou cils en soie, et teinture pour des sourcils mieux dessinés.",
     "benefits": [
-      "Teint visiblement plus lumineux",
-      "Peau repulpée et confortable",
-      "Protocole sans parfum ni alcool",
-      "Convient aux peaux réactives"
+      "Du naturel au plus intense",
+      "Pose adaptée à la forme de vos yeux",
+      "Teinture des sourcils"
     ],
     "steps": [
       {
         "n": "1",
-        "title": "Double nettoyage",
-        "sub": "Huile démaquillante puis gel doux."
+        "title": "Conseil",
+        "sub": "Longueur et effet souhaités."
       },
       {
         "n": "2",
-        "title": "Exfoliation",
-        "sub": "Gommage enzymatique sans grains."
+        "title": "Pose",
+        "sub": "Les yeux fermés, allongée."
       },
       {
         "n": "3",
-        "title": "Massage",
-        "sub": "Drainage visage et cou, 10 minutes."
+        "title": "Conseils",
+        "sub": "Pour l'entretien les jours suivants."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Faux cils cil à cil",
+        "price": 70,
+        "from": false
       },
       {
-        "n": "4",
-        "title": "Masque",
-        "sub": "Masque hydratant + soin de finition."
+        "label": "Faux cils normaux",
+        "price": 30,
+        "from": false
+      },
+      {
+        "label": "Cils en soie",
+        "price": 300,
+        "from": false
+      },
+      {
+        "label": "Teinture sourcils",
+        "price": 20,
+        "from": false
       }
     ]
   },
   {
-    "id": 1,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/dermo.png",
-    "title": "Diagnostic de peau",
-    "sub": "Analyse complète du teint, de l'hydratation et de la sensibilité, avec une routine sur mesure.",
-    "price": 0,
-    "duration": "30 min",
-    "expert": "Pharmacien",
-    "bg": "#EFE6F3",
-    "icon": ICONS.ScanFace,
-    "desc": "Un bilan cutané complet réalisé par un pharmacien : mesure de l'hydratation, analyse de la sensibilité et des zones à imperfections. Vous repartez avec une routine écrite, adaptée à votre peau et à votre budget.",
+    "id": 21,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-make-up.jpg",
+    "title": "Make-up",
+    "sub": "Maquillage de jour, invitée ou mariée, avec ou sans pose de cils.",
+    "price": 150,
+    "duration": "45 min – 2 h",
+    "expert": "Maquilleuse",
+    "bg": "#F3ECE6",
+    "icon": ICONS.Palette,
+    "desc": "Un maquillage pensé pour l'occasion et votre carnation : naturel pour la journée, plus travaillé pour une invitée, et le maquillage mariée pour le grand jour.",
     "benefits": [
-      "Bilan objectif de votre type de peau",
-      "Routine matin et soir écrite",
-      "Recommandations produits sans obligation d'achat",
-      "Suivi à 6 semaines offert"
+      "Adapté à votre carnation et à votre tenue",
+      "Tenue longue durée",
+      "Maquillage mariée sur rendez-vous"
     ],
     "steps": [
       {
         "n": "1",
-        "title": "Questionnaire",
-        "sub": "Habitudes, sensibilités, traitements en cours."
+        "title": "Préparation",
+        "sub": "Soin et base de teint."
       },
       {
         "n": "2",
-        "title": "Mesures",
-        "sub": "Hydratation, sébum et sensibilité par zone."
+        "title": "Teint",
+        "sub": "Fond de teint et correction."
       },
       {
         "n": "3",
-        "title": "Analyse",
-        "sub": "Lecture des résultats avec le pharmacien."
+        "title": "Yeux et lèvres",
+        "sub": "Selon l'effet choisi."
       },
       {
         "n": "4",
-        "title": "Routine",
-        "sub": "Prescription cosmétique remise par écrit."
+        "title": "Fixation",
+        "sub": "Pour une tenue toute la journée."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Make-up jour",
+        "price": 150,
+        "from": false
+      },
+      {
+        "label": "Maquillage invitée",
+        "price": 250,
+        "from": false
+      },
+      {
+        "label": "Maquillage et cils",
+        "price": 300,
+        "from": false
+      },
+      {
+        "label": "Maquillage mariée",
+        "price": 1000,
+        "from": false
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-epilation.jpg",
+    "title": "Épilation",
+    "sub": "Visage et corps, à la zone ou en forfait.",
+    "price": 15,
+    "duration": "10 – 60 min",
+    "expert": "Esthéticienne",
+    "bg": "#EAF3F0",
+    "icon": ICONS.Feather,
+    "desc": "Épilation du visage et du corps, à la zone ou en forfait. Un soin apaisant est appliqué après chaque séance pour limiter les rougeurs.",
+    "benefits": [
+      "Visage et corps",
+      "Forfaits plus avantageux",
+      "Soin apaisant après la séance"
+    ],
+    "steps": [
+      {
+        "n": "1",
+        "title": "Préparation",
+        "sub": "Nettoyage de la zone."
+      },
+      {
+        "n": "2",
+        "title": "Épilation",
+        "sub": "Zone par zone."
+      },
+      {
+        "n": "3",
+        "title": "Soin",
+        "sub": "Apaisant, pour limiter les rougeurs."
+      }
+    ],
+    "prices": [
+      {
+        "label": "Sourcils",
+        "price": 30,
+        "from": false
+      },
+      {
+        "label": "Duvet",
+        "price": 15,
+        "from": false
+      },
+      {
+        "label": "Menton",
+        "price": 15,
+        "from": false
+      },
+      {
+        "label": "Visage",
+        "price": 70,
+        "from": false
+      },
+      {
+        "label": "Aisselles",
+        "price": 30,
+        "from": false
+      },
+      {
+        "label": "Demi-bras",
+        "price": 40,
+        "from": false
+      },
+      {
+        "label": "Bras entiers",
+        "price": 60,
+        "from": false
+      },
+      {
+        "label": "Maillot intégral",
+        "price": 100,
+        "from": false
+      },
+      {
+        "label": "Bord de maillot",
+        "price": 40,
+        "from": false
+      },
+      {
+        "label": "Demi-jambes",
+        "price": 60,
+        "from": false
+      },
+      {
+        "label": "Jambes entières",
+        "price": 120,
+        "from": false
+      },
+      {
+        "label": "Épilation complète",
+        "price": 250,
+        "from": false
+      },
+      {
+        "label": "Maillot, aisselles, sourcils, duvet",
+        "price": 150,
+        "from": false
+      },
+      {
+        "label": "Demi-jambes, aisselles, maillot",
+        "price": 160,
+        "from": false
       }
     ]
   }
@@ -270,7 +657,20 @@ export function getService(id: number): Service {
   return SERVICES.find((s) => s.id === id) ?? SERVICES[0];
 }
 
+function formatMad(price: number): string {
+  return `${price.toLocaleString("fr-FR")} MAD`;
+}
+
+/** A service with a price list is priced from its cheapest line. */
 export function servicePriceLabel(service: Service): string {
+  const priced = service.prices.map((p) => p.price).filter((p): p is number => p !== null);
+  if (priced.length > 0) return `${service.prices.length > 1 || service.prices[0].from ? "Dès " : ""}${formatMad(Math.min(...priced))}`;
   if (!service.price) return "Offert";
-  return `${service.price.toLocaleString("fr-FR")} MAD`;
+  return formatMad(service.price);
+}
+
+/** One line of the price list, as printed. */
+export function linePriceLabel(line: ServicePrice): string {
+  if (line.price === null) return "À demander";
+  return `${line.from ? "Dès " : ""}${formatMad(line.price)}`;
 }

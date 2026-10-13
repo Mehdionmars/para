@@ -14,7 +14,7 @@ import type { MobileCategoryStrip as StripConfig } from "@/lib/storefront/siteCh
 type Tile = StripConfig["items"][number] & { isAll?: boolean };
 
 /**
- * The category browser that opens the home page, above the hero.
+ * The category browser under the home page's banner carousel.
  *
  * ## Shape
  *
@@ -33,17 +33,11 @@ type Tile = StripConfig["items"][number] & { isAll?: boolean };
  * safe center` is what lets one rule do both: plain `center` on a scroller
  * that overflows puts the first chip off the left edge, unreachable.
  *
- * ## Only while there is no menu bar
+ * ## Phone only
  *
- * It was shown at every width for a while, on the reasoning that a row of
- * photographs is a different instrument from a text menu: it sells the range
- * where the menu only lists it. That duplication is no longer wanted, so
- * `.cat-tiles` is hidden from 1024px up — the width at which `.nav-desktop`
- * stops being `display: none` and takes the job over.
- *
- * The cut is at 1024 rather than the 767px this project usually calls mobile
- * because the menu bar does not appear at 768: a tablet hidden at 767 would
- * have had neither navigation on screen. See globals.css `.cat-tiles`.
+ * From 768px up the banner carousel opens the page on its own and the menu
+ * (or the burger, on a tablet) carries the aisles, so `.cat-tiles` is hidden
+ * there in globals.css. On a phone it sits just under the banner.
  *
  * ## The circle always has something in it
  *

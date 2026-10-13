@@ -13,7 +13,7 @@ import { DermoCorner } from "@/components/home/DermoCorner";
 import { GiftSetsCarousel } from "@/components/home/GiftSetsCarousel";
 import { ImageCarousel } from "@/components/home/ImageCarousel";
 import { InstagramGrid } from "@/components/home/InstagramGrid";
-import { MarketingBanner } from "@/components/home/MarketingBanner";
+import { MarketingCarousel, type MarketingBannerData } from "@/components/home/MarketingCarousel";
 import { Newsletter } from "@/components/home/Newsletter";
 import { FeaturedWithPromo } from "@/components/home/FeaturedWithPromo";
 import { PromotionsGrid } from "@/components/home/PromotionsGrid";
@@ -40,6 +40,7 @@ import { fetchInstagramPosts } from "@/lib/storefront/instagram";
 import { fetchDiscountedProducts, fetchFeaturedProducts, fetchRailProducts, fetchShelfProducts } from "@/lib/storefront/products";
 import { routes } from "@/lib/routes";
 import { fetchCategoryCounts } from "@/lib/storefront/catalogue";
+import { isCampaignLive } from "@/lib/storefront/marketingBanners";
 import { CATEGORY_STRIP } from "@/data/nav";
 import { fetchLiveNavigation, fetchPublishedNavigation } from "@/lib/storefront/siteChromeContent";
 import {
@@ -173,18 +174,12 @@ function withMissingSections(order: { key: SectionEntryKey; visible: boolean }[]
   return out;
 }
 
-/** A campaign is live when it's marked Active and (if set) the current time
- * falls inside its start/end date window — lets a non-technical editor
- * schedule "Saison été" to switch off automatically at season's end without
- * remembering to come back and toggle it. Only the first match (array
- * order) renders; the rest stay configured, ready to switch on. */
-function pickActiveMarketingBanner<T extends { active: boolean; startDate: string; endDate: string }>(banners: T[], now: number): T | undefined {
-  return banners.find((b) => {
-    if (!b.active) return false;
-    if (b.startDate && now < new Date(b.startDate).getTime()) return false;
-    if (b.endDate && now > new Date(b.endDate).getTime()) return false;
-    return true;
-  });
+/** Every campaign that is Active, inside its date window and has a picture is
+ * a slide of the banner carousel, in the order the CMS lists them. Read at
+ * request time, so a campaign switches itself on and off on its dates. */
+function liveCampaigns<T extends { img: string; active: boolean; startDate: string; endDate: string }>(banners: T[]): T[] {
+  const now = Date.now();
+  return banners.filter((banner) => banner.img && isCampaignLive(banner, now));
 }
 
 /**
@@ -195,16 +190,25 @@ function pickActiveMarketingBanner<T extends { active: boolean; startDate: strin
  * is done on the resolved order rather than in the CMS, so the Storefront
  * Builder keeps working as before and an editor cannot put a sale back on top
  * by accident. A page with no rail leaves the order as it is.
+ *
+ * Only a block placed above the last rail is moved. One the editor already put
+ * below the shelves stays exactly where it was put: the rule is about keeping
+ * offers off the top of the page, and pulling a carousel up from the foot of
+ * the page to the last rail broke the order the editor chose.
  */
 const PROMOTION_KEYS: SectionEntryKey[] = ["promotionsGrid", "featuredPromo", "marketingBanner"];
 
 function relegatePromotions(keys: SectionEntryKey[]): SectionEntryKey[] {
-  if (!keys.some((key) => key.startsWith("rail:"))) return keys;
-  const promos = PROMOTION_KEYS.filter((key) => keys.includes(key));
-  if (promos.length === 0) return keys;
-  const rest = keys.filter((key) => !PROMOTION_KEYS.includes(key));
+  const lastRail = keys.reduce((at, key, i) => (key.startsWith("rail:") ? i : at), -1);
+  if (lastRail === -1) return keys;
+  const early = PROMOTION_KEYS.filter((key) => {
+    const at = keys.indexOf(key);
+    return at !== -1 && at < lastRail;
+  });
+  if (early.length === 0) return keys;
+  const rest = keys.filter((key) => !early.includes(key));
   const insertAt = rest.reduce((at, key, i) => (key.startsWith("rail:") ? i : at), -1) + 1;
-  return [...rest.slice(0, insertAt), ...promos, ...rest.slice(insertAt)];
+  return [...rest.slice(0, insertAt), ...early, ...rest.slice(insertAt)];
 }
 
 export default async function HomePage() {
@@ -231,7 +235,7 @@ export default async function HomePage() {
 
   const rails = live?.rails ?? RAILS;
   const brandsFeatured = live?.brandsFeatured ?? BRANDS_FEATURED;
-  const marketingBanners = live?.marketingBanners ?? MARKETING_BANNERS;
+  const marketingBanners: MarketingBannerData[] = live?.marketingBanners ?? MARKETING_BANNERS;
   const ctaPair1 = live?.ctaPair1 ?? CTA_PAIR_1;
   const ctaPair2 = live?.ctaPair2 ?? CTA_PAIR_2;
   const ctaBannerCopy = live?.ctaBannerCopy ?? CTA_BANNER_COPY;
@@ -274,7 +278,7 @@ export default async function HomePage() {
     fetchShelfProducts("Corps", 8).catch(() => []),
   ]);
   const railProductsByKey = new Map(rails.map((rail, i) => [rail.key, railProducts[i]]));
-  const activeBanner = pickActiveMarketingBanner(marketingBanners, Date.now());
+  const liveBanners = liveCampaigns(marketingBanners);
 
   /**
    * Each offer tile points at the category it talks about.
@@ -310,7 +314,7 @@ export default async function HomePage() {
   const sectionsByKey: Record<SectionKey, ReactNode> = {
     featuredPromo: <FeaturedWithPromo copy={featuredPromoCopy} products={featuredProducts} />,
     hero: <HeroCarousel slides={heroSlides} />,
-    marketingBanner: <MarketingBanner banner={activeBanner} />,
+    marketingBanner: <MarketingCarousel banners={liveBanners} />,
     ctaPair1: <CtaPair tiles={offerTiles1} />,
     promotionsGrid: <PromotionsGrid copy={promotionsGridCopy} products={promotionProducts ?? undefined} />,
     services: <ServicesTeaser cards={servicesTeaser} copy={servicesTeaserCopy} />,
@@ -340,12 +344,13 @@ export default async function HomePage() {
 
   const order = withMissingSections(sectionOrder.length > 0 ? sectionOrder : DEFAULT_ORDER);
   const visibleKeys = relegatePromotions(
-    order.filter((s) => s.visible && (s.key !== "marketingBanner" || activeBanner)).map((s) => s.key),
+    order.filter((s) => s.visible && (s.key !== "marketingBanner" || liveBanners.length > 0)).map((s) => s.key),
   );
 
   // Grouped from the order that actually renders, so reordering sections in
-  // the Storefront Builder regroups the bands with no code change.
-  const movements = groupIntoMovements(visibleKeys);
+  // the Storefront Builder regroups the bands with no code change. The hero is
+  // left out: it is pinned to the top of the page below.
+  const movements = groupIntoMovements(visibleKeys.filter((key) => key !== "hero"));
 
   // The aisle index and the counter are fixed, code-owned blocks: not entries
   // in the Storefront Builder, so no ordering or hiding there can break the
@@ -364,9 +369,14 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* The banner carousel opens the page directly under the header,
+          wherever the CMS order puts it; the round category tiles follow it
+          (and only show on a phone — see .cat-tiles in globals.css). */}
+      {hasHero ? sectionsByKey.hero : null}
+
       <CategoryTiles categoryCounts={categoryCounts} strip={categoryStrip} />
 
-      {hasHero ? null : aisleIndex}
+      {aisleIndex}
 
       {movements.map((run, i) => {
         // classifyMovements has already demoted any stranded rail, so a run
@@ -382,10 +392,7 @@ export default async function HomePage() {
               </>
             ) : null}
             {run.keys.map((key) => (
-              <Fragment key={key}>
-                {renderSection(key)}
-                {key === "hero" ? aisleIndex : null}
-              </Fragment>
+              <Fragment key={key}>{renderSection(key)}</Fragment>
             ))}
           </div>
         );

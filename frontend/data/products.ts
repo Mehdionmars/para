@@ -1417,6 +1417,14 @@ export const PRODUCTS: Product[] = [
 // tag, so treating it as a closed set of keys breaks the build the moment
 // one of them is temporarily missing (e.g. a sparse/fresh media library).
 export const IMG: Record<string, string> = {
+  "Épilation": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-epilation.jpg",
+  "Make-up": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-make-up.jpg",
+  "Cils et sourcils": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-cils-sourcils.jpg",
+  "Ongles": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-ongles.webp",
+  "Soins de visage": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-soins-visage.jpg",
+  "Lissage": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-lissage.webp",
+  "Bar à soins": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-bar-a-soins.webp",
+  "Cheveux": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-cheveux.webp",
   "Bannière soldes": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/banner-soldes.jpg",
   "Bannière nouveautes": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/banner-nouveautes.jpg",
   "Bannière dermocosmetique": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/banner-dermocosmetique.jpg",

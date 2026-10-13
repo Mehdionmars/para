@@ -1,4 +1,5 @@
 import type { HomeDraft, ProductRef, SectionEntryKey } from "@/lib/dashboard/storefront-mapping";
+import { isCampaignLive } from "@/lib/storefront/marketingBanners";
 
 /**
  * Why a homepage section ticked "visible" in the Storefront Builder would
@@ -38,15 +39,13 @@ export function hiddenReason(key: SectionEntryKey, draft: HomeDraft, ctx: Sectio
       return acts.length === 0 ? "aucun produit en vente dans les actes" : null;
     }
 
+    // Every live campaign with a picture is a slide of the carousel, so the
+    // section disappears only when there is not a single one.
     case "marketingBanner": {
-      const live = draft.marketingBanners.find((b) => {
-        if (!b.active) return false;
-        if (b.startDate && now < new Date(b.startDate).getTime()) return false;
-        if (b.endDate && now > new Date(b.endDate).getTime()) return false;
-        return true;
-      });
-      if (!live) return "aucune campagne active à cette date";
-      return live.image.url || live.image.id ? null : "la campagne active n'a pas d'image";
+      const live = draft.marketingBanners.filter((b) => isCampaignLive(b, now));
+      if (live.length === 0) return "aucune campagne active à cette date";
+      if (live.some((b) => b.image.url || b.image.id)) return null;
+      return live.length === 1 ? "la campagne active n'a pas d'image" : "aucune campagne active n'a d'image";
     }
 
     case "services":
@@ -67,8 +66,13 @@ export function hiddenReason(key: SectionEntryKey, draft: HomeDraft, ctx: Sectio
     case "brandsFeatured":
       return draft.brandsFeatured.length === 0 ? "aucune marque choisie" : null;
 
-    case "ctaBanner":
-      return !draft.ctaBannerCopy.title.trim() && !draft.ctaBannerCopy.ctaLabel.trim() ? "ni titre ni bouton" : null;
+    // A picture alone is enough: with no title it is a full-width banner and
+    // the picture itself is the link.
+    case "ctaBanner": {
+      const c = draft.ctaBannerCopy;
+      const hasImage = Boolean(c.bgImage?.url || c.bgImage?.id);
+      return !c.title.trim() && !c.ctaLabel.trim() && !hasImage ? "ni titre, ni bouton, ni image" : null;
+    }
 
     case "instagram":
       if (!draft.instagram.show) return "désactivé dans ses réglages";

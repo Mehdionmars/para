@@ -77,4 +77,14 @@ describe("hiddenReason", () => {
     const noImage = draft({ marketingBanners: [{ ...banner, endDate: "", image: NO_IMAGE }] as HomeDraft["marketingBanners"] });
     expect(hiddenReason("marketingBanner", noImage, { now })).toBe("la campagne active n'a pas d'image");
   });
+
+  it("shows the banner carousel while one live campaign has a picture", () => {
+    const now = Date.UTC(2026, 8, 16);
+    const withImage = { active: true, endDate: "", image: IMAGE, startDate: "" };
+    const withoutImage = { ...withImage, image: NO_IMAGE };
+    const mixed = draft({ marketingBanners: [withoutImage, withImage] as HomeDraft["marketingBanners"] });
+    expect(hiddenReason("marketingBanner", mixed, { now })).toBeNull();
+    const bare = draft({ marketingBanners: [withoutImage, withoutImage] as HomeDraft["marketingBanners"] });
+    expect(hiddenReason("marketingBanner", bare, { now })).toBe("aucune campagne active n'a d'image");
+  });
 });

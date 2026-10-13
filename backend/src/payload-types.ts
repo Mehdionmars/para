@@ -522,6 +522,21 @@ export interface Service {
    */
   expert?: string | null;
   /**
+   * Position on /services: lowest first. Services without one come last.
+   */
+  sortOrder?: number | null;
+  priceList?:
+    | {
+        label: string;
+        /**
+         * In MAD. Leave empty for "À demander".
+         */
+        price?: number | null;
+        fromPrice?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Hex background color for this service's cards, e.g. #EFE6F3
    */
   bg?: string | null;
@@ -1637,6 +1652,15 @@ export interface ServicesSelect<T extends boolean = true> {
   price?: T;
   duration?: T;
   expert?: T;
+  sortOrder?: T;
+  priceList?:
+    | T
+    | {
+        label?: T;
+        price?: T;
+        fromPrice?: T;
+        id?: T;
+      };
   bg?: T;
   icon?: T;
   image?: T;
@@ -2179,7 +2203,7 @@ export interface Home {
       }[]
     | null;
   /**
-   * Full-width seasonal/campaign banners (e.g. "Saison été", "Black Friday", "Noël") — one CMS entry per campaign, reused across seasons. Only the first entry that is Active and inside its date window renders on the homepage; the rest stay ready to switch on without touching code.
+   * Full-width seasonal/campaign banners (e.g. "Saison été", "Black Friday", "Noël") — one CMS entry per campaign, reused across seasons. Every entry that is Active and inside its date window is a slide of the homepage carousel, in this order; the rest stay ready to switch on without touching code. Each image spans the page at its own height, uncropped, so give the slides one format.
    */
   marketingBanners?:
     | {

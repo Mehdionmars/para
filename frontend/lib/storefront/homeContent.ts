@@ -184,10 +184,13 @@ export type LiveHomeContent = {
   marketingBanners: {
     campaign: string;
     imageMode: "overlay" | "imageOnly";
-    /** The desktop image's own dimensions, for an imageOnly banner whose copy
-     * is baked into the artwork and so must never be cropped. */
+    /** Each image's own dimensions. The carousel shows every banner at the
+     * full width of the page and at its picture's own height; these let the
+     * browser reserve that height before the file arrives. */
     imgWidth?: number;
     imgHeight?: number;
+    imgMobileWidth?: number;
+    imgMobileHeight?: number;
     eyebrow: string;
     title: string;
     description: string;
@@ -484,6 +487,9 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
       imageFraming: toImageFraming(b.imageFraming),
       ...(resolveMediaSize(b.image)
         ? { imgWidth: resolveMediaSize(b.image)!.width, imgHeight: resolveMediaSize(b.image)!.height }
+        : {}),
+      ...(resolveMediaSize(b.imageMobile)
+        ? { imgMobileWidth: resolveMediaSize(b.imageMobile)!.width, imgMobileHeight: resolveMediaSize(b.imageMobile)!.height }
         : {}),
       badgeLabel: b.badgeLabel || "",
       active: b.active !== false,

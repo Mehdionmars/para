@@ -798,11 +798,13 @@ export const MARKETING_BANNERS = [
     "ctaLabel": "DÉCOUVRIR LA SÉLECTION",
     "ctaUrl": "/shop/solaire",
     "badgeLabel": "JUSQU'À -40%",
-    "active": true,
+    "active": false,
     "startDate": "",
     "endDate": "",
     "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/solaire.png",
-    "imgMobile": ""
+    "imgMobile": "",
+    "imgWidth": 1408,
+    "imgHeight": 768
   }
 ];
 

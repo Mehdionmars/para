@@ -255,6 +255,8 @@ export function stars(rating: number): string {
 
 async function syncServices() {
   const services = await fetchAllDocs('services', 1)
+  // Same order as the live page (sortOrder, then creation): unset last.
+  services.sort((a, b) => (a.sortOrder ?? Infinity) - (b.sortOrder ?? Infinity) || a.id - b.id)
 
   const rows = services.map((s) => ({
     id: s.id,
@@ -269,6 +271,7 @@ async function syncServices() {
     desc: s.description || '',
     benefits: (s.benefits || []).map((b) => b.text),
     steps: (s.steps || []).map((step, i) => ({ n: String(i + 1), title: step.title, sub: step.sub || '' })),
+    prices: (s.priceList || []).map((l) => ({ label: l.label, price: typeof l.price === 'number' ? l.price : null, from: !!l.fromPrice })),
   }))
 
   const content = `${GENERATED_HEADER}
@@ -277,6 +280,9 @@ import { Baby, Feather, Palette, ScanFace, Scissors, Droplet, type LucideIcon } 
 const ICONS: Record<string, LucideIcon> = { Baby, Feather, Palette, ScanFace, Scissors, Droplet };
 
 export type ServiceStep = { n: string; title: string; sub: string };
+
+/** One line of the price list. \`price: null\` reads "À demander"; \`from\` reads "À partir de". */
+export type ServicePrice = { label: string; price: number | null; from: boolean };
 
 export type Service = {
   id: number;
@@ -291,6 +297,7 @@ export type Service = {
   desc: string;
   benefits: string[];
   steps: ServiceStep[];
+  prices: ServicePrice[];
 };
 
 export const SERVICES: Service[] = ${withIconRefs(JSON.stringify(rows, null, 2))};
@@ -299,9 +306,22 @@ export function getService(id: number): Service {
   return SERVICES.find((s) => s.id === id) ?? SERVICES[0];
 }
 
+function formatMad(price: number): string {
+  return \`\${price.toLocaleString("fr-FR")} MAD\`;
+}
+
+/** A service with a price list is priced from its cheapest line. */
 export function servicePriceLabel(service: Service): string {
+  const priced = service.prices.map((p) => p.price).filter((p): p is number => p !== null);
+  if (priced.length > 0) return \`\${service.prices.length > 1 || service.prices[0].from ? "Dès " : ""}\${formatMad(Math.min(...priced))}\`;
   if (!service.price) return "Offert";
-  return \`\${service.price.toLocaleString("fr-FR")} MAD\`;
+  return formatMad(service.price);
+}
+
+/** One line of the price list, as printed. */
+export function linePriceLabel(line: ServicePrice): string {
+  if (line.price === null) return "À demander";
+  return \`\${line.from ? "Dès " : ""}\${formatMad(line.price)}\`;
 }
 `
   writeGenerated('services.ts', content)
@@ -554,6 +574,12 @@ async function syncHome() {
     endDate: b.endDate || '',
     img: mediaURL(b.image),
     imgMobile: mediaURL(b.imageMobile),
+    // The carousel shows each banner at its picture's own height; with the
+    // dimensions the browser can reserve it before the file arrives.
+    ...(b.image?.width && b.image?.height ? { imgWidth: b.image.width, imgHeight: b.image.height } : {}),
+    ...(b.imageMobile?.width && b.imageMobile?.height
+      ? { imgMobileWidth: b.imageMobile.width, imgMobileHeight: b.imageMobile.height }
+      : {}),
   }))
 
   const newsletterSection = {

@@ -1,5 +1,5 @@
 import { Baby, Droplet, Feather, Palette, ScanFace, Scissors, type LucideIcon } from "lucide-react";
-import { SERVICES, type Service, type ServiceStep } from "@/data/services";
+import { SERVICES, type Service, type ServicePrice, type ServiceStep } from "@/data/services";
 import { resolveMediaUrl, type PayloadMediaRef } from "@/lib/storefront/products";
 
 const CMS_URL = process.env.CMS_URL || "http://localhost:3001";
@@ -31,6 +31,7 @@ type RawService = {
   image?: PayloadMediaRef;
   benefits?: { text?: string }[];
   steps?: { title?: string; sub?: string }[];
+  priceList?: { label?: string; price?: number | null; fromPrice?: boolean | null }[];
 };
 
 function toService(raw: RawService, i: number): Service {
@@ -51,6 +52,9 @@ function toService(raw: RawService, i: number): Service {
     steps: (raw.steps || [])
       .map((s, n): ServiceStep => ({ n: String(n + 1).padStart(2, "0"), title: s.title?.trim() || "", sub: s.sub?.trim() || "" }))
       .filter((s) => s.title),
+    prices: (raw.priceList || [])
+      .map((l): ServicePrice => ({ label: l.label?.trim() || "", price: typeof l.price === "number" ? l.price : null, from: !!l.fromPrice }))
+      .filter((l) => l.label),
   };
 }
 
@@ -67,7 +71,7 @@ function toService(raw: RawService, i: number): Service {
 export async function fetchServices(): Promise<Service[]> {
   let res: Response;
   try {
-    res = await fetch(`${CMS_URL}/api/services?limit=50&depth=1&sort=order`, {
+    res = await fetch(`${CMS_URL}/api/services?limit=50&depth=1&sort=sortOrder`, {
       next: { revalidate: 3600, tags: [SERVICES_TAG] },
     });
   } catch {
