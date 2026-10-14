@@ -7,10 +7,11 @@
  * recreated, and a photo already in Media (same filename) is reused rather
  * than uploaded twice.
  *
- * Photos are CC0 / public domain (rawpixel, StockSnap), read from the folder
- * given as SERVICE_PHOTOS_DIR, named service-<slug>.jpg.
+ * Photos are CC0 / public domain (rawpixel, StockSnap), named
+ * service-<slug>.jpg, and live in seed-assets/services (credits there).
+ * SERVICE_PHOTOS_DIR points elsewhere if needed.
  *
- * Usage: SERVICE_PHOTOS_DIR=/path/to/photos npm run seed:services
+ * Usage: npm run seed:services   (from backend/)
  */
 import 'dotenv/config'
 
@@ -289,8 +290,7 @@ const SERVICES: ServiceSeed[] = [
 ]
 
 async function main() {
-  const photosDir = process.env.SERVICE_PHOTOS_DIR
-  if (!photosDir) throw new Error('Set SERVICE_PHOTOS_DIR to the folder holding service-<slug>.jpg')
+  const photosDir = process.env.SERVICE_PHOTOS_DIR || path.resolve('seed-assets/services')
 
   const payload = await getPayload({ config })
 
