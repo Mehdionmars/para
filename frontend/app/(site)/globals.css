@@ -1578,35 +1578,149 @@ a.giftset-card-media:focus-visible {
   }
 }
 
-/* MarketingBanner (seasonal campaign banner): a fixed aspect-ratio instead
-   of a min-height keeps it from ever eating the whole first mobile
-   viewport — 4:3 on phones (never a 100vh/600px+ wall of image before any
-   product is visible), a wider ratio from tablet up since a dedicated
-   desktop image is normally supplied. */
-.marketing-banner {
+/* MarketingCarousel (seasonal campaign banners).
+
+   The full width of the page, each slide at its picture's own height. The
+   frame used to impose a ratio — 21:9 on desktop, 4:5 on phones — and crop
+   the picture into it, which cut artwork with its offer baked in down to
+   whatever the box kept. Nothing is imposed now: the image is width 100%,
+   height auto, and the slide is that tall.
+
+   The track is a horizontal scroller snapped one slide at a time, its bar
+   hidden. A finger swipes it; the arrows, dots and timer scroll it. */
+.mkt-carousel {
   position: relative;
-  border-radius: clamp(14px, 2vw, 24px);
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
+  padding: var(--sec-pt, var(--sec-y)) 0 var(--sec-pb, var(--sec-y));
 }
-@media (min-width: 768px) {
-  .marketing-banner {
-    aspect-ratio: 21 / 9;
-  }
-}
-/* The description clamp that used to live here is now part of the shared
-   .overlay-card-text rule above, which every overlay card gets.
 
-   4:3 left the copy block covering 87% of the banner at 390px and
-   overflowing it outright at 320px. 4:5 is the ratio at which the trimmed
-   copy block lands around a third of the card and the photograph gets the
-   rest — which is the whole point of a campaign image. Desktop keeps 21:9,
-   untouched, from the min-width rule above. */
+.mkt-carousel-stage {
+  position: relative;
+}
+
+.mkt-carousel-track {
+  display: flex;
+  /* A shorter slide sits in the middle of a taller neighbour's height rather
+     than hanging from its top edge. */
+  align-items: center;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.mkt-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.mkt-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* One grid cell holds the picture and, in overlay mode, the copy, so the
+   slide is as tall as the taller of the two. The picture decides it in the
+   normal case. A long text on a short picture grows the slide instead of
+   spilling out of it, and only then is the picture covered — framed by the
+   editor's "Cadrage" — to fill the extra height. */
+.mkt-slide-frame {
+  position: relative;
+  display: grid;
+}
+
+.mkt-slide-frame > .mkt-slide-img,
+.mkt-slide-copy {
+  grid-area: 1 / 1;
+}
+
+.mkt-slide-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mkt-slide-frame--overlay .mkt-slide-img {
+  height: 100%;
+  object-fit: cover;
+}
+
+.mkt-slide-img--mobile {
+  display: none;
+}
+
 @media (max-width: 767px) {
-  .marketing-banner {
-    aspect-ratio: 4 / 5;
+  .mkt-slide-img--desktop {
+    display: none;
   }
 
+  .mkt-slide-img--mobile {
+    display: block;
+  }
+}
+
+/* The copy keeps to the 1280px column every other section uses, so it does
+   not drift into the far corner of a wide monitor while the picture spans
+   the whole of it. Phones get the shared overlay-card diet further down. */
+.mkt-slide-copy {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  max-width: 560px;
+  margin-inline-start: max(0px, calc((100% - 1280px) / 2));
+  padding: clamp(24px, 3.6vw, 48px);
+  color: #fff;
+}
+
+/* Arrows for a mouse; a phone swipes. Near the edges of the picture rather
+   than on the 1280px column: on artwork that column is where the message is. */
+.mkt-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--pdh-ink);
+  border: 1px solid rgba(var(--pdh-ink-rgb), 0.2);
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.mkt-carousel-arrow:hover {
+  background: #fff;
+  border-color: var(--pdh-plum);
+}
+
+.mkt-carousel-arrow:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
+
+.mkt-carousel-arrow--prev {
+  left: clamp(10px, 2vw, 24px);
+}
+
+.mkt-carousel-arrow--next {
+  right: clamp(10px, 2vw, 24px);
+}
+
+@media (min-width: 768px) {
+  .mkt-carousel-arrow {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 767px) {
   /* The CTA tiles are half the banner's importance and appear two at a
      time. The inline `height` prop they carry for desktop is released here
      and a ratio takes over.
@@ -3599,19 +3713,14 @@ nav[aria-label^="Fil d"] a::after {
    people miss. Centring is what lets four tiles and twelve tiles both look
    composed, with no empty tracks trailing off to the right.
 
-   Below 1024px only. It was shown at every width for a while, on the argument
-   that a row of photographs sells the range where a text menu only lists it —
-   but once `.nav-desktop` is on screen it carries the same destinations, and
-   two navigations stacked one above the other is a choice the visitor has to
-   make before they have seen anything. Under that width the menu bar is not
-   rendered at all and the strip is the only visible way into an aisle, which
-   is where it earns its place.
+   Phone only (see the media query after the arrows below): from 768px up
+   the banner carousel opens the page and the menu carries the aisles.
 
    Hidden in CSS rather than dropped from the render on purpose: the
    breakpoint has to be live on resize, and deciding it in JavaScript would
    either mismatch on hydration or shift the layout once it corrected itself.
    `display: none` also stops the tile images loading — they are lazy, and a
-   lazy image inside a hidden box is never fetched — so a desktop visitor pays
+   lazy image inside a hidden box is never fetched — so a larger screen pays
    nothing but the markup.
 
    No background of its own: it sits on the page's white ground. */
@@ -3623,28 +3732,6 @@ nav[aria-label^="Fil d"] a::after {
   max-width: 1280px;
   margin: 0 auto;
   padding: clamp(18px, 2.4vw, 32px) var(--sec-pad-x) clamp(12px, 1.8vw, 22px);
-}
-
-/* 1024px, not the 767px the rest of this file calls mobile, because that is
-   where `.nav-desktop` actually turns on — it is `display: none` by default
-   and only appears in the `min-width: 1024px` block above. Cutting the strip
-   at 768px would leave every tablet between 768 and 1023 with no menu bar and
-   no strip either, navigable only through the burger. Hiding it here removes
-   the duplication on exactly the widths that have it, and nowhere else. */
-/* Shown at every width again.
-
-   It was hidden from 1024px up because a row of photographs duplicated the
-   text menu that appears at that width. What changed is the job: the strip
-   now carries two rows of shelves that actually have stock behind them, and
-   the menu bar lists eighty slugs of which most are aisles. They are no
-   longer the same instrument — one sells the range, the other indexes it.
-
-   The cut stays available: set `display: none` here again and nothing else
-   in this file depends on the strip existing. */
-@media (min-width: 1024px) {
-  .cat-tiles {
-    justify-content: center;
-  }
 }
 
 /* One line, always — it scrolls rather than wrapping.
@@ -5137,6 +5224,61 @@ section.rail-editorial {
   justify-content: center;
 }
 
+/* Offer tile hover: the tile stays still and a "Découvrir" button slides up
+   over the bottom of the photo. Only where the pointer can hover; on touch
+   the "Découvrir →" under the title stays the call to action. */
+.offer-tile {
+  display: block;
+}
+
+.offer-tile-btn {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--pdh-plum);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  translate: 0 10px;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease-out,
+    translate 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .offer-tile:hover .offer-tile-btn,
+  .offer-tile:focus-visible .offer-tile-btn {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .offer-tile-more {
+    display: none !important;
+  }
+}
+
+.offer-tile:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 4px;
+  border-radius: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offer-tile-btn {
+    translate: none;
+    transition: opacity 0.15s linear;
+  }
+}
+
 /* Phone: the square shelf is a row that scrolls sideways, a sliver of the next
    tile showing. Desktop keeps the centred grid. */
 @media (max-width: 767px) {
@@ -5441,6 +5583,15 @@ a.brand-wall-cell:focus-visible {
   }
 }
 
+/* Phone only — after the `display: flex` above, which would win otherwise.
+   From 768px up the banner carousel opens the page on its own
+   and the menu (or the burger, on a tablet) carries the aisles. */
+@media (min-width: 768px) {
+  .cat-tiles {
+    display: none;
+  }
+}
+
 /* ---- The offers band ------------------------------------------------
    One coloured stripe, edge to edge, holding the promotions grid.
 
@@ -5653,175 +5804,133 @@ a.brand-wall-cell:focus-visible {
    previously a photograph with a white card laid over it
    (.home-hero*), which is gone. */
 
-/* ---- Hero ---------------------------------------------------- */
+/* ---- Hero ----------------------------------------------------
+   A banner carousel, directly under the header: one wide piece of
+   campaign artwork per slide, centred on a light grey band, with
+   plain chevrons in the grey either side. The artwork carries the
+   copy, so nothing is drawn over it. On a phone the banner runs
+   edge to edge, the arrows give way to swipe and the dots. */
 .pdh-hero {
+  --hero-gutter: clamp(48px, 6vw, 120px);
   position: relative;
-  background: #fff;
+  margin-bottom: clamp(16px, 3vw, 40px);
+  background: #f1f1f2;
 }
 
 .pdh-hero-stage {
   touch-action: pan-y;
   display: grid;
-  max-width: 1280px;
+  max-width: calc(1680px + 2 * var(--hero-gutter));
   margin: 0 auto;
-  padding: clamp(28px, 3vw, 40px) var(--sec-pad-x) 0;
+  padding: 0 var(--hero-gutter);
 }
 
-/* Every slide shares one grid cell, so the hero is as tall as its tallest
-   slide and the crossfade needs no absolute positioning. */
+/* Every slide shares one grid cell, so the crossfade needs no absolute
+   positioning. */
 .pdh-hero-slide {
   grid-area: 1 / 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(20px, 3vw, 32px);
+  min-width: 0;
   opacity: 0;
   visibility: hidden;
-  /* Out fast, in after it has gone: two headlines never share a rectangle. */
   transition:
-    opacity 200ms ease-in,
-    visibility 0s linear 200ms;
+    opacity 300ms ease-in,
+    visibility 0s linear 300ms;
 }
 
 .pdh-hero-slide[data-active="true"] {
   opacity: 1;
   visibility: visible;
-  transition: opacity 420ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.pdh-hero-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
+.pdh-hero-banner {
+  display: block;
 }
 
-.pdh-hero-title {
-  font-family: var(--font-alta);
-  font-weight: 300;
-  font-size: clamp(36px, 9.4vw, 44px);
-  line-height: 1.02;
-  letter-spacing: -0.025em;
-  color: var(--pdh-ink);
-  margin: 0;
-  text-wrap: balance;
+.pdh-hero-banner:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: -4px;
 }
 
-.pdh-hero-sub {
-  font-size: var(--fs-body);
-  line-height: var(--lh-prose);
-  color: var(--pdh-ink-soft);
-  max-width: 40ch;
-  margin: 16px 0 0;
-}
-
-.pdh-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 24px;
-  row-gap: 4px;
-  margin-top: 24px;
-}
-
-.pdh-hero-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 0 26px;
-  background: var(--pdh-plum);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border-radius: 2px;
-  transition: background 0.2s;
-}
-
-.pdh-hero-cta:hover {
-  background: var(--pdh-plum-dark);
-}
-
-.pdh-hero-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  color: var(--pdh-ink);
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: var(--pdh-plum-divider);
-  text-underline-offset: 5px;
-  transition: text-decoration-color 0.2s;
-}
-
-.pdh-hero-link:hover {
-  text-decoration-color: var(--pdh-plum);
-}
-
-.pdh-hero-tag {
-  margin: 24px 0 0;
-  font-size: 12.5px;
-  letter-spacing: 0.02em;
-  color: var(--pdh-muted-text);
-}
-
+/* 1920 x 500: the size to export desktop banners at. */
 .pdh-hero-photo {
   position: relative;
-  aspect-ratio: 1408 / 768;
+  aspect-ratio: 1920 / 500;
   overflow: hidden;
   background: var(--pdh-sand);
-  border-radius: 2px;
 }
 
-/* Phone: label, headline and sub on top, then the picture, then the button.
-   The copy wrapper dissolves so its pieces can be ordered around the photo. */
-@media (max-width: 767px) {
-  .pdh-hero-slide {
-    gap: 0;
-  }
+.pdh-hero-arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--pdh-ink);
+  cursor: pointer;
+  transition: color 0.2s;
+}
 
-  .pdh-hero-copy {
-    display: contents;
-  }
+.pdh-hero-arrow:hover {
+  color: var(--pdh-plum);
+}
 
-  .pdh-hero-tag {
-    order: 1;
-    margin: 0 0 12px;
-  }
+.pdh-hero-arrow:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+}
 
-  .pdh-hero-title {
-    order: 2;
-  }
+.pdh-hero-arrow--prev {
+  left: max(4px, calc((var(--hero-gutter) - 44px) / 2));
+}
 
-  .pdh-hero-sub {
-    order: 3;
-    margin-top: 12px;
-  }
-
-  .pdh-hero-photo {
-    order: 4;
-    margin-top: 20px;
-  }
-
-  .pdh-hero-actions {
-    order: 5;
-    margin-top: 20px;
-  }
+.pdh-hero-arrow--next {
+  right: max(4px, calc((var(--hero-gutter) - 44px) / 2));
 }
 
 .pdh-hero-dots {
-  display: flex;
-  justify-content: center;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 6px var(--sec-pad-x) 0;
+  display: none;
+}
+
+/* Phone: edge to edge, swipe instead of arrows. A 4:1 banner is a sliver at
+   390px, so the frame goes to 16:9 (export mobile banners at 1080 x 608);
+   a slide with a dedicated mobile image gets 4:5 (1080 x 1350). */
+@media (max-width: 767px) {
+  .pdh-hero {
+    --hero-gutter: 0px;
+    margin-bottom: 0;
+    background: #fff;
+  }
+
+  .pdh-hero-photo {
+    aspect-ratio: 16 / 9;
+  }
+
+  .pdh-hero-slide[data-has-mobile="true"] .pdh-hero-photo {
+    aspect-ratio: 4 / 5;
+  }
+
+  .pdh-hero-arrow {
+    display: none;
+  }
+
+  .pdh-hero-dots {
+    display: flex;
+    justify-content: center;
+    padding-top: 4px;
+  }
 }
 
 .pdh-hero-dot {
   position: relative;
   width: 36px;
-  height: 36px;
+  height: 32px;
   background: none;
   border: 0;
   padding: 0;
@@ -5841,46 +5950,6 @@ a.brand-wall-cell:focus-visible {
 
 .pdh-hero-dot[aria-current="true"]::before {
   background: var(--pdh-plum);
-}
-
-.pdh-hero-cta:focus-visible,
-.pdh-hero-link:focus-visible {
-  outline: 2px solid var(--pdh-plum);
-  outline-offset: 3px;
-}
-
-@media (min-width: 768px) {
-  .pdh-hero-slide {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: clamp(36px, 5vw, 72px);
-    align-items: stretch;
-  }
-
-  .pdh-hero-copy {
-    justify-content: center;
-    padding-bottom: 28px;
-  }
-
-  .pdh-hero-title {
-    font-size: clamp(40px, 4.7vw, 64px);
-  }
-
-  .pdh-hero-sub {
-    margin-top: 22px;
-  }
-
-  .pdh-hero-actions {
-    margin-top: 32px;
-  }
-
-  .pdh-hero-tag {
-    margin-top: clamp(32px, 5vw, 64px);
-  }
-
-  .pdh-hero-photo {
-    aspect-ratio: auto;
-    min-height: clamp(380px, 38vw, 520px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -6280,6 +6349,13 @@ a.brand-wall-cell:focus-visible {
 }
 
 /* ---- Category shelves + catalogue wall (home) ---- */
+/* The shelves sit between the banner and the first movement, outside any
+   .home-movement, so they pay the movement seam themselves: without it the
+   last shelf ran straight into the next section's heading. */
+.shelves {
+  padding-bottom: var(--sec-y-loose);
+}
+
 .shelf {
   padding: clamp(48px, 6vw, 88px) var(--sec-pad-x) 0;
 }
@@ -6469,3 +6545,128 @@ a.brand-wall-cell:focus-visible {
     scroll-snap-type: none;
   }
 }
+
+/* ---- Services: the price list -------------------------------------
+   Laid out like the institute's printed tariff: prestation left, price
+   right, a dotted leader between them. On /services every family sits in a
+   two-column menu; a service page shows its own list alone. */
+.price-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.price-list-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--pdh-ink);
+}
+
+.price-list-label {
+  min-width: 0;
+}
+
+.price-list-leader {
+  flex: 1;
+  min-width: 16px;
+  border-bottom: 1px dotted rgba(94, 64, 116, 0.35);
+  transform: translateY(-4px);
+}
+
+.price-list-price {
+  flex: none;
+  font-weight: 600;
+  color: var(--pdh-plum);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.services-hero-link {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pdh-cream);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+}
+
+.services-hero-link:hover {
+  text-decoration-color: currentColor;
+}
+
+.price-menu {
+  scroll-margin-top: 120px;
+  margin-top: clamp(48px, 6vw, 80px);
+  padding: clamp(28px, 4vw, 56px) clamp(18px, 4vw, 56px);
+  border: 1px solid rgba(94, 64, 116, 0.14);
+  border-radius: clamp(16px, 2vw, 24px);
+  background: #fbf8f5;
+}
+
+.price-menu-title {
+  font-family: var(--font-alta);
+  font-weight: 200;
+  font-size: clamp(28px, 3.6vw, 42px);
+  text-align: center;
+  margin: 0;
+}
+
+.price-menu-note {
+  text-align: center;
+  font-size: 12.5px;
+  opacity: 0.6;
+  margin: 10px 0 clamp(26px, 3vw, 40px);
+}
+
+/* Columns rather than a grid: families run from one line (Lissage) to
+   nineteen (Cheveux), and columns pack them without row gaps. */
+.price-menu-grid {
+  columns: 2 340px;
+  column-gap: clamp(32px, 5vw, 72px);
+}
+
+.price-menu-group {
+  break-inside: avoid;
+  margin-bottom: clamp(28px, 3vw, 40px);
+}
+
+.price-menu-group-title {
+  font-family: var(--font-alta);
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pdh-plum);
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(94, 64, 116, 0.3);
+}
+
+.price-menu-book {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pdh-teal);
+}
+
+.price-menu-book:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.service-tarifs {
+  margin-top: 52px;
+  max-width: 640px;
+}
+

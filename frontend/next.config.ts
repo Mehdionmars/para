@@ -92,7 +92,11 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    deviceSizes: [640, 750, 828, 1080, 1200, 1600],
+    // 1920 and 2560 for the pictures that span the page (the campaign
+    // carousel, the CTA banner's artwork): capped at 1600, a 1920px screen
+    // was handed a 1600px file stretched by a fifth. Cloudinary's `c_limit`
+    // never enlarges, so a smaller original still costs only its own size.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920, 2560],
     imageSizes: [32, 48, 64, 96, 128, 160, 256, 384],
 
     remotePatterns: [

@@ -1,59 +1,25 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { HERO_SLIDES, type HeroSlide } from "@/data/home";
+import { usePageVisible, useReducedMotion } from "@/hooks/use-motion-preferences";
 
 const AUTOPLAY_MS = 5500;
 
-const REDUCE_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribeReducedMotion(onChange: () => void) {
-  const query = window.matchMedia(REDUCE_MOTION_QUERY);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-function subscribePageVisible(onChange: () => void) {
-  document.addEventListener("visibilitychange", onChange);
-  return () => document.removeEventListener("visibilitychange", onChange);
-}
-
 /**
- * Whether the visitor asked their OS for less motion. External browser state
- * that can flip while the page is open, hence useSyncExternalStore. The server
- * snapshot is `false`: erring the other way would ship a paused carousel to
- * everyone.
- */
-function useReducedMotion() {
-  return useSyncExternalStore(
-    subscribeReducedMotion,
-    () => window.matchMedia(REDUCE_MOTION_QUERY).matches,
-    () => false,
-  );
-}
-
-/** A carousel advancing in a tab nobody is looking at burns a timer and can
- * quietly pull images for slides the visitor never sees. */
-function usePageVisible() {
-  return useSyncExternalStore(
-    subscribePageVisible,
-    () => !document.hidden,
-    () => true,
-  );
-}
-
-/**
- * The opening statement of the page: type first, photograph beside it.
+ * The banner carousel that opens the page, directly under the header.
  *
- * No card over the picture, no pill, no snow. The headline is set large on the
- * page ground and the photograph sits next to it (below it on a phone), so the
- * product is never hidden behind the text that is selling it. Layout lives in
- * `.pdh-hero*` in globals.css.
+ * Each slide is one wide piece of campaign artwork (brand, offer and product
+ * are in the picture itself), the whole banner is the link, and plain chevrons
+ * sit in the grey margins either side. A slide's `mobileImg` replaces the wide
+ * artwork on a phone, where a 4:1 banner would be too short to read.
  *
- * Slide `align` and `overlay` settings from the Storefront Builder no longer
- * apply: with no text over the image there is nothing to align or darken.
+ * The slide's title, sub and CTA are not drawn: they stay in the markup for
+ * screen readers and search engines. `align` and `overlay` do not apply.
+ * Layout lives in `.pdh-hero*` in globals.css.
  */
 export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
   const heroSlides = slides && slides.length > 0 ? slides : HERO_SLIDES;
@@ -151,63 +117,68 @@ export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
               aria-hidden={!isActive}
               className="pdh-hero-slide"
               data-active={isActive ? "true" : "false"}
+              data-has-mobile={slide.mobileImg ? "true" : "false"}
               inert={!isActive}
             >
-              <div className="pdh-hero-copy">
-                <Title className="pdh-hero-title">{slide.title}</Title>
-                {slide.sub ? <p className="pdh-hero-sub">{slide.sub}</p> : null}
-                <div className="pdh-hero-actions">
-                  <Link href={slide.ctaUrl || "/catalogue"} className="pdh-hero-cta">
-                    {slide.cta}
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                  {slide.secondaryCta && slide.secondaryCtaUrl ? (
-                    <Link href={slide.secondaryCtaUrl} className="pdh-hero-link">
-                      {slide.secondaryCta}
-                    </Link>
-                  ) : null}
+              {/* The artwork carries the message, so the copy is kept for
+                  screen readers and search engines only, and the whole banner
+                  is the link. */}
+              <Link href={slide.ctaUrl || "/catalogue"} className="pdh-hero-banner">
+                <div className="sr-only">
+                  <Title>{slide.title}</Title>
+                  {slide.sub ? <p>{slide.sub}</p> : null}
+                  <p>{slide.cta}</p>
                 </div>
-                {slide.tag ? <p className="pdh-hero-tag">{slide.tag}</p> : null}
-              </div>
-
-              <div aria-hidden="true" className="pdh-hero-photo">
-                {/* Slides past the first mount only once they are shown or next
-                    in line, so a 5-slide carousel does not fetch 5 heroes on
-                    first paint. Slide 0 carries `priority`: it is the LCP. */}
-                {mountedSlides.has(i) && (
-                  <>
-                    <CloudinaryImage
-                      src={slide.img}
-                      alt=""
-                      fill
-                      preset="hero"
-                      priority={i === 0}
-                      // Art direction is CSS (.hero-desktop-img is display:none
-                      // under 768px) but a hidden <img> is still fetched, so the
-                      // unused variant is declared 1px to cost a thumbnail.
-                      sizes={slide.mobileImg ? "(max-width: 767px) 1px, 60vw" : "(max-width: 767px) 100vw, 60vw"}
-                      className={slide.mobileImg ? "hero-desktop-img" : undefined}
-                      style={{ objectFit: "cover" }}
-                    />
-                    {slide.mobileImg && (
+                <div aria-hidden="true" className="pdh-hero-photo">
+                  {/* Slides past the first mount only once they are shown or next
+                      in line, so a 5-slide carousel does not fetch 5 heroes on
+                      first paint. Slide 0 carries `priority`: it is the LCP. */}
+                  {mountedSlides.has(i) && (
+                    <>
                       <CloudinaryImage
-                        src={slide.mobileImg}
+                        src={slide.img}
                         alt=""
                         fill
                         preset="hero"
                         priority={i === 0}
-                        sizes="(max-width: 767px) 100vw, 1px"
-                        className="hero-mobile-img"
+                        // Art direction is CSS (.hero-desktop-img is display:none
+                        // under 768px) but a hidden <img> is still fetched, so the
+                        // unused variant is declared 1px to cost a thumbnail.
+                        sizes={slide.mobileImg ? "(max-width: 767px) 1px, 100vw" : "100vw"}
+                        className={slide.mobileImg ? "hero-desktop-img" : undefined}
                         style={{ objectFit: "cover" }}
                       />
-                    )}
-                  </>
-                )}
-              </div>
+                      {slide.mobileImg && (
+                        <CloudinaryImage
+                          src={slide.mobileImg}
+                          alt=""
+                          fill
+                          preset="hero"
+                          priority={i === 0}
+                          sizes="(max-width: 767px) 100vw, 1px"
+                          className="hero-mobile-img"
+                          style={{ objectFit: "cover" }}
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
+              </Link>
             </div>
           );
         })}
       </div>
+
+      {isCarousel && (
+        <>
+          <button type="button" className="pdh-hero-arrow pdh-hero-arrow--prev" aria-label="Mise en avant précédente" onClick={() => go(-1)}>
+            <ChevronLeft aria-hidden="true" size={34} strokeWidth={1.4} />
+          </button>
+          <button type="button" className="pdh-hero-arrow pdh-hero-arrow--next" aria-label="Mise en avant suivante" onClick={() => go(1)}>
+            <ChevronRight aria-hidden="true" size={34} strokeWidth={1.4} />
+          </button>
+        </>
+      )}
 
       {isCarousel && (
         <div className="pdh-hero-dots">

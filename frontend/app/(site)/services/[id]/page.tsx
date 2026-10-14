@@ -4,6 +4,7 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SERVICES, servicePriceLabel } from "@/data/services";
+import { PriceList } from "@/components/services/PriceList";
 import { fetchServiceById } from "@/lib/storefront/services";
 
 export function generateStaticParams() {
@@ -89,6 +90,15 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           </Link>
         </div>
       </div>
+
+      {service.prices.length > 0 ? (
+        <section aria-labelledby="service-tarifs" className="service-tarifs">
+          <h2 id="service-tarifs" style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(23px,2.8vw,32px)", margin: "0 0 18px" }}>
+            Tarifs
+          </h2>
+          <PriceList prices={service.prices} />
+        </section>
+      ) : null}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))", gap: "clamp(20px,3vw,44px)", marginTop: 52 }}>
         <div>

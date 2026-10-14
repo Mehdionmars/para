@@ -16,7 +16,7 @@ export const Services: CollectionConfig = {
     update: canEditContent,
   },
   admin: {
-    defaultColumns: ['title', 'price', 'duration', 'expert'],
+    defaultColumns: ['title', 'price', 'sortOrder', 'expert'],
     useAsTitle: 'title',
   },
   hooks: {
@@ -73,6 +73,48 @@ export const Services: CollectionConfig = {
           name: 'expert',
           type: 'text',
           admin: { description: 'e.g. "Pharmacien", "Esthéticienne"' },
+        },
+      ],
+    },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      admin: {
+        description: 'Position on /services: lowest first. Services without one come last.',
+        position: 'sidebar',
+      },
+    },
+    {
+      // The institute's real tariff: one line per prestation, as on the
+      // printed price list. The card on /services shows the cheapest line as
+      // "Dès …"; the service page lists them all.
+      name: 'priceList',
+      type: 'array',
+      labels: { plural: 'Tarifs', singular: 'Tarif' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+              admin: { width: '50%' },
+            },
+            {
+              name: 'price',
+              type: 'number',
+              min: 0,
+              admin: { description: 'In MAD. Leave empty for "À demander".', width: '20%' },
+            },
+            {
+              name: 'fromPrice',
+              type: 'checkbox',
+              defaultValue: false,
+              label: 'À partir de',
+              admin: { width: '15%' },
+            },
+          ],
         },
       ],
     },

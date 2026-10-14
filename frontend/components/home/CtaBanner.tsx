@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
+import { MarketingCarousel } from "@/components/home/MarketingCarousel";
 
 export type CtaBannerCopy = {
   eyebrow: string;
@@ -36,12 +37,13 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
   const label = copy.ctaLabel?.trim();
   const href = copy.ctaUrl?.trim() || "/catalogue";
 
-  // A CTA band with no headline and no button is an empty coloured stripe.
-  // Hiding the section beats rendering the stripe: an editor who has cleared
-  // the fields has effectively turned it off.
-  if (!copy.title?.trim() && !label) return null;
-
   const photo = copy.bgImage?.trim();
+
+  // A CTA band with no headline, no button and no picture is an empty
+  // coloured stripe. Hiding the section beats rendering the stripe: an editor
+  // who has cleared the fields has effectively turned it off. A picture alone
+  // is enough, since it is the link.
+  if (!copy.title?.trim() && !label && !photo) return null;
   // Whether an editor wrote anything beside the picture.
   //
   // This decides the whole layout, because the two cases are different kinds
@@ -97,81 +99,39 @@ export function CtaBanner({ copy }: { copy: CtaBannerCopy }) {
     </div>
   );
 
-  // Artwork with no copy beside it: full width, at the picture's own shape.
+  // Artwork with no copy beside it: a banner, drawn exactly like a slide of
+  // the campaign carousel.
   //
-  // In the two-column grid below, this artwork was handed half the band and
-  // the other half stood empty except for the button — a composed summer
-  // banner, reduced to a tile, next to a cream void. It is the same mistake
-  // MarketingBanner's `imageOnly` mode already exists to avoid: copy baked
-  // into a picture must not be cropped to a frame chosen for it, and must not
-  // be shrunk to sit beside a headline that was never written.
-  //
-  // `contain` with the file's own ratio is a no-op on the pixels; it is there
-  // so a media document whose dimensions did not resolve letterboxes inside
-  // the fallback ratio instead of being cropped by it.
+  // What is uploaded here is composed artwork with its own headline, product
+  // shots and drawn button. It spans the page at its own shape, uncropped,
+  // and the whole picture is the link: no cream band around it and no second
+  // button under a picture that already draws one. The link is a real <a>
+  // named by the button label, so a keyboard or a screen reader still reaches
+  // the destination.
   if (photo && !hasCopy) {
-    const linkLabel = label || copy.eyebrow?.trim() || "Découvrir la sélection";
-
     return (
-      <section
-        style={{
-          background: copy.bg || "var(--pdh-cream)",
-          color: copy.textColor || "var(--pdh-ink)",
-          padding: "clamp(28px,4vw,56px) var(--sec-pad-x)",
-          marginBottom: "var(--sec-y)",
-        }}
-      >
-        <div style={{ maxWidth: "min(1280px,100%)", margin: "0 auto" }}>
-          <Link
-            href={href}
-            aria-label={linkLabel}
-            style={{
-              position: "relative",
-              display: "block",
-              width: "100%",
-              aspectRatio: artRatio,
-              overflow: "hidden",
-              borderRadius: "clamp(14px,2vw,24px)",
-            }}
-          >
-            {/* Decorative: the link's aria-label names the destination, and
-                every word in the picture is drawn, not readable. */}
-            <CloudinaryImage
-              preset="editorial"
-              src={photo}
-              alt=""
-              fill
-              sizes="(max-width: 1280px) 100vw, 1280px"
-              style={{ objectFit: "contain", objectPosition: "center" }}
-            />
-          </Link>
-
-          {/* Kept, and below the artwork rather than removed: the picture
-              carries its own drawn button, but this one is the real link and
-              the only one a keyboard or a screen reader can reach. */}
-          {label && (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "clamp(18px,2.4vw,28px)" }}>
-              <Link
-                href={href}
-                style={{
-                  display: "inline-block",
-                  background: copy.ctaColor || "var(--pdh-plum)",
-                  color: "#FFFFFF",
-                  padding: "14px 34px",
-                  borderRadius: 999,
-                  fontFamily: "var(--font-poppins)",
-                  fontSize: 12,
-                  letterSpacing: ".12em",
-                  textTransform: "uppercase",
-                  textDecoration: "none",
-                }}
-              >
-                {label}
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+      <MarketingCarousel
+        banners={[
+          {
+            campaign: "cta-banner",
+            imageMode: "imageOnly",
+            eyebrow: copy.eyebrow || "",
+            title: "",
+            description: "",
+            ctaLabel: label || "",
+            ctaUrl: href,
+            badgeLabel: "",
+            active: true,
+            startDate: "",
+            endDate: "",
+            img: photo,
+            imgMobile: "",
+            imgWidth: copy.bgImageWidth,
+            imgHeight: copy.bgImageHeight,
+          },
+        ]}
+        label={label || copy.eyebrow?.trim() || "Bannière"}
+      />
     );
   }
 

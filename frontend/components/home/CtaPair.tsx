@@ -56,7 +56,7 @@ export function CtaPair({ tiles, title = "Offres spéciales" }: { tiles: CtaTile
 
       <div className="cta-square-grid">
         {tiles.map((tile) => (
-          <Link key={tile.title || tile.img} href={tile.ctaUrl?.trim() || DEFAULT_TILE_HREF} className="tile-hover" style={{ display: "block" }}>
+          <Link key={tile.title || tile.img} href={tile.ctaUrl?.trim() || DEFAULT_TILE_HREF} className="offer-tile">
             <div style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 20, overflow: "hidden", background: tile.bg }}>
               <CloudinaryImage
                 preset="editorial"
@@ -66,6 +66,12 @@ export function CtaPair({ tiles, title = "Offres spéciales" }: { tiles: CtaTile
                 sizes="(max-width: 767px) 50vw, 300px"
                 style={{ objectFit: "cover", objectPosition: framingToObjectPosition(tile.imageFraming) }}
               />
+              {/* Slides up over the photo on hover (see .offer-tile-btn). The
+                  tile is the link, so it is a <span>, hidden from screen
+                  readers: the "Découvrir" under the title already says it. */}
+              <span aria-hidden="true" className="offer-tile-btn">
+                Découvrir
+              </span>
             </div>
             {/* Copy sits under the picture, not on it: the photograph stays
                 legible and the title needs no scrim. The tile itself is the
@@ -79,7 +85,7 @@ export function CtaPair({ tiles, title = "Offres spéciales" }: { tiles: CtaTile
               <div style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: "clamp(19px,1.9vw,23px)", lineHeight: 1.15, textWrap: "balance" }}>
                 {tile.title}
               </div>
-              <span style={{ display: "inline-block", marginTop: 10, fontSize: 11, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)" }}>
+              <span className="offer-tile-more" style={{ display: "inline-block", marginTop: 10, fontSize: 11, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)" }}>
                 Découvrir →
               </span>
             </div>

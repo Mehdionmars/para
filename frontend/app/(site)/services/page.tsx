@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { Snowflakes } from "@/components/Snowflakes";
+import { PriceList } from "@/components/services/PriceList";
 import { servicePriceLabel } from "@/data/services";
 import { fetchServices } from "@/lib/storefront/services";
 import { fetchStores } from "@/lib/storefront/stores";
@@ -42,8 +43,11 @@ export default async function ServicesPage() {
             Nos services en institut
           </h1>
           <p style={{ fontSize: 14.5, lineHeight: 1.75, opacity: 0.8, margin: 0 }}>
-            Diagnostic de peau, soins visage, conseils personnalisés : réservez un créneau avec nos expertes en moins d&apos;une minute.
+            Coiffure, ongles, soins du visage, épilation et maquillage : réservez un créneau avec nos expertes en moins d&apos;une minute.
           </p>
+          <a href="#tarifs" className="services-hero-link">
+            Voir tous nos tarifs ↓
+          </a>
         </div>
       </div>
 
@@ -81,6 +85,29 @@ export default async function ServicesPage() {
           </Link>
         ))}
       </div>
+
+      {/* The whole tariff in one place, as on the printed price list: a
+          visitor comparing two prestations should not have to open a page
+          per family. */}
+      <section id="tarifs" aria-labelledby="tarifs-title" className="price-menu">
+        <h2 id="tarifs-title" className="price-menu-title">
+          Nos tarifs
+        </h2>
+        <p className="price-menu-note">Prix en dirhams, TTC. Le tarif d&apos;une prestation « dès » est confirmé avant de commencer.</p>
+        <div className="price-menu-grid">
+          {SERVICES.filter((service) => service.prices.length > 0).map((service) => (
+            <section key={service.id} aria-labelledby={`tarifs-${service.id}`} className="price-menu-group">
+              <h3 id={`tarifs-${service.id}`} className="price-menu-group-title">
+                {service.title}
+              </h3>
+              <PriceList prices={service.prices} />
+              <Link href={`/services/${service.id}/reserver`} className="price-menu-book">
+                Réserver <span className="sr-only">{service.title}</span> →
+              </Link>
+            </section>
+          ))}
+        </div>
+      </section>
 
       <section style={{ marginTop: "clamp(40px,5vw,64px)" }}>
         <h2 style={{ fontFamily: "var(--font-alta)", fontWeight: 200, fontSize: "clamp(24px,3vw,34px)", margin: "0 0 18px" }}>

@@ -9,8 +9,10 @@ import { CloudinaryImage } from "@/components/CloudinaryImage";
 /**
  * The catalogue's editorial furniture.
  *
- * Both CTAs point at pages that exist: /contact for a pharmacist question and
- * /services/1 ("Diagnostic de peau", whose last step is building a routine).
+ * Both CTAs point at /contact, a page that exists: the routine is built by a
+ * pharmacist answering the visitor's question. They used to point at
+ * /services/1, "Diagnostic de peau", which left the services when they were
+ * replaced by the institute's real price list.
  * There is no /conseils route on this site, and a banner whose button 404s is
  * worse than no banner.
  *
@@ -124,7 +126,7 @@ export function EditorialPair() {
             Trois questions sur votre peau, et nos pharmaciens vous recommandent les produits adaptés.
           </p>
           <Link
-            href="/services/1"
+            href="/contact"
             style={{
               background: "var(--pdh-cream)",
               borderRadius: 999,

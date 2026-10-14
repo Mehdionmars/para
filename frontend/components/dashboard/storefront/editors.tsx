@@ -123,14 +123,14 @@ export function MarketingBannersEditor({ value, onChange }: { value: MarketingBa
     <>
       <EditorHeading
         title="Bannières marketing"
-        description="Une fiche par campagne (été, Black Friday, Noël...) — seule la première campagne Active et dans sa période d'affichage apparaît sur la page d'accueil. Les autres restent prêtes, sans avoir à toucher au code pour changer de saison."
+        description="Un carrousel : chaque campagne Active et dans sa période d'affichage en devient une diapositive, dans l'ordre de cette liste. Les images prennent toute la largeur de la page, à leur propre hauteur, sans recadrage — donnez-leur le même format pour que le carrousel ne change pas de hauteur."
       />
       <ArrayField<MarketingBanner>
         items={value}
         onChange={onChange}
         renderLabel={(b) => `${b.active ? "🟢" : "⚪"} ${b.campaign || "Nouvelle campagne"}`}
         itemName="cette bannière"
-        addLabel="Ajouter une campagne"
+        addLabel="Ajouter une diapositive"
         onAdd={() => ({
           campaign: "",
           image: { url: "" },
@@ -174,22 +174,25 @@ export function MarketingBannersEditor({ value, onChange }: { value: MarketingBa
             )}
             <TextField label="Texte du bouton" value={b.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
             <LinkPicker label="Lien du bouton" value={b.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
-            <div className="grid grid-cols-2 gap-3">
-              {b.imageMode !== "imageOnly" && (
+            {/* An image-only banner is shown whole, so there is nothing to
+                frame. Framing still matters in overlay mode, where a long
+                text can make the slide taller than its picture. */}
+            {b.imageMode !== "imageOnly" && (
+              <div className="grid grid-cols-2 gap-3">
                 <SelectField
                   label="Position du bouton"
                   value={b.ctaAlign}
                   onChange={(ctaAlign) => update({ ctaAlign: toCtaAlign(ctaAlign) })}
                   options={CARD_CTA_ALIGN_OPTIONS}
                 />
-              )}
-              <SelectField
-                label="Cadrage de l'image"
-                value={b.imageFraming}
-                onChange={(imageFraming) => update({ imageFraming: toImageFraming(imageFraming) })}
-                options={CARD_IMAGE_FRAMING_OPTIONS}
-              />
-            </div>
+                <SelectField
+                  label="Cadrage de l'image"
+                  value={b.imageFraming}
+                  onChange={(imageFraming) => update({ imageFraming: toImageFraming(imageFraming) })}
+                  options={CARD_IMAGE_FRAMING_OPTIONS}
+                />
+              </div>
+            )}
             <TextField label="Badge promotionnel (optionnel)" value={b.badgeLabel} onChange={(badgeLabel) => update({ badgeLabel })} placeholder="JUSQU'À -30%" />
             <div className="grid grid-cols-2 gap-3">
               <DateField label="Affichage à partir du" value={b.startDate} onChange={(startDate) => update({ startDate })} />
@@ -431,16 +434,16 @@ export function CtaBannerEditor({ value, onChange }: { value: CtaBannerCopyDraft
     <FieldGroup>
       <EditorHeading
         title="CTA centré"
-        description="Un titre, une phrase, un bouton. Le bloc n’a volontairement pas de second bouton : deux choix ralentissent la décision."
+        description="Un titre, une phrase, un bouton. Le bloc n’a volontairement pas de second bouton : deux choix ralentissent la décision. Avec une image et sans titre ni texte, le bloc devient une bannière pleine largeur, sans fond ni bouton : un clic sur l’image mène au lien ci-dessous."
       />
       <TextField label="Eyebrow (facultatif)" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
       <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
       <TextAreaField label="Texte de soutien" value={value.description} onChange={(description) => update({ description })} />
       <TextField label="Texte du bouton" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-      <LinkPicker label="Lien du bouton" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
+      <LinkPicker label="Lien du bouton (ou de l’image)" value={value.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
       <ColorField label="Fond" value={value.bg} onChange={(bg) => update({ bg })} />
       <ImagePicker
-        label="Image (facultative) — affichée à côté du texte"
+        label="Image (facultative) — à côté du texte, ou seule en bannière pleine largeur"
         imageId={value.bgImage.id}
         imageUrl={value.bgImage.url}
         onChange={(id, url) => update({ bgImage: { id, url } })}

@@ -41,6 +41,8 @@ import * as migration_20260923_100000_cta_tile_url from './20260923_100000_cta_t
 import * as migration_20261003_100000_category_image from './20261003_100000_category_image';
 import * as migration_20261003_110000_category_banner from './20261003_110000_category_banner';
 import * as migration_20261003_120000_collection_cards_page from './20261003_120000_collection_cards_page';
+import * as migration_20261013_100000_service_price_list from './20261013_100000_service_price_list';
+import * as migration_20261013_110000_pages_posts_faqs from './20261013_110000_pages_posts_faqs';
 
 export const migrations = [
   {
@@ -262,5 +264,15 @@ export const migrations = [
     up: migration_20261003_120000_collection_cards_page.up,
     down: migration_20261003_120000_collection_cards_page.down,
     name: '20261003_120000_collection_cards_page'
+  },
+  {
+    up: migration_20261013_100000_service_price_list.up,
+    down: migration_20261013_100000_service_price_list.down,
+    name: '20261013_100000_service_price_list'
+  },
+  {
+    up: migration_20261013_110000_pages_posts_faqs.up,
+    down: migration_20261013_110000_pages_posts_faqs.down,
+    name: '20261013_110000_pages_posts_faqs'
   },
 ];
