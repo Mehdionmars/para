@@ -102,6 +102,26 @@ function isRouteHandler(pathname: string) {
   return pathname === "/api" || pathname.startsWith("/api/");
 }
 
+function isPreviewPath(pathname: string) {
+  return pathname === PREVIEW_PREFIX || pathname.startsWith(`${PREVIEW_PREFIX}/`);
+}
+
+/**
+ * Whether this request was made from a page of the storefront preview. The
+ * Referer carries the full path on a same-origin request under the
+ * site's strict-origin-when-cross-origin policy (next.config.ts).
+ */
+function cameFromPreview(request: NextRequest) {
+  const referer = request.headers.get("referer");
+  if (!referer) return false;
+  try {
+    const from = new URL(referer);
+    return from.hostname.toLowerCase() === requestHost(request) && isPreviewPath(from.pathname);
+  } catch {
+    return false;
+  }
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const adminHost = isAdminHost(request);
@@ -115,14 +135,26 @@ export function proxy(request: NextRequest) {
   // is to escape it: the builder's iframe asked the admin host for "/" and
   // the rewrite below handed it /dashboard, so the builder previewed itself
   // instead of the shop.
-  //
-  // Links inside the previewed page still point at the shop's own paths, so
-  // clicking one on the admin host lands in the dashboard's 404. The preview
-  // is for looking at a draft, not for browsing it.
-  if (pathname === PREVIEW_PREFIX || pathname.startsWith(`${PREVIEW_PREFIX}/`)) {
+  if (isPreviewPath(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = pathname.slice(PREVIEW_PREFIX.length) || "/";
     return NextResponse.rewrite(url);
+  }
+
+  // A link clicked inside the preview. The shop's links point at its own
+  // paths (/produit/…), and on the admin host the branch below turned that
+  // into /dashboard/produit/… — the dashboard's "fiche introuvable" inside
+  // the builder. Sent back under the prefix, the page stays the shop's.
+  // Client-side navigations follow the redirect too: Next reads
+  // `res.redirected` on its RSC fetch and takes the final URL.
+  //
+  // The origin comes from the Host header, not nextUrl: the standalone server
+  // reflects its 0.0.0.0 bind address there (see app/api/dashboard-preview).
+  if (adminHost && !pathname.startsWith("/dashboard") && cameFromPreview(request)) {
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.host;
+    const protocol = request.headers.get("x-forwarded-proto") || request.nextUrl.protocol.replace(":", "");
+    const target = `${PREVIEW_PREFIX}${pathname === "/" ? "" : pathname}${request.nextUrl.search}`;
+    return NextResponse.redirect(new URL(target, `${protocol}://${host}`));
   }
 
   // ------------------------------------------------------------
