@@ -48,7 +48,7 @@ Consequence: the shop's real substance is **concerns** — acné, cicatrices, ch
 
 ## Brand Commitments
 
-- Name **Para d'Hiver**. Wordmark set in italic (user decision).
+- Name **Para d'Hiver**. Wordmark set in Comfortaa, lowercase — "para d'hiver" (user decision, 2026-10-15; replaces the earlier italic Alta).
 - Logo: a circular badge, teal ring, bare winter tree, on a near-white ground.
 - Storefront brand colours in use: teal `#008aa5`, plum `#5e4074`, a two-tier red (`#FF514D` / `#D0342F`).
 - Interface language is French (`fr-MA`).
