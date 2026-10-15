@@ -300,9 +300,16 @@ const GLOBAL_ITEMS = [
 type GlobalItemKey = (typeof GLOBAL_ITEMS)[number]["key"];
 type BuilderTab = "home" | "navigation" | "theme" | "global";
 
-/** Where the builder opens. `?tab=global&panel=logo` is what the sidebar's
- * "Logo" link points at; anything unrecognised opens the default view. */
-export type BuilderEntry = { tab?: string; panel?: string };
+/** Where the builder opens. `?tab=global&panel=logo` and
+ * `?tab=home&section=coffrets` are what the sidebar's "Logo" and "Coffrets &
+ * cadeaux" links point at; anything unrecognised opens the default view. */
+export type BuilderEntry = { tab?: string; panel?: string; section?: string };
+
+/** The home section an entry asks to open, if it names one the draft has. */
+function entrySection(entry: BuilderEntry | undefined, draft: HomeDraft): SectionEntryKey | null {
+  if (!entry?.section) return null;
+  return draft.sections.find((s) => s.key === entry.section)?.key ?? null;
+}
 
 function resolveEntry(entry: BuilderEntry | undefined): { tab: BuilderTab; panel: GlobalItemKey } {
   const tabs: BuilderTab[] = ["home", "navigation", "theme", "global"];
@@ -359,22 +366,9 @@ export function StorefrontBuilder({
 }) {
   const [activeTab, setActiveTab] = useState<BuilderTab>(() => resolveEntry(entry).tab);
   const [globalSelectedKey, setGlobalSelectedKey] = useState<GlobalItemKey>(() => resolveEntry(entry).panel);
-  // A new entry from the URL (the sidebar's "Logo" link clicked while the
-  // builder is already open) moves to it. Adjusted during render rather than
-  // by remounting, so unsaved edits in the drafts survive the jump.
-  const entryKey = `${entry?.tab ?? ""}|${entry?.panel ?? ""}`;
-  const [seenEntryKey, setSeenEntryKey] = useState(entryKey);
-  if (entryKey !== seenEntryKey) {
-    setSeenEntryKey(entryKey);
-    if (entry?.tab) {
-      const next = resolveEntry(entry);
-      setActiveTab(next.tab);
-      setGlobalSelectedKey(next.panel);
-    }
-  }
   const [navSelectedIndex, setNavSelectedIndex] = useState<number>(0);
 
-  const [selectedKey, setSelectedKey] = useState<SectionEntryKey | null>(null);
+  const [selectedKey, setSelectedKey] = useState<SectionEntryKey | null>(() => entrySection(entry, initialDraft));
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [viewport, setViewport] = useState<keyof typeof VIEWPORTS>("desktop");
   const [previewNonce, setPreviewNonce] = useState(0);
@@ -401,6 +395,22 @@ export function StorefrontBuilder({
   });
 
   const { draft, setDraft, undo, redo } = home;
+
+  // A new entry from the URL (a sidebar shortcut clicked while the
+  // builder is already open) moves to it. Adjusted during render rather than
+  // by remounting, so unsaved edits in the drafts survive the jump.
+  const entryKey = `${entry?.tab ?? ""}|${entry?.panel ?? ""}|${entry?.section ?? ""}`;
+  const [seenEntryKey, setSeenEntryKey] = useState(entryKey);
+  if (entryKey !== seenEntryKey) {
+    setSeenEntryKey(entryKey);
+    if (entry?.tab) {
+      const next = resolveEntry(entry);
+      setActiveTab(next.tab);
+      setGlobalSelectedKey(next.panel);
+      const section = entrySection(entry, draft);
+      if (section) setSelectedKey(section);
+    }
+  }
 
   const update = useCallback(
     (patch: Partial<HomeDraft>) => setDraft((prev) => ({ ...prev, ...patch })),

@@ -3,6 +3,7 @@
 import {
   Bell,
   Boxes,
+  Gift,
   Image as ImageIcon,
   LayoutDashboard,
   LayoutTemplate,
@@ -118,6 +119,12 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       // A shortcut into the builder's Global tab: "where do I change my logo"
       // had no answer in this list.
       { label: "Logo", href: "/dashboard/storefront?tab=global&panel=logo", icon: ImageIcon, visible: canEditContent },
+      {
+        label: "Coffrets & cadeaux",
+        href: "/dashboard/storefront?tab=home&section=coffrets",
+        icon: Gift,
+        visible: canEditContent,
+      },
       { label: "Coupons", href: "/dashboard/coupons", icon: TicketPercent, visible: canEditContent },
     ],
   },

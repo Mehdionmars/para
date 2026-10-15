@@ -4,9 +4,9 @@ import { payloadFetch } from "@/lib/dashboard/payload";
 import { canEditContent } from "@/lib/dashboard/roles";
 import { mapHomeDocToDraft, mapNavigationDocToDraft, mapSiteChromeDocToDraft, mapThemeDocToDraft } from "@/lib/dashboard/storefront-mapping";
 
-export default async function StorefrontPage({ searchParams }: { searchParams: Promise<{ tab?: string; panel?: string }> }) {
+export default async function StorefrontPage({ searchParams }: { searchParams: Promise<{ tab?: string; panel?: string; section?: string }> }) {
   await requireRole(canEditContent);
-  const { tab, panel } = await searchParams;
+  const { tab, panel, section } = await searchParams;
 
   const [homeRes, chromeRes, themeRes, navigationRes, brandsRes, categoriesRes, instagramRes] = await Promise.all([
     payloadFetch("/api/globals/home?draft=true&depth=2"),
@@ -63,7 +63,7 @@ export default async function StorefrontPage({ searchParams }: { searchParams: P
         initialNavigationDraft={mapNavigationDocToDraft(navigationDoc)}
         initialNavigationStatus={navigationDoc._status || "draft"}
         instagramPostCount={instagramPostCount}
-        entry={{ tab, panel }}
+        entry={{ tab, panel, section }}
       />
     </div>
   );
