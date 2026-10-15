@@ -161,42 +161,55 @@ export function TopBarEditor({
   );
 }
 
-// ---- Header (logo + search + actions) -------------------------------------
+// ---- Logo -----------------------------------------------------------------
+
+/**
+ * The logo, on its own panel. It used to be the first block of the Header
+ * editor, and editors looking for "le logo" never thought to open "Header".
+ * One logo serves the header and the footer alike.
+ */
+export function LogoEditor({ logo, onChange }: { logo: LogoDraft; onChange: (v: LogoDraft) => void }) {
+  const update = (patch: Partial<LogoDraft>) => onChange({ ...logo, ...patch });
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <EditorHeading
+          title="Logo"
+          description="Affiché en haut de chaque page et dans le pied de page. Une image carrée (PNG ou SVG, fond transparent) rend le mieux."
+        />
+        <FieldGroup>
+          <ImagePicker label="Image du logo" imageId={logo.image.id} imageUrl={logo.image.url} onChange={(id, url) => update({ image: { id, url } })} />
+          <TextField label="Texte à côté du logo" value={logo.wordmark} onChange={(wordmark) => update({ wordmark })} />
+          <TextField label="Lien au clic" value={logo.href} onChange={(href) => update({ href })} />
+        </FieldGroup>
+      </div>
+    </div>
+  );
+}
+
+// ---- Header (search + actions) ---------------------------------------------
 
 export function HeaderEditor({
-  logo,
   headerSearch,
   headerActions,
-  onChangeLogo,
   onChangeHeaderSearch,
   onChangeHeaderActions,
   appearance,
   onChangeAppearance,
 }: {
-  logo: LogoDraft;
   headerSearch: HeaderSearchDraft;
   headerActions: HeaderActionDraft[];
   appearance: ChromeAppearanceProps["appearance"];
   onChangeAppearance: ChromeAppearanceProps["onChangeAppearance"];
-  onChangeLogo: (v: LogoDraft) => void;
   onChangeHeaderSearch: (v: HeaderSearchDraft) => void;
   onChangeHeaderActions: (v: HeaderActionDraft[]) => void;
 } & ChromeAppearanceProps) {
-  const updateLogo = (patch: Partial<LogoDraft>) => onChangeLogo({ ...logo, ...patch });
   const updateSearch = (patch: Partial<HeaderSearchDraft>) => onChangeHeaderSearch({ ...headerSearch, ...patch });
   const updateAction = (key: string, patch: Partial<HeaderActionDraft>) =>
     onChangeHeaderActions(headerActions.map((a) => (a.key === key ? { ...a, ...patch } : a)));
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <EditorHeading title="Logo" />
-        <FieldGroup>
-          <ImagePicker label="Image du logo" imageId={logo.image.id} imageUrl={logo.image.url} onChange={(id, url) => updateLogo({ image: { id, url } })} />
-          <TextField label="Texte du logo" value={logo.wordmark} onChange={(wordmark) => updateLogo({ wordmark })} />
-          <TextField label="Lien" value={logo.href} onChange={(href) => updateLogo({ href })} />
-        </FieldGroup>
-      </div>
 
       <div className="border-t border-gray-100 pt-4">
         <EditorHeading title="Recherche" />
