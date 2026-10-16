@@ -209,6 +209,7 @@ export const MAX_DELIVERY_ATTEMPTS = 3;
 
 export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   BACK_IN_STOCK: "Retour en stock",
+  BOOKING_REQUESTED: "Nouveau rendez-vous",
   LOW_STOCK: "Stock faible",
   ORDER_CANCELLED: "Commande annulée",
   ORDER_CONFIRMED: "Commande confirmée",
@@ -250,5 +251,6 @@ export function notificationHref(n: NotificationRow): string | null {
   if (productId) return `/dashboard/products/${productId}`;
   const orderId = typeof n.order === "object" && n.order ? n.order.id : n.order;
   if (orderId) return `/dashboard/orders/${orderId}`;
+  if (n.type === "BOOKING_REQUESTED") return "/dashboard/bookings";
   return null;
 }

@@ -42,7 +42,7 @@ Consequence: the shop's real substance is **concerns** — acné, cicatrices, ch
 - **Catalogue:** 222 products. Two levels — 9 broad categories (Visage, Corps, Cheveux, Solaire, Baby & Mom, Maquillage, Bucco-Dentaire, Compléments alimentaires, Hygiène) and 19 optional aisles (`solaire`, `purifiants`, `chute-de-cheveux`, `anti-age`, `peaux-seches`, `anti-taches`, `peelings-doux`, `cremes-cicatrisantes`, `nettoyants`, `laits-corps`, `shampoings-traitants`, `soins-mains-pieds`, `peaux-sensibles`, `hygiene-intime`, `apres-epilation`, `apres-shampoings`, `demaquillants`, `masques-capillaires`, `cheveux-ongles`). The aisles were derived from this catalogue's own families, not a borrowed tree.
 - **Incomplete:** 139 products are shelved into an aisle; **83 are not**. Several carry a wrong broad category. Some aisles are still empty.
 - Cart, favourites, coupons, order tracking, service booking, Instagram feed, newsletter.
-- **6 services** with a working online booking flow.
+- **8 service families** (64 prices) with online booking: a request is stored as "en attente" and staff confirm it from /dashboard/bookings (since 2026-10-16; before that the booking page stored nothing).
 - Products are not versioned in Payload; globals are. Payload validates an entire global on every write, so one invalid field blocks all saves.
 - Stack is fixed by the existing codebase: Next.js 16 App Router, React 19, TypeScript, Tailwind v4 (CSS-configured), Payload CMS 3, PostgreSQL 16, Cloudinary. Two separate root layouts — the storefront and the dashboard are separate CSS worlds.
 
@@ -61,7 +61,7 @@ Consequence: the shop's real substance is **concerns** — acné, cicatrices, ch
 - Instagram account @paradhiver.
 - Four factual service claims, already published: livraison partout au Maroc (24h à Casablanca); paiement CMI, carte ou à la livraison; produits authentiques via circuit pharmaceutique; pharmaciens joignables 7j/7.
 - The real brand catalogue and real product photography (Cloudinary).
-- 6 real services with real booking.
+- 8 real service families with real, stored booking requests.
 
 **Does not exist — must not be fabricated:**
 - No customer reviews or testimonials anywhere in the product.

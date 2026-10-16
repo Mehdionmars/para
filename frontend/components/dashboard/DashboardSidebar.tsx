@@ -3,6 +3,7 @@
 import {
   Bell,
   Boxes,
+  CalendarDays,
   Gift,
   Image as ImageIcon,
   LayoutDashboard,
@@ -83,6 +84,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Ventes",
     items: [
       { label: "Commandes", href: "/dashboard/orders", icon: ShoppingCart, visible: isStaffUser },
+      { label: "Rendez-vous", href: "/dashboard/bookings", icon: CalendarDays, visible: isStaffUser },
       {
         label: "Factures",
         href: "/dashboard/invoices",
