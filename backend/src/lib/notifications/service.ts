@@ -3,7 +3,7 @@ import type { Payload, PayloadRequest } from 'payload'
 import { runSql, sql } from '../db/exec'
 import type { OrderStatus } from '../orderStatus'
 import { emailProvider, pushProvider, whatsappProvider } from './providers'
-import { renderEmailHtml } from './emailTemplates'
+import { renderEmailHtml, resendTemplateVariables } from './emailTemplates'
 import { renderNotification, templateVariables } from './templates'
 import type {
   DeliveryResult,
@@ -161,11 +161,16 @@ export async function notifyOrderEvent({
 
     let result: DeliveryResult
     if (channel === 'email') {
+      // RESEND_ORDER_TEMPLATE names the published Resend template (id or
+      // alias) order emails are drawn with. Unset, the built-in HTML is sent.
+      const templateId = process.env.RESEND_ORDER_TEMPLATE?.trim()
+      const variables = templateId ? resendTemplateVariables(ctx) : null
       result = await emailProvider.send({
         data: templateVariables(ctx),
         // Null for an event with no customer-facing design; the provider then
         // sends text only rather than an empty shell.
         html: renderEmailHtml(ctx) ?? undefined,
+        ...(templateId && variables ? { resendTemplate: { id: templateId, variables } } : {}),
         subject: rendered.subject,
         template: rendered.emailTemplate,
         text: rendered.text,
