@@ -6359,6 +6359,14 @@ a.brand-wall-cell:focus-visible {
   padding: clamp(48px, 6vw, 88px) var(--sec-pad-x) 0;
 }
 
+/* Right under the banner, the first shelf adds no space of its own: the
+   banner's bottom margin is the one gap. Both together stacked 128px of
+   white between the banner and "Visage". Without a banner the shelf keeps
+   its full top padding, which then separates it from the header. */
+.pdh-hero ~ .shelves > .shelf:first-child {
+  padding-top: 0;
+}
+
 .shelf-inner {
   max-width: 1280px;
   margin: 0 auto;
