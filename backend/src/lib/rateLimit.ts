@@ -89,6 +89,12 @@ export const RATE_LIMITS: Record<string, RateLimitRule> = {
   // Public, and it registers a row per call.
   '/api/push/subscribe': { limit: 10, windowSeconds: 60 },
 
+  // Public, and each call stores a booking and emails the shop. Loose for the
+  // same CGNAT reason as checkout; the slot index, not this, stops doubles.
+  '/api/booking-requests': { limit: 20, windowSeconds: 60 },
+  // Read on every visit to a booking page, and again after a slot is taken.
+  '/api/booking-requests/availability': { limit: 120, windowSeconds: 60 },
+
   // File-parsing endpoints. Staff-only and role-gated, but each request
   // loads a spreadsheet into memory, so the ceiling bounds a runaway client
   // rather than an attacker. Well above what a real import performs.

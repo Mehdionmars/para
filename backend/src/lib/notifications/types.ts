@@ -13,6 +13,8 @@ export const NOTIFICATION_EVENTS = [
   'LOW_STOCK',
   'OUT_OF_STOCK',
   'BACK_IN_STOCK',
+  // A customer asked for a service appointment — see lib/notifications/booking.ts.
+  'BOOKING_REQUESTED',
 ] as const
 
 export type NotificationEvent = (typeof NOTIFICATION_EVENTS)[number]
@@ -20,9 +22,10 @@ export type NotificationEvent = (typeof NOTIFICATION_EVENTS)[number]
 export const STOCK_EVENTS = ['LOW_STOCK', 'OUT_OF_STOCK', 'BACK_IN_STOCK'] as const
 export type StockNotificationEvent = (typeof STOCK_EVENTS)[number]
 
-/** Order-lifecycle events. Stock alerts carry their own copy (they describe a
- * product, not an order) and never go through the order templates. */
-export type OrderNotificationEvent = Exclude<NotificationEvent, StockNotificationEvent>
+/** Order-lifecycle events. Stock and booking alerts carry their own copy (they
+ * describe a product or an appointment, not an order) and never go through
+ * the order templates. */
+export type OrderNotificationEvent = Exclude<NotificationEvent, StockNotificationEvent | 'BOOKING_REQUESTED'>
 
 export const NOTIFICATION_CHANNELS = ['email', 'whatsapp', 'push', 'internal'] as const
 export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number]
