@@ -7,6 +7,7 @@ import {
   type StatusSlice,
 } from "@/components/dashboard/overview/OverviewCharts";
 import { OverviewTabs, type RecentProduct } from "@/components/dashboard/overview/OverviewTabs";
+import { QuickAccess } from "@/components/dashboard/overview/QuickAccess";
 import { TodoPanel, type SnapshotItem, type TodoItem } from "@/components/dashboard/overview/TodoPanel";
 import { UpcomingBookings } from "@/components/dashboard/overview/UpcomingBookings";
 import { StatsRow, type Kpi } from "@/components/dashboard/stats/StatsRow";
@@ -15,7 +16,7 @@ import type { Booking } from "@/lib/dashboard/bookings-types";
 import { listRecentCoupons, type Coupon } from "@/lib/dashboard/coupons";
 import { dayKey, money, shortDate } from "@/lib/dashboard/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS } from "@/lib/dashboard/orders-types";
-import { payloadFetch, payloadFetchAll } from "@/lib/dashboard/payload";
+import { getSessionUser, payloadFetch, payloadFetchAll } from "@/lib/dashboard/payload";
 import { mediaSrc } from "@/lib/mediaSrc";
 import type { Product } from "@/lib/dashboard/products-types";
 
@@ -267,6 +268,9 @@ export default async function DashboardOverviewPage() {
   // list is passed on as null so the panel says it could not load, rather than
   // rendering empty and reading as "nothing here yet".
   const today = casablancaToday();
+  // Already resolved by the layout's guard; read again for the roles the
+  // quick-access grid filters by.
+  const user = await getSessionUser();
   const [productStats, orders, recentProducts, coupons, bookingsResult] = await Promise.allSettled([
     getProductStats(),
     getOrders(),
@@ -407,6 +411,8 @@ export default async function DashboardOverviewPage() {
         title="Vue d'ensemble"
         description="Para d'Hiver — les sept derniers jours, comparés aux sept précédents."
       />
+
+      <QuickAccess roles={user?.roles ?? []} />
 
       {allOrders === null && (
         <p className="flex items-center gap-2 rounded-xl border border-warning/25 bg-warning/10 px-4 py-2.5 text-sm text-warning">
