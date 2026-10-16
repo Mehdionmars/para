@@ -38,9 +38,9 @@ export type RowAction =
   | "unfeature"
   | "delete";
 
-const money = (n: number) => `${n.toLocaleString("fr-FR")} MAD`;
+export const money = (n: number) => `${n.toLocaleString("fr-FR")} MAD`;
 
-const STOCK_BADGE = {
+export const STOCK_BADGE = {
   low: { label: "Faible", variant: "warning" as const },
   ok: { label: "En stock", variant: "success" as const },
   out: { label: "Rupture", variant: "danger" as const },
@@ -53,17 +53,17 @@ const SHOWCASE_BADGE = {
   "out-of-stock": { label: "Rupture", variant: "danger" as const },
 };
 
-function brandName(p: Product): string {
+export function brandName(p: Product): string {
   return typeof p.brand === "object" && p.brand ? p.brand.name : "";
 }
 
-function imageUrl(p: Product): string | null {
+export function imageUrl(p: Product): string | null {
   // Payload reports a relative URL; handing it straight to next/image made
   // it resolve against the dashboard, where no such route exists (400).
   return typeof p.image === "object" && p.image?.url ? mediaSrc(p.image.url) : null;
 }
 
-function statusBadge(p: Product) {
+export function statusBadge(p: Product) {
   if (p.discontinued) return { label: "Archivé", variant: "default" as const };
   return p.isPublished
     ? { label: "Publié", variant: "info" as const }
@@ -343,7 +343,7 @@ export function ProductsTable({
   );
 }
 
-function Thumbnail({ product, size }: { product: Product; size: number }) {
+export function Thumbnail({ product, size }: { product: Product; size: number }) {
   const url = imageUrl(product);
   return (
     <div
@@ -400,7 +400,7 @@ function HeaderCell({
   );
 }
 
-function RowActions({
+export function RowActions({
   product,
   canEdit,
   canDelete,
