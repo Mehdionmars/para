@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { renderEmailHtml } from '@/lib/notifications/emailTemplates'
+import { renderEmailHtml, resendTemplateVariables } from '@/lib/notifications/emailTemplates'
 import { emailProvider } from '@/lib/notifications/providers'
 import { resendProvider } from '@/lib/notifications/providers/resend'
 import type { NotificationContext } from '@/lib/notifications/types'
@@ -140,6 +140,53 @@ describe('Email client', () => {
     // `template` et `data` ne font pas partie du schéma Resend et seraient rejetés.
     expect(body.template).toBeUndefined()
     expect(body.data).toBeUndefined()
+  })
+
+  it('avec un template Resend : envoie le template et ses variables, sans html ni texte', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.EMAIL_FROM = "Para d'Hiver <commandes@paradhiver.test>"
+    fetchSpy.mockResolvedValue(
+      new Response(JSON.stringify({ id: 'msg_123' }), { headers: { 'Content-Type': 'application/json' }, status: 200 }),
+    )
+
+    const variables = resendTemplateVariables(ctx)!
+    const result = await resendProvider.send({
+      data: {},
+      html: '<p>Bonjour</p>',
+      resendTemplate: { id: 'commande-mise-a-jour', variables },
+      subject: 'Commande expédiée',
+      template: 'order-shipped',
+      text: 'Bonjour',
+      to: 'client@paradhiver.test',
+    })
+
+    expect(result.ok).toBe(true)
+    const body = JSON.parse((fetchSpy.mock.calls[0] as [string, RequestInit])[1].body as string)
+    // L'API refuse html/text à côté d'un template.
+    expect(body.html).toBeUndefined()
+    expect(body.text).toBeUndefined()
+    expect(body.template.id).toBe('commande-mise-a-jour')
+    expect(body.template.variables.ORDER_NUMBER).toBe('PDH-260822-AB12')
+    expect(body.subject).toBe('Commande expédiée')
+  })
+
+  it('variables du template : contenu de la commande, nom échappé, pas de suivi pour une commande close', () => {
+    const shipped = resendTemplateVariables(ctx)!
+    expect(shipped.HEADING).toBe('Votre commande est en route')
+    expect(shipped.MESSAGE.startsWith('Votre commande vient de quitter')).toBe(true)
+    expect(shipped.ORDER_TOTAL).toBe('489 MAD')
+    expect(shipped.ITEM_COUNT).toBe('3 articles')
+    expect(shipped.CTA_LABEL).toBe('Suivre ma commande')
+    expect(shipped.CTA_URL).toMatch(/\/suivi-commande$/)
+
+    const hostile = resendTemplateVariables({ ...ctx, customerName: '<img src=x onerror=alert(1)>' })!
+    expect(hostile.CUSTOMER_NAME).not.toContain('<')
+
+    const delivered = resendTemplateVariables({ ...ctx, event: 'ORDER_DELIVERED', status: 'delivered' })!
+    expect(delivered.CTA_LABEL).not.toBe('Suivre ma commande')
+
+    // Sans nom, la variable est omise : le template salue avec sa valeur par défaut.
+    expect(resendTemplateVariables({ ...ctx, customerName: '' })!.CUSTOMER_NAME).toBeUndefined()
   })
 
   it('remonte le message d’erreur de Resend, pas un code nu', async () => {

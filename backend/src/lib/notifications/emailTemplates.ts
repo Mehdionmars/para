@@ -149,80 +149,126 @@ function orderDetail(ctx: NotificationContext): string {
  * event has no customer message (nothing is invented to fill a gap).
  */
 export function renderEmailHtml(ctx: NotificationContext): string | null {
+  const content = orderEmailContent(ctx)
+  if (!content) return null
   const name = ctx.customerName || 'Bonjour'
-  const track = { ctaLabel: 'Suivre ma commande', ctaPath: '/suivi-commande' }
+  return layout({
+    block: {
+      ctaLabel: content.cta?.label,
+      ctaPath: content.cta?.path,
+      detail: orderDetail(ctx),
+      heading: content.heading,
+      intro: `${name}, ${content.message}`,
+    },
+    preheader: content.preheader,
+  })
+}
 
-  const blocks: Partial<Record<OrderNotificationEvent, { block: Block; preheader: string }>> = {
+type OrderEmailContent = {
+  heading: string
+  /** The body sentence, without the greeting: the HTML layout prefixes the
+   * customer's name, the Resend template has its own "Bonjour …" line. */
+  message: string
+  preheader: string
+  /** Only for orders still on their way; a closed order is not tracked. */
+  cta?: { label: string; path: string }
+}
+
+/**
+ * What each order email says — one copy, shared by the built-in HTML layout
+ * and the Resend template, so the two can never tell a customer different
+ * things. Null for an event with no customer message.
+ */
+export function orderEmailContent(ctx: NotificationContext): OrderEmailContent | null {
+  const track = { label: 'Suivre ma commande', path: '/suivi-commande' }
+
+  const copy: Partial<Record<OrderNotificationEvent, OrderEmailContent>> = {
     ORDER_CANCELLED: {
-      block: {
-        detail: orderDetail(ctx),
-        heading: 'Votre commande a été annulée',
-        intro: `${name}, votre commande ${ctx.orderNumber} a été annulée et les articles ont été remis en stock. Si vous n'êtes pas à l'origine de cette annulation, répondez à cet email.`,
-      },
+      heading: 'Votre commande a été annulée',
+      message: `votre commande ${ctx.orderNumber} a été annulée et les articles ont été remis en stock. Si vous n'êtes pas à l'origine de cette annulation, répondez à cet email.`,
       preheader: `Commande ${ctx.orderNumber} annulée`,
     },
     ORDER_CONFIRMED: {
-      block: {
-        ...track,
-        detail: orderDetail(ctx),
-        heading: 'Votre commande est confirmée',
-        intro: `${name}, nous avons confirmé votre commande. Nous la préparons dans nos locaux et vous préviendrons dès son expédition.`,
-      },
+      cta: track,
+      heading: 'Votre commande est confirmée',
+      message: 'nous avons confirmé votre commande. Nous la préparons dans nos locaux et vous préviendrons dès son expédition.',
       preheader: `Commande ${ctx.orderNumber} confirmée · ${money(ctx.total)}`,
     },
     ORDER_CREATED: {
-      block: {
-        ...track,
-        detail: orderDetail(ctx),
-        heading: 'Merci pour votre commande',
-        intro: `${name}, nous avons bien reçu votre commande. Vous recevrez un message dès qu'elle sera confirmée par notre équipe.`,
-      },
+      cta: track,
+      heading: 'Merci pour votre commande',
+      message: "nous avons bien reçu votre commande. Vous recevrez un message dès qu'elle sera confirmée par notre équipe.",
       preheader: `Commande ${ctx.orderNumber} reçue · ${money(ctx.total)}`,
     },
     ORDER_DELIVERED: {
-      block: {
-        detail: orderDetail(ctx),
-        heading: 'Votre commande a été livrée',
-        intro: `${name}, votre commande vous a été remise. Merci de votre confiance — nous serions heureux d'avoir votre avis sur vos produits.`,
-      },
+      heading: 'Votre commande a été livrée',
+      message: "votre commande vous a été remise. Merci de votre confiance — nous serions heureux d'avoir votre avis sur vos produits.",
       preheader: `Commande ${ctx.orderNumber} livrée`,
     },
     ORDER_PREPARING: {
-      block: {
-        ...track,
-        detail: orderDetail(ctx),
-        heading: 'Votre commande est en préparation',
-        intro: `${name}, nos pharmaciens préparent actuellement votre commande. Elle partira très prochainement.`,
-      },
+      cta: track,
+      heading: 'Votre commande est en préparation',
+      message: 'nos pharmaciens préparent actuellement votre commande. Elle partira très prochainement.',
       preheader: `Commande ${ctx.orderNumber} en préparation`,
     },
     ORDER_REFUNDED: {
-      block: {
-        detail: orderDetail(ctx),
-        heading: 'Votre remboursement a été traité',
-        intro: `${name}, le remboursement de votre commande a été traité pour un montant de ${money(ctx.total)}.`,
-      },
+      heading: 'Votre remboursement a été traité',
+      message: `le remboursement de votre commande a été traité pour un montant de ${money(ctx.total)}.`,
       preheader: `Remboursement de la commande ${ctx.orderNumber}`,
     },
     ORDER_RETURNED: {
-      block: {
-        detail: orderDetail(ctx),
-        heading: 'Nous avons reçu votre retour',
-        intro: `${name}, votre retour a bien été enregistré. Le remboursement suit sous quelques jours.`,
-      },
+      heading: 'Nous avons reçu votre retour',
+      message: 'votre retour a bien été enregistré. Le remboursement suit sous quelques jours.',
       preheader: `Retour de la commande ${ctx.orderNumber} enregistré`,
     },
     ORDER_SHIPPED: {
-      block: {
-        ...track,
-        detail: orderDetail(ctx),
-        heading: 'Votre commande est en route',
-        intro: `${name}, votre commande vient de quitter notre parapharmacie. Vous pouvez suivre son acheminement à tout moment.`,
-      },
+      cta: track,
+      heading: 'Votre commande est en route',
+      message: 'votre commande vient de quitter notre parapharmacie. Vous pouvez suivre son acheminement à tout moment.',
       preheader: `Commande ${ctx.orderNumber} expédiée`,
     },
   }
 
-  const entry = blocks[ctx.event]
-  return entry ? layout(entry) : null
+  return copy[ctx.event] ?? null
+}
+
+/**
+ * The variables of the Resend template "commande-mise-a-jour" for an order
+ * event, or null when the event has no customer message.
+ *
+ * Every value is HTML-escaped here. The template inserts them with triple
+ * braces, and Resend's documentation does not say whether it escapes them:
+ * a customer name is user-supplied and must never reach the markup raw.
+ *
+ * The template always draws a button. A closed order (cancelled, delivered,
+ * refunded, returned) is not tracked, so its button leads somewhere useful
+ * instead — never "Suivre ma commande".
+ */
+export function resendTemplateVariables(ctx: NotificationContext): Record<string, string> | null {
+  const content = orderEmailContent(ctx)
+  if (!content) return null
+
+  const closedCta =
+    ctx.event === 'ORDER_DELIVERED'
+      ? { label: 'Découvrir nos produits', path: '/catalogue' }
+      : { label: 'Nous contacter', path: '/contact' }
+  const cta = content.cta ?? closedCta
+  const message = content.message.charAt(0).toUpperCase() + content.message.slice(1)
+  const items = `${ctx.itemCount} article${ctx.itemCount > 1 ? 's' : ''}`
+
+  const vars: Record<string, string> = {
+    CTA_LABEL: esc(cta.label),
+    CTA_URL: esc(storefrontUrl(cta.path)),
+    EYEBROW: 'Votre commande',
+    HEADING: esc(content.heading),
+    ITEM_COUNT: esc(items),
+    MESSAGE: esc(message),
+    ORDER_NUMBER: esc(ctx.orderNumber),
+    ORDER_TOTAL: esc(money(ctx.total)),
+    PREHEADER: esc(content.preheader),
+  }
+  // Left out when unknown, so the template's own fallback ("cher client")
+  // greets the customer instead of an empty "Bonjour ,".
+  if (ctx.customerName?.trim()) vars.CUSTOMER_NAME = esc(ctx.customerName.trim())
+  return vars
 }

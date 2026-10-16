@@ -39,11 +39,13 @@ export const resendProvider: EmailNotificationProvider = {
       const res = await fetch('https://api.resend.com/emails', {
         body: JSON.stringify({
           from: env('EMAIL_FROM'),
-          // Resend takes the content directly; `template`/`data` are not part
-          // of its schema and would be rejected.
-          ...(payload.html ? { html: payload.html } : {}),
+          // A published Resend template replaces the body: the API refuses
+          // `html`/`text` alongside `template`. Otherwise the content is sent
+          // directly — our `template`/`data` fields are not part of its schema.
+          ...(payload.resendTemplate
+            ? { template: { id: payload.resendTemplate.id, variables: payload.resendTemplate.variables } }
+            : { ...(payload.html ? { html: payload.html } : {}), text: payload.text }),
           subject: payload.subject,
-          text: payload.text,
           to: [payload.to],
         }),
         headers: {

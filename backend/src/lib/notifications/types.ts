@@ -100,6 +100,11 @@ export type EmailPayload = {
   /** Rendered HTML body. Absent for messages with no customer-facing design
    * (staff stock alerts), which then go out as text only. */
   html?: string
+  /** A published Resend template and its variables. Only the Resend provider
+   * reads it, and it then sends the template instead of `html`/`text` (the
+   * API refuses both together); every other provider ignores it and sends
+   * `html`. */
+  resendTemplate?: { id: string; variables: Record<string, string> }
 }
 
 export type WhatsAppPayload = {
