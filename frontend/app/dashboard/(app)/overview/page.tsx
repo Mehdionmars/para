@@ -419,8 +419,8 @@ export default async function DashboardOverviewPage() {
       )}
 
       {/* Every panel is a widget of one board, which the operator can
-          rearrange with the pencil. Sizes tile a six-column grid exactly:
-          4 × 1 + 4 × 4 + 2 × 2 = 24 cells, four rows, no hole. */}
+          rearrange with the pencil. Sizes tile the four-column grid exactly:
+          4 × 1 + 4 × 4 + 2 × 2 = 24 cells, six cell rows, three bands. */}
       <OverviewBoard
         widgets={[
           ...headline.map((kpi, i) => ({

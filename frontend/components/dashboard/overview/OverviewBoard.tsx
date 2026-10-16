@@ -118,8 +118,11 @@ export function OverviewBoard({ widgets }: { widgets: BoardWidget[] }) {
         items={items}
         onChange={onChange}
         editable={editing}
-        maxColumns={6}
-        cellSize={210}
+        // Four columns of landscape cells: the board reads as three bands
+        // of blocks, not two crowded ones.
+        maxColumns={4}
+        cellSize={300}
+        rowRatio={0.6}
         // 24px, not the grid's 12: at 12 the cards read as one welded slab.
         gap={24}
         radius={16}

@@ -19,8 +19,9 @@
  * - Styling uses theme tokens (`bg-card`, `ring-border`, `text-foreground`),
  *   so it follows light and dark themes.
  *
- * Vendored as published; only the user-facing strings (the screen-reader
- * hint and the size names) are in French, the dashboard's language.
+ * Vendored as published, with two local changes: the user-facing strings
+ * (the screen-reader hint and the size names) are in French, the
+ * dashboard's language, and `rowRatio` allows cells that are not square.
  */
 
 import {
@@ -69,6 +70,11 @@ export interface DraggableWidgetGridProps {
 	cellSize?: number
 	/** Gap between widgets in px. */
 	gap?: number
+	/**
+	 * Row height as a fraction of the column width. 1 (the default) keeps
+	 * square cells; below 1 gives landscape cells. Local addition.
+	 */
+	rowRatio?: number
 	/** Corner radius of a widget in px. */
 	radius?: number
 	className?: string
@@ -662,6 +668,7 @@ export function DraggableWidgetGrid({
 	cellSize = 215,
 	gap = 12,
 	radius = 24,
+	rowRatio = 1,
 	className = '',
 }: DraggableWidgetGridProps) {
 	const [items, setItems] = useState(() => initialItems ?? DEFAULT_ITEMS)
@@ -716,7 +723,7 @@ export function DraggableWidgetGrid({
 			const { unit } = latest.current.metrics
 			const rect = el?.getBoundingClientRect()
 			const colStep = unit + gap
-			const rowStep = Math.round(unit) + gap
+			const rowStep = Math.round(unit * rowRatio) + gap
 			const left = (rect?.left ?? 0) + box.col * colStep
 			const top = (rect?.top ?? 0) + box.row * rowStep
 			return {
@@ -726,7 +733,7 @@ export function DraggableWidgetGrid({
 				bottom: top + box.h * rowStep - gap,
 			}
 		},
-		[gap],
+		[gap, rowRatio],
 	)
 
 	/* Drag state. React only re-renders on lift, reorder and drop. */
@@ -908,10 +915,10 @@ export function DraggableWidgetGrid({
 					style={{
 						gap,
 						gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-						// Square cells: row height equals column width.
+						// Row height is the column width times rowRatio (square at 1).
 						gridAutoRows: metrics.unit
-							? `${Math.round(metrics.unit)}px`
-							: `minmax(${cellSize * 0.75}px, auto)`,
+							? `${Math.round(metrics.unit * rowRatio)}px`
+							: `minmax(${cellSize * 0.75 * rowRatio}px, auto)`,
 					}}>
 					{domOrder.current.map((id) => {
 						const item = byId.get(id)
