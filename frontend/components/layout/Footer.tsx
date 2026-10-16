@@ -113,7 +113,7 @@ export function Footer({ columns = FOOTER_COLUMNS, logo = LOGO }: { columns?: Fo
             <span style={{ position: "relative", width: 64, height: 64, flex: "none" }}>
               <CloudinaryImage preset="brand" src={logo.img} alt="" fill sizes="64px" style={{ objectFit: "contain" }} />
             </span>
-            <span style={{ fontFamily: "var(--font-alta)", fontWeight: 300, fontSize: 15, letterSpacing: ".3em" }}>{logo.wordmark}</span>
+            <span style={{ fontFamily: "var(--font-wordmark), var(--font-alta), sans-serif", fontWeight: 400, fontSize: 17, letterSpacing: ".04em", textTransform: "lowercase" }}>{logo.wordmark}</span>
           </Link>
           <p style={{ fontSize: 12.5, lineHeight: 1.8, opacity: 0.72, maxWidth: 300, margin: "16px 0 0" }}>
             Parapharmacie en ligne. Produits authentiques, conseils de pharmaciens, livraison partout au Maroc.

@@ -43,6 +43,7 @@ import * as migration_20261003_110000_category_banner from './20261003_110000_ca
 import * as migration_20261003_120000_collection_cards_page from './20261003_120000_collection_cards_page';
 import * as migration_20261013_100000_service_price_list from './20261013_100000_service_price_list';
 import * as migration_20261013_110000_pages_posts_faqs from './20261013_110000_pages_posts_faqs';
+import * as migration_20261016_100000_bookings from './20261016_100000_bookings';
 
 export const migrations = [
   {
@@ -274,5 +275,10 @@ export const migrations = [
     up: migration_20261013_110000_pages_posts_faqs.up,
     down: migration_20261013_110000_pages_posts_faqs.down,
     name: '20261013_110000_pages_posts_faqs'
+  },
+  {
+    up: migration_20261016_100000_bookings.up,
+    down: migration_20261016_100000_bookings.down,
+    name: '20261016_100000_bookings'
   },
 ];

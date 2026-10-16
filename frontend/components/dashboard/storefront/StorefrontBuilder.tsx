@@ -22,7 +22,7 @@ import {
   SECTION_EDITORS,
   type BrandOption,
 } from "@/components/dashboard/storefront/sectionEditors";
-import { FooterColumnsEditor, HeaderEditor, ThemeEditor, TopBarEditor } from "@/components/dashboard/storefront/globalEditors";
+import { FooterColumnsEditor, HeaderEditor, LogoEditor, ThemeEditor, TopBarEditor } from "@/components/dashboard/storefront/globalEditors";
 import { CategoryStripEditor, NavigationItemEditor } from "@/components/dashboard/storefront/NavigationEditors";
 import { NavigationList } from "@/components/dashboard/storefront/NavigationList";
 import { SectionList } from "@/components/dashboard/storefront/SectionList";
@@ -292,11 +292,31 @@ function SectionEditor({
 }
 
 const GLOBAL_ITEMS = [
+  { key: "logo", label: "Logo" },
   { key: "topBar", label: "Top Bar" },
   { key: "header", label: "Header" },
   { key: "footer", label: "Footer" },
 ] as const;
 type GlobalItemKey = (typeof GLOBAL_ITEMS)[number]["key"];
+type BuilderTab = "home" | "navigation" | "theme" | "global";
+
+/** Where the builder opens. `?tab=global&panel=logo` and
+ * `?tab=home&section=coffrets` are what the sidebar's "Logo" and "Coffrets &
+ * cadeaux" links point at; anything unrecognised opens the default view. */
+export type BuilderEntry = { tab?: string; panel?: string; section?: string };
+
+/** The home section an entry asks to open, if it names one the draft has. */
+function entrySection(entry: BuilderEntry | undefined, draft: HomeDraft): SectionEntryKey | null {
+  if (!entry?.section) return null;
+  return draft.sections.find((s) => s.key === entry.section)?.key ?? null;
+}
+
+function resolveEntry(entry: BuilderEntry | undefined): { tab: BuilderTab; panel: GlobalItemKey } {
+  const tabs: BuilderTab[] = ["home", "navigation", "theme", "global"];
+  const tab = tabs.find((t) => t === entry?.tab) ?? "home";
+  const panel = GLOBAL_ITEMS.find((item) => item.key === entry?.panel)?.key ?? "logo";
+  return { tab, panel };
+}
 
 const emptyNavItem = (): NavItemDraft => ({
   label: "",
@@ -327,6 +347,7 @@ export function StorefrontBuilder({
   initialNavigationDraft,
   initialNavigationStatus,
   instagramPostCount,
+  entry,
 }: {
   initialDraft: HomeDraft;
   initialStatus: string;
@@ -340,12 +361,14 @@ export function StorefrontBuilder({
   initialNavigationStatus: string;
   /** Published Instagram posts, for the "hidden on the site" hint. */
   instagramPostCount?: number;
+  /** Tab and panel to open on, from the URL. */
+  entry?: BuilderEntry;
 }) {
-  const [activeTab, setActiveTab] = useState<"home" | "navigation" | "theme" | "global">("home");
-  const [globalSelectedKey, setGlobalSelectedKey] = useState<GlobalItemKey>("topBar");
+  const [activeTab, setActiveTab] = useState<BuilderTab>(() => resolveEntry(entry).tab);
+  const [globalSelectedKey, setGlobalSelectedKey] = useState<GlobalItemKey>(() => resolveEntry(entry).panel);
   const [navSelectedIndex, setNavSelectedIndex] = useState<number>(0);
 
-  const [selectedKey, setSelectedKey] = useState<SectionEntryKey | null>(null);
+  const [selectedKey, setSelectedKey] = useState<SectionEntryKey | null>(() => entrySection(entry, initialDraft));
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [viewport, setViewport] = useState<keyof typeof VIEWPORTS>("desktop");
   const [previewNonce, setPreviewNonce] = useState(0);
@@ -372,6 +395,22 @@ export function StorefrontBuilder({
   });
 
   const { draft, setDraft, undo, redo } = home;
+
+  // A new entry from the URL (a sidebar shortcut clicked while the
+  // builder is already open) moves to it. Adjusted during render rather than
+  // by remounting, so unsaved edits in the drafts survive the jump.
+  const entryKey = `${entry?.tab ?? ""}|${entry?.panel ?? ""}|${entry?.section ?? ""}`;
+  const [seenEntryKey, setSeenEntryKey] = useState(entryKey);
+  if (entryKey !== seenEntryKey) {
+    setSeenEntryKey(entryKey);
+    if (entry?.tab) {
+      const next = resolveEntry(entry);
+      setActiveTab(next.tab);
+      setGlobalSelectedKey(next.panel);
+      const section = entrySection(entry, draft);
+      if (section) setSelectedKey(section);
+    }
+  }
 
   const update = useCallback(
     (patch: Partial<HomeDraft>) => setDraft((prev) => ({ ...prev, ...patch })),
@@ -621,6 +660,17 @@ export function StorefrontBuilder({
               <span className="block font-medium text-foreground">Catégories rapides (ronds photo)</span>
               Se modifient dans l&apos;onglet Navigation →
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("global");
+                setGlobalSelectedKey("logo");
+              }}
+              className="mb-3 w-full rounded-md border border-dashed border-input px-2.5 py-2 text-left text-xs text-muted-foreground hover:border-primary/40 hover:bg-primary/10"
+            >
+              <span className="block font-medium text-foreground">Logo du site</span>
+              Se modifie dans l&apos;onglet Global → Logo
+            </button>
             <SectionList
               sections={draft.sections}
               onChange={(sections) => update({ sections })}
@@ -708,6 +758,8 @@ export function StorefrontBuilder({
             </div>
           ) : activeTab === "theme" ? (
             <ThemeEditor value={theme.draft} onChange={theme.setDraft} />
+          ) : globalSelectedKey === "logo" ? (
+            <LogoEditor logo={chrome.draft.logo} onChange={(logo) => chrome.setDraft({ ...chrome.draft, logo })} />
           ) : globalSelectedKey === "topBar" ? (
             <TopBarEditor
               appearance={chromeAppearance}
@@ -720,11 +772,9 @@ export function StorefrontBuilder({
               appearance={chromeAppearance}
               headerActions={chrome.draft.headerActions}
               headerSearch={chrome.draft.headerSearch}
-              logo={chrome.draft.logo}
               onChangeAppearance={setChromeAppearance}
               onChangeHeaderActions={(headerActions) => chrome.setDraft({ ...chrome.draft, headerActions })}
               onChangeHeaderSearch={(headerSearch) => chrome.setDraft({ ...chrome.draft, headerSearch })}
-              onChangeLogo={(logo) => chrome.setDraft({ ...chrome.draft, logo })}
             />
           ) : (
             <FooterColumnsEditor

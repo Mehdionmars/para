@@ -5806,15 +5806,15 @@ a.brand-wall-cell:focus-visible {
 
 /* ---- Hero ----------------------------------------------------
    A banner carousel, directly under the header: one wide piece of
-   campaign artwork per slide, centred on a light grey band, with
-   plain chevrons in the grey either side. The artwork carries the
+   campaign artwork per slide, centred on the page's white, with
+   plain chevrons in the margin either side. The artwork carries the
    copy, so nothing is drawn over it. On a phone the banner runs
    edge to edge, the arrows give way to swipe and the dots. */
 .pdh-hero {
   --hero-gutter: clamp(48px, 6vw, 120px);
   position: relative;
   margin-bottom: clamp(16px, 3vw, 40px);
-  background: #f1f1f2;
+  background: #fff;
 }
 
 .pdh-hero-stage {
@@ -5905,7 +5905,6 @@ a.brand-wall-cell:focus-visible {
   .pdh-hero {
     --hero-gutter: 0px;
     margin-bottom: 0;
-    background: #fff;
   }
 
   .pdh-hero-photo {

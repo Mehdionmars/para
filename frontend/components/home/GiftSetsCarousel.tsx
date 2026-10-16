@@ -11,7 +11,7 @@ import { COFFRETS, COFFRETS_COPY } from "@/data/home";
 import { money } from "@/data/products";
 import { routes } from "@/lib/routes";
 
-type Coffret = (typeof COFFRETS)[number];
+export type Coffret = (typeof COFFRETS)[number];
 type CoffretsCopy = typeof COFFRETS_COPY;
 
 /**
@@ -26,7 +26,7 @@ type CoffretsCopy = typeof COFFRETS_COPY;
  * Storefront Builder); without one the picture is not a link and "Offrir"
  * falls back to the card's own CTA link, since there is nothing to sell.
  */
-function CoffretCard({ c }: { c: Coffret }) {
+export function CoffretCard({ c }: { c: Coffret }) {
   const cart = useCart();
   const toast = useToast();
   const product = c.product;
@@ -98,7 +98,7 @@ export function GiftSetsCarousel({ coffrets, copy: copyProp }: { coffrets?: Coff
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <Link
-            href={copy.ctaUrl || "/collections"}
+            href={copy.ctaUrl || routes.coffrets()}
             className="link-hover"
             style={{ flex: "none", whiteSpace: "nowrap", fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--pdh-plum)", borderBottom: "1px solid var(--pdh-plum-divider)", paddingBottom: 3 }}
           >

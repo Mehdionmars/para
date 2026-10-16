@@ -198,17 +198,12 @@ export function Header({
           <span
             className="logo-wordmark"
             style={{
-              fontFamily: "var(--font-alta)",
+              fontFamily: "var(--font-wordmark), var(--font-alta), sans-serif",
               fontWeight: 400,
-              // Alta ships no italic here — only Light and Regular, both
-              // upright — so this is a synthesised oblique: the browser
-              // slants the upright glyphs rather than drawing italic ones.
-              // Swap in a real Alta Italic face in app/fonts and declare it
-              // in (site)/layout.tsx and this starts using it, with no
-              // change at this call site.
-              fontStyle: "italic",
+              // Set in lowercase whatever case the CMS stores ("PARA D'HIVER").
+              textTransform: "lowercase",
               fontSize: "clamp(20px,2.2vw,27px)",
-              letterSpacing: ".24em",
+              letterSpacing: ".04em",
               color: "var(--pdh-ink)",
               lineHeight: 1,
               whiteSpace: "nowrap",

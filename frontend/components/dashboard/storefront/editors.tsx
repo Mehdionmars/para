@@ -597,6 +597,56 @@ export function CoffretsCopyEditor({ value, onChange }: { value: CoffretsCopy; o
   );
 }
 
+/** A blank card, as "Ajouter un coffret" creates it. */
+export function newCoffret(): Coffret {
+  return {
+    active: true,
+    tag: "",
+    title: "Nouveau coffret",
+    sub: "",
+    product: null,
+    price: 0,
+    priceFrom: false,
+    image: { url: "" },
+    ctaLabel: "Offrir",
+    ctaUrl: "/catalogue",
+    toast: "",
+  };
+}
+
+/** Every field of one coffret card. Shared by the builder's section editor
+ * and the dedicated /dashboard/coffrets page, so the two cannot drift. */
+export function CoffretFields({ value: c, onChange }: { value: Coffret; onChange: (patch: Partial<Coffret>) => void }) {
+  const update = onChange;
+  return (
+    <FieldGroup>
+      <CheckboxField label="Actif (visible sur le site)" checked={c.active} onChange={(active) => update({ active })} />
+      <ImagePicker label="Image" imageId={c.image.id} imageUrl={c.image.url} onChange={(id, url) => update({ image: { id, url } })} />
+      <TextField label="Étiquette" value={c.tag} onChange={(tag) => update({ tag })} />
+      <TextField label="Titre" value={c.title} onChange={(title) => update({ title })} />
+      <TextAreaField label="Sous-titre" value={c.sub} onChange={(sub) => update({ sub })} />
+      <label className="flex flex-col gap-1">
+        <span className="text-xs font-medium text-gray-600">Produit vendu</span>
+        <ProductPicker
+          selected={c.product ? [c.product] : []}
+          onChange={(sel: ProductRef[]) => update({ product: sel[sel.length - 1] || null })}
+          max={1}
+        />
+        <span className="text-[11px] text-gray-400">
+          {c.product
+            ? "« Offrir » ajoute ce produit au panier et l'image ouvre sa page. Son prix remplace celui ci-dessous."
+            : "Sans produit, la carte ne peut pas être ajoutée au panier : « Offrir » renvoie vers le lien du CTA."}
+        </span>
+      </label>
+      <NumberField label={c.product ? "Prix (MAD) — ignoré, prix du produit" : "Prix (MAD)"} value={c.price} min={0} onChange={(price) => update({ price })} />
+      <CheckboxField label='Afficher "à partir de"' checked={c.priceFrom} onChange={(priceFrom) => update({ priceFrom })} />
+      <TextField label="Texte du CTA" value={c.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
+      {!c.product && <LinkPicker label="Lien du CTA" value={c.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />}
+      <TextField label="Message de confirmation" value={c.toast} onChange={(toast) => update({ toast })} />
+    </FieldGroup>
+  );
+}
+
 export function CoffretsEditor({ value, onChange }: { value: Coffret[]; onChange: (v: Coffret[]) => void }) {
   return (
     <>
@@ -607,46 +657,8 @@ export function CoffretsEditor({ value, onChange }: { value: Coffret[]; onChange
         renderLabel={(c) => c.title || "Nouveau coffret"}
         itemName="ce coffret"
         addLabel="Ajouter un coffret"
-        onAdd={() => ({
-          active: true,
-          tag: "",
-          title: "Nouveau coffret",
-          sub: "",
-          product: null,
-          price: 0,
-          priceFrom: false,
-          image: { url: "" },
-          ctaLabel: "Offrir",
-          ctaUrl: "/catalogue",
-          toast: "",
-        })}
-        renderItem={(c, _i, update) => (
-          <FieldGroup>
-            <CheckboxField label="Actif (visible sur le site)" checked={c.active} onChange={(active) => update({ active })} />
-            <ImagePicker label="Image" imageId={c.image.id} imageUrl={c.image.url} onChange={(id, url) => update({ image: { id, url } })} />
-            <TextField label="Étiquette" value={c.tag} onChange={(tag) => update({ tag })} />
-            <TextField label="Titre" value={c.title} onChange={(title) => update({ title })} />
-            <TextAreaField label="Sous-titre" value={c.sub} onChange={(sub) => update({ sub })} />
-            <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-gray-600">Produit vendu</span>
-              <ProductPicker
-                selected={c.product ? [c.product] : []}
-                onChange={(sel: ProductRef[]) => update({ product: sel[sel.length - 1] || null })}
-                max={1}
-              />
-              <span className="text-[11px] text-gray-400">
-                {c.product
-                  ? "« Offrir » ajoute ce produit au panier et l'image ouvre sa page. Son prix remplace celui ci-dessous."
-                  : "Sans produit, la carte ne peut pas être ajoutée au panier : « Offrir » renvoie vers le lien du CTA."}
-              </span>
-            </label>
-            <NumberField label={c.product ? "Prix (MAD) — ignoré, prix du produit" : "Prix (MAD)"} value={c.price} min={0} onChange={(price) => update({ price })} />
-            <CheckboxField label='Afficher "à partir de"' checked={c.priceFrom} onChange={(priceFrom) => update({ priceFrom })} />
-            <TextField label="Texte du CTA" value={c.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
-            {!c.product && <LinkPicker label="Lien du CTA" value={c.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />}
-            <TextField label="Message de confirmation" value={c.toast} onChange={(toast) => update({ toast })} />
-          </FieldGroup>
-        )}
+        onAdd={newCoffret}
+        renderItem={(c, _i, update) => <CoffretFields value={c} onChange={update} />}
       />
     </>
   );

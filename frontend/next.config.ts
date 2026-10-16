@@ -73,6 +73,12 @@ const nextConfig: NextConfig = {
   // Brand pages moved from /shop/brand(s) to /marques — permanent redirects
   async redirects() {
     return [
+      // The coffrets page, under the singular spelling people type too.
+      {
+        source: "/coffret-et-cadeaux",
+        destination: "/coffrets-et-cadeaux",
+        permanent: true,
+      },
       {
         source: "/shop/brands",
         destination: "/marques",

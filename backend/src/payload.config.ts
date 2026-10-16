@@ -25,6 +25,7 @@ import { Orders } from './collections/Orders'
 import { Posts } from './collections/Posts'
 import { PushSubscriptions } from './collections/PushSubscriptions'
 import { Products } from './collections/Products'
+import { Bookings } from './collections/Bookings'
 import { Services } from './collections/Services'
 import { ShippingRules } from './collections/ShippingRules'
 import { StockMovements } from './collections/StockMovements'
@@ -144,6 +145,7 @@ export default buildConfig({
     Categories,
     Products,
     Services,
+    Bookings,
     Stores,
     // Editorial content: the institutional pages, the blog and the FAQ.
     // Grouped here rather than scattered among the commerce collections so

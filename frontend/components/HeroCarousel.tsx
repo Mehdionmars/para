@@ -22,7 +22,11 @@ const AUTOPLAY_MS = 5500;
  * Layout lives in `.pdh-hero*` in globals.css.
  */
 export function HeroCarousel({ slides }: { slides?: HeroSlide[] }) {
-  const heroSlides = slides && slides.length > 0 ? slides : HERO_SLIDES;
+  // The snapshot only stands in when the CMS gave no answer. An empty list from
+  // the CMS means every slide was switched off, and the page does not render
+  // this component at all then (see page.tsx); falling back here used to bring
+  // the old banners back the moment an editor deactivated the last one.
+  const heroSlides = slides ?? HERO_SLIDES;
   const [active, setActive] = useState(0);
   // Slide 0 (the LCP candidate) plus the one queued behind it. Mounting the
   // next slide while the current one shows keeps the crossfade from landing on

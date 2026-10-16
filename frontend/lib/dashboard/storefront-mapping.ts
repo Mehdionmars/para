@@ -391,7 +391,7 @@ export function mapHomeDocToDraft(home: any): HomeDraft {
       title: home.coffretsCopy?.title || "Coffrets & cadeaux",
       subtitle: home.coffretsCopy?.subtitle || "",
       ctaLabel: home.coffretsCopy?.ctaLabel || "Tous les coffrets",
-      ctaUrl: home.coffretsCopy?.ctaUrl || "/collections",
+      ctaUrl: home.coffretsCopy?.ctaUrl || "/coffrets-et-cadeaux",
       layout: home.coffretsCopy?.layout || "carousel",
       // Clamped on the way in: a draft saved before the builder enforced the
       // bounds (8 and 8 on preprod) could never be published, because Payload

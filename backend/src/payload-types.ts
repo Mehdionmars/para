@@ -73,6 +73,7 @@ export interface Config {
     categories: Category;
     products: Product;
     services: Service;
+    bookings: Booking;
     stores: Store;
     pages: Page;
     posts: Post;
@@ -111,6 +112,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    bookings: BookingsSelect<false> | BookingsSelect<true>;
     stores: StoresSelect<false> | StoresSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -555,6 +557,37 @@ export interface Service {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings".
+ */
+export interface Booking {
+  id: number;
+  service?: (number | null) | Service;
+  serviceTitle?: string | null;
+  /**
+   * Jour à Casablanca, AAAA-MM-JJ.
+   */
+  date: string;
+  /**
+   * Un des créneaux : 09:30, 10:00, 11:00, 12:00, 14:00, 15:30, 16:30, 17:30.
+   */
+  time: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'done';
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string | null;
+  /**
+   * Précision laissée par le client.
+   */
+  note?: string | null;
+  /**
+   * Note interne, jamais montrée au client.
+   */
+  staffNote?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1068,7 +1101,8 @@ export interface Notification {
     | 'ORDER_REFUNDED'
     | 'LOW_STOCK'
     | 'OUT_OF_STOCK'
-    | 'BACK_IN_STOCK';
+    | 'BACK_IN_STOCK'
+    | 'BOOKING_REQUESTED';
   channel: 'email' | 'whatsapp' | 'push' | 'internal';
   /**
    * « pending » signifie composée mais non délivrée — typiquement aucun provider configuré pour ce canal.
@@ -1392,6 +1426,10 @@ export interface PayloadLockedDocument {
         value: number | Service;
       } | null)
     | ({
+        relationTo: 'bookings';
+        value: number | Booking;
+      } | null)
+    | ({
         relationTo: 'stores';
         value: number | Store;
       } | null)
@@ -1677,6 +1715,24 @@ export interface ServicesSelect<T extends boolean = true> {
         sub?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings_select".
+ */
+export interface BookingsSelect<T extends boolean = true> {
+  service?: T;
+  serviceTitle?: T;
+  date?: T;
+  time?: T;
+  status?: T;
+  customerName?: T;
+  customerPhone?: T;
+  customerEmail?: T;
+  note?: T;
+  staffNote?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4343,6 +4399,7 @@ export interface TaskCreateCollectionExport {
       | 'categories'
       | 'products'
       | 'services'
+      | 'bookings'
       | 'stores'
       | 'pages'
       | 'posts'

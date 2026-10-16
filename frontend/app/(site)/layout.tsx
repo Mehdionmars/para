@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import localFont from "next/font/local";
-import { Cairo, Poppins } from "next/font/google";
+import { Cairo, Comfortaa, Poppins } from "next/font/google";
 import { StoreProvider } from "@/context/store-provider";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
@@ -100,6 +100,17 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+});
+
+/**
+ * The wordmark's face, and nothing else: rounded geometric lowercase, the
+ * "para d'hiver" lettering the user picked. Used by .logo-wordmark in the
+ * header and the footer.
+ */
+const comfortaa = Comfortaa({
+  variable: "--font-wordmark",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -249,7 +260,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const rootStyle = chromeCss ? `${themeStyle}:root{${chromeCss}}` : themeStyle;
 
   return (
-    <html dir={SITE_DIR} lang={SITE_LOCALE} className={`${alta.variable} ${poppins.variable} ${cairo.variable}`}>
+    <html dir={SITE_DIR} lang={SITE_LOCALE} className={`${alta.variable} ${poppins.variable} ${cairo.variable} ${comfortaa.variable}`}>
       {/* Horizontal overflow is clipped in globals.css (html, body). */}
       <body style={{ minHeight: "100vh" }}>
         {/* Home direction (seed 49b3833f): the pharmacy counter, set in type.

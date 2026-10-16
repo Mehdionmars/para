@@ -1,5 +1,4 @@
-import { ArrowRight, ShoppingCart, TriangleAlert } from "lucide-react";
-import Link from "next/link";
+import { TriangleAlert } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { OrdersCalendar, type CalendarOrder } from "@/components/dashboard/overview/OrdersCalendar";
 import {
@@ -8,7 +7,11 @@ import {
   type StatusSlice,
 } from "@/components/dashboard/overview/OverviewCharts";
 import { OverviewTabs, type RecentProduct } from "@/components/dashboard/overview/OverviewTabs";
+import { TodoPanel, type SnapshotItem, type TodoItem } from "@/components/dashboard/overview/TodoPanel";
+import { UpcomingBookings } from "@/components/dashboard/overview/UpcomingBookings";
 import { StatsRow, type Kpi } from "@/components/dashboard/stats/StatsRow";
+import { casablancaToday, listBookings } from "@/lib/dashboard/bookings";
+import type { Booking } from "@/lib/dashboard/bookings-types";
 import { listRecentCoupons, type Coupon } from "@/lib/dashboard/coupons";
 import { dayKey, money, shortDate } from "@/lib/dashboard/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS } from "@/lib/dashboard/orders-types";
@@ -263,11 +266,13 @@ export default async function DashboardOverviewPage() {
   // them being unreachable should cost that panel and nothing else. A rejected
   // list is passed on as null so the panel says it could not load, rather than
   // rendering empty and reading as "nothing here yet".
-  const [productStats, orders, recentProducts, coupons] = await Promise.allSettled([
+  const today = casablancaToday();
+  const [productStats, orders, recentProducts, coupons, bookingsResult] = await Promise.allSettled([
     getProductStats(),
     getOrders(),
     getRecentProducts(),
     listRecentCoupons(6),
+    listBookings(today),
   ]);
 
   const products: ProductStats =
@@ -276,6 +281,8 @@ export default async function DashboardOverviewPage() {
   const allOrders: OverviewOrder[] | null = orders.status === "fulfilled" ? orders.value : null;
   const recent: RecentProduct[] | null = recentProducts.status === "fulfilled" ? recentProducts.value : null;
   const couponList: Coupon[] | null = coupons.status === "fulfilled" ? coupons.value : null;
+  const bookings: Booking[] | null = bookingsResult.status === "fulfilled" ? bookingsResult.value : null;
+  const bookingsToConfirm = (bookings ?? []).filter((b) => b.status === "pending").length;
 
   const { current, previous } = splitWindows(allOrders ?? []);
 
@@ -292,9 +299,7 @@ export default async function DashboardOverviewPage() {
   const previousAov = previousPaid > 0 ? previousRevenue / previousPaid : 0;
 
   const cancelledNow = current.filter((o) => !isRevenueOrder(o)).length;
-  const cancelledBefore = previous.filter((o) => !isRevenueOrder(o)).length;
   const currentCancelRate = current.length > 0 ? (cancelledNow / current.length) * 100 : 0;
-  const previousCancelRate = previous.length > 0 ? (cancelledBefore / previous.length) * 100 : 0;
 
   const { current: newCustomersNow, previous: newCustomersBefore } = countNewCustomers(allOrders ?? []);
 
@@ -355,42 +360,40 @@ export default async function DashboardOverviewPage() {
   ];
 
   /**
-   * The operational three, in a slimmer row: state of the catalogue rather
-   * than the week's trade. No sparklines — the stats query returns a snapshot
-   * with no history to plot, and a flat line would imply one.
+   * The state of the catalogue, as a short list in the right-hand column.
+   * These were three more KPI cards, as large as revenue; they are a
+   * snapshot rather than a trend, and at that size they outranked the week.
    */
-  const operations: Kpi[] = [
+  const snapshot: SnapshotItem[] = [
     {
       label: "Produits au catalogue",
       value: String(products.total),
-      icon: "package",
       caption: `${products.published} publié${products.published === 1 ? "" : "s"}`,
       href: "/dashboard/products",
     },
     {
-      label: "Stock faible",
-      value: String(products.lowStock),
-      icon: "lowStock",
-      caption: `valeur stock ${money(products.catalogValue)}`,
+      label: "Valeur du stock",
+      value: money(products.catalogValue),
       href: "/dashboard/inventory",
     },
     {
       // Below three orders the rate is a headline about the divisor: one
-      // cancellation out of three prints "33,3 %" as the largest text on the
-      // card. The same floor the trend badge already applies, applied to the
-      // figure itself.
+      // cancellation out of three prints "33,3 %". Same floor as the badges.
       label: "Taux d'annulation",
       value: current.length >= 3 ? percent(currentCancelRate) : "—",
-      icon: "cancelled",
       caption:
         current.length >= 3
-          ? `${cancelledNow} annulée${cancelledNow === 1 ? "" : "s"} ou remboursée${cancelledNow === 1 ? "" : "s"}`
+          ? `${cancelledNow} annulée${cancelledNow === 1 ? "" : "s"} ou remboursée${cancelledNow === 1 ? "" : "s"} cette semaine`
           : "trop peu de commandes cette semaine",
-      deltaPct: pctChange(currentCancelRate, previousCancelRate, previous.length),
-      // A rising cancellation rate is bad news; without this the badge would
-      // be green for the one metric where up is the wrong direction.
-      invertDelta: true,
     },
+  ];
+
+  /** What asks for an action, most time-sensitive first. Empty rows drop out
+   * in the panel itself. */
+  const todos: TodoItem[] = [
+    { count: bookingsToConfirm, href: "/dashboard/bookings", icon: "booking", label: "Rendez-vous à confirmer" },
+    { count: pending, href: "/dashboard/orders", icon: "order", label: "Commandes à préparer" },
+    { count: products.lowStock, href: "/dashboard/inventory", icon: "stock", label: "Produits à réapprovisionner" },
   ];
 
   return (
@@ -413,46 +416,19 @@ export default async function DashboardOverviewPage() {
         </p>
       )}
 
-      {/* The worklist, above the figures: the two numbers that ask for an
-          action, as rows that open the list behind them. Hidden entirely when
-          there is nothing to do, so an empty counter never reads as a task. */}
-      {(pending > 0 || products.lowStock > 0) && (
-        <div className="flex flex-col gap-2 sm:flex-row">
-          {pending > 0 && (
-            <Link
-              href="/dashboard/orders"
-              className="flex flex-1 items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xs transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            >
-              <span className="flex items-center gap-2 text-foreground">
-                <ShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
-                <strong className="font-semibold tabular-nums">{pending}</strong>
-                commande{pending === 1 ? "" : "s"} à préparer
-              </span>
-              <ArrowRight className="size-4 flex-none text-muted-foreground" aria-hidden="true" />
-            </Link>
-          )}
-          {products.lowStock > 0 && (
-            <Link
-              href="/dashboard/inventory"
-              className="flex flex-1 items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xs transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            >
-              <span className="flex items-center gap-2 text-foreground">
-                <TriangleAlert className="size-4 text-warning" aria-hidden="true" />
-                <strong className="font-semibold tabular-nums">{products.lowStock}</strong>
-                produit{products.lowStock === 1 ? "" : "s"} à réapprovisionner
-              </span>
-              <ArrowRight className="size-4 flex-none text-muted-foreground" aria-hidden="true" />
-            </Link>
-          )}
-        </div>
-      )}
+      {/* Three tiers, top to bottom: the week in four figures; today —
+          what is booked and what is waiting — side by side; then the
+          analysis. Each tier is one row, 32px from the next. */}
+      <StatsRow stats={headline} columns={4} />
 
-      {/* One block, not two sections. Seven cards of the same kind, split
-          4+3 by importance — 12px apart so they read as one field of
-          figures, with the 32px stack gap separating them from the charts. */}
-      <div className="flex flex-col gap-3">
-        <StatsRow stats={headline} columns={4} />
-        <StatsRow stats={operations} columns={3} />
+      {/* grid-cols-1 below lg, not an implicit column: an implicit track is
+          sized to its content, and the agenda's rows pushed it past a phone's
+          width. min-w-0 lets truncation inside the cards actually happen. */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="min-w-0 lg:col-span-2">
+          <UpcomingBookings bookings={bookings} today={today} />
+        </div>
+        <TodoPanel todos={todos} snapshot={snapshot} />
       </div>
 
       <OverviewCharts revenue={revenueSeries} statuses={statusSeries} />

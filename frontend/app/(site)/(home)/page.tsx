@@ -344,7 +344,13 @@ export default async function HomePage() {
 
   const order = withMissingSections(sectionOrder.length > 0 ? sectionOrder : DEFAULT_ORDER);
   const visibleKeys = relegatePromotions(
-    order.filter((s) => s.visible && (s.key !== "marketingBanner" || liveBanners.length > 0)).map((s) => s.key),
+    order
+      .filter((s) => s.visible)
+      .filter((s) => s.key !== "marketingBanner" || liveBanners.length > 0)
+      // Every hero slide switched off in the Storefront Builder hides the
+      // banner. `undefined` (CMS unreachable) still falls back to the snapshot.
+      .filter((s) => s.key !== "hero" || heroSlides === undefined || heroSlides.length > 0)
+      .map((s) => s.key),
   );
 
   // Grouped from the order that actually renders, so reordering sections in

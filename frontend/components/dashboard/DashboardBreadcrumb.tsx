@@ -22,7 +22,9 @@ import {
  */
 const SEGMENT_LABELS: Record<string, string> = {
   analytics: "Analytics",
+  bookings: "Rendez-vous",
   clients: "Clients",
+  coffrets: "Coffrets & cadeaux",
   coupons: "Coupons",
   customers: "Clients",
   dashboard: "Tableau de bord",

@@ -16,10 +16,11 @@
  * ## Classification
  *
  *   SECRET       PAYLOAD_SECRET, DATABASE_URI, CLOUDINARY_API_SECRET,
- *                RESEND_API_KEY, INSTAGRAM_ACCESS_TOKEN,
+ *                RESEND_API_KEY, SMTP_PASS, INSTAGRAM_ACCESS_TOKEN,
  *                INSTAGRAM_SYNC_SECRET, REVALIDATE_SECRET, JOBS_SECRET
  *   SERVER-ONLY  CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY,
- *                CLOUDINARY_FOLDER, EMAIL_FROM, STOCK_ALERT_EMAIL,
+ *                CLOUDINARY_FOLDER, EMAIL_FROM, SMTP_HOST, SMTP_PORT,
+ *                SMTP_USER, STOCK_ALERT_EMAIL,
  *                INSTAGRAM_BUSINESS_ACCOUNT_ID, PGPOOL_MAX, SERVER_URL,
  *                FRONTEND_URL, ADMIN_URL, STOREFRONT_INTERNAL_URL
  *   PUBLIC       none — nothing in this app is exposed as NEXT_PUBLIC_*.
@@ -81,9 +82,10 @@ const cloudinaryConfigured = group('Cloudinary', [
 /**
  * Email, modelled the way lib/notifications/providers.ts actually resolves it.
  *
- * There are two transports and they share a sender address:
+ * There are three transports and they share a sender address:
  *
  *   Resend   RESEND_API_KEY + EMAIL_FROM        (preferred when present)
+ *   SMTP     SMTP_HOST + SMTP_USER + SMTP_PASS + EMAIL_FROM  (SMTP_PORT optional)
  *   Generic  EMAIL_API_URL + EMAIL_API_KEY + EMAIL_FROM
  *
  * A flat "these two go together" group gets this wrong in both directions: it
@@ -96,10 +98,21 @@ function emailGroup(): boolean {
   const from = has('EMAIL_FROM')
 
   const resendIntended = has('RESEND_API_KEY')
+  const smtpIntended = has('SMTP_HOST') || has('SMTP_USER') || has('SMTP_PASS')
   const genericIntended = has('EMAIL_API_URL') || has('EMAIL_API_KEY')
 
   if (resendIntended && !from) {
     errors.push('RESEND_API_KEY is set but EMAIL_FROM is not — Resend cannot send without a verified sender.')
+  }
+  if (smtpIntended) {
+    const missing = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS', 'EMAIL_FROM'].filter((n) => !has(n))
+    if (missing.length > 0) {
+      errors.push(`SMTP is partially configured — missing ${missing.join(', ')}.`)
+    }
+    const port = process.env.SMTP_PORT?.trim()
+    if (port && !(Number.isInteger(Number(port)) && Number(port) > 0 && Number(port) < 65536)) {
+      errors.push(`SMTP_PORT must be a port number, got "${port}".`)
+    }
   }
   if (genericIntended) {
     const missing = ['EMAIL_API_URL', 'EMAIL_API_KEY', 'EMAIL_FROM'].filter((n) => !has(n))
@@ -109,11 +122,17 @@ function emailGroup(): boolean {
   }
   // A sender with no transport is the silent case worth naming: it looks
   // configured and delivers nothing.
-  if (from && !resendIntended && !genericIntended) {
-    errors.push('EMAIL_FROM is set but no transport is — add RESEND_API_KEY, or EMAIL_API_URL + EMAIL_API_KEY.')
+  if (from && !resendIntended && !smtpIntended && !genericIntended) {
+    errors.push(
+      'EMAIL_FROM is set but no transport is — add RESEND_API_KEY, SMTP_HOST + SMTP_USER + SMTP_PASS, or EMAIL_API_URL + EMAIL_API_KEY.',
+    )
   }
 
-  return (resendIntended && from) || (has('EMAIL_API_URL') && has('EMAIL_API_KEY') && from)
+  return (
+    (resendIntended && from) ||
+    (has('SMTP_HOST') && has('SMTP_USER') && has('SMTP_PASS') && from) ||
+    (has('EMAIL_API_URL') && has('EMAIL_API_KEY') && from)
+  )
 }
 
 const emailConfigured = emailGroup()
