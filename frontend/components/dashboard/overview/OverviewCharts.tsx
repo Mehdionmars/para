@@ -143,6 +143,38 @@ function StatusChart({ data }: { data: StatusSlice[] }) {
  * thing being read and gets the width; the status breakdown is a reference
  * list that happens to be drawn as bars and does not need it.
  */
+/** The revenue trend on its own card — one widget of the overview board. */
+export function RevenueChartCard({ data }: { data: RevenuePoint[] }) {
+  return (
+    <Card className="gap-4">
+      <CardHeader>
+        <CardTitle className="text-base">Chiffre d&apos;affaires</CardTitle>
+        <CardDescription>30 derniers jours, commandes encaissées</CardDescription>
+      </CardHeader>
+      {/* The chart sits outside CardContent's padding on the left so the
+          Y-axis labels align with the card's own text, not 24px inside it. */}
+      <div className="px-2 pb-2 sm:px-4">
+        <RevenueChart data={data} />
+      </div>
+    </Card>
+  );
+}
+
+/** The status breakdown on its own card — one widget of the overview board. */
+export function StatusChartCard({ data }: { data: StatusSlice[] }) {
+  return (
+    <Card className="gap-4">
+      <CardHeader>
+        <CardTitle className="text-base">Commandes par statut</CardTitle>
+        <CardDescription>Sur l&apos;ensemble des commandes chargées</CardDescription>
+      </CardHeader>
+      <div className="px-2 pb-2 sm:px-4">
+        <StatusChart data={data} />
+      </div>
+    </Card>
+  );
+}
+
 export function OverviewCharts({
   revenue,
   statuses,
@@ -152,27 +184,10 @@ export function OverviewCharts({
 }) {
   return (
     <div className="grid gap-3 lg:grid-cols-3">
-      <Card className="gap-4 lg:col-span-2">
-        <CardHeader>
-          <CardTitle className="text-base">Chiffre d&apos;affaires</CardTitle>
-          <CardDescription>30 derniers jours, commandes encaissées</CardDescription>
-        </CardHeader>
-        {/* The chart sits outside CardContent's padding on the left so the
-            Y-axis labels align with the card's own text, not 24px inside it. */}
-        <div className="px-2 pb-2 sm:px-4">
-          <RevenueChart data={revenue} />
-        </div>
-      </Card>
-
-      <Card className="gap-4">
-        <CardHeader>
-          <CardTitle className="text-base">Commandes par statut</CardTitle>
-          <CardDescription>Sur l&apos;ensemble des commandes chargées</CardDescription>
-        </CardHeader>
-        <div className="px-2 pb-2 sm:px-4">
-          <StatusChart data={statuses} />
-        </div>
-      </Card>
+      <div className="lg:col-span-2">
+        <RevenueChartCard data={revenue} />
+      </div>
+      <StatusChartCard data={statuses} />
     </div>
   );
 }

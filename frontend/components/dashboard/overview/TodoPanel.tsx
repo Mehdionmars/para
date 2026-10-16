@@ -44,7 +44,7 @@ export function TodoPanel({ todos, snapshot }: { todos: TodoItem[]; snapshot: Sn
                 <Link href={t.href} className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-accent/60">
                   <Icon className={`size-4 flex-none ${t.icon === "order" ? "text-muted-foreground" : "text-warning"}`} aria-hidden="true" />
                   <span className="min-w-0 flex-1 text-foreground">{t.label}</span>
-                  <strong className="font-semibold tabular-nums text-foreground">{t.count}</strong>
+                  <strong className="flex-none font-semibold tabular-nums text-foreground">{t.count}</strong>
                   <ArrowRight className="size-3.5 flex-none text-muted-foreground" aria-hidden="true" />
                 </Link>
               </li>
@@ -63,7 +63,7 @@ export function TodoPanel({ todos, snapshot }: { todos: TodoItem[]; snapshot: Sn
                   {s.label}
                   {s.caption && <span className="block text-xs">{s.caption}</span>}
                 </span>
-                <span className="text-sm font-semibold tabular-nums text-foreground">{s.value}</span>
+                <span className="flex-none text-sm font-semibold tabular-nums whitespace-nowrap text-foreground">{s.value}</span>
               </>
             );
             return (

@@ -2,14 +2,16 @@ import { TriangleAlert } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { OrdersCalendar, type CalendarOrder } from "@/components/dashboard/overview/OrdersCalendar";
 import {
-  OverviewCharts,
+  RevenueChartCard,
+  StatusChartCard,
   type RevenuePoint,
   type StatusSlice,
 } from "@/components/dashboard/overview/OverviewCharts";
 import { OverviewTabs, type RecentProduct } from "@/components/dashboard/overview/OverviewTabs";
 import { TodoPanel, type SnapshotItem, type TodoItem } from "@/components/dashboard/overview/TodoPanel";
 import { UpcomingBookings } from "@/components/dashboard/overview/UpcomingBookings";
-import { StatsRow, type Kpi } from "@/components/dashboard/stats/StatsRow";
+import { KpiCard, type Kpi } from "@/components/dashboard/stats/KpiCard";
+import { OverviewBoard } from "@/components/dashboard/overview/OverviewBoard";
 import { casablancaToday, listBookings } from "@/lib/dashboard/bookings";
 import type { Booking } from "@/lib/dashboard/bookings-types";
 import { listRecentCoupons, type Coupon } from "@/lib/dashboard/coupons";
@@ -416,26 +418,30 @@ export default async function DashboardOverviewPage() {
         </p>
       )}
 
-      {/* Three tiers, top to bottom: the week in four figures; today —
-          what is booked and what is waiting — side by side; then the
-          analysis. Each tier is one row, 32px from the next. */}
-      <StatsRow stats={headline} columns={4} />
-
-      {/* grid-cols-1 below lg, not an implicit column: an implicit track is
-          sized to its content, and the agenda's rows pushed it past a phone's
-          width. min-w-0 lets truncation inside the cards actually happen. */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <div className="min-w-0 lg:col-span-2">
-          <UpcomingBookings bookings={bookings} today={today} />
-        </div>
-        <TodoPanel todos={todos} snapshot={snapshot} />
-      </div>
-
-      <OverviewCharts revenue={revenueSeries} statuses={statusSeries} />
-
-      <OrdersCalendar orders={allOrders ?? []} />
-
-      <OverviewTabs products={recent} orders={allOrders?.slice(0, 6) ?? null} coupons={couponList} />
+      {/* Every panel is a widget of one board, which the operator can
+          rearrange with the pencil. Sizes tile a six-column grid exactly:
+          4 × 1 + 4 × 4 + 2 × 2 = 24 cells, four rows, no hole. */}
+      <OverviewBoard
+        widgets={[
+          ...headline.map((kpi, i) => ({
+            id: `kpi-${i}`,
+            label: kpi.label,
+            node: <KpiCard kpi={kpi} />,
+            size: "sm" as const,
+          })),
+          { id: "bookings", label: "Rendez-vous", node: <UpcomingBookings bookings={bookings} today={today} />, size: "lg" },
+          { id: "todo", label: "À traiter", node: <TodoPanel todos={todos} snapshot={snapshot} />, size: "tall" },
+          { id: "revenue", label: "Chiffre d'affaires", node: <RevenueChartCard data={revenueSeries} />, size: "lg" },
+          { id: "statuses", label: "Commandes par statut", node: <StatusChartCard data={statusSeries} />, size: "tall" },
+          { id: "calendar", label: "Calendrier des commandes", node: <OrdersCalendar orders={allOrders ?? []} />, size: "lg" },
+          {
+            id: "recent",
+            label: "Dernières activités",
+            node: <OverviewTabs products={recent} orders={allOrders?.slice(0, 6) ?? null} coupons={couponList} />,
+            size: "lg",
+          },
+        ]}
+      />
     </div>
   );
 }
