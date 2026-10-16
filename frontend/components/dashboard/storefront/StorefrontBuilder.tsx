@@ -27,6 +27,7 @@ import { CategoryStripEditor, NavigationItemEditor } from "@/components/dashboar
 import { NavigationList } from "@/components/dashboard/storefront/NavigationList";
 import { SectionList } from "@/components/dashboard/storefront/SectionList";
 import { Button } from "@/components/ui/button";
+import { SaveToast, useSavedFlash } from "@/components/ui/toast-save";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import {
   mapDraftToPayload,
@@ -378,6 +379,14 @@ export function StorefrontBuilder({
   // saved" from "that one is still saved", and reloaded the preview under the
   // editor's hands whenever any other panel started saving.
   const refreshPreview = useCallback(() => setPreviewNonce((n) => n + 1), []);
+  // The floating save pill: this page saves by itself, so the pill only
+  // reports — "Enregistrement…", then a moment of "Modifications
+  // enregistrées" after each autosave lands.
+  const [savedFlash, flashSaved] = useSavedFlash();
+  const onDraftSaved = useCallback(() => {
+    refreshPreview();
+    flashSaved();
+  }, [refreshPreview, flashSaved]);
 
   const home = useGlobalDraft<HomeDraft>({
     initial: initialDraft,
@@ -391,7 +400,7 @@ export function StorefrontBuilder({
       return { error: res.error, doc: res.home };
     },
     history: true,
-    onSaved: refreshPreview,
+    onSaved: onDraftSaved,
   });
 
   const { draft, setDraft, undo, redo } = home;
@@ -455,7 +464,7 @@ export function StorefrontBuilder({
       const res = await discardSiteChromeDraft();
       return { error: res.error, doc: res.chrome };
     },
-    onSaved: refreshPreview,
+    onSaved: onDraftSaved,
   });
 
   const theme = useGlobalDraft<ThemeDraft>({
@@ -469,7 +478,7 @@ export function StorefrontBuilder({
       const res = await discardThemeDraft();
       return { error: res.error, doc: res.theme };
     },
-    onSaved: refreshPreview,
+    onSaved: onDraftSaved,
   });
 
   // The three surfaces are edited on three different panels but previewed
@@ -497,7 +506,7 @@ export function StorefrontBuilder({
       const res = await discardNavigationDraft();
       return { error: res.error, doc: res.navigation };
     },
-    onSaved: refreshPreview,
+    onSaved: onDraftSaved,
   });
 
   function handleAddNavItem() {
@@ -786,6 +795,10 @@ export function StorefrontBuilder({
           )}
         </aside>
       </div>
+      <SaveToast
+        state={active.saveState === "saving" ? "saving" : active.saveState === "error" ? "error" : savedFlash ? "saved" : "idle"}
+        errorMessage={active.saveError}
+      />
     </div>
   );
 }

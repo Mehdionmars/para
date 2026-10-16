@@ -28,6 +28,7 @@ import { ProductPreview } from "@/components/dashboard/products/ProductPreview";
 import { RoutinePicker } from "@/components/dashboard/products/RoutinePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SaveToast } from "@/components/ui/toast-save";
 import {
   BADGE_TYPE_DEFAULT_LABEL,
   BADGE_TYPES,
@@ -147,6 +148,9 @@ export function ProductForm({
   const [uploadError, setUploadError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [variantImages, setVariantImages] = useState<Record<string, { preview?: string; uploading?: boolean }>>({});
+  // The photos and routine are kept outside react-hook-form; their opening
+  // values, so the save pill knows when they changed and can put them back.
+  const [initialMedia] = useState(() => ({ gallery, imageId, imagePreview, picks }));
 
   const {
     register,
@@ -155,7 +159,8 @@ export function ProductForm({
     trigger,
     setValue,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitted, isValid, touchedFields },
+    reset,
+    formState: { errors, isDirty, isSubmitting, isSubmitted, isValid, touchedFields },
   } = useForm<FormInput, unknown, FormOutput>({
     mode: "onTouched",
     defaultValues: seed
@@ -350,6 +355,21 @@ export function ProductForm({
   }
 
   const saveDisabled = isSubmitting || uploading || !isValid;
+  const mediaDirty =
+    imageId !== initialMedia.imageId ||
+    JSON.stringify(gallery) !== JSON.stringify(initialMedia.gallery) ||
+    JSON.stringify(picks.map((p) => p.id)) !== JSON.stringify(initialMedia.picks.map((p) => p.id));
+  const formDirty = isDirty || mediaDirty;
+
+  function resetAll() {
+    reset();
+    setImageId(initialMedia.imageId);
+    setImagePreview(initialMedia.imagePreview);
+    setGallery(initialMedia.gallery);
+    setPicks(initialMedia.picks);
+    setVariantImages({});
+    setSubmitError("");
+  }
   const saveLabel = product ? "Enregistrer" : "Créer le produit";
 
   // What is still missing before the product can be created, in the order
@@ -844,6 +864,15 @@ export function ProductForm({
           {saveLabel}
         </Button>
       </div>
+
+      <SaveToast
+        state={isSubmitting ? "saving" : submitError ? "error" : formDirty ? "dirty" : "idle"}
+        errorMessage={submitError}
+        message={!product && missing > 0 ? `Nouveau produit · encore ${missing} champ${missing > 1 ? "s" : ""}` : undefined}
+        onReset={resetAll}
+        onSave={() => void handleSubmit(onSubmit)()}
+        saveLabel={saveLabel}
+      />
     </form>
   );
 }

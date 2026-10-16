@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 import { LogoEditor } from "@/components/dashboard/storefront/globalEditors";
 import { useToast } from "@/components/dashboard/ui/Toast";
 import { Button } from "@/components/ui/button";
+import { SaveToast, useSavedFlash } from "@/components/ui/toast-save";
 import { mapSiteChromeDraftToPayload, type SiteChromeDraft } from "@/lib/dashboard/storefront-mapping";
 
 /** The storefront footer's own ground (--pdh-plum-dark), unless the footer
@@ -41,6 +42,7 @@ export function LogoManager({ initialDraft, initialStatus }: { initialDraft: Sit
   const [saved, setSaved] = useState(() => JSON.stringify(initialDraft));
   const [status, setStatus] = useState(initialStatus);
   const [busy, setBusy] = useState<"save" | "publish" | null>(null);
+  const [savedFlash, flashSaved] = useSavedFlash();
   const dirty = useMemo(() => JSON.stringify(draft) !== saved, [draft, saved]);
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export function LogoManager({ initialDraft, initialStatus }: { initialDraft: Sit
     setStatus(kind === "save" ? "draft" : "published");
     const warning = (res as { warning?: string }).warning;
     if (warning) toast.error("Publié, avec un avertissement", warning);
-    else toast.success(kind === "save" ? "Brouillon enregistré" : "Logo publié", kind === "save" ? "Pas encore visible : cliquez sur Publier." : "Il est en ligne sur le site.");
+    else flashSaved();
   }
 
   return (
@@ -122,6 +124,14 @@ export function LogoManager({ initialDraft, initialStatus }: { initialDraft: Sit
           </p>
         </div>
       </div>
+
+      <SaveToast
+        state={busy ? "saving" : savedFlash ? "saved" : dirty ? "dirty" : "idle"}
+        onReset={() => setDraft(JSON.parse(saved))}
+        secondary={{ label: "Brouillon", onClick: () => run("save") }}
+        onSave={() => run("publish")}
+        saveLabel="Publier"
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Check, Info } from "lucide-react";
 import { useState, useTransition } from "react";
 import { updatePaymentSettings } from "@/app/dashboard/(app)/settings/actions";
 import { Button } from "@/components/ui/button";
+import { SaveToast, useSavedFlash } from "@/components/ui/toast-save";
 import { cn } from "@/lib/dashboard/cn";
 import {
   BANK_FIELD_LABELS,
@@ -39,11 +40,30 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
   const [bank, setBank] = useState<BankFields>(initial.bank);
 
   const missing = missingBankFields(bank);
+
+  // The values last saved, to tell the floating save pill whether there is
+  // anything to keep or drop.
+  const current = { bank, bankTransferDescription: transferDescription, bankTransferEnabled: transferEnabled, codDescription, codEnabled };
+  const [baseline, setBaseline] = useState(() =>
+    JSON.stringify({ bank: initial.bank, bankTransferDescription: initial.bankTransferDescription, bankTransferEnabled: initial.bankTransferEnabled, codDescription: initial.codDescription, codEnabled: initial.codEnabled }),
+  );
+  const dirty = JSON.stringify(current) !== baseline;
+  const [savedFlash, flashSaved] = useSavedFlash();
+
+  function resetForm() {
+    const b = JSON.parse(baseline);
+    setCodEnabled(b.codEnabled);
+    setCodDescription(b.codDescription);
+    setTransferEnabled(b.bankTransferEnabled);
+    setTransferDescription(b.bankTransferDescription);
+    setBank(b.bank);
+    setError("");
+  }
   const setField = (key: keyof BankFields, value: string) =>
     setBank((prev) => ({ ...prev, [key]: value }));
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit(e?: React.FormEvent) {
+    e?.preventDefault();
     setError("");
     setSaved(false);
 
@@ -56,7 +76,11 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
         bank,
       });
       if (res.error) setError(res.error);
-      else setSaved(true);
+      else {
+        setSaved(true);
+        setBaseline(JSON.stringify(current));
+        flashSaved();
+      }
     });
   }
 
@@ -191,6 +215,13 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
           {pending ? "Enregistrement…" : "Enregistrer les modes de paiement"}
         </Button>
       </div>
+
+      <SaveToast
+        state={pending ? "saving" : error ? "error" : savedFlash ? "saved" : dirty ? "dirty" : "idle"}
+        errorMessage={error}
+        onReset={resetForm}
+        onSave={() => submit()}
+      />
     </form>
   );
 }
