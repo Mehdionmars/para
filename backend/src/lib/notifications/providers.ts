@@ -1,4 +1,5 @@
 import { resendProvider } from './providers/resend'
+import { smtpProvider } from './providers/smtp'
 import type {
   DeliveryResult,
   EmailNotificationProvider,
@@ -87,8 +88,9 @@ const genericHttpProvider: EmailNotificationProvider = {
  * The email provider actually used.
  *
  * Resend wins when its key is present, because it is the real transactional
- * sender; the generic HTTP provider stays as the escape hatch for any other
- * vendor. When neither is configured the generic one reports itself disabled,
+ * sender; SMTP comes next (the shop's own mailbox host); the generic HTTP
+ * provider stays as the escape hatch for any other vendor. When none is
+ * configured the generic one reports itself disabled,
  * which keeps the "composed but undeliverable" behaviour the rest of the
  * system already relies on — nothing is ever recorded as sent.
  *
@@ -103,13 +105,17 @@ export const emailProvider: EmailNotificationProvider = {
     if (this.isConfigured()) return ''
     // Names both routes: an operator reading this in the delivery log needs to
     // know what to set, not merely that something is missing.
-    return `Email non configuré. Renseignez RESEND_API_KEY + EMAIL_FROM (recommandé), ou EMAIL_API_URL + EMAIL_API_KEY + EMAIL_FROM pour un autre fournisseur.`
+    return `Email non configuré. Renseignez RESEND_API_KEY + EMAIL_FROM, ou SMTP_HOST + SMTP_USER + SMTP_PASS + EMAIL_FROM, ou EMAIL_API_URL + EMAIL_API_KEY + EMAIL_FROM pour un autre fournisseur.`
   },
 
-  isConfigured: () => resendProvider.isConfigured() || genericHttpProvider.isConfigured(),
+  isConfigured: () =>
+    resendProvider.isConfigured() || smtpProvider.isConfigured() || genericHttpProvider.isConfigured(),
 
-  send: (payload) =>
-    resendProvider.isConfigured() ? resendProvider.send(payload) : genericHttpProvider.send(payload),
+  send: (payload) => {
+    if (resendProvider.isConfigured()) return resendProvider.send(payload)
+    if (smtpProvider.isConfigured()) return smtpProvider.send(payload)
+    return genericHttpProvider.send(payload)
+  },
 }
 
 // ------------------------------------------------------------- whatsapp
