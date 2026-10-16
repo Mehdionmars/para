@@ -19,9 +19,10 @@
  * - Styling uses theme tokens (`bg-card`, `ring-border`, `text-foreground`),
  *   so it follows light and dark themes.
  *
- * Vendored as published, with two local changes: the user-facing strings
+ * Vendored as published, with three local changes: the user-facing strings
  * (the screen-reader hint and the size names) are in French, the
- * dashboard's language, and `rowRatio` allows cells that are not square.
+ * dashboard's language; `rowRatio` allows cells that are not square; and
+ * the grid follows `items` when the caller adds, removes or resizes one.
  */
 
 import {
@@ -672,6 +673,20 @@ export function DraggableWidgetGrid({
 	className = '',
 }: DraggableWidgetGridProps) {
 	const [items, setItems] = useState(() => initialItems ?? DEFAULT_ITEMS)
+	// Local addition: follow `items` when the caller changes the set or a
+	// size (a widget hidden, added or resized). A new array with the same
+	// ids, order and sizes — the caller echoing a drop back — changes
+	// nothing, so a drag is never undone by its own onChange.
+	const [seenItems, setSeenItems] = useState(initialItems)
+	if (initialItems && initialItems !== seenItems) {
+		setSeenItems(initialItems)
+		const same =
+			initialItems.length === items.length &&
+			initialItems.every(
+				(item, i) => item.id === items[i].id && item.size === items[i].size,
+			)
+		if (!same) setItems(initialItems)
+	}
 	const grid = useRef(null as HTMLDivElement | null)
 	const hintId = useId()
 	const minColumns = Math.min(2, Math.max(1, maxColumns))
