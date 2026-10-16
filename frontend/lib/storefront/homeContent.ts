@@ -416,7 +416,7 @@ export async function fetchHomeContent({ draft }: { draft: boolean }): Promise<L
     title: (home.coffretsCopy as RawCoffretsCopy)?.title || "Coffrets & cadeaux",
     subtitle: (home.coffretsCopy as RawCoffretsCopy)?.subtitle || "",
     ctaLabel: (home.coffretsCopy as RawCoffretsCopy)?.ctaLabel || "Tous les coffrets",
-    ctaUrl: (home.coffretsCopy as RawCoffretsCopy)?.ctaUrl || "/collections",
+    ctaUrl: (home.coffretsCopy as RawCoffretsCopy)?.ctaUrl || "/coffrets-et-cadeaux",
     layout: (home.coffretsCopy as RawCoffretsCopy)?.layout || "carousel",
     visibleDesktop: (home.coffretsCopy as RawCoffretsCopy)?.visibleDesktop || 3,
     visibleMobile: (home.coffretsCopy as RawCoffretsCopy)?.visibleMobile || 1,
