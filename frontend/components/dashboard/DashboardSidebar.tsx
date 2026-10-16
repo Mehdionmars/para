@@ -121,7 +121,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { label: "Logo", href: "/dashboard/storefront?tab=global&panel=logo", icon: ImageIcon, visible: canEditContent },
       {
         label: "Coffrets & cadeaux",
-        href: "/dashboard/storefront?tab=home&section=coffrets",
+        href: "/dashboard/coffrets",
         icon: Gift,
         visible: canEditContent,
       },
