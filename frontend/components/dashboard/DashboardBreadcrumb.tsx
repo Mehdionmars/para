@@ -33,6 +33,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   invoices: "Factures",
   movements: "Mouvements",
   new: "Nouveau",
+  overview: "Vue d'ensemble",
   notifications: "Notifications",
   orders: "Commandes",
   print: "Impression",

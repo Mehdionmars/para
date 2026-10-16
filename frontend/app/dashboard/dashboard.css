@@ -814,3 +814,66 @@
   --color-info-strong: var(--info-strong);
   --color-destructive-strong: var(--destructive-strong);
 }
+
+/* ============================================================
+   Dashboard home — the launcher (components/dashboard/overview/QuickAccess)
+   ============================================================
+   Cards rise in one after the other (--qa-i is each card's running index),
+   quick and short: 40ms apart, 320ms each, so the last of fifteen has landed
+   in under a second. On hover a card lifts, takes the primary border and its
+   icon pops; on press it settles back down. */
+@keyframes qa-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.qa-card,
+.qa-label {
+  animation: qa-rise 320ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+  animation-delay: calc(var(--qa-i, 0) * 40ms);
+}
+
+.qa-card {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1.3),
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.qa-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklch, var(--primary) 45%, transparent);
+  box-shadow: 0 8px 24px -12px color-mix(in oklch, var(--primary) 40%, transparent);
+}
+
+.qa-card:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 80ms;
+}
+
+.qa-icon {
+  transition: transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.6);
+}
+
+.qa-card:hover .qa-icon {
+  transform: scale(1.18) rotate(-6deg);
+}
+
+/* The global opt-out shortens durations but keeps delays, which would leave
+   the later cards invisible for a moment: drop the entrance outright. */
+@media (prefers-reduced-motion: reduce) {
+  .qa-card,
+  .qa-label {
+    animation: none;
+  }
+  .qa-card:hover,
+  .qa-card:hover .qa-icon {
+    transform: none;
+  }
+}

@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Gift,
   Image as ImageIcon,
+  Gauge,
   LayoutDashboard,
   LayoutTemplate,
   LineChart,
@@ -62,6 +63,9 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Pilotage",
     items: [
       { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard, exact: true, visible: isStaffUser },
+      // The figures, the agenda and the charts: /dashboard itself is the
+      // launcher of every destination.
+      { label: "Vue d'ensemble", href: "/dashboard/overview", icon: Gauge, visible: isStaffUser },
       { label: "Analytics", href: "/dashboard/analytics", icon: LineChart, visible: canViewAnalytics },
     ],
   },

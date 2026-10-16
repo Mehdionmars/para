@@ -10,6 +10,7 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 function revalidateNotifications() {
   revalidatePath("/dashboard/notifications");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/overview");
 }
 
 export async function markRead(id: number): Promise<ActionResult> {
