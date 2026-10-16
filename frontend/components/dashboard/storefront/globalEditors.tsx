@@ -175,10 +175,19 @@ export function LogoEditor({ logo, onChange }: { logo: LogoDraft; onChange: (v: 
       <div>
         <EditorHeading
           title="Logo"
-          description="Affiché en haut de chaque page et dans le pied de page. Une image carrée (PNG ou SVG, fond transparent) rend le mieux."
+          description="Un logo pour l'en-tête, un autre pour le pied de page s'il le faut. Une image carrée (PNG ou SVG, fond transparent) rend le mieux."
         />
         <FieldGroup>
-          <ImagePicker label="Image du logo" imageId={logo.image.id} imageUrl={logo.image.url} onChange={(id, url) => update({ image: { id, url } })} />
+          <ImagePicker label="Logo de l'en-tête" imageId={logo.image.id} imageUrl={logo.image.url} onChange={(id, url) => update({ image: { id, url } })} />
+          <ImagePicker
+            label="Logo du pied de page"
+            imageId={logo.footerImage.id}
+            imageUrl={logo.footerImage.url}
+            onChange={(id, url) => update({ footerImage: { id, url } })}
+          />
+          <p className="-mt-1 text-[11px] text-gray-400">
+            Affiché sur le fond foncé du pied de page. Préférez une version claire, sur fond transparent. Vide : le logo de l&apos;en-tête est repris.
+          </p>
           <TextField label="Texte à côté du logo" value={logo.wordmark} onChange={(wordmark) => update({ wordmark })} />
           <TextField label="Lien au clic" value={logo.href} onChange={(href) => update({ href })} />
         </FieldGroup>

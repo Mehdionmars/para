@@ -33,6 +33,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   invoices: "Factures",
   movements: "Mouvements",
   new: "Nouveau",
+  overview: "Vue d'ensemble",
+  logo: "Logo",
   notifications: "Notifications",
   orders: "Commandes",
   print: "Impression",
@@ -65,6 +67,14 @@ function safeDecode(segment: string) {
   } catch {
     return segment;
   }
+}
+
+/** A page's name from its path, as the breadcrumb words it:
+ * "/dashboard/orders/6f2a" → "Commandes › 6f2a". Null for the home. */
+export function pageLabel(pathname: string): string | null {
+  const segments = pathname.split("/").filter(Boolean).slice(1);
+  if (segments.length === 0) return null;
+  return segments.map(labelFor).join(" › ");
 }
 
 /**

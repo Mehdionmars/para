@@ -44,6 +44,7 @@ import * as migration_20261003_120000_collection_cards_page from './20261003_120
 import * as migration_20261013_100000_service_price_list from './20261013_100000_service_price_list';
 import * as migration_20261013_110000_pages_posts_faqs from './20261013_110000_pages_posts_faqs';
 import * as migration_20261016_100000_bookings from './20261016_100000_bookings';
+import * as migration_20261016_120000_logo_footer_image from './20261016_120000_logo_footer_image';
 
 export const migrations = [
   {
@@ -280,5 +281,10 @@ export const migrations = [
     up: migration_20261016_100000_bookings.up,
     down: migration_20261016_100000_bookings.down,
     name: '20261016_100000_bookings'
+  },
+  {
+    up: migration_20261016_120000_logo_footer_image.up,
+    down: migration_20261016_120000_logo_footer_image.down,
+    name: '20261016_120000_logo_footer_image'
   },
 ];

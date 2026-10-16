@@ -1,28 +1,15 @@
 "use client";
 
-import {
-  Bell,
-  Boxes,
-  CalendarDays,
-  Gift,
-  Image as ImageIcon,
-  LayoutDashboard,
-  LayoutTemplate,
-  LineChart,
-  Package,
-  PlusCircle,
-  Receipt,
-  Settings,
-  ShoppingCart,
-  TicketPercent,
-  Upload,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { MotionConfig, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { type NavItem, visibleNavGroups } from "@/lib/dashboard/nav";
+import type { Role } from "@/lib/dashboard/roles";
 import { DashboardUserMenu } from "@/components/dashboard/DashboardUserMenu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -37,116 +24,25 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import {
-  canEditContent,
-  canEditProducts,
-  canImport,
-  canViewAnalytics,
-  canViewCustomers,
-  canViewProducts,
-  hasRole,
-  isStaffUser,
-  type Role,
-} from "@/lib/dashboard/roles";
 
-type NavItem = {
-  label: string;
-  href: string;
-  icon: LucideIcon;
-  exact?: boolean;
-  visible: (user: { roles: Role[] }) => boolean;
-};
-
-/**
- * The navigation, grouped.
- *
- * These are the same thirteen destinations as before, in the same order
- * within each section — what changed is that they used to be one
- * undifferentiated list. Thirteen equally-weighted links means reading all
- * thirteen to find one, and the list had no answer to "where do I look for
- * an invoice" beyond scanning.
- *
- * The groups are named after the job rather than the data: someone
- * reconciling a refund looks under Ventes, not under "Orders" and "Invoices"
- * as separate peers of "Products". Five labels for thirteen items is the
- * ratio that pays for itself — fewer and the sections stop meaning anything,
- * more and the labels outnumber what they organise.
- */
-const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
-  {
-    label: "Pilotage",
-    items: [
-      { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard, exact: true, visible: isStaffUser },
-      { label: "Analytics", href: "/dashboard/analytics", icon: LineChart, visible: canViewAnalytics },
-    ],
-  },
-  {
-    label: "Ventes",
-    items: [
-      { label: "Commandes", href: "/dashboard/orders", icon: ShoppingCart, visible: isStaffUser },
-      { label: "Rendez-vous", href: "/dashboard/bookings", icon: CalendarDays, visible: isStaffUser },
-      {
-        label: "Factures",
-        href: "/dashboard/invoices",
-        icon: Receipt,
-        visible: (user) => hasRole(user, "admin", "manager", "sales"),
-      },
-      { label: "Clients", href: "/dashboard/customers", icon: Users, visible: canViewCustomers },
-    ],
-  },
-  {
-    label: "Catalogue",
-    items: [
-      { label: "Produits", href: "/dashboard/products", icon: Package, visible: canViewProducts },
-      {
-        label: "Ajouter un produit",
-        href: "/dashboard/products/new",
-        icon: PlusCircle,
-        exact: true,
-        visible: canEditProducts,
-      },
-      {
-        label: "Inventaire",
-        href: "/dashboard/inventory",
-        icon: Boxes,
-        visible: (user) => hasRole(user, "admin", "manager", "stockManager"),
-      },
-      { label: "Importer", href: "/dashboard/import", icon: Upload, visible: canImport },
-    ],
-  },
-  {
-    label: "Boutique",
-    items: [
-      { label: "Storefront", href: "/dashboard/storefront", icon: LayoutTemplate, visible: canEditContent },
-      // A shortcut into the builder's Global tab: "where do I change my logo"
-      // had no answer in this list.
-      { label: "Logo", href: "/dashboard/storefront?tab=global&panel=logo", icon: ImageIcon, visible: canEditContent },
-      {
-        label: "Coffrets & cadeaux",
-        href: "/dashboard/coffrets",
-        icon: Gift,
-        visible: canEditContent,
-      },
-      { label: "Coupons", href: "/dashboard/coupons", icon: TicketPercent, visible: canEditContent },
-    ],
-  },
-  {
-    label: "Système",
-    items: [
-      { label: "Notifications", href: "/dashboard/notifications", icon: Bell, visible: isStaffUser },
-      {
-        label: "Paramètres",
-        href: "/dashboard/settings",
-        icon: Settings,
-        visible: (user) => hasRole(user, "admin"),
-      },
-    ],
-  },
-];
 
 function matches(pathname: string, item: NavItem) {
   return item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
+
+// Motion, after shadcnblocks' Application Shell 1: a press that gives a
+// little, and the active background drawn by ActivePill — one element that
+// slides from link to link — instead of the primitive's static fill.
+const buttonMotion =
+  "relative isolate overflow-visible transition-[width,height,padding,background-color,color,transform] duration-200 ease-out group-data-[collapsible=icon]:overflow-hidden active:scale-[0.98] data-[active=true]:bg-transparent data-[active=true]:hover:bg-sidebar-accent/60 motion-reduce:transition-none motion-reduce:active:scale-100";
+
+const ActivePill = () => (
+  <motion.span
+    layoutId="sidebar-active-pill"
+    transition={{ bounce: 0.18, duration: 0.45, type: "spring" }}
+    className="absolute inset-0 -z-10 rounded-md bg-sidebar-accent shadow-xs ring-1 ring-sidebar-border/60"
+  />
+);
 
 /**
  * The dashboard navigation, on shadcn's Sidebar primitives.
@@ -164,10 +60,9 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
   // Filtered per group, then empty groups dropped — a stockManager sees no
   // Boutique destinations at all, and a group label with nothing under it is
   // a promise the sidebar does not keep.
-  const groups = NAV_GROUPS.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => item.visible({ roles })),
-  })).filter((group) => group.items.length > 0);
+  const groups = visibleNavGroups({ roles });
+  // Groups the operator folded. Everything starts open.
+  const [folded, setFolded] = useState<Record<string, boolean>>({});
 
   // Longest-href match wins, so a page never lights up two nav items at once
   // (e.g. /dashboard/products/new is a path-prefix of /dashboard/products).
@@ -219,43 +114,58 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
           scrollbar sat directly beside the page's own, so the admin showed two
           parallel grey gutters. Wheel and keyboard scrolling are unaffected. */}
       <SidebarContent className="scrollbar-none">
-        {groups.map((group) => (
-          <SidebarGroup key={group.label}>
-            {/* The label is hidden by the sidebar's own CSS once collapsed to
-                the icon rail, where there is no room for it and the tooltips
-                carry the naming instead. */}
-            {/* text-muted-foreground, overriding the primitive's
-                text-sidebar-foreground/70 which measured 3.63:1 against the
-                white sidebar — a fail for 12px text. The token lands at
-                4.74:1 and still reads quieter than the nav items below it,
-                which is the whole job of a group label. */}
-            <SidebarGroupLabel className="text-muted-foreground">
-              {group.label}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={item.href === activeHref}
-                        tooltip={item.label}
-                        className="transition-colors"
-                      >
-                        <Link href={item.href}>
-                          <Icon />
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <MotionConfig reducedMotion="user">
+          {groups.map((group, groupIndex) => {
+            // The group holding the current page always opens with it; the
+            // others are open too unless the operator folded them.
+            const holdsActive = group.items.some((item) => item.href === activeHref);
+            return (
+              <Collapsible
+                key={group.label}
+                open={holdsActive || !folded[group.label]}
+                onOpenChange={(open) => setFolded((f) => ({ ...f, [group.label]: !open }))}
+                className="group/collapsible"
+              >
+                <SidebarGroup
+                  className="animate-in fade-in-0 slide-in-from-left-2 fill-mode-both duration-500 motion-reduce:animate-none"
+                  style={{ animationDelay: `${groupIndex * 60}ms` }}
+                >
+                  {/* text-muted-foreground, overriding the primitive's
+                      text-sidebar-foreground/70 which measured 3.63:1 against
+                      the white sidebar — a fail for 12px text. The label is
+                      hidden by the sidebar's own CSS on the icon rail. */}
+                  <SidebarGroupLabel asChild className="text-muted-foreground hover:text-foreground">
+                    <CollapsibleTrigger className="flex w-full items-center">
+                      {group.label}
+                      <ChevronRight className="ml-auto size-3.5 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none" />
+                    </CollapsibleTrigger>
+                  </SidebarGroupLabel>
+                  <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down motion-reduce:animate-none">
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {group.items.map((item) => {
+                          const Icon = item.icon;
+                          const isActive = item.href === activeHref;
+                          return (
+                            <SidebarMenuItem key={item.href}>
+                              <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={buttonMotion}>
+                                <Link href={item.href}>
+                                  {isActive && <ActivePill />}
+                                  <Icon />
+                                  <span>{item.label}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </SidebarGroup>
+              </Collapsible>
+            );
+          })}
+        </MotionConfig>
       </SidebarContent>
 
       <SidebarSeparator />

@@ -3222,6 +3222,10 @@ export interface SiteChrome {
      * Leave empty to keep the default logo mark.
      */
     image?: (number | null) | Media;
+    /**
+     * Footer logo, shown on the dark footer. Leave empty to reuse the header logo.
+     */
+    footerImage?: (number | null) | Media;
     wordmark?: string | null;
     href?: string | null;
   };
@@ -4176,6 +4180,7 @@ export interface SiteChromeSelect<T extends boolean = true> {
     | T
     | {
         image?: T;
+        footerImage?: T;
         wordmark?: T;
         href?: T;
       };

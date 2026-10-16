@@ -29,5 +29,6 @@ export async function restockProduct(input: RestockInput): Promise<RestockResult
   }
   revalidatePath("/dashboard/inventory");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/overview");
   return data as RestockResult;
 }

@@ -16,6 +16,7 @@ async function patchBooking(id: number, data: Record<string, unknown>, fallback:
     return { error: message, ok: false };
   }
   revalidatePath("/dashboard/bookings");
+  revalidatePath("/dashboard/overview");
   return { ok: true };
 }
 

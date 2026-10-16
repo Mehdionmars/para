@@ -1,7 +1,23 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Upload, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Boxes,
+  Circle,
+  CircleCheck,
+  FileText,
+  ImagePlus,
+  Layers,
+  Loader2,
+  type LucideIcon,
+  Plus,
+  Sparkles,
+  Tag,
+  Upload,
+  Wallet,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,8 +27,8 @@ import { createProduct, updateProduct, type ProductInput } from "@/app/dashboard
 import { ProductPreview } from "@/components/dashboard/products/ProductPreview";
 import { RoutinePicker } from "@/components/dashboard/products/RoutinePicker";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SaveToast } from "@/components/ui/toast-save";
 import {
   BADGE_TYPE_DEFAULT_LABEL,
   BADGE_TYPES,
@@ -132,6 +148,9 @@ export function ProductForm({
   const [uploadError, setUploadError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [variantImages, setVariantImages] = useState<Record<string, { preview?: string; uploading?: boolean }>>({});
+  // The photos and routine are kept outside react-hook-form; their opening
+  // values, so the save pill knows when they changed and can put them back.
+  const [initialMedia] = useState(() => ({ gallery, imageId, imagePreview, picks }));
 
   const {
     register,
@@ -140,7 +159,8 @@ export function ProductForm({
     trigger,
     setValue,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitted, isValid, touchedFields },
+    reset,
+    formState: { errors, isDirty, isSubmitting, isSubmitted, isValid, touchedFields },
   } = useForm<FormInput, unknown, FormOutput>({
     mode: "onTouched",
     defaultValues: seed
@@ -335,29 +355,80 @@ export function ProductForm({
   }
 
   const saveDisabled = isSubmitting || uploading || !isValid;
+  const mediaDirty =
+    imageId !== initialMedia.imageId ||
+    JSON.stringify(gallery) !== JSON.stringify(initialMedia.gallery) ||
+    JSON.stringify(picks.map((p) => p.id)) !== JSON.stringify(initialMedia.picks.map((p) => p.id));
+  const formDirty = isDirty || mediaDirty;
+
+  function resetAll() {
+    reset();
+    setImageId(initialMedia.imageId);
+    setImagePreview(initialMedia.imagePreview);
+    setGallery(initialMedia.gallery);
+    setPicks(initialMedia.picks);
+    setVariantImages({});
+    setSubmitError("");
+  }
   const saveLabel = product ? "Enregistrer" : "Créer le produit";
 
+  // What is still missing before the product can be created, in the order
+  // the form asks for it. The save button is disabled until the list is
+  // empty; it used to stay grey with no word on why.
+  const watchedName = watch("name") || "";
+  const watchedDescription = watch("description") || "";
+  const checklist = [
+    { done: watchedName.trim().length >= 2, label: "Nom du produit" },
+    { done: Number(watch("brand")) > 0, label: "Marque" },
+    { done: !!watch("category"), label: "Catégorie" },
+    { done: watchedDescription.trim().length >= 10, label: "Description (10 caractères min.)" },
+    { done: Number(watch("price")) > 0, label: "Prix" },
+    { done: !!imagePreview, label: "Photo principale (conseillé)", optional: true },
+  ];
+  const missing = checklist.filter((c) => !c.done && !c.optional).length;
+  const price = Number(watch("price")) || 0;
+  const oldPrice = Number(watch("oldPrice")) || 0;
+  const discount = oldPrice > price && price > 0 ? Math.round((1 - price / oldPrice) * 100) : 0;
+  const published = watch("isPublished");
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      <div className="sticky top-0 z-30 -mx-6 -mt-6 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-6 py-4 backdrop-blur">
-        <div className="min-w-0">
-          <h1 className="truncate text-base font-semibold text-foreground">
-            {product ? "Modifier le produit" : duplicateOf ? "Dupliquer un produit" : "Ajouter un produit"}
-          </h1>
-          {submitError ? (
-            <p className="mt-0.5 truncate text-xs text-destructive">{submitError}</p>
-          ) : product ? (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">{product.name}</p>
-          ) : duplicateOf ? (
-            // Names the source so the operator can tell at a glance that this
-            // is a copy and not the original they clicked from.
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              Copie de « {duplicateOf.name} » — SKU, code-barres et stock à renseigner.
-            </p>
-          ) : null}
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      {/* -top-5 / sm:-top-6, not top-0: the scroll container has p-5 / sm:p-6,
+          and a sticky top:0 parks at its padding edge — 24px down, leaving a
+          grey band above the bar and swallowing the gap under it. */}
+      <div className="sticky -top-5 z-30 -mx-5 -mt-5 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-5 py-3 backdrop-blur sm:-top-6 sm:-mx-6 sm:-mt-6 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard/products")}
+            aria-label="Retour aux produits"
+            className="flex size-9 flex-none items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ArrowLeft className="size-4" />
+          </button>
+          <div className="min-w-0">
+            <h1 className="truncate text-base font-semibold text-foreground">
+              {product ? "Modifier le produit" : duplicateOf ? "Dupliquer un produit" : "Nouveau produit"}
+            </h1>
+            {submitError ? (
+              <p className="mt-0.5 truncate text-xs text-destructive">{submitError}</p>
+            ) : product ? (
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{product.name}</p>
+            ) : duplicateOf ? (
+              // Names the source so the operator can tell at a glance that this
+              // is a copy and not the original they clicked from.
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                Copie de « {duplicateOf.name} » — SKU, code-barres et stock à renseigner.
+              </p>
+            ) : (
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                {missing > 0 ? `${missing} champ${missing > 1 ? "s" : ""} à remplir avant de créer` : "Prêt à être créé"}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex flex-none items-center gap-3">
-          <Button type="button" variant="outline" onClick={() => router.push("/dashboard/products")}>
+        <div className="flex flex-none items-center gap-2">
+          <Button type="button" variant="ghost" onClick={() => router.push("/dashboard/products")}>
             Annuler
           </Button>
           <Button type="submit" disabled={saveDisabled}>
@@ -367,454 +438,431 @@ export function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* LEFT — what the operator authors: identity, variants,
-            media. These are the tall, free-form blocks. */}
-        <div className="flex flex-col gap-6 lg:col-span-2">
-          <Card>
-            <CardContent className="flex flex-col gap-4">
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Nom du produit</label>
-                <Input {...register("name")} placeholder="Ex. Effaclar Gel Moussant Purifiant" />
-                {showError("name") && errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
-              </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <Section step={1} icon={FileText} title="Informations" description="Ce que le client lit en premier sur la fiche.">
+            <Field label="Nom du produit" error={showError("name") ? errors.name?.message : undefined}>
+              <Input {...register("name")} placeholder="Ex. Effaclar Gel Moussant Purifiant" className="h-11 text-base" />
+            </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Marque</label>
-                  <select
-                    {...register("brand")}
-                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                  >
-                    <option value="">—</option>
-                    {brands.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                      </option>
-                    ))}
-                  </select>
-                  {showError("brand") && errors.brand && <p className="mt-1 text-xs text-destructive">{errors.brand.message}</p>}
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Catégorie</label>
-                  <select
-                    {...register("category")}
-                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                  >
-                    <option value="">—</option>
-                    {CATEGORY_OPTIONS.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                  {showError("category") && errors.category && <p className="mt-1 text-xs text-destructive">{errors.category.message}</p>}
-                </div>
-              </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Field label="Marque" error={showError("brand") ? errors.brand?.message : undefined}>
+                <select {...register("brand")} className={SELECT}>
+                  <option value="">Choisir…</option>
+                  {brands.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Catégorie" error={showError("category") ? errors.category?.message : undefined}>
+                <select {...register("category")} className={SELECT}>
+                  <option value="">Choisir…</option>
+                  {CATEGORY_OPTIONS.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Contenance" hint="Ex. 400 ml, 50 g">
+                <Input {...register("size")} placeholder="400 ml" />
+              </Field>
+            </div>
 
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Description</label>
-                <textarea
-                  {...register("description")}
-                  rows={5}
-                  className="w-full rounded-lg border border-border bg-card p-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                />
-                {showError("description") && errors.description && <p className="mt-1 text-xs text-destructive">{errors.description.message}</p>}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex flex-col gap-4">
-              <div>
-                <div className="text-sm font-medium text-foreground">Variantes</div>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Facultatif — sans variante, le produit utilise son propre prix/stock/SKU ci-dessus comme variante unique.
-                </p>
-              </div>
-
-              <label className="flex items-center gap-2 text-sm text-foreground">
-                <input type="checkbox" {...register("hasVariants")} className="h-4 w-4 rounded border-input" />
-                Ce produit possède plusieurs variantes
-              </label>
-
-              {hasVariants && (
-                <>
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Type de variante</label>
-                    <select
-                      {...register("variantOptionType")}
-                      className="h-9 w-56 rounded-lg border border-border bg-card px-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                    >
-                      {VARIANT_OPTION_TYPES.map((t) => (
-                        <option key={t.value} value={t.value}>
-                          {t.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {errors.variants?.message && <p className="text-xs text-destructive">{errors.variants.message}</p>}
-
-                  <div className="flex flex-col gap-3">
-                    {variantsArray.fields.map((field, index) => {
-                      const preview = variantImagePreview(field.id, index);
-                      const rowUploading = variantImages[field.id]?.uploading;
-                      const rowErrors = errors.variants?.[index];
-                      return (
-                        <div key={field.id} className="flex gap-3 rounded-lg border border-border p-3">
-                          <div className="flex flex-none flex-col items-center gap-1">
-                            <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-muted">
-                              {preview && <Image src={preview} alt="" fill className="object-cover" />}
-                            </div>
-                            <label className="cursor-pointer text-center text-[10px] font-medium text-primary hover:underline">
-                              {rowUploading ? "…" : "Image"}
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleVariantImageChange(e, index, field.id)}
-                                disabled={rowUploading}
-                              />
-                            </label>
-                          </div>
-
-                          <div className="flex-1">
-                            <div className="grid grid-cols-3 gap-3">
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Valeur</label>
-                                <Input {...register(`variants.${index}.optionValue`)} placeholder="50 ml" />
-                                {rowErrors?.optionValue && <p className="mt-1 text-xs text-destructive">{rowErrors.optionValue.message}</p>}
-                              </div>
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">SKU</label>
-                                <Input {...register(`variants.${index}.sku`)} />
-                              </div>
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Code-barres</label>
-                                <Input {...register(`variants.${index}.barcode`)} />
-                              </div>
-                            </div>
-                            <div className="mt-3 grid grid-cols-3 gap-3">
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Prix (MAD)</label>
-                                <Input type="number" step="0.01" {...register(`variants.${index}.price`)} />
-                                {rowErrors?.price && <p className="mt-1 text-xs text-destructive">{rowErrors.price.message}</p>}
-                              </div>
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Ancien prix</label>
-                                <Input type="number" step="0.01" {...register(`variants.${index}.oldPrice`)} />
-                              </div>
-                              <label className="flex items-end gap-2 pb-2 text-xs text-foreground">
-                                <input type="checkbox" {...register(`variants.${index}.active`)} className="h-4 w-4 rounded border-input" />
-                                Actif
-                              </label>
-                            </div>
-                            <div className="mt-3 grid grid-cols-3 gap-3">
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Stock</label>
-                                <Input type="number" {...register(`variants.${index}.stock`)} />
-                              </div>
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Réservé</label>
-                                <Input type="number" {...register(`variants.${index}.reservedStock`)} />
-                              </div>
-                              <div>
-                                <label className="mb-1 block text-xs font-medium text-muted-foreground">Seuil stock faible</label>
-                                <Input type="number" {...register(`variants.${index}.lowStockThreshold`)} />
-                              </div>
-                            </div>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => variantsArray.remove(index)}
-                            aria-label="Supprimer cette variante"
-                            className="flex-none text-muted-foreground hover:text-destructive"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      variantsArray.append({
-                        active: true,
-                        barcode: "",
-                        lowStockThreshold: 5,
-                        optionValue: "",
-                        price: 0,
-                        reservedStock: 0,
-                        sku: "",
-                        stock: 0,
-                      })
-                    }
-                    className="flex items-center justify-center gap-1 self-start rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Ajouter une variante
-                  </button>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent>
-              <RoutinePicker
-                picks={picks}
-                onChange={setPicks}
-                brands={brands}
-                selfId={product?.id}
-                currentBrand={Number(watch("brand")) || undefined}
-                currentCategory={watch("category") || undefined}
+            <Field
+              label="Description"
+              hint={`${watchedDescription.trim().length} caractères`}
+              error={showError("description") ? errors.description?.message : undefined}
+            >
+              <textarea
+                {...register("description")}
+                rows={4}
+                placeholder="Bienfaits, type de peau, mode d'utilisation…"
+                className="w-full resize-y rounded-lg border border-input bg-card p-3 text-sm leading-relaxed outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
               />
-            </CardContent>
-          </Card>
+            </Field>
+          </Section>
 
-          <Card>
-            <CardContent className="flex flex-col gap-3">
-              <div className="text-sm font-medium text-foreground">Images</div>
-
-              {/* Capped width: a full-column aspect-square grew with the
-                  viewport — 891px tall at 1440px — and single-handedly made
-                  this the longest card on the page. The main image only needs
-                  to be recognisable, not life-size. */}
-              <div className="relative aspect-square w-full max-w-[260px] overflow-hidden rounded-xl bg-muted">
-                {imagePreview && <Image src={imagePreview} alt="" fill className="object-cover" />}
-                {imagePreview && (
-                  <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-white">
-                    Principale
+          <Section step={2} icon={ImagePlus} title="Photos" description="La première est l'image principale ; les suivantes forment la galerie de la fiche.">
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <div className="relative aspect-square w-full flex-none overflow-hidden rounded-xl border border-border bg-muted sm:w-36">
+                {imagePreview ? (
+                  <>
+                    <Image src={imagePreview} alt="" fill className="object-contain p-2" />
+                    <span className="absolute top-2 left-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                      Principale
+                    </span>
+                  </>
+                ) : (
+                  <span className="flex h-full flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+                    <ImagePlus className="size-7" aria-hidden="true" />
+                    Aucune photo
                   </span>
                 )}
               </div>
 
-              {gallery.length > 0 && (
-                <ul className="grid grid-cols-3 gap-2">
-                  {gallery.map((g, i) => (
-                    <li key={g.id} className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                      <Image src={g.url} alt="" fill sizes="120px" className="object-cover" />
-                      <div className="absolute inset-x-0 bottom-0 flex justify-center gap-0.5 bg-black/55 py-0.5">
-                        <button
-                          type="button"
-                          onClick={() => moveGalleryImage(i, -1)}
-                          disabled={i === 0}
-                          aria-label="Déplacer avant"
-                          className="px-1 text-xs text-white disabled:opacity-30"
-                        >
-                          ←
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => promoteToMain(g.id)}
-                          aria-label="Définir comme image principale"
-                          title="Définir comme principale"
-                          className="px-1 text-xs text-white"
-                        >
-                          ★
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveGalleryImage(i, 1)}
-                          disabled={i === gallery.length - 1}
-                          aria-label="Déplacer après"
-                          className="px-1 text-xs text-white disabled:opacity-30"
-                        >
-                          →
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeGalleryImage(g.id)}
-                          aria-label="Retirer cette image"
-                          className="px-1 text-xs text-white"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-input py-3 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary">
-                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                {uploading ? "Envoi en cours…" : imageId ? "Ajouter des images" : "Choisir des images"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleImageChange}
-                  disabled={uploading}
-                />
-              </label>
-              <p className="text-xs text-muted-foreground">
-                Sélection multiple possible. La première image devient l&apos;image principale ; les suivantes
-                alimentent la galerie de la fiche produit.
-              </p>
-              {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* RIGHT — the decisions: publish, price, stock, badges, and a
-            live preview. Sticky, so the operator keeps the commercial
-            summary in view while scrolling a long variant table. */}
-        <div className="flex flex-col gap-6 lg:sticky lg:top-20 lg:self-start">
-          <Card>
-            <CardContent className="flex flex-col gap-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Prix (MAD)</label>
-                  <Input type="number" step="0.01" {...register("price")} />
-                  {showError("price") && errors.price && <p className="mt-1 text-xs text-destructive">{errors.price.message}</p>}
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Ancien prix</label>
-                  <Input type="number" step="0.01" {...register("oldPrice")} />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Contenance</label>
-                  <Input {...register("size")} placeholder="400 ml" />
-                </div>
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                  <input type="checkbox" {...register("isPublished")} className="h-4 w-4 rounded border-input" />
-                  Publié sur le site
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <label
+                  className={`flex flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-4 text-center text-sm transition-colors ${
+                    uploading ? "border-primary/40 bg-primary/5 text-primary" : "border-input text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+                  }`}
+                >
+                  {uploading ? <Loader2 className="size-5 animate-spin" /> : <Upload className="size-5" />}
+                  <span className="font-medium">{uploading ? "Envoi en cours…" : imageId ? "Ajouter des photos" : "Choisir des photos"}</span>
+                  <span className="text-xs">PNG ou JPG, plusieurs à la fois</span>
+                  <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} disabled={uploading} />
                 </label>
-              </div>
-            </CardContent>
-          </Card>
+                {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
 
-          <Card>
-            <CardContent className="flex flex-col gap-4">
-              <div className="text-sm font-medium text-foreground">Stock</div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">SKU</label>
-                  <Input {...register("sku")} />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Code-barres</label>
-                  <Input {...register("barcode")} />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Seuil stock faible</label>
-                  <Input type="number" {...register("lowStockThreshold")} />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Stock</label>
-                  <Input type="number" {...register("stock")} />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Réservé</label>
-                  <Input type="number" {...register("reservedStock")} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-foreground">Badges</div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">Pastilles affichées en haut à gauche de la carte produit — {MAX_BADGES} maximum, empilées dans cet ordre.</p>
-                </div>
-                {badgesArray.fields.length < MAX_BADGES && (
-                  <button
-                    type="button"
-                    onClick={() => badgesArray.append({ enabled: true, type: "top", text: "", bgColor: "", textColor: "" })}
-                    className="flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Ajouter un badge
-                  </button>
+                {gallery.length > 0 && (
+                  <ul className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                    {gallery.map((g, i) => (
+                      <li key={g.id} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
+                        <Image src={g.url} alt="" fill sizes="120px" className="object-contain p-1" />
+                        <div className="absolute inset-x-0 bottom-0 flex justify-center gap-0.5 bg-black/60 py-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                          <button type="button" onClick={() => moveGalleryImage(i, -1)} disabled={i === 0} aria-label="Déplacer avant" className="px-1 text-xs text-white disabled:opacity-30">
+                            ←
+                          </button>
+                          <button type="button" onClick={() => promoteToMain(g.id)} aria-label="Définir comme image principale" title="Définir comme principale" className="px-1 text-xs text-white">
+                            ★
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveGalleryImage(i, 1)}
+                            disabled={i === gallery.length - 1}
+                            aria-label="Déplacer après"
+                            className="px-1 text-xs text-white disabled:opacity-30"
+                          >
+                            →
+                          </button>
+                          <button type="button" onClick={() => removeGalleryImage(g.id)} aria-label="Retirer cette image" className="px-1 text-xs text-white">
+                            ✕
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
+            </div>
+          </Section>
 
-              {errors.badges?.message && <p className="text-xs text-destructive">{errors.badges.message}</p>}
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <Section step={3} icon={Wallet} title="Prix">
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Prix de vente" error={showError("price") ? errors.price?.message : undefined}>
+                  <Suffix unit="MAD">
+                    <Input type="number" step="0.01" min="0" {...register("price")} placeholder="0" className="pr-12" />
+                  </Suffix>
+                </Field>
+                <Field label="Ancien prix" hint="Pour afficher une promotion">
+                  <Suffix unit="MAD">
+                    <Input type="number" step="0.01" min="0" {...register("oldPrice")} placeholder="—" className="pr-12" />
+                  </Suffix>
+                </Field>
+              </div>
+              {discount > 0 && (
+                <p className="rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive-strong">
+                  Promotion affichée : −{discount} % (au lieu de {oldPrice} MAD)
+                </p>
+              )}
+            </Section>
 
+            <Section step={4} icon={Boxes} title="Stock">
+              <div className="grid grid-cols-3 gap-3">
+                <Field label="En stock">
+                  <Input type="number" min="0" {...register("stock")} />
+                </Field>
+                <Field label="Réservé">
+                  <Input type="number" min="0" {...register("reservedStock")} />
+                </Field>
+                <Field label="Alerte sous">
+                  <Input type="number" min="0" {...register("lowStockThreshold")} />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="SKU">
+                  <Input {...register("sku")} placeholder="Réf. interne" />
+                </Field>
+                <Field label="Code-barres">
+                  <Input {...register("barcode")} placeholder="EAN" />
+                </Field>
+              </div>
+            </Section>
+          </div>
+
+          <Section
+            step={5}
+            icon={Layers}
+            title="Variantes"
+            description="Facultatif. Sans variante, le produit utilise son propre prix, stock et SKU ci-dessus."
+            action={
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
+                <span>Plusieurs variantes</span>
+                <span className="relative inline-flex h-5 w-9 flex-none items-center">
+                  <input type="checkbox" {...register("hasVariants")} className="peer sr-only" />
+                  <span className="absolute inset-0 rounded-full bg-input transition-colors peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-ring" />
+                  <span className="relative ml-0.5 size-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
+                </span>
+              </label>
+            }
+          >
+            {hasVariants && (
+              <>
+                <Field label="Type de variante">
+                  <select {...register("variantOptionType")} className={`${SELECT} sm:w-56`}>
+                    {VARIANT_OPTION_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                {errors.variants?.message && <p className="text-xs text-destructive">{errors.variants.message}</p>}
+
+                <div className="flex flex-col gap-3">
+                  {variantsArray.fields.map((field, index) => {
+                    const preview = variantImagePreview(field.id, index);
+                    const rowUploading = variantImages[field.id]?.uploading;
+                    const rowErrors = errors.variants?.[index];
+                    return (
+                      <div key={field.id} className="flex gap-3 rounded-xl border border-border bg-muted/20 p-3">
+                        <div className="flex flex-none flex-col items-center gap-1">
+                          <div className="relative size-16 overflow-hidden rounded-lg border border-border bg-card">
+                            {preview && <Image src={preview} alt="" fill className="object-contain p-1" />}
+                          </div>
+                          <label className="cursor-pointer text-center text-[11px] font-medium text-primary hover:underline">
+                            {rowUploading ? "…" : "Photo"}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleVariantImageChange(e, index, field.id)}
+                              disabled={rowUploading}
+                            />
+                          </label>
+                        </div>
+
+                        <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 sm:grid-cols-4">
+                          <Field label="Valeur" error={rowErrors?.optionValue?.message}>
+                            <Input {...register(`variants.${index}.optionValue`)} placeholder="50 ml" />
+                          </Field>
+                          <Field label="Prix" error={rowErrors?.price?.message}>
+                            <Suffix unit="MAD">
+                              <Input type="number" step="0.01" {...register(`variants.${index}.price`)} className="pr-12" />
+                            </Suffix>
+                          </Field>
+                          <Field label="Ancien prix">
+                            <Input type="number" step="0.01" {...register(`variants.${index}.oldPrice`)} />
+                          </Field>
+                          <Field label="Stock">
+                            <Input type="number" {...register(`variants.${index}.stock`)} />
+                          </Field>
+                          <Field label="SKU">
+                            <Input {...register(`variants.${index}.sku`)} />
+                          </Field>
+                          <Field label="Code-barres">
+                            <Input {...register(`variants.${index}.barcode`)} />
+                          </Field>
+                          <Field label="Réservé">
+                            <Input type="number" {...register(`variants.${index}.reservedStock`)} />
+                          </Field>
+                          <Field label="Alerte sous">
+                            <Input type="number" {...register(`variants.${index}.lowStockThreshold`)} />
+                          </Field>
+                          <label className="col-span-full flex items-center gap-2 text-xs text-foreground">
+                            <input type="checkbox" {...register(`variants.${index}.active`)} className="size-4 rounded border-input" />
+                            Variante active (vendue sur le site)
+                          </label>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => variantsArray.remove(index)}
+                          aria-label="Supprimer cette variante"
+                          className="flex size-8 flex-none items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <X className="size-4" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="self-start"
+                  onClick={() =>
+                    variantsArray.append({
+                      active: true,
+                      barcode: "",
+                      lowStockThreshold: 5,
+                      optionValue: "",
+                      price: 0,
+                      reservedStock: 0,
+                      sku: "",
+                      stock: 0,
+                    })
+                  }
+                >
+                  <Plus className="size-3.5" /> Ajouter une variante
+                </Button>
+              </>
+            )}
+          </Section>
+
+          <Section
+            step={6}
+            icon={Tag}
+            title="Badges"
+            description={`Pastilles en haut à gauche de la carte produit — ${MAX_BADGES} maximum, dans cet ordre.`}
+            action={
+              badgesArray.fields.length < MAX_BADGES && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => badgesArray.append({ enabled: true, type: "top", text: "", bgColor: "", textColor: "" })}
+                >
+                  <Plus className="size-3.5" /> Ajouter
+                </Button>
+              )
+            }
+          >
+            {errors.badges?.message && <p className="text-xs text-destructive">{errors.badges.message}</p>}
+            {badgesArray.fields.length === 0 && <p className="text-sm text-muted-foreground">Aucun badge. « Nouveauté », « Promo » ou un texte libre.</p>}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {badgesArray.fields.map((field, index) => {
                 const type = watch(`badges.${index}.type`) || "top";
                 return (
-                  <div key={field.id} className="flex flex-col gap-3 rounded-lg border border-border p-3">
+                  <div key={field.id} className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-3">
                     <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-2 text-xs text-foreground">
-                        <input type="checkbox" {...register(`badges.${index}.enabled`)} className="h-4 w-4 rounded border-input" />
-                        Actif
+                      <label className="flex items-center gap-2 text-xs font-medium text-foreground">
+                        <input type="checkbox" {...register(`badges.${index}.enabled`)} className="size-4 rounded border-input" />
+                        Badge {index + 1} actif
                       </label>
-                      <button type="button" onClick={() => badgesArray.remove(index)} aria-label="Supprimer ce badge" className="text-muted-foreground hover:text-destructive">
-                        <X className="h-4 w-4" />
+                      <button
+                        type="button"
+                        onClick={() => badgesArray.remove(index)}
+                        aria-label="Supprimer ce badge"
+                        className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <X className="size-4" />
                       </button>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Type</label>
-                        <select
-                          {...register(`badges.${index}.type`)}
-                          className="h-9 w-full rounded-lg border border-border bg-card px-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                        >
+                      <Field label="Type">
+                        <select {...register(`badges.${index}.type`)} className={SELECT}>
                           {BADGE_TYPES.map((t) => (
                             <option key={t.value} value={t.value}>
                               {t.label}
                             </option>
                           ))}
                         </select>
-                      </div>
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Texte</label>
-                        <Input
-                          {...register(`badges.${index}.text`)}
-                          placeholder={type === "custom" ? "Texte requis" : BADGE_TYPE_DEFAULT_LABEL[type] || ""}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Couleur du fond</label>
+                      </Field>
+                      <Field label="Texte">
+                        <Input {...register(`badges.${index}.text`)} placeholder={type === "custom" ? "Texte requis" : BADGE_TYPE_DEFAULT_LABEL[type] || ""} />
+                      </Field>
+                      <Field label="Fond">
                         <div className="flex items-center gap-2">
-                          <input type="color" {...register(`badges.${index}.bgColor`)} className="h-9 w-10 flex-none cursor-pointer rounded border border-border bg-card p-0.5" />
-                          <Input {...register(`badges.${index}.bgColor`)} placeholder="Défaut du thème" />
+                          <input type="color" {...register(`badges.${index}.bgColor`)} className="h-10 w-10 flex-none cursor-pointer rounded-lg border border-border bg-card p-0.5" />
+                          <Input {...register(`badges.${index}.bgColor`)} placeholder="Thème" />
                         </div>
-                      </div>
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Couleur du texte</label>
+                      </Field>
+                      <Field label="Texte (couleur)">
                         <div className="flex items-center gap-2">
-                          <input type="color" {...register(`badges.${index}.textColor`)} className="h-9 w-10 flex-none cursor-pointer rounded border border-border bg-card p-0.5" />
-                          <Input {...register(`badges.${index}.textColor`)} placeholder="Défaut du thème" />
+                          <input type="color" {...register(`badges.${index}.textColor`)} className="h-10 w-10 flex-none cursor-pointer rounded-lg border border-border bg-card p-0.5" />
+                          <Input {...register(`badges.${index}.textColor`)} placeholder="Thème" />
                         </div>
-                      </div>
+                      </Field>
                     </div>
                   </div>
                 );
               })}
-            </CardContent>
-          </Card>
+            </div>
+          </Section>
 
-          <Card>
-            <CardContent>
-              <ProductPreview
-                badges={previewBadges}
-                brand={previewBrandName}
-                imageUrl={imagePreview || undefined}
-                name={watch("name") || ""}
-                oldPrice={Number(watch("oldPrice")) || undefined}
-                price={Number(watch("price")) || 0}
-                size={watch("size") || ""}
-              />
-            </CardContent>
-          </Card>
+          <Section
+            step={7}
+            icon={Sparkles}
+            title="Complétez votre routine"
+            description="Jusqu'à 2 produits proposés avec celui-ci sur sa fiche. Glissez pour l'ordre ; s'il en manque, la même sous-catégorie complète."
+          >
+            <RoutinePicker
+              hideHeading
+              picks={picks}
+              onChange={setPicks}
+              brands={brands}
+              selfId={product?.id}
+              currentBrand={Number(watch("brand")) || undefined}
+              currentCategory={watch("category") || undefined}
+            />
+          </Section>
         </div>
+
+        {/* The decisions and the result, kept in view while the long left
+            column scrolls: publication, what is missing, the card itself. */}
+        {/* top-14, measured from the scroller's padding edge: it lands just
+            under the sticky bar and level with the first card. top-20
+            pushed the column 20px below the left one. */}
+        <aside className="flex flex-col gap-3 lg:sticky lg:top-14 lg:self-start">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <label className="flex cursor-pointer items-center justify-between gap-3">
+              <span>
+                <span className="block text-sm font-semibold text-foreground">{published ? "Publié sur le site" : "Brouillon"}</span>
+                <span className="block text-xs text-muted-foreground">
+                  {published ? "Visible par les clients dès l'enregistrement." : "Invisible sur le site tant qu'il n'est pas publié."}
+                </span>
+              </span>
+              <span className="relative inline-flex h-6 w-11 flex-none items-center">
+                <input type="checkbox" {...register("isPublished")} className="peer sr-only" />
+                <span className="absolute inset-0 rounded-full bg-input transition-colors peer-checked:bg-success peer-focus-visible:ring-2 peer-focus-visible:ring-ring" />
+                <span className="relative ml-0.5 size-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
+              </span>
+            </label>
+          </div>
+
+          {!product && (
+            <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
+              <p className="mb-2 text-sm font-semibold text-foreground">
+                {missing > 0 ? `Encore ${missing} étape${missing > 1 ? "s" : ""}` : "Tout est prêt"}
+              </p>
+              <ul className="flex flex-col gap-1.5">
+                {checklist.map((c) => (
+                  <li key={c.label} className={`flex items-center gap-2 text-sm ${c.done ? "text-muted-foreground" : "text-foreground"}`}>
+                    {c.done ? (
+                      <CircleCheck className="size-4 flex-none text-success" aria-hidden="true" />
+                    ) : (
+                      <Circle className={`size-4 flex-none ${c.optional ? "text-muted-foreground/50" : "text-warning"}`} aria-hidden="true" />
+                    )}
+                    <span className={c.done ? "line-through decoration-muted-foreground/40" : ""}>{c.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <ProductPreview
+              badges={previewBadges}
+              brand={previewBrandName}
+              imageUrl={imagePreview || undefined}
+              name={watchedName}
+              oldPrice={oldPrice || undefined}
+              price={price}
+              size={watch("size") || ""}
+            />
+          </div>
+        </aside>
       </div>
 
-      <div className="flex justify-end gap-3">
-        <Button type="button" variant="outline" onClick={() => router.push("/dashboard/products")}>
+      <div className="flex justify-end gap-2 border-t border-border pt-4">
+        <Button type="button" variant="ghost" onClick={() => router.push("/dashboard/products")}>
           Annuler
         </Button>
         <Button type="submit" disabled={saveDisabled}>
@@ -822,6 +870,79 @@ export function ProductForm({
           {saveLabel}
         </Button>
       </div>
+
+      <SaveToast
+        state={isSubmitting ? "saving" : submitError ? "error" : formDirty ? "dirty" : "idle"}
+        errorMessage={submitError}
+        message={!product && missing > 0 ? `Nouveau produit · encore ${missing} champ${missing > 1 ? "s" : ""}` : undefined}
+        onReset={resetAll}
+        onSave={() => void handleSubmit(onSubmit)()}
+        saveLabel={saveLabel}
+      />
     </form>
+  );
+}
+
+const SELECT =
+  "h-10 w-full rounded-lg border border-input bg-card px-3 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30";
+
+/** A numbered block of the form: icon, title, a line of help, an optional
+ * control on the right, then the fields. */
+function Section({
+  step,
+  icon: Icon,
+  title,
+  description,
+  action,
+  children,
+}: {
+  step: number;
+  icon: LucideIcon;
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-xl border border-border bg-card shadow-xs">
+      <header className="flex items-center justify-between gap-4 px-4 pt-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-8 flex-none items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Icon className="size-4.5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-foreground">
+              <span className="mr-1.5 text-muted-foreground tabular-nums">{step}.</span>
+              {title}
+            </h2>
+            {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
+          </div>
+        </div>
+        {action && <div className="flex-none">{action}</div>}
+      </header>
+      {children && <div className="flex flex-col gap-3 px-4 pt-3 pb-4">{children}</div>}
+    </section>
+  );
+}
+
+/** A label over its control, with a hint or an error under it. A real
+ * <label>, so the control inside is named by it. */
+function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: React.ReactNode }) {
+  return (
+    <label className="flex min-w-0 flex-col gap-1.5">
+      <span className="text-xs font-medium text-foreground/80">{label}</span>
+      {children}
+      {error ? <span className="text-xs text-destructive">{error}</span> : hint ? <span className="text-[11px] text-muted-foreground">{hint}</span> : null}
+    </label>
+  );
+}
+
+/** A unit drawn inside the right edge of an input ("MAD"). */
+function Suffix({ unit, children }: { unit: string; children: React.ReactNode }) {
+  return (
+    <div className="relative">
+      {children}
+      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-medium text-muted-foreground">{unit}</span>
+    </div>
   );
 }

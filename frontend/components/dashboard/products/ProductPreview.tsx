@@ -52,7 +52,7 @@ export function ProductPreview({
     <div>
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">Aperçu</p>
 
-      <div className="mx-auto w-full max-w-[230px]">
+      <div className="mx-auto w-full max-w-[190px]">
         <article className="overflow-hidden rounded-[18px] border border-[rgba(94,64,116,.1)] bg-white">
           <div className="relative aspect-[3/4] overflow-hidden bg-[#F4F1EC]">
             <CloudinaryImage

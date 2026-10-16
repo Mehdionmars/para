@@ -48,6 +48,7 @@ export function RoutinePicker({
   selfId,
   currentBrand,
   currentCategory,
+  hideHeading = false,
 }: {
   picks: RoutinePick[];
   onChange: (next: RoutinePick[]) => void;
@@ -56,6 +57,8 @@ export function RoutinePicker({
   selfId?: number;
   currentBrand?: number;
   currentCategory?: string;
+  /** For a host that titles the block itself (the product form's sections). */
+  hideHeading?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<RoutinePick[]>([]);
@@ -121,7 +124,7 @@ export function RoutinePicker({
 
   return (
     <div className="flex flex-col gap-3">
-      <div>
+      <div className={hideHeading ? "hidden" : undefined}>
         <div className="text-sm font-medium text-foreground">
           Complétez votre routine
         </div>

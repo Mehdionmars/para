@@ -55,5 +55,6 @@ export async function markNotificationRead(id: number): Promise<ActionResult> {
   if (!res.ok) return { error: "Impossible de marquer comme lue.", ok: false };
   revalidatePath("/dashboard/notifications");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/overview");
   return { ok: true };
 }

@@ -51,14 +51,16 @@ export function OrderTimelineCompact({
     // Steps keep a fixed width and never shrink; the row scrolls instead.
     // Letting them flex meant the label centred and spilled past its own box
     // — the first one rendered as "tente" instead of "En attente".
-    <ol className="flex items-start overflow-x-auto pb-1" aria-label="Progression de la commande">
+    <ol className="flex w-full items-start overflow-x-auto pb-1" aria-label="Progression de la commande">
       {ORDER_TIMELINE_STEPS.map((step, i) => {
         const done = i <= lastProgress;
         const current = !ended && i === reachedIndex;
         const isLast = i === ORDER_TIMELINE_STEPS.length - 1;
 
         return (
-          <li key={step} className="flex flex-none items-start">
+          // flex-1 stretches the steps across a wide masthead; no min-w-0, so a
+          // step never shrinks below its label and a phone scrolls the row.
+          <li key={step} className={`flex items-start ${isLast ? "flex-none" : "flex-1"}`}>
             <div className="flex w-[88px] flex-none flex-col items-center px-1 text-center">
               <span
                 aria-hidden="true"
@@ -89,7 +91,7 @@ export function OrderTimelineCompact({
             {!isLast && (
               <span
                 aria-hidden="true"
-                className={`mt-2.5 h-0.5 w-6 flex-none ${i < lastProgress ? "bg-success" : "bg-border"}`}
+                className={`mt-2.5 h-0.5 min-w-6 flex-1 rounded-full ${i < lastProgress ? "bg-success" : "bg-border"}`}
               />
             )}
           </li>

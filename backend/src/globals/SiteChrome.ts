@@ -204,6 +204,14 @@ export const SiteChrome: GlobalConfig = {
       type: 'group',
       fields: [
         { name: 'image', type: 'upload', relationTo: 'media', admin: { description: 'Leave empty to keep the default logo mark.' } },
+        {
+          // The footer sits on a dark ground, where a mark on a white square
+          // reads as a sticker. Empty: the footer uses the header logo.
+          name: 'footerImage',
+          type: 'upload',
+          relationTo: 'media',
+          admin: { description: 'Footer logo, shown on the dark footer. Leave empty to reuse the header logo.' },
+        },
         { name: 'wordmark', type: 'text', defaultValue: "PARA D'HIVER" },
         { name: 'href', type: 'text', defaultValue: '/' },
       ],
