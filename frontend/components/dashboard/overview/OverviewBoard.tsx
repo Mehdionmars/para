@@ -78,7 +78,7 @@ export function OverviewBoard({ widgets }: { widgets: BoardWidget[] }) {
   const onChange = useCallback((next: WidgetItem[]) => writeSaved(next.map((w) => w.id)), []);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-end gap-2">
         {editing && (
           <p className="mr-auto text-sm text-muted-foreground">
@@ -120,7 +120,8 @@ export function OverviewBoard({ widgets }: { widgets: BoardWidget[] }) {
         editable={editing}
         maxColumns={6}
         cellSize={210}
-        gap={12}
+        // 24px, not the grid's 12: at 12 the cards read as one welded slab.
+        gap={24}
         radius={16}
         renderItem={(item) => (
           <div
