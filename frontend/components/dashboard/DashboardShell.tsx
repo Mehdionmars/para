@@ -3,6 +3,7 @@
 import { DashboardBreadcrumb } from "@/components/dashboard/DashboardBreadcrumb";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
+import { VisitRecorder } from "@/components/dashboard/VisitRecorder";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -64,6 +65,7 @@ export function DashboardShell({
           <Separator orientation="vertical" className="mr-1 !h-4" />
 
           <DashboardBreadcrumb />
+          <VisitRecorder />
 
           {/* The space in the middle of the bar is deliberately empty. A
               scrolling greeting-date-clock marquee lived here: 32s of motion

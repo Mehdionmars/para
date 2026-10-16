@@ -1,11 +1,15 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
+import { MotionConfig, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { type NavItem, visibleNavGroups } from "@/lib/dashboard/nav";
 import type { Role } from "@/lib/dashboard/roles";
 import { DashboardUserMenu } from "@/components/dashboard/DashboardUserMenu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +30,20 @@ function matches(pathname: string, item: NavItem) {
   return item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
+// Motion, after shadcnblocks' Application Shell 1: a press that gives a
+// little, and the active background drawn by ActivePill — one element that
+// slides from link to link — instead of the primitive's static fill.
+const buttonMotion =
+  "relative isolate overflow-visible transition-[width,height,padding,background-color,color,transform] duration-200 ease-out group-data-[collapsible=icon]:overflow-hidden active:scale-[0.98] data-[active=true]:bg-transparent data-[active=true]:hover:bg-sidebar-accent/60 motion-reduce:transition-none motion-reduce:active:scale-100";
+
+const ActivePill = () => (
+  <motion.span
+    layoutId="sidebar-active-pill"
+    transition={{ bounce: 0.18, duration: 0.45, type: "spring" }}
+    className="absolute inset-0 -z-10 rounded-md bg-sidebar-accent shadow-xs ring-1 ring-sidebar-border/60"
+  />
+);
+
 /**
  * The dashboard navigation, on shadcn's Sidebar primitives.
  *
@@ -43,6 +61,8 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
   // Boutique destinations at all, and a group label with nothing under it is
   // a promise the sidebar does not keep.
   const groups = visibleNavGroups({ roles });
+  // Groups the operator folded. Everything starts open.
+  const [folded, setFolded] = useState<Record<string, boolean>>({});
 
   // Longest-href match wins, so a page never lights up two nav items at once
   // (e.g. /dashboard/products/new is a path-prefix of /dashboard/products).
@@ -94,43 +114,58 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
           scrollbar sat directly beside the page's own, so the admin showed two
           parallel grey gutters. Wheel and keyboard scrolling are unaffected. */}
       <SidebarContent className="scrollbar-none">
-        {groups.map((group) => (
-          <SidebarGroup key={group.label}>
-            {/* The label is hidden by the sidebar's own CSS once collapsed to
-                the icon rail, where there is no room for it and the tooltips
-                carry the naming instead. */}
-            {/* text-muted-foreground, overriding the primitive's
-                text-sidebar-foreground/70 which measured 3.63:1 against the
-                white sidebar — a fail for 12px text. The token lands at
-                4.74:1 and still reads quieter than the nav items below it,
-                which is the whole job of a group label. */}
-            <SidebarGroupLabel className="text-muted-foreground">
-              {group.label}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={item.href === activeHref}
-                        tooltip={item.label}
-                        className="transition-colors"
-                      >
-                        <Link href={item.href}>
-                          <Icon />
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <MotionConfig reducedMotion="user">
+          {groups.map((group, groupIndex) => {
+            // The group holding the current page always opens with it; the
+            // others are open too unless the operator folded them.
+            const holdsActive = group.items.some((item) => item.href === activeHref);
+            return (
+              <Collapsible
+                key={group.label}
+                open={holdsActive || !folded[group.label]}
+                onOpenChange={(open) => setFolded((f) => ({ ...f, [group.label]: !open }))}
+                className="group/collapsible"
+              >
+                <SidebarGroup
+                  className="animate-in fade-in-0 slide-in-from-left-2 fill-mode-both duration-500 motion-reduce:animate-none"
+                  style={{ animationDelay: `${groupIndex * 60}ms` }}
+                >
+                  {/* text-muted-foreground, overriding the primitive's
+                      text-sidebar-foreground/70 which measured 3.63:1 against
+                      the white sidebar — a fail for 12px text. The label is
+                      hidden by the sidebar's own CSS on the icon rail. */}
+                  <SidebarGroupLabel asChild className="text-muted-foreground hover:text-foreground">
+                    <CollapsibleTrigger className="flex w-full items-center">
+                      {group.label}
+                      <ChevronRight className="ml-auto size-3.5 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none" />
+                    </CollapsibleTrigger>
+                  </SidebarGroupLabel>
+                  <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down motion-reduce:animate-none">
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {group.items.map((item) => {
+                          const Icon = item.icon;
+                          const isActive = item.href === activeHref;
+                          return (
+                            <SidebarMenuItem key={item.href}>
+                              <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={buttonMotion}>
+                                <Link href={item.href}>
+                                  {isActive && <ActivePill />}
+                                  <Icon />
+                                  <span>{item.label}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </SidebarGroup>
+              </Collapsible>
+            );
+          })}
+        </MotionConfig>
       </SidebarContent>
 
       <SidebarSeparator />

@@ -23,6 +23,9 @@ export function AIChatInput({
   label = "Rechercher",
   className,
   autoFocus = false,
+  onKeyDown,
+  onFocusChange,
+  inputProps,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -33,6 +36,11 @@ export function AIChatInput({
   label?: string;
   className?: string;
   autoFocus?: boolean;
+  /** Keys on the field, before Enter submits — for a results list below. */
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onFocusChange?: (focused: boolean) => void;
+  /** Extra attributes for the input (aria-* for a combobox). */
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const [index, setIndex] = useState(0);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
@@ -104,8 +112,17 @@ export function AIChatInput({
           type="search"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onFocus={() => {
+            setFocused(true);
+            onFocusChange?.(true);
+          }}
+          onBlur={() => {
+            setFocused(false);
+            onFocusChange?.(false);
+          }}
+          onKeyDown={onKeyDown}
+          autoComplete="off"
+          {...inputProps}
           autoFocus={autoFocus}
           aria-label={label}
           className="relative z-10 w-full border-0 bg-transparent py-2 text-base outline-0 [&::-webkit-search-cancel-button]:hidden"
