@@ -392,8 +392,11 @@ export function ProductForm({
   const published = watch("isPublished");
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      <div className="sticky top-0 z-30 -mx-6 -mt-6 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-6 py-3 backdrop-blur">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      {/* -top-5 / sm:-top-6, not top-0: the scroll container has p-5 / sm:p-6,
+          and a sticky top:0 parks at its padding edge — 24px down, leaving a
+          grey band above the bar and swallowing the gap under it. */}
+      <div className="sticky -top-5 z-30 -mx-5 -mt-5 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-5 py-3 backdrop-blur sm:-top-6 sm:-mx-6 sm:-mt-6 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -435,8 +438,8 @@ export function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="flex min-w-0 flex-col gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex min-w-0 flex-col gap-4">
           <Section step={1} icon={FileText} title="Informations" description="Ce que le client lit en premier sur la fiche.">
             <Field label="Nom du produit" error={showError("name") ? errors.name?.message : undefined}>
               <Input {...register("name")} placeholder="Ex. Effaclar Gel Moussant Purifiant" className="h-11 text-base" />
@@ -475,7 +478,7 @@ export function ProductForm({
             >
               <textarea
                 {...register("description")}
-                rows={6}
+                rows={4}
                 placeholder="Bienfaits, type de peau, mode d'utilisation…"
                 className="w-full resize-y rounded-lg border border-input bg-card p-3 text-sm leading-relaxed outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
               />
@@ -484,7 +487,7 @@ export function ProductForm({
 
           <Section step={2} icon={ImagePlus} title="Photos" description="La première est l'image principale ; les suivantes forment la galerie de la fiche.">
             <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="relative aspect-square w-full flex-none overflow-hidden rounded-xl border border-border bg-muted sm:w-56">
+              <div className="relative aspect-square w-full flex-none overflow-hidden rounded-xl border border-border bg-muted sm:w-36">
                 {imagePreview ? (
                   <>
                     <Image src={imagePreview} alt="" fill className="object-contain p-2" />
@@ -502,11 +505,11 @@ export function ProductForm({
 
               <div className="flex min-w-0 flex-1 flex-col gap-3">
                 <label
-                  className={`flex min-h-32 flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center text-sm transition-colors ${
+                  className={`flex flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-4 text-center text-sm transition-colors ${
                     uploading ? "border-primary/40 bg-primary/5 text-primary" : "border-input text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
                   }`}
                 >
-                  {uploading ? <Loader2 className="size-6 animate-spin" /> : <Upload className="size-6" />}
+                  {uploading ? <Loader2 className="size-5 animate-spin" /> : <Upload className="size-5" />}
                   <span className="font-medium">{uploading ? "Envoi en cours…" : imageId ? "Ajouter des photos" : "Choisir des photos"}</span>
                   <span className="text-xs">PNG ou JPG, plusieurs à la fois</span>
                   <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} disabled={uploading} />
@@ -546,7 +549,7 @@ export function ProductForm({
             </div>
           </Section>
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <Section step={3} icon={Wallet} title="Prix">
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Prix de vente" error={showError("price") ? errors.price?.message : undefined}>
@@ -804,7 +807,10 @@ export function ProductForm({
 
         {/* The decisions and the result, kept in view while the long left
             column scrolls: publication, what is missing, the card itself. */}
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
+        {/* top-14, measured from the scroller's padding edge: it lands just
+            under the sticky bar and level with the first card. top-20
+            pushed the column 20px below the left one. */}
+        <aside className="flex flex-col gap-3 lg:sticky lg:top-14 lg:self-start">
           <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
             <label className="flex cursor-pointer items-center justify-between gap-3">
               <span>
@@ -899,9 +905,9 @@ function Section({
 }) {
   return (
     <section className="rounded-xl border border-border bg-card shadow-xs">
-      <header className="flex items-start justify-between gap-4 px-5 pt-5">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className="flex size-9 flex-none items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <header className="flex items-center justify-between gap-4 px-4 pt-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-8 flex-none items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Icon className="size-4.5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
@@ -914,7 +920,7 @@ function Section({
         </div>
         {action && <div className="flex-none">{action}</div>}
       </header>
-      <div className="flex flex-col gap-4 p-5">{children}</div>
+      {children && <div className="flex flex-col gap-3 px-4 pt-3 pb-4">{children}</div>}
     </section>
   );
 }
