@@ -1,4 +1,4 @@
-import { ArrowRight, ShoppingCart, TriangleAlert } from "lucide-react";
+import { ArrowRight, CalendarClock, ShoppingCart, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { OrdersCalendar, type CalendarOrder } from "@/components/dashboard/overview/OrdersCalendar";
@@ -8,7 +8,10 @@ import {
   type StatusSlice,
 } from "@/components/dashboard/overview/OverviewCharts";
 import { OverviewTabs, type RecentProduct } from "@/components/dashboard/overview/OverviewTabs";
+import { UpcomingBookings } from "@/components/dashboard/overview/UpcomingBookings";
 import { StatsRow, type Kpi } from "@/components/dashboard/stats/StatsRow";
+import { casablancaToday, listBookings } from "@/lib/dashboard/bookings";
+import type { Booking } from "@/lib/dashboard/bookings-types";
 import { listRecentCoupons, type Coupon } from "@/lib/dashboard/coupons";
 import { dayKey, money, shortDate } from "@/lib/dashboard/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS } from "@/lib/dashboard/orders-types";
@@ -263,11 +266,13 @@ export default async function DashboardOverviewPage() {
   // them being unreachable should cost that panel and nothing else. A rejected
   // list is passed on as null so the panel says it could not load, rather than
   // rendering empty and reading as "nothing here yet".
-  const [productStats, orders, recentProducts, coupons] = await Promise.allSettled([
+  const today = casablancaToday();
+  const [productStats, orders, recentProducts, coupons, bookingsResult] = await Promise.allSettled([
     getProductStats(),
     getOrders(),
     getRecentProducts(),
     listRecentCoupons(6),
+    listBookings(today),
   ]);
 
   const products: ProductStats =
@@ -276,6 +281,8 @@ export default async function DashboardOverviewPage() {
   const allOrders: OverviewOrder[] | null = orders.status === "fulfilled" ? orders.value : null;
   const recent: RecentProduct[] | null = recentProducts.status === "fulfilled" ? recentProducts.value : null;
   const couponList: Coupon[] | null = coupons.status === "fulfilled" ? coupons.value : null;
+  const bookings: Booking[] | null = bookingsResult.status === "fulfilled" ? bookingsResult.value : null;
+  const bookingsToConfirm = (bookings ?? []).filter((b) => b.status === "pending").length;
 
   const { current, previous } = splitWindows(allOrders ?? []);
 
@@ -416,8 +423,21 @@ export default async function DashboardOverviewPage() {
       {/* The worklist, above the figures: the two numbers that ask for an
           action, as rows that open the list behind them. Hidden entirely when
           there is nothing to do, so an empty counter never reads as a task. */}
-      {(pending > 0 || products.lowStock > 0) && (
+      {(pending > 0 || products.lowStock > 0 || bookingsToConfirm > 0) && (
         <div className="flex flex-col gap-2 sm:flex-row">
+          {bookingsToConfirm > 0 && (
+            <Link
+              href="/dashboard/bookings"
+              className="flex flex-1 items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xs transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              <span className="flex items-center gap-2 text-foreground">
+                <CalendarClock className="size-4 text-warning" aria-hidden="true" />
+                <strong className="font-semibold tabular-nums">{bookingsToConfirm}</strong>
+                rendez-vous à confirmer
+              </span>
+              <ArrowRight className="size-4 flex-none text-muted-foreground" aria-hidden="true" />
+            </Link>
+          )}
           {pending > 0 && (
             <Link
               href="/dashboard/orders"
@@ -454,6 +474,8 @@ export default async function DashboardOverviewPage() {
         <StatsRow stats={headline} columns={4} />
         <StatsRow stats={operations} columns={3} />
       </div>
+
+      <UpcomingBookings bookings={bookings} today={today} />
 
       <OverviewCharts revenue={revenueSeries} statuses={statusSeries} />
 
