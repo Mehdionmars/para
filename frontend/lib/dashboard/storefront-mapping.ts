@@ -640,7 +640,7 @@ export const HEADER_ACTION_ICONS = ["MapPin", "MessageCircle", "Phone", "Mail", 
 
 export type TopBarMessage = { text: string; active: boolean };
 export type TopBarDraft = { enabled: boolean; messages: TopBarMessage[]; marqueeSpeedSec: number; mobileMessage: string };
-export type LogoDraft = { image: ImageRef; wordmark: string; href: string };
+export type LogoDraft = { image: ImageRef; footerImage: ImageRef; wordmark: string; href: string };
 export type HeaderSearchDraft = { enabled: boolean; placeholder: string };
 export type HeaderActionDraft = { key: string; label: string; icon: string; href: string; visible: boolean };
 export type FooterLinkDraft = { label: string; href: string; visible: boolean };
@@ -746,6 +746,7 @@ export function mapSiteChromeDocToDraft(chrome: any): SiteChromeDraft {
     },
     logo: {
       image: mediaRef(chrome.logo?.image),
+      footerImage: mediaRef(chrome.logo?.footerImage),
       wordmark: chrome.logo?.wordmark || "PARA D'HIVER",
       href: chrome.logo?.href || "/",
     },
@@ -775,7 +776,7 @@ export function mapSiteChromeDraftToPayload(draft: SiteChromeDraft): Record<stri
   const img = (i: ImageRef) => (i.id ? i.id : null);
   return {
     topBar: draft.topBar,
-    logo: { image: img(draft.logo.image), wordmark: draft.logo.wordmark, href: draft.logo.href },
+    logo: { image: img(draft.logo.image), footerImage: img(draft.logo.footerImage), wordmark: draft.logo.wordmark, href: draft.logo.href },
     headerSearch: draft.headerSearch,
     headerActions: draft.headerActions,
     footerColumns: draft.footerColumns,

@@ -34,6 +34,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   movements: "Mouvements",
   new: "Nouveau",
   overview: "Vue d'ensemble",
+  logo: "Logo",
   notifications: "Notifications",
   orders: "Commandes",
   print: "Impression",

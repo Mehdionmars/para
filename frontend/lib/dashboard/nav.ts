@@ -109,7 +109,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { label: "Storefront", href: "/dashboard/storefront", icon: LayoutTemplate, visible: canEditContent },
       // A shortcut into the builder's Global tab: "where do I change my logo"
       // had no answer in this list.
-      { label: "Logo", href: "/dashboard/storefront?tab=global&panel=logo", icon: ImageIcon, visible: canEditContent },
+      { label: "Logo", href: "/dashboard/logo", icon: ImageIcon, visible: canEditContent },
       {
         label: "Coffrets & cadeaux",
         href: "/dashboard/coffrets",

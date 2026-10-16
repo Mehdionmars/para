@@ -36,7 +36,7 @@ const KEYWORDS: Record<string, string> = {
   "/dashboard/overview": "kpi chiffres resume",
   "/dashboard/settings": "parametres reglages paiement",
   "/dashboard/storefront": "site accueil page banniere hero rayon",
-  "/dashboard/storefront?tab=global&panel=logo": "logo marque image",
+  "/dashboard/logo": "logo marque image footer pied de page",
 };
 
 const PLACEHOLDERS = [
