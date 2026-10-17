@@ -23,6 +23,7 @@ import { getOrder, getOrderHistory, getOrderItemImages } from "@/lib/dashboard/o
 import { paymentMethodLabel, ORDER_STATUS_BADGE, ORDER_STATUS_LABELS, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
 import { Badge } from "@/components/ui/badge";
 import { canEditOrders, isStaffUser } from "@/lib/dashboard/roles";
+import { orderMessage, whatsappLink } from "@/lib/dashboard/whatsapp";
 
 function money(n: number) {
   return `${n.toLocaleString("fr-FR")} MAD`;
@@ -53,6 +54,11 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
   const itemCount = order.items.reduce((n, i) => n + i.quantity, 0);
   const discount = order.discount ?? 0;
   const editable = canEditOrders(user);
+  // Opens the chat with the message for where the order stands, ready to send.
+  const whatsapp = whatsappLink(
+    order.customerPhone,
+    orderMessage({ customerName: order.customerName, orderNumber: order.orderNumber, status: order.status, total: order.total }),
+  );
 
   return (
     <div className="flex flex-col gap-5">
@@ -271,7 +277,11 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
               {order.customerPhone ? (
                 <>
                   <ContactButton href={`tel:${order.customerPhone.replace(/\s/g, "")}`} icon={Phone} label="Appeler" />
-                  <ContactButton href={`https://wa.me/${whatsappNumber(order.customerPhone)}`} icon={MessageCircle} label="WhatsApp" external />
+                  {whatsapp ? (
+                    <ContactButton href={whatsapp} icon={MessageCircle} label="WhatsApp" external />
+                  ) : (
+                    <span className="self-center text-center text-xs text-muted-foreground">WhatsApp indisponible</span>
+                  )}
                 </>
               ) : (
                 <span className="col-span-2 self-center text-xs text-muted-foreground">Aucun téléphone</span>
@@ -301,14 +311,6 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
       </div>
     </div>
   );
-}
-
-/** A Moroccan number as WhatsApp wants it: digits only, country code first. */
-function whatsappNumber(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("212")) return digits;
-  if (digits.startsWith("0")) return `212${digits.slice(1)}`;
-  return digits;
 }
 
 function ContactButton({ href, icon: Icon, label, external = false }: { href: string; icon: LucideIcon; label: string; external?: boolean }) {

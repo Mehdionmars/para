@@ -1,9 +1,10 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { MessageCircle, Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Customer } from "@/lib/dashboard/customers-types";
+import { customerMessage, whatsappLink } from "@/lib/dashboard/whatsapp";
 
 function money(n: number) {
   return `${n.toLocaleString("fr-FR")} MAD`;
@@ -53,7 +54,20 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
                   </Link>
                   <div className="text-xs text-gray-500">{c.email}</div>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{c.phone || "—"}</td>
+                <td className="px-4 py-3 text-gray-600">
+                  {c.phone || "—"}
+                  {whatsappLink(c.phone) && (
+                    <a
+                      href={whatsappLink(c.phone, customerMessage(c.name))!}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`WhatsApp ${c.name}`}
+                      className="ml-2 inline-flex align-middle text-violet-700 hover:text-violet-900"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-gray-600">{c.orderCount}</td>
                 <td className="px-4 py-3 font-medium text-gray-900">{money(c.totalSpent)}</td>
                 <td className="px-4 py-3 text-gray-500">{new Date(c.lastOrderAt).toLocaleDateString("fr-FR")}</td>

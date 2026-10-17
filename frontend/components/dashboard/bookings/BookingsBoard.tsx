@@ -7,6 +7,7 @@ import { updateBookingStaffNote, updateBookingStatus } from "@/app/dashboard/(ap
 import { useToast } from "@/components/dashboard/ui/Toast";
 import { Button } from "@/components/ui/button";
 import { type Booking, BOOKING_STATUS_LABELS, type BookingStatus } from "@/lib/dashboard/bookings-types";
+import { bookingMessage, whatsappLink } from "@/lib/dashboard/whatsapp";
 
 const FILTERS = [
   { key: "upcoming", label: "À venir" },
@@ -30,19 +31,12 @@ function dayLabel(date: string, today: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-/** A Moroccan number as WhatsApp wants it: digits only, country code first. */
-function whatsappNumber(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("212")) return digits;
-  if (digits.startsWith("0")) return `212${digits.slice(1)}`;
-  return digits;
-}
-
 function BookingRow({ booking, onStatus, busy }: { booking: Booking; onStatus: (s: BookingStatus) => void; busy: boolean }) {
   const toast = useToast();
   const [note, setNote] = useState(booking.staffNote);
   const [savingNote, setSavingNote] = useState(false);
   const closed = booking.status === "cancelled" || booking.status === "done";
+  const whatsapp = whatsappLink(booking.customerPhone, bookingMessage(booking));
 
   async function saveNote() {
     if (note === booking.staffNote) return;
@@ -66,14 +60,11 @@ function BookingRow({ booking, onStatus, busy }: { booking: Booking; onStatus: (
           <a href={`tel:${booking.customerPhone.replace(/\s/g, "")}`} className="inline-flex items-center gap-1 text-primary hover:underline">
             <Phone className="h-3.5 w-3.5" /> {booking.customerPhone}
           </a>
-          <a
-            href={`https://wa.me/${whatsappNumber(booking.customerPhone)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-primary hover:underline"
-          >
-            <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
-          </a>
+          {whatsapp && (
+            <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+              <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+            </a>
+          )}
           {booking.customerEmail && (
             <a href={`mailto:${booking.customerEmail}`} className="inline-flex items-center gap-1 text-primary hover:underline">
               <Mail className="h-3.5 w-3.5" /> {booking.customerEmail}
