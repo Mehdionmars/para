@@ -9,6 +9,7 @@ import { CoffretFields, CoffretsCopyEditor, newCoffret } from "@/components/dash
 import { AlertDialog } from "@/components/dashboard/ui/AlertDialog";
 import { useToast } from "@/components/dashboard/ui/Toast";
 import { Button } from "@/components/ui/button";
+import { SaveToast, useSavedFlash } from "@/components/ui/toast-save";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { type Coffret, type HomeDraft, mapDraftToPayload } from "@/lib/dashboard/storefront-mapping";
 
@@ -31,6 +32,7 @@ export function CoffretsManager({ initialDraft, initialStatus }: { initialDraft:
   const [saved, setSaved] = useState(() => JSON.stringify(initialDraft));
   const [status, setStatus] = useState(initialStatus);
   const [busy, setBusy] = useState<"save" | "publish" | null>(null);
+  const [savedFlash, flashSaved] = useSavedFlash();
   const [editing, setEditing] = useState<number | null>(null);
   const [toDelete, setToDelete] = useState<number | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -90,7 +92,7 @@ export function CoffretsManager({ initialDraft, initialStatus }: { initialDraft:
     if (res.error) return toast.error("Enregistrement impossible", res.error);
     setSaved(JSON.stringify(draft));
     setStatus("draft");
-    toast.success("Brouillon enregistré", "Pas encore visible sur le site : cliquez sur Publier.");
+    flashSaved();
   }
 
   async function publish() {
@@ -101,7 +103,7 @@ export function CoffretsManager({ initialDraft, initialStatus }: { initialDraft:
     setSaved(JSON.stringify(draft));
     setStatus("published");
     if (res.warning) toast.error("Publié, avec un avertissement", res.warning);
-    else toast.success("Coffrets publiés", "Ils sont en ligne sur la page d'accueil.");
+    else flashSaved();
   }
 
   const editingCoffret = editing !== null ? coffrets[editing] : undefined;
@@ -270,6 +272,14 @@ export function CoffretsManager({ initialDraft, initialStatus }: { initialDraft:
         destructive
         onConfirm={() => toDelete !== null && remove(toDelete)}
         onCancel={() => setToDelete(null)}
+      />
+
+      <SaveToast
+        state={busy ? "saving" : savedFlash ? "saved" : dirty ? "dirty" : "idle"}
+        onReset={() => setDraft(JSON.parse(saved))}
+        secondary={{ label: "Brouillon", onClick: save }}
+        onSave={publish}
+        saveLabel="Publier"
       />
     </div>
   );

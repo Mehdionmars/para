@@ -23,7 +23,7 @@ import type { Theme } from "@/data/theme";
 import type { MegaMenuContent, NavAnimationType, NavBadge, NavItem } from "@/data/nav";
 
 type RawTopBar = { enabled?: boolean; messages?: { text: string; active?: boolean }[]; marqueeSpeedSec?: number; mobileMessage?: string };
-type RawLogo = { image?: PayloadMediaRef; wordmark?: string; href?: string };
+type RawLogo = { image?: PayloadMediaRef; footerImage?: PayloadMediaRef; wordmark?: string; href?: string };
 type RawHeaderSearch = { enabled?: boolean; placeholder?: string };
 type RawHeaderAction = { key: string; label: string; icon?: string; href?: string; visible?: boolean };
 type RawFooterLink = { label: string; href: string; visible?: boolean };
@@ -79,6 +79,7 @@ export async function fetchSiteChrome({ draft }: { draft: boolean }): Promise<Li
     },
     logo: {
       img: resolveMediaUrl((chrome.logo as RawLogo)?.image) || "/assets/logo.png",
+      footerImg: resolveMediaUrl((chrome.logo as RawLogo)?.footerImage) || "",
       wordmark: (chrome.logo as RawLogo)?.wordmark || "PARA D'HIVER",
       href: (chrome.logo as RawLogo)?.href || "/",
     },

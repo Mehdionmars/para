@@ -70,6 +70,7 @@ export async function createCoupon(input: CouponInput) {
 
   revalidatePath("/dashboard/coupons");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/overview");
 }
 
 export async function updateCoupon(id: number, input: CouponInput) {
@@ -80,4 +81,5 @@ export async function updateCoupon(id: number, input: CouponInput) {
 
   revalidatePath("/dashboard/coupons");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/overview");
 }

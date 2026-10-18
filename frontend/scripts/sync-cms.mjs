@@ -913,6 +913,7 @@ async function syncSiteChrome() {
 
   const logo = {
     img: mediaURL(chrome.logo?.image) || '/assets/logo.png',
+    footerImg: mediaURL(chrome.logo?.footerImage) || '',
     wordmark: chrome.logo?.wordmark || "PARA D'HIVER",
     href: chrome.logo?.href || '/',
   }
@@ -947,7 +948,7 @@ async function syncSiteChrome() {
 // itself.
 
 export type TopBarConfig = { enabled: boolean; messages: string[]; marqueeSpeedSec: number; mobileMessage: string };
-export type Logo = { img: string; wordmark: string; href: string };
+export type Logo = { img: string; wordmark: string; href: string; /** The footer's own mark; empty means the header logo. */ footerImg?: string };
 export type HeaderSearchConfig = { enabled: boolean; placeholder: string };
 export type HeaderAction = { key: string; label: string; icon: string; href: string };
 export type FooterLink = { label: string; href: string };

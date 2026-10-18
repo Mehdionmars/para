@@ -111,7 +111,8 @@ export function Footer({ columns = FOOTER_COLUMNS, logo = LOGO }: { columns?: Fo
         <div>
           <Link href={logo.href} aria-label="Para d'Hiver — Accueil" style={{ display: "inline-flex", alignItems: "center", gap: 14, color: "inherit" }}>
             <span style={{ position: "relative", width: 64, height: 64, flex: "none" }}>
-              <CloudinaryImage preset="brand" src={logo.img} alt="" fill sizes="64px" style={{ objectFit: "contain" }} />
+              {/* The footer's own mark when one is set: it sits on the dark ground. */}
+              <CloudinaryImage preset="brand" src={logo.footerImg || logo.img} alt="" fill sizes="64px" style={{ objectFit: "contain" }} />
             </span>
             <span style={{ fontFamily: "var(--font-wordmark), var(--font-alta), sans-serif", fontWeight: 400, fontSize: 17, letterSpacing: ".04em", textTransform: "lowercase" }}>{logo.wordmark}</span>
           </Link>

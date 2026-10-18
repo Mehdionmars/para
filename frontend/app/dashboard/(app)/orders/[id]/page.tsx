@@ -1,45 +1,32 @@
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  CreditCard,
+  History,
+  type LucideIcon,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Package,
+  Phone,
+  StickyNote,
+  Truck,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CloudinaryImage, PRODUCT_PLACEHOLDER } from "@/components/CloudinaryImage";
 import { OrderHeaderActions } from "@/components/dashboard/orders/OrderHeaderActions";
 import { OrderTimelineCompact } from "@/components/dashboard/orders/OrderTimelineCompact";
 import { PaymentStatusSelect } from "@/components/dashboard/orders/PaymentStatusSelect";
-import { Collapsible } from "@/components/dashboard/ui/Collapsible";
 import { CMS_URL } from "@/lib/dashboard/constants";
 import { requireRole } from "@/lib/dashboard/guard";
 import { getOrder, getOrderHistory, getOrderItemImages } from "@/lib/dashboard/orders";
 import { paymentMethodLabel, ORDER_STATUS_BADGE, ORDER_STATUS_LABELS, orderItemVariantLabel } from "@/lib/dashboard/orders-types";
 import { Badge } from "@/components/ui/badge";
 import { canEditOrders, isStaffUser } from "@/lib/dashboard/roles";
+import { orderMessage, whatsappLink } from "@/lib/dashboard/whatsapp";
 
 function money(n: number) {
   return `${n.toLocaleString("fr-FR")} MAD`;
-}
-
-/** Section wrapper. Cards group *domains* of information, never single
- * fields — that was what made the previous layout so tall. */
-function Panel({
-  title,
-  children,
-  className = "",
-  bodyClassName = "p-4",
-}: {
-  title?: string;
-  children: React.ReactNode;
-  className?: string;
-  bodyClassName?: string;
-}) {
-  return (
-    <section className={`rounded-xl border border-border bg-card ${className}`}>
-      {title && (
-        <h2 className="border-b border-border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </h2>
-      )}
-      <div className={bodyClassName}>{children}</div>
-    </section>
-  );
 }
 
 function Line({ label, value }: { label: string; value: React.ReactNode }) {
@@ -67,6 +54,11 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
   const itemCount = order.items.reduce((n, i) => n + i.quantity, 0);
   const discount = order.discount ?? 0;
   const editable = canEditOrders(user);
+  // Opens the chat with the message for where the order stands, ready to send.
+  const whatsapp = whatsappLink(
+    order.customerPhone,
+    orderMessage({ customerName: order.customerName, orderNumber: order.orderNumber, status: order.status, total: order.total }),
+  );
 
   return (
     <div className="flex flex-col gap-5">
@@ -141,196 +133,226 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
         </div>
       </header>
 
-      {/* --------------------------------------------- articles + résumé */}
-      {/* items-start: without it the grid stretches both columns to the
-          taller one, leaving a block of empty space under a short article
-          list. */}
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Panel title={`Articles (${order.items.length})`} bodyClassName="p-0">
-          <ul className="divide-y divide-border">
-            {order.items.map((item) => {
-              const productId = typeof item.product === "object" && item.product ? item.product.id : item.product;
-              const image = typeof productId === "number" ? images.get(productId) : undefined;
-              const variantLabel = orderItemVariantLabel(item);
-              return (
-                <li className="flex items-center gap-3 px-4 py-3" key={item.id}>
-                  <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                    {/* An order line snapshots the name and price, never the
-                        image, so this comes from the product itself. A product
-                        deleted since the sale has no entry and keeps the
-                        placeholder rather than a broken image. */}
-                    <CloudinaryImage
-                      alt=""
-                      className="object-contain p-1"
-                      fallbackSrc={PRODUCT_PLACEHOLDER}
-                      fill
-                      preset="productThumbnail"
-                      sizes="56px"
-                      src={image ?? null}
-                    />
-                  </span>
+      {/* ------------------------------------------------------------ body
+          Two columns: what the order is (articles, payment, what happened
+          to it, notes) on the left; who it is for, where it goes and what
+          it costs on the right, pinned while the left scrolls. The
+          secondary blocks used to be folded away under "Informations
+          supplémentaires"; they are short, so they are simply shown. */}
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <Section icon={Package} title="Articles" hint={`${itemCount} article${itemCount > 1 ? "s" : ""}`} flush>
+            <ul className="divide-y divide-border">
+              {order.items.map((item) => {
+                const productId = typeof item.product === "object" && item.product ? item.product.id : item.product;
+                const image = typeof productId === "number" ? images.get(productId) : undefined;
+                const variantLabel = orderItemVariantLabel(item);
+                return (
+                  <li className="flex items-center gap-3 px-4 py-3" key={item.id}>
+                    <span className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                      {/* An order line snapshots the name and price, never the
+                          image, so this comes from the product itself. A product
+                          deleted since the sale has no entry and keeps the
+                          placeholder rather than a broken image. */}
+                      <CloudinaryImage
+                        alt=""
+                        className="object-contain p-1"
+                        fallbackSrc={PRODUCT_PLACEHOLDER}
+                        fill
+                        preset="productThumbnail"
+                        sizes="56px"
+                        src={image ?? null}
+                      />
+                    </span>
 
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-foreground" title={item.name}>
-                      {item.name}
-                    </p>
-                    {/* Two lines of one product must never be mistaken for
-                        each other: the option and its SKU are what tell the
-                        operator which box to pick. */}
-                    {(variantLabel || item.sku) && (
-                      <p className="mt-0.5 truncate text-xs text-foreground">
-                        {variantLabel && <span className="font-medium">{variantLabel}</span>}
-                        {variantLabel && item.sku && <span className="text-muted-foreground"> · </span>}
-                        {item.sku && <span className="text-muted-foreground">SKU {item.sku}</span>}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground" title={item.name}>
+                        {item.name}
                       </p>
-                    )}
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {item.quantity} × {money(item.price)}
-                    </p>
-                  </div>
+                      {/* Two lines of one product must never be mistaken for
+                          each other: the option and its SKU are what tell the
+                          operator which box to pick. */}
+                      {(variantLabel || item.sku) && (
+                        <p className="mt-0.5 truncate text-xs text-foreground">
+                          {variantLabel && <span className="font-medium">{variantLabel}</span>}
+                          {variantLabel && item.sku && <span className="text-muted-foreground"> · </span>}
+                          {item.sku && <span className="text-muted-foreground">SKU {item.sku}</span>}
+                        </p>
+                      )}
+                    </div>
 
-                  <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
-                    {money(item.price * item.quantity)}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </Panel>
-
-        {/* Money only. The status controls that used to sit here moved to the
-            header — a summary that also drives the order is doing two jobs,
-            and on a phone it put the primary action below every article.
-            Sticky so the total stays in view while the operator reads the
-            detail below; `self-start` stops the grid stretching it. */}
-        <Panel className="lg:sticky lg:top-4 lg:self-start" title="Résumé">
-          <div className="flex flex-col gap-1">
-            <Line label="Sous-total" value={money(order.subtotal)} />
-            {discount > 0 && (
-              <Line
-                label={`Réduction${order.couponCode ? ` (${order.couponCode})` : ""}`}
-                value={<span className="text-success-strong">−{money(discount)}</span>}
-              />
-            )}
-            {order.giftLabel && (
-              <Line label="Cadeau à joindre" value={<span className="font-medium text-success-strong">{order.giftLabel}</span>} />
-            )}
-            <Line label="Livraison" value={order.shipping ? money(order.shipping) : "Offerte"} />
-          </div>
-
-          <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
-            <span className="text-sm font-semibold text-foreground">Total</span>
-            <span className="text-lg font-semibold tabular-nums text-primary">{money(order.total)}</span>
-          </div>
-        </Panel>
-      </div>
-
-      {/* --------------------------------------- destinataire + livraison
-          One panel, two columns, one border.
-
-          These were two cards side by side holding four short lines each. Who
-          the order is for and where it goes is one question an operator asks
-          once, while packing — splitting it across two bordered boxes spent
-          twice the chrome to say that these two things are unrelated, which
-          they are not. The divider does the same job for a tenth of the ink,
-          and it becomes a stacked pair on a phone where columns cannot hold. */}
-      <Panel title="Destinataire et livraison" bodyClassName="p-0">
-        <div className="grid grid-cols-1 divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0">
-        <div className="p-4">
-          {/* The two words the merge took away. The panel title names the
-              domain; these name the columns inside it, so an operator still
-              scans to "the address" rather than to "the right-hand side". */}
-          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Client</p>
-          <div className="flex flex-col gap-1 text-sm">
-            <p className="font-medium text-foreground">{order.customerName}</p>
-            <a className="truncate text-primary hover:underline" href={`mailto:${order.customerEmail}`}>
-              {order.customerEmail}
-            </a>
-            {order.customerPhone && (
-              <a className="text-muted-foreground hover:underline" href={`tel:${order.customerPhone}`}>
-                {order.customerPhone}
-              </a>
-            )}
-          </div>
-        </div>
-
-        <div className="p-4">
-          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Livraison</p>
-          <div className="flex flex-col gap-1 text-sm">
-            {order.shippingAddress ? (
-              <p className="whitespace-pre-line break-words text-foreground">{order.shippingAddress}</p>
-            ) : (
-              <p className="text-muted-foreground">Aucune adresse renseignée</p>
-            )}
-            <p className="mt-1 text-xs text-muted-foreground">
-              {paymentMethodLabel(order.paymentMethod)}
-              {" · "}
-              {order.shipping ? money(order.shipping) : "Livraison offerte"}
-            </p>
-          </div>
-        </div>
-        </div>
-      </Panel>
-
-      {/* --------------------------------------- informations secondaires
-          No border, deliberately.
-
-          This block is collapsed by definition — it is what an operator opens
-          when something is unusual, not what they read to ship the order.
-          Giving it the same panel treatment as the articles said the opposite,
-          and it was the sixth identical card in a column of six, which is what
-          made the page read as a list of boxes rather than as a document with
-          a top and a tail. A rule and a label are enough to say "there is more
-          here"; the Collapsible rows bring their own dividers. */}
-      <section>
-        <h2 className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Informations supplémentaires
-        </h2>
-        <div className="overflow-hidden rounded-xl border border-border bg-card/60">
-        <Collapsible hint={`${history.length} entrée${history.length > 1 ? "s" : ""}`} title="Historique des statuts">
-          {history.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun changement enregistré.</p>
-          ) : (
-            <ul className="flex flex-col gap-2.5">
-              {history
-                .slice()
-                .reverse()
-                .map((h) => (
-                  <li className="text-sm" key={h.id}>
-                    <p className="text-foreground">
-                      {h.fromStatus ? `${ORDER_STATUS_LABELS[h.fromStatus]} → ` : ""}
-                      <strong>{ORDER_STATUS_LABELS[h.toStatus]}</strong>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(h.createdAt).toLocaleString("fr-FR")}
-                      {h.changedByEmail ? ` · ${h.changedByEmail}` : ""}
-                    </p>
-                    {h.reason && <p className="mt-0.5 text-xs text-muted-foreground">{h.reason}</p>}
+                    <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">
+                      × {item.quantity}
+                    </span>
+                    <span className="w-24 shrink-0 text-right text-sm font-semibold tabular-nums text-foreground">
+                      {money(item.price * item.quantity)}
+                      {item.quantity > 1 && <span className="block text-[11px] font-normal text-muted-foreground">{money(item.price)} / u.</span>}
+                    </span>
                   </li>
-                ))}
+                );
+              })}
             </ul>
-          )}
-        </Collapsible>
+          </Section>
 
-        <Collapsible title="Paiement">
-          <div className="flex flex-col gap-3">
-            <PaymentStatusSelect id={order.id} paymentStatus={order.paymentStatus} readOnly={!editable} />
-            <div className="flex flex-col gap-1">
-              <Line label="Mode" value={paymentMethodLabel(order.paymentMethod)} />
-              {order.couponCode && <Line label="Code promo" value={order.couponCode} />}
-            </div>
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <Section icon={CreditCard} title="Paiement">
+              <PaymentStatusSelect id={order.id} paymentStatus={order.paymentStatus} readOnly={!editable} />
+              <div className="flex flex-col gap-1">
+                <Line label="Mode" value={paymentMethodLabel(order.paymentMethod)} />
+                {order.couponCode && <Line label="Code promo" value={<span className="font-medium">{order.couponCode}</span>} />}
+              </div>
+            </Section>
+
+            <Section icon={StickyNote} title="Notes internes">
+              {order.notes ? (
+                <p className="whitespace-pre-line text-sm text-foreground">{order.notes}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">Aucune note sur cette commande.</p>
+              )}
+            </Section>
           </div>
-        </Collapsible>
 
-        <Collapsible title="Notes internes">
-          {order.notes ? (
-            <p className="whitespace-pre-line text-sm text-foreground">{order.notes}</p>
-          ) : (
-            <p className="text-sm text-muted-foreground">Aucune note.</p>
-          )}
-        </Collapsible>
+          <Section icon={History} title="Historique" hint={`${history.length} étape${history.length > 1 ? "s" : ""}`}>
+            {history.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucun changement enregistré.</p>
+            ) : (
+              <ol className="relative flex flex-col gap-3 border-l border-border pl-5">
+                {history
+                  .slice()
+                  .reverse()
+                  .map((h, i) => (
+                    <li className="relative text-sm" key={h.id}>
+                      <span
+                        aria-hidden="true"
+                        className={`absolute top-1.5 -left-[25px] size-2.5 rounded-full ring-4 ring-card ${i === 0 ? "bg-primary" : "bg-muted-foreground/40"}`}
+                      />
+                      <p className="text-foreground">
+                        {h.fromStatus ? <span className="text-muted-foreground">{ORDER_STATUS_LABELS[h.fromStatus]} → </span> : ""}
+                        <strong className="font-medium">{ORDER_STATUS_LABELS[h.toStatus]}</strong>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(h.createdAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
+                        {h.changedByEmail ? ` · ${h.changedByEmail}` : ""}
+                      </p>
+                      {h.reason && <p className="mt-0.5 text-xs text-muted-foreground">{h.reason}</p>}
+                    </li>
+                  ))}
+              </ol>
+            )}
+          </Section>
         </div>
-      </section>
+
+        <aside className="flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start">
+          <section className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <div className="flex flex-col gap-1">
+              <Line label="Sous-total" value={money(order.subtotal)} />
+              {discount > 0 && (
+                <Line
+                  label={`Réduction${order.couponCode ? ` (${order.couponCode})` : ""}`}
+                  value={<span className="text-success-strong">−{money(discount)}</span>}
+                />
+              )}
+              {order.giftLabel && (
+                <Line label="Cadeau à joindre" value={<span className="font-medium text-success-strong">{order.giftLabel}</span>} />
+              )}
+              <Line label="Livraison" value={order.shipping ? money(order.shipping) : "Offerte"} />
+            </div>
+            <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
+              <span className="text-sm font-semibold text-foreground">Total</span>
+              <span className="text-2xl font-semibold tabular-nums text-primary">{money(order.total)}</span>
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 flex-none items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary uppercase">
+                {(order.customerName || "?").trim().charAt(0)}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-foreground">{order.customerName}</p>
+                <p className="truncate text-xs text-muted-foreground">{order.customerEmail}</p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {order.customerPhone ? (
+                <>
+                  <ContactButton href={`tel:${order.customerPhone.replace(/\s/g, "")}`} icon={Phone} label="Appeler" />
+                  {whatsapp ? (
+                    <ContactButton href={whatsapp} icon={MessageCircle} label="WhatsApp" external />
+                  ) : (
+                    <span className="self-center text-center text-xs text-muted-foreground">WhatsApp indisponible</span>
+                  )}
+                </>
+              ) : (
+                <span className="col-span-2 self-center text-xs text-muted-foreground">Aucun téléphone</span>
+              )}
+              <ContactButton href={`mailto:${order.customerEmail}`} icon={Mail} label="Email" />
+            </div>
+            {order.customerPhone && <p className="mt-2 text-center text-xs text-muted-foreground tabular-nums">{order.customerPhone}</p>}
+          </section>
+
+          <section className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+              <MapPin className="size-4 text-muted-foreground" aria-hidden="true" /> Livraison
+            </p>
+            {order.shippingAddress ? (
+              <p className="whitespace-pre-line break-words text-sm text-foreground">{order.shippingAddress}</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Aucune adresse renseignée</p>
+            )}
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Truck className="size-3.5" aria-hidden="true" />
+              {order.shipping ? money(order.shipping) : "Livraison offerte"}
+              {" · "}
+              {paymentMethodLabel(order.paymentMethod)}
+            </p>
+          </section>
+        </aside>
+      </div>
     </div>
+  );
+}
+
+function ContactButton({ href, icon: Icon, label, external = false }: { href: string; icon: LucideIcon; label: string; external?: boolean }) {
+  return (
+    <a
+      href={href}
+      {...(external ? { rel: "noreferrer", target: "_blank" } : {})}
+      className="flex flex-col items-center gap-1 rounded-lg border border-border py-2 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+    >
+      <Icon className="size-4" aria-hidden="true" />
+      {label}
+    </a>
+  );
+}
+
+/** A block of the page: icon, title, an optional count, then the content.
+ * `flush` lets a list run edge to edge under the header. */
+function Section({
+  icon: Icon,
+  title,
+  hint,
+  flush = false,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  hint?: string;
+  flush?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-xl border border-border bg-card shadow-xs">
+      <header className={`flex items-center justify-between gap-3 px-4 pt-4 ${flush ? "border-b border-border pb-3" : ""}`}>
+        <h2 className="flex items-center gap-2.5 text-sm font-semibold text-foreground">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Icon className="size-4" aria-hidden="true" />
+          </span>
+          {title}
+        </h2>
+        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+      </header>
+      <div className={flush ? "" : "flex flex-col gap-3 px-4 pt-3 pb-4"}>{children}</div>
+    </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
@@ -21,7 +21,13 @@ import { Input } from "@/components/ui/input";
  */
 export function Topbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
+
+  // The dashboard home has its own, larger search above the launcher; a
+  // second field in the bar would ask the same question twice. The spacer
+  // keeps the bell where it always is.
+  if (pathname === "/dashboard") return <div className="min-w-0 flex-1" />;
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();

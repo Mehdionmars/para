@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Boxes, ChevronLeft, ChevronRight, LayoutGrid, Table2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useMemo, useState, useSyncExternalStore, useTransition } from "react";
 import {
@@ -31,9 +31,48 @@ import {
   type ColumnKey,
 } from "./product-columns";
 import { ProductBulkToolbar, type BulkAction } from "./ProductBulkToolbar";
+import { ProductsGrid, ProductsStockBoard } from "./ProductsGrid";
 import { ProductsTable, type RowAction } from "./ProductsTable";
 import { ProductEmptyState, ProductsTableSkeleton } from "./ProductsTableStates";
 import { ProductsToolbar } from "./ProductsToolbar";
+
+/** How the page lays the products out. Kept per browser: a viewer's habit,
+ * not part of the shareable URL the filters live in. */
+const VIEWS = [
+  { icon: Table2, key: "table", label: "Tableau" },
+  { icon: LayoutGrid, key: "grid", label: "Grille" },
+  { icon: Boxes, key: "stock", label: "Stock" },
+] as const;
+type ProductsLayout = (typeof VIEWS)[number]["key"];
+const VIEW_KEY = "pdh-products-view";
+const VIEW_CHANGED = "pdh-products-view-changed";
+
+function readView(): ProductsLayout {
+  try {
+    const v = window.localStorage.getItem(VIEW_KEY);
+    return VIEWS.some((x) => x.key === v) ? (v as ProductsLayout) : "table";
+  } catch {
+    return "table";
+  }
+}
+
+function storeView(v: ProductsLayout) {
+  try {
+    window.localStorage.setItem(VIEW_KEY, v);
+  } catch {
+    // Blocked storage: the choice lasts until the page is left.
+  }
+  window.dispatchEvent(new Event(VIEW_CHANGED));
+}
+
+function subscribeView(onChange: () => void) {
+  window.addEventListener(VIEW_CHANGED, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(VIEW_CHANGED, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
 
 type DialogKind = "stock" | "price" | "status" | "promotion" | "category" | "brand" | null;
 
@@ -105,6 +144,7 @@ export function ProductsView({
   // Read straight from localStorage through an external store, so the saved
   // choice is present on the first client render instead of flashing the
   // defaults for a frame.
+  const layout = useSyncExternalStore(subscribeView, readView, () => "table" as ProductsLayout);
   const storedColumns = useSyncExternalStore(
     subscribeToColumns,
     getColumnsSnapshot,
@@ -459,6 +499,30 @@ export function ProductsView({
         onClear={clearSelection}
       />
 
+      <div className="flex justify-end">
+        <div role="radiogroup" aria-label="Affichage des produits" className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5">
+          {VIEWS.map((v) => {
+            const Icon = v.icon;
+            const on = layout === v.key;
+            return (
+              <button
+                key={v.key}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => storeView(v.key)}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                  on ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Icon className="size-3.5" aria-hidden="true" />
+                {v.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {isPending ? (
         <ProductsTableSkeleton rows={Math.min(query.perPage, 10)} />
       ) : products.length === 0 ? (
@@ -479,6 +543,26 @@ export function ProductsView({
               stock: "all",
             })
           }
+        />
+      ) : layout === "grid" ? (
+        <ProductsGrid
+          products={products}
+          selectedIds={selectedIds}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          busy={busy}
+          onToggleRow={toggleRow}
+          onRowAction={handleRowAction}
+        />
+      ) : layout === "stock" ? (
+        <ProductsStockBoard
+          products={products}
+          selectedIds={selectedIds}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          busy={busy}
+          onToggleRow={toggleRow}
+          onRowAction={handleRowAction}
         />
       ) : (
         <ProductsTable
