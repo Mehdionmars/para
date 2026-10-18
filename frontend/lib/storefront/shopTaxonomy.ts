@@ -37,6 +37,37 @@ export function categoryFromHref(href: string): Category | null {
   return REAL_CATEGORY_BY_SLUG[match[1]] ?? null;
 }
 
+/** "Bébé & Maman", "bebe-maman" → "bebe maman": no accents, no case, any run
+ * of punctuation read as one space. */
+function nameKey(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+// Each broad category under its own name and under its slug, so a menu entry
+// renamed in the CMS ("Bébé & Maman" for "Baby & Mom") still finds its shelf.
+const CATEGORY_BY_NAME_KEY = new Map<string, Category>(
+  Object.entries(REAL_CATEGORY_BY_SLUG).flatMap(([slug, category]) => [
+    [nameKey(slug), category],
+    [nameKey(category), category],
+  ]),
+);
+
+/**
+ * The broad category a CMS category name stands for, or null when it is not
+ * one: "Bucco-dentaire" is Bucco-Dentaire, "Bébé & Maman" is Baby & Mom, and
+ * "Soldes" or "K Beauty" are menu groupings no product is filed under.
+ * Querying products with a name that is not one of the nine is rejected by
+ * Postgres, since `category` is an enum.
+ */
+export function categoryFromName(name: string): Category | null {
+  return CATEGORY_BY_NAME_KEY.get(nameKey(name)) ?? null;
+}
+
 /**
  * Should this link be offered, given what the catalogue actually holds?
  *

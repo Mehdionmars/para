@@ -18,6 +18,7 @@ import {
   megaMenuFromCategoryTree,
   type CategoryTree,
 } from "@/lib/storefront/categoryTree";
+import { categoryFromName } from "@/lib/storefront/shopTaxonomy";
 import type { FooterColumn, HeaderAction, HeaderSearchConfig, Logo, TopBarConfig } from "@/data/siteChrome";
 import type { Theme } from "@/data/theme";
 import type { MegaMenuContent, NavAnimationType, NavBadge, NavItem } from "@/data/nav";
@@ -372,7 +373,11 @@ async function withFeaturedProducts(nav: LiveNavigation, tree: CategoryTree): Pr
       if (!item.megaKey || !megaMenu[item.megaKey]) return;
       const root = tree.roots.get(categorySlugFromHref(item.href));
       if (!root) return;
-      const product = await fetchMegaMenuFeatured(root.name).catch(() => null);
+      // The tree's names are free text; products only know the nine broad
+      // categories. A grouping like "Soldes" has no shelf, so no lookup.
+      const category = categoryFromName(root.name);
+      if (!category) return;
+      const product = await fetchMegaMenuFeatured(category).catch(() => null);
       if (!product) return;
       megaMenu[item.megaKey] = {
         ...megaMenu[item.megaKey],
