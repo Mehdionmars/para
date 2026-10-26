@@ -60,6 +60,10 @@ const withImages = !flag('no-images')
 const limit = Number(option('limit') ?? Infinity)
 const concurrency = Number(option('concurrency') ?? 6)
 const IMAGE_FETCH_TIMEOUT_MS = 20000
+// The catalogue is the shop's standing range, not new arrivals: dating it in
+// the past keeps the automatic "Nouveau" badge (createdAt < 30 days) and the
+// Nouveautés page for products that really are new.
+const IMPORTED_CREATED_AT = '2026-01-01T00:00:00.000Z'
 const SUB_VALUES = new Set<string>(SUB_CATEGORY_OPTIONS.map((o) => o.value))
 
 const slugify = (value: string): string =>
@@ -213,6 +217,7 @@ async function main() {
           barcode: row.barcode || undefined,
           brand: brandBySlug.get(slugify(row.brand)),
           category: row.category,
+          createdAt: IMPORTED_CREATED_AT,
           description: row.description,
           isPublished: true,
           lowStockThreshold: 5,
