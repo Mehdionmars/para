@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
@@ -154,7 +155,7 @@ export function MarketingCarousel({
               onClick={() => show(active - 1)}
               type="button"
             >
-              <span aria-hidden="true">←</span>
+              <ArrowLeft aria-hidden="true" size={18} strokeWidth={1.5} />
             </button>
             <button
               aria-label="Campagne suivante"
@@ -162,7 +163,7 @@ export function MarketingCarousel({
               onClick={() => show(active + 1)}
               type="button"
             >
-              <span aria-hidden="true">→</span>
+              <ArrowRight aria-hidden="true" size={18} strokeWidth={1.5} />
             </button>
           </>
         )}

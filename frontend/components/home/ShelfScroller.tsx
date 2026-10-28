@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
@@ -42,12 +43,12 @@ export function ShelfScroller({ children, label }: { children: ReactNode; label:
       </div>
       {edges.start ? null : (
         <button aria-label={`${label} : précédent`} className="shelf-arrow shelf-arrow--prev" onClick={() => page(-1)} type="button">
-          <span aria-hidden="true">←</span>
+          <ArrowLeft aria-hidden="true" size={18} strokeWidth={1.5} />
         </button>
       )}
       {edges.end ? null : (
         <button aria-label={`${label} : suivant`} className="shelf-arrow shelf-arrow--next" onClick={() => page(1)} type="button">
-          <span aria-hidden="true">→</span>
+          <ArrowRight aria-hidden="true" size={18} strokeWidth={1.5} />
         </button>
       )}
     </div>

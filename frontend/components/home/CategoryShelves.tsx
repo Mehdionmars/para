@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import { ProductCard } from "@/components/ProductCard";
@@ -30,7 +31,7 @@ export function CategoryShelves({ shelves }: { shelves: Shelf[] }) {
               </h2>
               <Link className="shelf-all" href={shelf.href}>
                 Voir tout<span className="sr-only"> {shelf.title}</span>
-                <span aria-hidden="true">→</span>
+                <ArrowRight aria-hidden="true" size={14} strokeWidth={1.5} />
               </Link>
             </header>
             <ShelfScroller label={shelf.title}>
@@ -40,7 +41,7 @@ export function CategoryShelves({ shelves }: { shelves: Shelf[] }) {
                     <CloudinaryImage alt="" fill sizes="(max-width: 899px) 45vw, 22vw" src={shelf.image} style={{ objectFit: "cover" }} />
                     <span className="shelf-photo-label">
                       {shelf.title}
-                      <span aria-hidden="true"> →</span>
+                      <ArrowRight aria-hidden="true" size={18} strokeWidth={1.25} />
                     </span>
                   </Link>
                 </div>
@@ -83,7 +84,7 @@ export function CatalogueWall({ products }: { products: LiveProduct[] }) {
             ))}
             <Link className="shelf-all" href={routes.catalogue()}>
               Tout le catalogue
-              <span aria-hidden="true">→</span>
+              <ArrowRight aria-hidden="true" size={14} strokeWidth={1.5} />
             </Link>
           </nav>
         </header>
