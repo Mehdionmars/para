@@ -2802,16 +2802,6 @@ nav[aria-label^="Fil d"] a::after {
   }
 }
 
-/* The footer's two tracks — brand/contact and the link columns — are a
-   desktop arrangement. Below the tablet breakpoint they stack, and the link
-   columns keep their own auto-fit grid so two of them still sit side by side
-   on a phone rather than becoming one long ladder. */
-@media (max-width: 900px) {
-  .footer-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
 /* The link columns on one row.
 
    They were sized by `auto-fit` from a 140px floor, and four of them plus
@@ -2851,29 +2841,217 @@ nav[aria-label^="Fil d"] a::after {
   }
 }
 
-.footer-social {
-  transition: border-color 0.2s ease, background 0.2s ease;
+/* ---- The footer ------------------------------------------------------
+   Light and editorial: the brand's cream ground, ink type, hairline
+   controls, the badge drawn large in the bottom corner. */
+.pdh-footer {
+  background: var(--chrome-footer-bg, var(--pdh-cream));
+  color: var(--chrome-footer-text, var(--pdh-ink));
+  /* Bottom room for the floating WhatsApp button, so it sits below the
+     badge at the end of the page rather than over it. */
+  padding: clamp(36px, 4.4vw, 56px) 0 96px;
 }
 
-.footer-social:hover {
-  border-color: rgba(var(--pdh-cream-rgb), 0.5) !important;
-  background: rgba(var(--pdh-cream-rgb), 0.08);
+.pdh-footer-inner {
+  max-width: min(1280px, 100%);
+  margin: 0 auto;
+  padding: 0 var(--sec-pad-x);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .footer-social {
-    transition: none;
+.pdh-footer-top {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .pdh-footer-top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(48px, 8vw, 160px);
   }
 }
 
-/* The copyright and the legal list read as one line on a wide footer and as
-   two stacked blocks on a phone, where space-between would otherwise push
-   them to opposite edges of a very narrow row. */
+.pdh-footer-intro {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.pdh-footer-reach {
+  width: 100%;
+  max-width: 600px;
+  justify-self: end;
+}
+
+/* The address reads like the field of a sign-up form, the button beside it
+   like its submit. */
+.pdh-footer-field {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.pdh-footer-address {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--chrome-footer-border, rgba(var(--pdh-ink-rgb), 0.22));
+  background: #fff;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.pdh-footer-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--pdh-ink);
+  background: #fff;
+  color: var(--pdh-ink);
+  font-size: 14px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.pdh-footer-btn:hover {
+  background: var(--pdh-ink);
+  color: #fff;
+}
+
+.pdh-footer-fine {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--pdh-ink-soft);
+}
+
+.pdh-footer-inline {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(var(--pdh-ink-rgb), 0.4);
+}
+
+.pdh-footer-inline:hover {
+  color: var(--pdh-ink);
+  text-decoration-color: currentColor;
+}
+
+.pdh-footer-cols {
+  margin-top: clamp(44px, 5.4vw, 80px);
+  row-gap: 32px;
+}
+
+.pdh-footer-heading {
+  display: block;
+  margin: 0 0 16px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--chrome-footer-heading, var(--pdh-ink));
+}
+
+.pdh-footer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.pdh-footer .chrome-footer-link {
+  color: var(--chrome-footer-link, var(--pdh-ink));
+}
+
+.pdh-footer .chrome-footer-link:hover {
+  color: var(--chrome-footer-hover, var(--pdh-plum));
+}
+
+/* The legal line on the left, the badge on the right, both resting on the
+   same bottom edge. */
+.pdh-footer-bottom {
+  margin-top: clamp(40px, 6vw, 96px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.pdh-footer-legal {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.pdh-footer-pay .pdh-footer-heading {
+  margin-bottom: 10px;
+}
+
+.pdh-footer-baseline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  font-size: 13px;
+}
+
+.pdh-footer-baseline ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.pdh-footer-mark {
+  display: inline-flex;
+  border-radius: 50%;
+}
+
+.pdh-footer-badge {
+  position: relative;
+  display: block;
+  width: clamp(120px, 14vw, 200px);
+  aspect-ratio: 1;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pdh-footer-mark:hover .pdh-footer-badge {
+  transform: rotate(-6deg);
+}
+
 @media (max-width: 560px) {
-  .footer-baseline {
-    justify-content: flex-start !important;
+  .pdh-footer-field {
     flex-direction: column;
-    align-items: flex-start !important;
+  }
+  .pdh-footer-bottom {
+    justify-content: flex-start;
+  }
+  /* On a phone the badge leads and the legal line closes the page. */
+  .pdh-footer-mark {
+    order: -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdh-footer-btn,
+  .pdh-footer-badge {
+    transition: none;
+  }
+  .pdh-footer-mark:hover .pdh-footer-badge {
+    transform: none;
   }
 }
 
