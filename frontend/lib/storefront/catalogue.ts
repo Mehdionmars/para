@@ -274,7 +274,10 @@ export async function fetchAisleCounts(): Promise<Map<string, number>> {
 }
 
 /** Payload's `sort`, from the UI's sort value. "pertinence" is rating then
- * review count, the same two-key ordering the in-memory version applied. */
+ * review count, the same two-key ordering the in-memory version applied —
+ * behind products that have a photograph. Most of the imported catalogue has
+ * none yet, and a grid that opens on placeholders reads as an empty shop.
+ * Ascending on the `image` column puts NULLs last in Postgres. */
 function sortParam(sort: CatalogueQuery["sort"]): string {
   switch (sort) {
     case "price-asc":
@@ -284,7 +287,7 @@ function sortParam(sort: CatalogueQuery["sort"]): string {
     case "newest":
       return "-createdAt";
     default:
-      return "-rating,-reviews";
+      return "image,-rating,-reviews";
   }
 }
 

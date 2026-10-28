@@ -8,8 +8,7 @@ Le storefront signe chaque marque dans cet ordre :
 2. **Un fichier de ce dossier** — pour un logo qu'on veut versionner avec le
    code plutôt que dans la médiathèque.
 3. **Le logotype composé** (`lib/brandWordmarks.ts`) — le nom de la marque
-   typographié dans son propre registre. C'est ce qui s'affiche aujourd'hui,
-   aucune des 27 marques n'ayant de logo en base.
+   typographié dans son propre registre. C'est le dernier recours, pour les marques sans fichier ici ni logo en base.
 
 ## Ajouter un logo ici
 

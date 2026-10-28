@@ -6,7 +6,6 @@ import { CampaignSection } from "@/components/home/CampaignSection";
 import { CtaBanner } from "@/components/home/CtaBanner";
 import { GuidanceCards } from "@/components/home/GuidanceCards";
 import { CategoryShelves } from "@/components/home/CategoryShelves";
-import { Counter } from "@/components/home/Counter";
 import { CategoryTiles } from "@/components/layout/CategoryTiles";
 import { CtaPair, type CtaTile } from "@/components/home/CtaPair";
 import { DermoCorner } from "@/components/home/DermoCorner";
@@ -361,8 +360,9 @@ export default async function HomePage() {
   // The aisle index and the counter are fixed, code-owned blocks: not entries
   // in the Storefront Builder, so no ordering or hiding there can break the
   // page's spine. The index follows the hero (or opens the page when the hero
-  // is hidden); the counter opens the closing movement (or closes the page
-  // when there is none).
+  // is hidden); the guidance cards open the closing movement (or close the
+  // page when there is none). The counter ("Au comptoir") now opens the
+  // footer, on every page, so it is not rendered here as well.
   const shelves = [
     { title: "Visage", href: routes.category("visage"), products: visageShelf, image: categoryTree.roots.get("visage")?.image },
     { title: "Cheveux", href: routes.category("cheveux"), products: cheveuxShelf, image: categoryTree.roots.get("cheveux")?.image },
@@ -391,12 +391,7 @@ export default async function HomePage() {
 
         return (
           <div key={`${run.movement}-${i}`} className={className}>
-            {i === firstCloseRun ? (
-              <>
-                <GuidanceCards />
-                <Counter />
-              </>
-            ) : null}
+            {i === firstCloseRun ? <GuidanceCards /> : null}
             {run.keys.map((key) => (
               <Fragment key={key}>{renderSection(key)}</Fragment>
             ))}
@@ -407,7 +402,6 @@ export default async function HomePage() {
       {firstCloseRun === -1 ? (
         <div className="home-movement">
           <GuidanceCards />
-          <Counter />
         </div>
       ) : null}
     </>

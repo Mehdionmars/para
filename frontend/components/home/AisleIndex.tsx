@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { AISLE_GROUPS } from "@/lib/storefront/aisles";
 import { routes } from "@/lib/routes";
@@ -39,7 +40,7 @@ export function AisleIndex({ counts, showAll = true }: { counts: Map<string, num
           {showAll ? (
             <Link className="aisle-index-all" href={routes.catalogue()}>
               Tout le catalogue
-              <span aria-hidden="true">→</span>
+              <ArrowRight aria-hidden="true" size={14} strokeWidth={1.5} />
             </Link>
           ) : null}
         </header>
