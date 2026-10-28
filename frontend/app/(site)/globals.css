@@ -2849,7 +2849,7 @@ nav[aria-label^="Fil d"] a::after {
   color: var(--chrome-footer-text, var(--pdh-ink));
   /* Bottom room for the floating WhatsApp button, so it sits below the
      badge at the end of the page rather than over it. */
-  padding: clamp(36px, 4.4vw, 56px) 0 96px;
+  padding: clamp(48px, 6vw, 88px) 0 96px;
 }
 
 .pdh-footer-inner {
@@ -2858,90 +2858,15 @@ nav[aria-label^="Fil d"] a::after {
   padding: 0 var(--sec-pad-x);
 }
 
-.pdh-footer-top {
-  display: grid;
-  gap: 28px;
-  align-items: start;
+/* The counter opens the footer. It brings its own grid; inside the footer
+   the footer's own gutters apply. No rule under it: the action list already
+   ends on a hairline. */
+.pdh-footer .pdh-counter {
+  padding: 0;
 }
 
-@media (min-width: 900px) {
-  .pdh-footer-top {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(48px, 8vw, 160px);
-  }
-}
-
-.pdh-footer-intro {
-  margin: 0;
-  max-width: 52ch;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.pdh-footer-reach {
-  width: 100%;
-  max-width: 600px;
-  justify-self: end;
-}
-
-/* The address reads like the field of a sign-up form, the button beside it
-   like its submit. */
-.pdh-footer-field {
-  display: flex;
-  align-items: stretch;
-  gap: 10px;
-}
-
-.pdh-footer-address {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  min-height: 48px;
-  padding: 0 14px;
-  border: 1px solid var(--chrome-footer-border, rgba(var(--pdh-ink-rgb), 0.22));
-  background: #fff;
-  font-style: normal;
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-.pdh-footer-btn {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 18px;
-  border: 1px solid var(--pdh-ink);
-  background: #fff;
-  color: var(--pdh-ink);
-  font-size: 14px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.pdh-footer-btn:hover {
-  background: var(--pdh-ink);
-  color: #fff;
-}
-
-.pdh-footer-fine {
-  margin: 14px 0 0;
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--pdh-ink-soft);
-}
-
-.pdh-footer-inline {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: rgba(var(--pdh-ink-rgb), 0.4);
-}
-
-.pdh-footer-inline:hover {
-  color: var(--pdh-ink);
-  text-decoration-color: currentColor;
+.pdh-footer .pdh-counter-inner {
+  max-width: none;
 }
 
 .pdh-footer-cols {
@@ -2980,7 +2905,7 @@ nav[aria-label^="Fil d"] a::after {
 /* The legal line on the left, the badge on the right, both resting on the
    same bottom edge. */
 .pdh-footer-bottom {
-  margin-top: clamp(40px, 6vw, 96px);
+  margin-top: clamp(32px, 4vw, 64px);
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -3033,9 +2958,6 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 @media (max-width: 560px) {
-  .pdh-footer-field {
-    flex-direction: column;
-  }
   .pdh-footer-bottom {
     justify-content: flex-start;
   }
@@ -3046,7 +2968,6 @@ nav[aria-label^="Fil d"] a::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pdh-footer-btn,
   .pdh-footer-badge {
     transition: none;
   }
