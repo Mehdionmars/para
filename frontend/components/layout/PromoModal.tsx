@@ -139,7 +139,7 @@ export function PromoModal({ config }: { config: PromoModalContent }) {
         aria-describedby={config.description ? "promo-modal-desc" : undefined}
       >
         <button ref={closeRef} type="button" onClick={close} aria-label="Fermer" className="promo-modal-close">
-          <X aria-hidden="true" size={17} strokeWidth={2} />
+          <X aria-hidden="true" size={20} strokeWidth={1.5} />
         </button>
 
         {config.image && (
@@ -177,24 +177,30 @@ export function PromoModal({ config }: { config: PromoModalContent }) {
             </p>
           )}
 
-          <div className="promo-modal-code-row">
-            <span className="promo-modal-code">{config.code}</span>
-            <button type="button" onClick={copyCode} className="promo-modal-copy">
-              {copied ? <Check aria-hidden="true" size={15} strokeWidth={2} /> : <Copy aria-hidden="true" size={15} strokeWidth={1.8} />}
-              {copied ? "Copié" : config.ctaLabel}
-            </button>
-          </div>
+          <span className="promo-modal-code">
+            {config.code}
+          </span>
 
           {config.conditions.length > 0 && (
             <ul className="promo-modal-conditions">
               {config.conditions.map((c) => (
                 <li key={c}>
-                  <Check aria-hidden="true" size={14} strokeWidth={2} />
+                  <Check aria-hidden="true" size={13} strokeWidth={2} />
                   {c}
                 </li>
               ))}
             </ul>
           )}
+
+          <div className="promo-modal-actions">
+            <button type="button" onClick={copyCode} className="promo-modal-btn">
+              {copied ? <Check aria-hidden="true" size={15} strokeWidth={2} /> : <Copy aria-hidden="true" size={15} strokeWidth={1.6} />}
+              {copied ? "Copié" : config.ctaLabel}
+            </button>
+            <button type="button" onClick={close} className="promo-modal-btn">
+              Non merci
+            </button>
+          </div>
         </div>
       </div>
     </div>
