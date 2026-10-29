@@ -2,6 +2,7 @@ import { APIError } from 'payload'
 import type { CollectionConfig, FieldAccess, PayloadRequest, Where } from 'payload'
 
 import { adminOrManager, canEditContent, hasRole, isStaff, staffOnlyInAdmin } from '../access/roles'
+import { notifyStockChange } from '../lib/notifications/stock'
 import { slugField } from '../lib/slugField'
 
 export const CATEGORY_OPTIONS = [
@@ -229,6 +230,39 @@ export const Products: CollectionConfig = {
         }
 
         return data
+      },
+    ],
+    afterChange: [
+      // A stock typed into the product form (or set by a sheet import) is a
+      // stock change like any other, and crosses thresholds like any other.
+      // The checkout, restock, bulk and order-restore paths write stock in
+      // raw SQL and alert on their own, so they never reach this hook and
+      // cannot double-notify.
+      async ({ doc, operation, previousDoc, req }) => {
+        if (operation !== 'update') return doc
+        const previousStock = Number(previousDoc?.stock ?? 0)
+        const newStock = Number(doc.stock ?? 0)
+        if (previousStock === newStock) return doc
+
+        // Sent on the payload, not on req: the alert gets its own connection
+        // instead of joining (and holding open) the save's transaction while
+        // the email provider answers. A failure is logged inside and can
+        // never fail the save.
+        await notifyStockChange({
+          change: {
+            lowStockThreshold: Number(doc.lowStockThreshold) || 0,
+            newStock,
+            // One save is one occurrence: a replayed request carries the same
+            // updatedAt and must not alert twice.
+            occurrenceId: `product-edit-${doc.updatedAt}`,
+            previousStock,
+            productId: Number(doc.id),
+            productName: String(doc.name),
+          },
+          payload: req.payload,
+        }).catch((err) => req.payload.logger.error({ err }, `Alerte stock non envoyée pour le produit ${doc.id}`))
+
+        return doc
       },
     ],
   },
