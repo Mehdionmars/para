@@ -378,7 +378,7 @@ export function ThemeEditor({ value, onChange }: { value: ThemeDraft; onChange: 
               type="button"
               onClick={() => applyPreset(p.value)}
               className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-medium ${
-                active ? "border-violet-400 bg-violet-50 text-violet-800" : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                active ? "border-primary/50 bg-primary/5 text-primary" : "border-gray-200 text-gray-700 hover:bg-gray-50"
               }`}
             >
               <span className="flex flex-none -space-x-1">

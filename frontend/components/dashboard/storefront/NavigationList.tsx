@@ -59,7 +59,7 @@ export function NavigationList({
           }}
           className={cn(
             "flex items-center gap-1.5 rounded-lg border px-2 py-2 text-sm",
-            selectedIndex === index ? "border-violet-300 bg-violet-50" : "border-transparent hover:bg-gray-50",
+            selectedIndex === index ? "border-primary/35 bg-primary/5" : "border-transparent hover:bg-gray-50",
           )}
         >
           <span className="cursor-grab text-gray-300" aria-hidden="true">
@@ -71,7 +71,7 @@ export function NavigationList({
             className={cn("flex-1 truncate text-left font-medium", item.visible ? "text-gray-800" : "text-gray-400 line-through")}
           >
             {item.label || "Nouveau lien"}
-            {item.megaMenuEnabled && <span className="ml-1 text-[10px] font-normal text-violet-500">(mega menu)</span>}
+            {item.megaMenuEnabled && <span className="ml-1 text-[10px] font-normal text-primary/80">(mega menu)</span>}
           </button>
           <button
             type="button"
@@ -95,7 +95,7 @@ export function NavigationList({
       <button
         type="button"
         onClick={onAdd}
-        className="mt-1 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-2 py-2 text-xs font-medium text-gray-500 hover:border-violet-300 hover:text-violet-700"
+        className="mt-1 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-2 py-2 text-xs font-medium text-gray-500 hover:border-primary/40 hover:text-primary"
       >
         <Plus className="h-3.5 w-3.5" /> Ajouter un lien
       </button>

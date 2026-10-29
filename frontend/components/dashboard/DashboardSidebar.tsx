@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { MotionConfig, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,6 +23,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 
@@ -34,7 +35,7 @@ function matches(pathname: string, item: NavItem) {
 // little, and the active background drawn by ActivePill — one element that
 // slides from link to link — instead of the primitive's static fill.
 const buttonMotion =
-  "relative isolate overflow-visible transition-[width,height,padding,background-color,color,transform] duration-200 ease-out group-data-[collapsible=icon]:overflow-hidden active:scale-[0.98] data-[active=true]:bg-transparent data-[active=true]:hover:bg-sidebar-accent/60 motion-reduce:transition-none motion-reduce:active:scale-100";
+  "relative isolate overflow-visible max-lg:h-10 transition-[width,height,padding,background-color,color,transform] duration-200 ease-out group-data-[collapsible=icon]:overflow-hidden active:scale-[0.98] data-[active=true]:bg-transparent data-[active=true]:hover:bg-sidebar-accent/60 motion-reduce:transition-none motion-reduce:active:scale-100";
 
 const ActivePill = () => (
   <motion.span
@@ -56,6 +57,12 @@ const ActivePill = () => (
  */
 export function DashboardSidebar({ roles, email }: { roles: Role[]; email: string }) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+  // Below `lg` the sidebar is a drawer over the page: choosing a destination
+  // closes it, or the operator lands on the new page still behind the menu.
+  const closeDrawer = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   // Filtered per group, then empty groups dropped — a stockManager sees no
   // Boutique destinations at all, and a group label with nothing under it is
@@ -75,7 +82,7 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="relative max-lg:pr-12">
         <SidebarMenu>
           <SidebarMenuItem>
             {/* h-14 overrides size="lg"'s h-12: a 44px mark plus the button's
@@ -87,7 +94,7 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
               size="lg"
               className="h-14 hover:bg-transparent active:bg-transparent"
             >
-              <Link href="/dashboard">
+              <Link href="/dashboard" onClick={closeDrawer}>
                 {/* Shrinks back to 32px when collapsed, because the icon rail
                     is 3rem wide and a 44px mark would overflow it. sizes
                     matches the larger of the two so the rail is not served a
@@ -108,6 +115,19 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        {/* The drawer's own close button. The Sheet's built-in one is hidden
+            by the primitive, which left Escape and a tap on the backdrop as the
+            only ways out — neither discoverable on a phone. */}
+        {isMobile && (
+          <button
+            type="button"
+            onClick={() => setOpenMobile(false)}
+            aria-label="Fermer le menu"
+            className="absolute top-3 right-2 inline-flex size-10 items-center justify-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
+          >
+            <X className="size-5" aria-hidden="true" />
+          </button>
+        )}
       </SidebarHeader>
 
       {/* scrollbar-none: the rail scrolls on a short viewport, but its
@@ -115,7 +135,7 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
           parallel grey gutters. Wheel and keyboard scrolling are unaffected. */}
       <SidebarContent className="scrollbar-none">
         <MotionConfig reducedMotion="user">
-          {groups.map((group, groupIndex) => {
+          {groups.map((group) => {
             // The group holding the current page always opens with it; the
             // others are open too unless the operator folded them.
             const holdsActive = group.items.some((item) => item.href === activeHref);
@@ -126,10 +146,10 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
                 onOpenChange={(open) => setFolded((f) => ({ ...f, [group.label]: !open }))}
                 className="group/collapsible"
               >
-                <SidebarGroup
-                  className="animate-in fade-in-0 slide-in-from-left-2 fill-mode-both duration-500 motion-reduce:animate-none"
-                  style={{ animationDelay: `${groupIndex * 60}ms` }}
-                >
+                {/* No entrance animation: the groups used to fade in 60ms
+                    apart over half a second, so the navigation was not
+                    readable for the first ~800ms of every full page load. */}
+                <SidebarGroup>
                   {/* text-muted-foreground, overriding the primitive's
                       text-sidebar-foreground/70 which measured 3.63:1 against
                       the white sidebar — a fail for 12px text. The label is
@@ -149,7 +169,7 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
                           return (
                             <SidebarMenuItem key={item.href}>
                               <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={buttonMotion}>
-                                <Link href={item.href}>
+                                <Link href={item.href} onClick={closeDrawer}>
                                   {isActive && <ActivePill />}
                                   <Icon />
                                   <span>{item.label}</span>
@@ -170,7 +190,9 @@ export function DashboardSidebar({ roles, email }: { roles: Role[]; email: strin
 
       <SidebarSeparator />
 
-      <SidebarFooter>
+      {/* The home-indicator inset, so the account menu is not under it on a
+          phone held in the drawer. */}
+      <SidebarFooter className="pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <DashboardUserMenu email={email} roles={roles} />
       </SidebarFooter>
 

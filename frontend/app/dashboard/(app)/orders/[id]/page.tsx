@@ -242,7 +242,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
           </Section>
         </div>
 
-        <aside className="flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start">
+        <aside className="flex flex-col gap-3 lg:sticky lg:top-[4.5rem] lg:self-start">
           <section className="rounded-xl border border-border bg-card p-4 shadow-xs">
             <div className="flex flex-col gap-1">
               <Line label="Sous-total" value={money(order.subtotal)} />

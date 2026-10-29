@@ -93,7 +93,7 @@ export function RestockModal({
           <select
             value={supplierChoice}
             onChange={(e) => setSupplierChoice(e.target.value)}
-            className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+            className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
           >
             <option value="">— Aucun —</option>
             {suppliers.map((s) => (
@@ -136,13 +136,13 @@ export function RestockModal({
             onChange={(e) => setNote(e.target.value)}
             rows={2}
             placeholder="Optionnel"
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </label>
 
-        <div className="flex items-center justify-between rounded-lg bg-violet-50 px-3 py-2.5 text-sm">
-          <span className="text-violet-700">Nouveau stock</span>
-          <span className="font-semibold text-violet-900">{newStock}</span>
+        <div className="flex items-center justify-between rounded-lg bg-primary/5 px-3 py-2.5 text-sm">
+          <span className="text-primary">Nouveau stock</span>
+          <span className="font-semibold text-primary">{newStock}</span>
         </div>
 
         {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}

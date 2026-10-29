@@ -47,7 +47,7 @@ function LinkFieldsEditor({
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-600">Catégorie</span>
           <select
-            className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400"
+            className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-ring"
             value={value.category.id || ""}
             onChange={(e) => {
               const id = Number(e.target.value) || undefined;
@@ -68,7 +68,7 @@ function LinkFieldsEditor({
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-600">Marque</span>
           <select
-            className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400"
+            className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-ring"
             value={value.brand.id || ""}
             onChange={(e) => {
               const id = Number(e.target.value) || undefined;

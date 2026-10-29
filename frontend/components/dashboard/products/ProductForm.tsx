@@ -393,10 +393,12 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      {/* -top-5 / sm:-top-6, not top-0: the scroll container has p-5 / sm:p-6,
-          and a sticky top:0 parks at its padding edge — 24px down, leaving a
-          grey band above the bar and swallowing the gap under it. */}
-      <div className="sticky -top-5 z-30 -mx-5 -mt-5 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-5 py-3 backdrop-blur sm:-top-6 sm:-mx-6 sm:-mt-6 sm:px-6">
+      {/* Parks under the shell's 56px bar (top-14, z below its z-20) and
+          bleeds to the page edges by exactly the shell's gutter: 16px on a
+          phone, 24px from `sm`, 32px from `xl`. The window scrolls, so this
+          now actually sticks — the old shell's overflow-y-auto wrapper had
+          made it a scroll container that never scrolled. */}
+      <div className="sticky top-14 z-10 -mx-4 -mt-5 flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:-mx-6 sm:-mt-6 sm:px-6 xl:-mx-8 xl:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -810,7 +812,7 @@ export function ProductForm({
         {/* top-14, measured from the scroller's padding edge: it lands just
             under the sticky bar and level with the first card. top-20
             pushed the column 20px below the left one. */}
-        <aside className="flex flex-col gap-3 lg:sticky lg:top-14 lg:self-start">
+        <aside className="flex flex-col gap-3 lg:sticky lg:top-32 lg:self-start">
           <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
             <label className="flex cursor-pointer items-center justify-between gap-3">
               <span>

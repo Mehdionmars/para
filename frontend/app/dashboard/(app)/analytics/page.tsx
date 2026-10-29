@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { RevenueChart, StatusChart } from "@/components/dashboard/analytics/Charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAnalytics } from "@/lib/dashboard/analytics";
@@ -14,10 +15,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Analytics</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Calculé à partir des commandes réelles — pas de données factices.</p>
-      </div>
+      <PageHeader title="Analytics" description="Calculé à partir des commandes réelles — pas de données factices." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card>

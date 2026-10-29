@@ -59,7 +59,7 @@ export function ColorSection({
         </div>
         {configured && (
           <button
-            className="flex flex-none items-center gap-1 rounded-lg border border-gray-200 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="flex flex-none items-center gap-1 rounded-lg border border-gray-200 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={() => onChange(emptyChromeColors())}
             type="button"
           >
@@ -103,7 +103,7 @@ export function ColorSection({
           </div>
           <div className="flex items-center gap-2">
             <input
-              className="h-2 w-full cursor-pointer accent-violet-600"
+              className="h-2 w-full cursor-pointer accent-primary"
               id="chrome-opacity"
               max={100}
               min={0}

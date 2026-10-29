@@ -73,7 +73,7 @@ export function ColorField({
         </label>
         {allowReset && !isEmpty && (
           <button
-            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={() => onChange("")}
             title="Revenir à la couleur par défaut du storefront"
             type="button"
@@ -102,7 +102,7 @@ export function ColorField({
           // row refuse to go under ~293px, and a flex row does not wrap: the
           // excess spilled sideways over whatever sat next to it, which is
           // what turned two colour fields into overlapping text.
-          className={`w-full min-w-0 rounded-lg border px-3 py-1.5 font-mono text-sm uppercase outline-none focus:border-violet-400 ${
+          className={`w-full min-w-0 rounded-lg border px-3 py-1.5 font-mono text-sm uppercase outline-none focus:border-ring ${
             valid ? "border-gray-200" : "border-red-300"
           }`}
           id={id}
@@ -112,7 +112,7 @@ export function ColorField({
         />
         <button
           aria-expanded={paletteOpen}
-          className="flex-none rounded-lg border border-gray-200 px-2 py-1.5 text-[11px] text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+          className="flex-none rounded-lg border border-gray-200 px-2 py-1.5 text-[11px] text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           onClick={() => setPaletteOpen((v) => !v)}
           type="button"
         >
@@ -124,7 +124,7 @@ export function ColorField({
         <div className="flex flex-wrap gap-1.5 rounded-lg border border-gray-200 bg-gray-50 p-2">
           {QUICK_PALETTE.map((swatch) => (
             <button
-              className="h-6 w-6 rounded border border-black/10 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+              className="h-6 w-6 rounded border border-black/10 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               key={swatch.value}
               onClick={() => {
                 onChange(swatch.value);

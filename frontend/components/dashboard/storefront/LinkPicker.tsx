@@ -79,7 +79,7 @@ export function LinkPicker({
   const brandsFromContext = useContext(LinkBrandsContext);
   const brands = brandsProp ?? brandsFromContext;
   const [kind, setKind] = useState<Kind>(() => inferKind(value));
-  const inputCls = "w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400";
+  const inputCls = "w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-ring";
 
   const currentBrandSlug = value.startsWith("/marques/")
     ? value.replace("/marques/", "")
@@ -97,7 +97,7 @@ export function LinkPicker({
             key={k}
             type="button"
             onClick={() => setKind(k)}
-            className={`rounded-full px-2.5 py-1 text-xs font-medium ${kind === k ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ${kind === k ? "bg-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
           >
             {KIND_LABELS[k]}
           </button>

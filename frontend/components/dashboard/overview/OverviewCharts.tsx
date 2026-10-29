@@ -40,7 +40,7 @@ export type StatusSlice = { label: string; count: number; status: OrderStatus };
  */
 function RevenueChart({ data }: { data: RevenuePoint[] }) {
   if (!data.some((d) => d.revenue > 0)) {
-    return <ChartEmpty label="Le graphique s'activera dès la première commande." height={260} />;
+    return <ChartEmpty label="Aucune commande encaissée sur les 30 derniers jours." height={180} />;
   }
 
   return (
@@ -111,7 +111,7 @@ function StatusChart({ data }: { data: StatusSlice[] }) {
         <BarChart data={data} layout="vertical" margin={{ bottom: 0, left: 0, right: 12, top: 8 }}>
           <CartesianGrid {...GRID_PROPS} horizontal={false} />
           <XAxis type="number" {...AXIS_PROPS} allowDecimals={false} />
-          <YAxis type="category" dataKey="label" {...CATEGORY_AXIS_PROPS} width={104} />
+          <YAxis type="category" dataKey="label" {...CATEGORY_AXIS_PROPS} width={112} />
 
           <Tooltip
             content={<ChartTooltip />}

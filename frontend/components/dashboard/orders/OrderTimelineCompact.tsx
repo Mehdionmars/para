@@ -51,7 +51,7 @@ export function OrderTimelineCompact({
     // Steps keep a fixed width and never shrink; the row scrolls instead.
     // Letting them flex meant the label centred and spilled past its own box
     // — the first one rendered as "tente" instead of "En attente".
-    <ol className="flex w-full items-start overflow-x-auto pb-1" aria-label="Progression de la commande">
+    <ol className="relative flex w-full items-start overflow-x-auto pb-1" aria-label="Progression de la commande">
       {ORDER_TIMELINE_STEPS.map((step, i) => {
         const done = i <= lastProgress;
         const current = !ended && i === reachedIndex;

@@ -53,7 +53,7 @@ export function InventoryTable({
         <p className="rounded-lg bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">{successMessage}</p>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+      <div className="relative overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">
@@ -97,7 +97,7 @@ export function InventoryTable({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/dashboard/inventory/${product.id}/movements`} className="text-xs font-medium text-violet-700 hover:underline">
+                      <Link href={`/dashboard/inventory/${product.id}/movements`} className="text-xs font-medium text-primary hover:underline">
                         Historique
                       </Link>
                       <Button size="sm" onClick={() => setRestockTarget({ id: product.id, name: product.name, stock })}>

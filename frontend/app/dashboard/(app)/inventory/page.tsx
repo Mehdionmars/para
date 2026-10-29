@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { InventoryTable, type ProductBatchInfo } from "@/components/dashboard/inventory/InventoryTable";
 import { requireRole } from "@/lib/dashboard/guard";
 import {
@@ -63,13 +64,7 @@ export default async function InventoryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Inventaire</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Niveaux de stock par produit, réapprovisionnement traçable et éligibilité aux rails de la page
-          d&apos;accueil.
-        </p>
-      </div>
+      <PageHeader title="Inventaire" description="Niveaux de stock par produit, réapprovisionnement traçable et éligibilité aux rails de la page d'accueil." />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <div className="rounded-xl border border-border bg-card shadow-xs p-4">
@@ -98,7 +93,7 @@ export default async function InventoryPage() {
 
       <div>
         <h2 className="mb-3 text-sm font-semibold text-foreground">Derniers mouvements de stock</h2>
-        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
+        <div className="relative overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs font-medium text-muted-foreground">

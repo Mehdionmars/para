@@ -123,7 +123,7 @@ function PreviewRows({
 
 const RADIO_CLASS = "flex cursor-pointer items-center gap-2 text-sm text-gray-700";
 const FIELD_CLASS =
-  "h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100";
+  "h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30";
 
 // ------------------------------------------------------------------ stock
 
@@ -185,7 +185,7 @@ export function BulkStockDialog({
               name="stock-mode"
               checked={mode === m}
               onChange={() => setMode(m)}
-              className="h-4 w-4 accent-violet-700"
+              className="h-4 w-4 accent-primary"
             />
             {label}
           </label>
@@ -287,7 +287,7 @@ export function BulkPriceDialog({
               name="price-mode"
               checked={mode === m}
               onChange={() => setMode(m)}
-              className="h-4 w-4 accent-violet-700"
+              className="h-4 w-4 accent-primary"
             />
             {label}
           </label>
@@ -379,7 +379,7 @@ export function BulkStatusDialog({
               name="status-value"
               checked={value === s}
               onChange={() => setValue(s)}
-              className="h-4 w-4 accent-violet-700"
+              className="h-4 w-4 accent-primary"
             />
             {STATUS_LABELS[s]}
           </label>
@@ -466,7 +466,7 @@ export function BulkPromotionDialog({
               name="promo-mode"
               checked={mode === m}
               onChange={() => setMode(m)}
-              className="h-4 w-4 accent-violet-700"
+              className="h-4 w-4 accent-primary"
             />
             {label}
           </label>
@@ -579,7 +579,7 @@ export function BulkTaxonomyDialog({
                   name="taxonomy-value"
                   checked={value === o.value}
                   onChange={() => setValue(o.value)}
-                  className="h-4 w-4 accent-violet-700"
+                  className="h-4 w-4 accent-primary"
                 />
                 <span className="truncate">{o.label}</span>
               </label>

@@ -257,7 +257,7 @@ function SectionEditor({
   brands: BrandOption[];
 }) {
   if (!selectedKey) {
-    return <p className="p-4 text-sm text-muted-foreground">Sélectionnez une section à gauche pour la modifier.</p>;
+    return <p className="p-4 text-sm text-muted-foreground">Sélectionnez une section dans la liste pour la modifier.</p>;
   }
 
   // Rails are dynamic — one entry per configured rail, addressed as
@@ -534,10 +534,12 @@ export function StorefrontBuilder({
   return (
     <div className="flex h-full flex-col bg-muted/50">
       {/* Top bar */}
-      <div className="flex flex-none items-center justify-between gap-4 border-b border-border bg-card px-4 py-2.5">
-        <div className="flex items-center gap-3">
+      {/* Wraps onto a second line rather than pushing the publish button off
+          a narrow screen: every control stays reachable at any width. */}
+      <div className="flex flex-none flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border bg-card px-4 py-2.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
           <h1 className="text-sm font-semibold text-foreground">Storefront Builder</h1>
-          <div className="flex items-center gap-1 rounded-lg bg-muted p-0.5">
+          <div className="scrollbar-none relative flex max-w-full items-center gap-1 overflow-x-auto rounded-lg bg-muted p-0.5">
             {(
               [
                 ["home", "Contenu"],
@@ -573,7 +575,8 @@ export function StorefrontBuilder({
                 key={v}
                 type="button"
                 onClick={() => setViewport(v)}
-                aria-label={v}
+                aria-label={v === "desktop" ? "Aperçu ordinateur" : v === "tablet" ? "Aperçu tablette" : "Aperçu mobile"}
+                aria-pressed={viewport === v}
                 className={`rounded p-1.5 ${viewport === v ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-muted/50"}`}
               >
                 <Icon className="h-4 w-4" />
@@ -582,7 +585,7 @@ export function StorefrontBuilder({
           })}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="text-xs text-muted-foreground">
             {active.saveState === "saving" && (
               <span className="flex items-center gap-1">
@@ -653,9 +656,12 @@ export function StorefrontBuilder({
         </Modal>
       )}
 
-      {/* 3-column body */}
-      <div className="flex min-h-0 flex-1">
-        <aside className="w-64 flex-none overflow-y-auto border-r border-border bg-card p-3">
+      {/* Three columns from `lg`. Below it the three would need ~1 000px side
+          by side, so they stack in one scrolling column instead — list,
+          editor, then the preview — and every panel stays usable on a tablet
+          or a phone. */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+        <aside className="max-h-[45svh] w-full flex-none overflow-y-auto border-b border-border bg-card p-3 lg:max-h-none lg:w-64 lg:border-r lg:border-b-0">
           {activeTab === "home" ? (
             <>
             {/* The photo circles open the home page but are not a home
@@ -721,7 +727,7 @@ export function StorefrontBuilder({
           )}
         </aside>
 
-        <div className="flex flex-1 items-start justify-center overflow-auto bg-muted p-4">
+        <div className="order-last flex h-[75svh] flex-none items-start justify-center overflow-auto bg-muted p-4 lg:order-none lg:h-auto lg:flex-1">
           <iframe
             key={previewNonce}
             src={previewSrc}
@@ -731,7 +737,7 @@ export function StorefrontBuilder({
           />
         </div>
 
-        <aside className="w-80 flex-none overflow-y-auto border-l border-border bg-card p-4">
+        <aside className="w-full flex-none border-b border-border bg-card p-4 lg:w-80 lg:overflow-y-auto lg:border-b-0 lg:border-l">
           {activeTab === "home" ? (
             <SectionEditor selectedKey={selectedKey} draft={draft} update={update} brands={brands} />
           ) : activeTab === "navigation" ? (
@@ -753,7 +759,7 @@ export function StorefrontBuilder({
                   brands={brands}
                 />
               ) : (
-                <p className="text-sm text-muted-foreground">Sélectionnez un lien à gauche pour le modifier.</p>
+                <p className="text-sm text-muted-foreground">Sélectionnez un lien dans la liste pour le modifier.</p>
               )}
 
               <div className="border-t border-border pt-5">

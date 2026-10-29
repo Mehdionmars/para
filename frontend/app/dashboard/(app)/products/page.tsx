@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { ProductsView } from "@/components/dashboard/products/ProductsView";
 import { Button } from "@/components/ui/button";
 import { requireRole } from "@/lib/dashboard/guard";
@@ -27,21 +28,23 @@ export default async function ProductsPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">Produits</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Gérez le catalogue Para d&apos;Hiver.</p>
-        </div>
-        {canEditProducts(user) && (
-          <Link href="/dashboard/products/new">
-            <Button>
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Ajouter un produit</span>
-              <span className="sm:hidden">Ajouter</span>
+      <PageHeader
+        title="Produits"
+        description="Gérez le catalogue Para d'Hiver."
+        actions={
+          canEditProducts(user) && (
+            // asChild: a <button> inside an <a> is two interactive elements
+            // nested, which keyboard and screen-reader users meet twice.
+            <Button asChild>
+              <Link href="/dashboard/products/new">
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Ajouter un produit</span>
+                <span className="sm:hidden">Ajouter</span>
+              </Link>
             </Button>
-          </Link>
-        )}
-      </div>
+          )
+        }
+      />
 
       <ProductsView
         products={page.docs}

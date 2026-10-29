@@ -36,7 +36,7 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Code promo…"
-            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
 
@@ -44,7 +44,7 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
           value={state}
           onChange={(e) => setState(e.target.value as StateFilter)}
           aria-label="Filtrer par état"
-          className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+          className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
         >
           <option value="all">Tous les états</option>
           <option value="active">Actifs uniquement</option>
@@ -59,7 +59,7 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+      <div className="relative overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">

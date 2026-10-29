@@ -98,7 +98,7 @@ export function ImagePicker({
           onChange={(e) => setAlt(e.target.value)}
           onBlur={(e) => saveAlt(e.target.value)}
           placeholder="Texte alternatif (accessibilité, SEO)"
-          className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-xs outline-none focus:border-violet-400"
+          className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-xs outline-none focus:border-ring"
         />
       )}
       {savingAlt && <span className="text-[11px] text-gray-400">Enregistrement du texte alternatif...</span>}

@@ -23,7 +23,7 @@ function toNumber(v: string): number | null {
 }
 
 const field =
-  "h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100";
+  "h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-ring focus:ring-2 focus:ring-ring/30";
 const label = "text-xs font-medium text-gray-600";
 
 export function CouponFormModal({ coupon, onClose }: { coupon: Coupon | null; onClose: () => void }) {
@@ -236,7 +236,7 @@ export function CouponFormModal({ coupon, onClose }: { coupon: Coupon | null; on
             type="checkbox"
             checked={active}
             onChange={(e) => setActive(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-violet-700 focus:ring-violet-300"
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-ring/40"
           />
           Actif
         </label>

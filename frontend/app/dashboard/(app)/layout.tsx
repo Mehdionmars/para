@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { ToastProvider } from "@/components/dashboard/ui/Toast";
@@ -12,11 +13,14 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
   // rather than shown an empty, confusing shell.
   if (!isStaffUser(user)) redirect("/dashboard/login?error=acces_refuse");
 
+  // Written by SidebarProvider when the rail is collapsed or expanded.
+  const sidebarOpen = (await cookies()).get("sidebar_state")?.value !== "false";
+
   return (
     // Mounted at the layout so any dashboard page can raise a toast without
     // each one wiring up its own provider.
     <ToastProvider>
-      <DashboardShell email={user.email} roles={user.roles}>
+      <DashboardShell email={user.email} roles={user.roles} defaultOpen={sidebarOpen}>
         {children}
       </DashboardShell>
     </ToastProvider>

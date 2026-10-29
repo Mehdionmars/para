@@ -28,13 +28,13 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Nom ou email…"
-            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
         <span className="text-sm text-gray-500">{rows.length} client(s)</span>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+      <div className="relative overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
@@ -49,7 +49,7 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
             {rows.map((c) => (
               <tr key={c.email} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
                 <td className="px-4 py-3">
-                  <Link href={`/dashboard/customers/${encodeURIComponent(c.email)}`} className="font-medium text-violet-700 hover:underline">
+                  <Link href={`/dashboard/customers/${encodeURIComponent(c.email)}`} className="font-medium text-primary hover:underline">
                     {c.name}
                   </Link>
                   <div className="text-xs text-gray-500">{c.email}</div>
@@ -62,7 +62,7 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
                       target="_blank"
                       rel="noreferrer"
                       aria-label={`WhatsApp ${c.name}`}
-                      className="ml-2 inline-flex align-middle text-violet-700 hover:text-violet-900"
+                      className="ml-2 inline-flex align-middle text-primary hover:text-primary"
                     >
                       <MessageCircle className="h-3.5 w-3.5" />
                     </a>
