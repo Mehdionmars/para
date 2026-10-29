@@ -36,7 +36,7 @@ export function PasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="flex max-w-sm flex-col gap-4">
       <div>
-        <label htmlFor="new-password" className="mb-1.5 block text-xs font-medium text-gray-600">
+        <label htmlFor="new-password" className="mb-1.5 block text-xs font-medium text-foreground">
           Nouveau mot de passe
         </label>
         <Input
@@ -50,7 +50,7 @@ export function PasswordForm() {
         />
       </div>
       <div>
-        <label htmlFor="confirm-password" className="mb-1.5 block text-xs font-medium text-gray-600">
+        <label htmlFor="confirm-password" className="mb-1.5 block text-xs font-medium text-foreground">
           Confirmer le mot de passe
         </label>
         <Input
@@ -63,9 +63,9 @@ export function PasswordForm() {
           onChange={(e) => setConfirm(e.target.value)}
         />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-destructive-strong">{error}</p>}
       {success && (
-        <p className="flex items-center gap-1.5 text-sm text-emerald-600">
+        <p role="status" className="flex items-center gap-1.5 text-sm text-success-strong">
           <CheckCircle2 className="h-4 w-4" />
           Mot de passe mis à jour.
         </p>

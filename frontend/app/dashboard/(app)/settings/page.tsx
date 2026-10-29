@@ -1,66 +1,31 @@
 import { PasswordForm } from "@/components/dashboard/settings/PasswordForm";
-import { PaymentMethodsForm } from "@/components/dashboard/settings/PaymentMethodsForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SettingsPanel } from "@/components/dashboard/settings/SettingsPanel";
 import { requireRole } from "@/lib/dashboard/guard";
-import { getPaymentSettings } from "@/lib/dashboard/paymentSettings";
-import { canEditContent, isStaffUser, ROLE_LABELS } from "@/lib/dashboard/roles";
+import { isStaffUser, ROLE_LABELS } from "@/lib/dashboard/roles";
 
-export default async function SettingsPage() {
+/** Mon compte: who is signed in, and their password. Open to every staff
+ * role; the shop-wide sections are their own pages. */
+export default async function SettingsAccountPage() {
   const user = await requireRole(isStaffUser);
 
-  // Gated on the same permission the global itself requires, so a role that
-  // could never save is not shown a form that would fail on submit. Loaded
-  // only when it will be rendered.
-  const canEditPayment = canEditContent(user);
-  const payment = canEditPayment ? await getPaymentSettings() : null;
-
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Paramètres</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Votre compte et vos accès.</p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Profil</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3 text-sm">
-          <div className="flex justify-between border-b border-border pb-3">
-            <span className="text-muted-foreground">Email</span>
-            <span className="font-medium text-foreground">{user.email}</span>
+    <div className="flex flex-col gap-5">
+      <SettingsPanel title="Profil">
+        <dl className="divide-y divide-border text-sm">
+          <div className="flex flex-col gap-0.5 py-2.5 first:pt-0 sm:flex-row sm:justify-between sm:gap-4">
+            <dt className="text-muted-foreground">Email</dt>
+            <dd className="font-medium break-all text-foreground">{user.email}</dd>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Rôle(s)</span>
-            <span className="font-medium text-foreground">
-              {user.roles.length ? user.roles.map((r) => ROLE_LABELS[r]).join(", ") : "—"}
-            </span>
+          <div className="flex flex-col gap-0.5 py-2.5 last:pb-0 sm:flex-row sm:justify-between sm:gap-4">
+            <dt className="text-muted-foreground">Rôle(s)</dt>
+            <dd className="font-medium text-foreground">{user.roles.length ? user.roles.map((r) => ROLE_LABELS[r]).join(", ") : "—"}</dd>
           </div>
-        </CardContent>
-      </Card>
+        </dl>
+      </SettingsPanel>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Mot de passe</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PasswordForm />
-        </CardContent>
-      </Card>
-
-      {payment && (
-        <Card>
-          <CardHeader className="flex-col items-start gap-1">
-            <CardTitle>Modes de paiement</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              Ce que la boutique accepte au checkout, et où envoyer un virement. Modifiable sans redéploiement.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <PaymentMethodsForm initial={payment} />
-          </CardContent>
-        </Card>
-      )}
+      <SettingsPanel title="Mot de passe" description="Au moins 8 caractères.">
+        <PasswordForm />
+      </SettingsPanel>
     </div>
   );
 }
