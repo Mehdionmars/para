@@ -1,4 +1,6 @@
 import { TriangleAlert } from "lucide-react";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { OrdersCalendar } from "@/components/dashboard/overview/OrdersCalendar";
 import { OverviewBoard } from "@/components/dashboard/overview/OverviewBoard";
@@ -43,10 +45,42 @@ async function getRecentProducts(): Promise<RecentProduct[]> {
  * Every figure comes from summarizeActivity (lib/dashboard/activity), the
  * same function the home page reads, so the two never disagree.
  */
-export default async function DashboardOverviewPage() {
-  // allSettled: one collection being unreachable costs that panel and nothing
-  // else. A rejected list is passed on as null so the panel says it could not
-  // load, rather than rendering empty and reading as "nothing here yet".
+export default function DashboardOverviewPage() {
+  return (
+    <div className="flex flex-col gap-6 sm:gap-8">
+      <PageHeader
+        title="Vue d'ensemble"
+        description="Para d'Hiver — les sept derniers jours, comparés aux sept précédents."
+      />
+      {/* The heading answers at once; the board streams in behind a skeleton
+          of its own shape instead of holding the whole page back. */}
+      <Suspense fallback={<BoardSkeleton />}>
+        <Board />
+      </Suspense>
+    </div>
+  );
+}
+
+function BoardSkeleton() {
+  return (
+    <div className="flex flex-col gap-3" aria-busy="true" aria-label="Chargement de la vue d'ensemble">
+      <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-[124px] rounded-xl" />
+        ))}
+      </div>
+      <div className="grid gap-3 xl:grid-cols-3">
+        <Skeleton className="h-[360px] rounded-xl xl:col-span-2" />
+        <Skeleton className="h-[360px] rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+async function Board() {
+  // One collection being unreachable costs that panel and nothing else. A
+  // rejected list is passed on as null so the panel says it could not load,
+  // rather than rendering empty and reading as "nothing here yet".
   const [activity, recentProducts, coupons] = await Promise.all([
     loadStoreActivity(),
     getRecentProducts().catch(() => null),
@@ -55,12 +89,7 @@ export default async function DashboardOverviewPage() {
   const summary = summarizeActivity(activity);
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8">
-      <PageHeader
-        title="Vue d'ensemble"
-        description="Para d'Hiver — les sept derniers jours, comparés aux sept précédents."
-      />
-
+    <>
       {activity.orders === null && (
         <p className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-warning-strong">
           <TriangleAlert className="mt-0.5 size-4 flex-none" aria-hidden="true" />
@@ -97,6 +126,6 @@ export default async function DashboardOverviewPage() {
           },
         ]}
       />
-    </div>
+    </>
   );
 }

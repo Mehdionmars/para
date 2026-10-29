@@ -31,12 +31,12 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Code promo…"
-            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+            className="h-9 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
 
@@ -44,14 +44,14 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
           value={state}
           onChange={(e) => setState(e.target.value as StateFilter)}
           aria-label="Filtrer par état"
-          className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+          className="h-9 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
         >
           <option value="all">Tous les états</option>
           <option value="active">Actifs uniquement</option>
           <option value="inactive">Inactifs, expirés ou épuisés</option>
         </select>
 
-        <span className="text-sm text-gray-500">{rows.length} code(s)</span>
+        <span className="text-sm text-muted-foreground">{rows.length} code(s)</span>
 
         <Button className="ml-auto" onClick={() => setEditing({ coupon: null })}>
           <Plus className="h-4 w-4" aria-hidden="true" />
@@ -59,16 +59,44 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
         </Button>
       </div>
 
-      <div className="relative overflow-x-auto rounded-xl border border-gray-200/70 bg-white shadow-xs">
+      {/* Phones: one row per code, the essentials on two lines. */}
+      {rows.length > 0 && (
+        <ul className="divide-y divide-border rounded-xl border border-border bg-card shadow-xs md:hidden">
+          {rows.map((c) => {
+            const s = couponState(c);
+            return (
+              <li key={c.id} className="flex items-center gap-3 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="flex flex-wrap items-center gap-2">
+                    <span className="font-mono text-sm font-semibold tracking-wide text-foreground">{c.code}</span>
+                    <Badge variant={s.variant}>{s.label}</Badge>
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {c.type === "percentage" ? `-${c.value} %` : `-${money(c.value)}`}
+                    {typeof c.minimumAmount === "number" && c.minimumAmount > 0 && ` · dès ${money(c.minimumAmount)}`}
+                    {` · ${c.usageCount ?? 0}${typeof c.usageLimit === "number" && c.usageLimit > 0 ? `/${c.usageLimit}` : ""} util.`}
+                    {c.endDate && ` · jusqu'au ${shortDate(c.endDate)}`}
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setEditing({ coupon: c })} aria-label={`Modifier ${c.code}`}>
+                  <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <div className={`relative overflow-x-auto rounded-xl border border-border bg-card shadow-xs ${rows.length > 0 ? "hidden md:block" : ""}`}>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100">
+            <tr className="border-b border-border">
               {["Code", "Type", "Remise", "Minimum", "Période", "Utilisations", "État"].map((h) => (
-                <th key={h} scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                <th key={h} scope="col" className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                   {h}
                 </th>
               ))}
-              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500">
+              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">
                 <span className="sr-only">Actions</span>
               </th>
             </tr>
@@ -77,21 +105,21 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
             {rows.map((c) => {
               const s = couponState(c);
               return (
-                <tr key={c.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
-                  <td className="px-4 py-3 font-mono font-semibold tracking-wide text-gray-900">{c.code}</td>
-                  <td className="px-4 py-3 text-gray-600">{COUPON_TYPE_LABELS[c.type]}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                <tr key={c.id} className="border-b border-border last:border-0 hover:bg-muted/40">
+                  <td className="px-4 py-3 font-mono font-semibold tracking-wide text-foreground">{c.code}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{COUPON_TYPE_LABELS[c.type]}</td>
+                  <td className="px-4 py-3 font-medium text-foreground">
                     {c.type === "percentage" ? `-${c.value} %` : `-${money(c.value)}`}
                     {c.type === "percentage" && typeof c.maximumDiscount === "number" && c.maximumDiscount > 0 && (
-                      <span className="ml-1 text-xs font-normal text-gray-400">
+                      <span className="ml-1 text-xs font-normal text-muted-foreground">
                         (max {money(c.maximumDiscount)})
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {typeof c.minimumAmount === "number" && c.minimumAmount > 0 ? money(c.minimumAmount) : "—"}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {c.startDate || c.endDate ? (
                       <>
                         {c.startDate ? shortDate(c.startDate) : "…"} → {c.endDate ? shortDate(c.endDate) : "…"}
@@ -100,7 +128,7 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
                       "Sans limite"
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {c.usageCount ?? 0}
                     {typeof c.usageLimit === "number" && c.usageLimit > 0 ? ` / ${c.usageLimit}` : ""}
                   </td>
@@ -125,8 +153,8 @@ export function CouponsTable({ coupons }: { coupons: Coupon[] }) {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={8}>
-                  <p className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-gray-500">
-                    <TicketPercent className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                  <p className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-muted-foreground">
+                    <TicketPercent className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     {coupons.length === 0
                       ? "Aucun code promo n'a encore été créé."
                       : "Aucun code ne correspond à ces filtres."}

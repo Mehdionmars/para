@@ -6,7 +6,7 @@ import { casablancaToday, listBookings } from "@/lib/dashboard/bookings";
 import type { Booking } from "@/lib/dashboard/bookings-types";
 import { dayKey, money, shortDate } from "@/lib/dashboard/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS, type OrderStatus } from "@/lib/dashboard/orders-types";
-import { payloadFetchAll } from "@/lib/dashboard/payload";
+import { payloadCount, payloadFetchAll } from "@/lib/dashboard/payload";
 
 /**
  * The shop's recent activity, loaded once and read two ways: the dashboard
@@ -78,17 +78,30 @@ async function loadOrders(): Promise<ActivityOrder[]> {
 }
 
 async function loadCatalogue(): Promise<CatalogueStats> {
-  // `select` keeps this to the four fields the figures need instead of every
-  // description and image URL in the catalogue.
-  const docs = await payloadFetchAll<{ price: number; stock: number; lowStockThreshold: number; isPublished: boolean }>(
-    "/api/products?depth=0&select[price]=true&select[stock]=true&select[lowStockThreshold]=true&select[isPublished]=true",
-  );
-  if (!docs) throw new Error("Impossible de charger le catalogue.");
+  // Counted in Postgres rather than by downloading the catalogue: the
+  // previous version fetched every product to compute four numbers. "À
+  // réapprovisionner" is out of stock plus low — `isLowStock` is kept by a
+  // database trigger as stock > 0 and stock <= threshold, the same rule the
+  // product list's "Stock faible" filter reads. Only the stock value still
+  // needs rows, and only those with stock: a product at 0 adds nothing.
+  const [total, published, outOfStock, low, stocked] = await Promise.all([
+    payloadCount("/api/products/count"),
+    payloadCount("/api/products/count?where[isPublished][equals]=true"),
+    payloadCount("/api/products/count?where[stock][less_than_equal]=0"),
+    payloadCount("/api/products/count?where[isLowStock][equals]=true"),
+    payloadFetchAll<{ price: number; stock: number }>(
+      "/api/products?depth=0&select[price]=true&select[stock]=true&where[stock][greater_than]=0",
+      1000,
+    ),
+  ]);
+  if (total === null || published === null || outOfStock === null || low === null || stocked === null) {
+    throw new Error("Impossible de charger le catalogue.");
+  }
   return {
-    lowStock: docs.filter((p) => (p.stock ?? 0) <= (p.lowStockThreshold ?? 5)).length,
-    published: docs.filter((p) => p.isPublished).length,
-    stockValue: docs.reduce((sum, p) => sum + p.price * (p.stock || 0), 0),
-    total: docs.length,
+    lowStock: outOfStock + low,
+    published,
+    stockValue: stocked.reduce((sum, p) => sum + (p.price || 0) * (p.stock || 0), 0),
+    total,
   };
 }
 

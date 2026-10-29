@@ -31,32 +31,59 @@ export async function payloadFetch(path: string, init: RequestInit = {}) {
   });
 }
 
+/** Pages fetched at once after the first: enough to hide the round trips,
+ * few enough not to queue a burst on the CMS's database pool. */
+const PAGE_CONCURRENCY = 4;
+
 /**
  * Every document of a collection, page by page.
  *
- * `limit=1000` looked like "all of them" and was not: the API caps a page at
- * 100, answers with the first hundred and a `totalPages` nobody read. The
- * products list showed 100 of 143, the orders list only the 100 most recent,
- * and every figure derived from them was quietly computed on a slice.
+ * Paged because one request for "all" is not a contract the API makes, and
+ * a list that silently stops at a cap is a confidently wrong total. The page
+ * size was 100, on the belief that the API capped there; it does not
+ * (limit=1000 answers 1 000 documents), and at 100 a 12 000-row catalogue
+ * meant 125 requests made one after the other — the dashboard home spent
+ * seconds on it. Now: the first page says how many there are, the rest are
+ * fetched in parallel, PAGE_CONCURRENCY at a time.
  *
  * `path` carries the query without a limit; this adds `limit` and `page`.
- * Pages are fetched in sequence — a few round trips of ~80ms each, where the
- * alternative is a confidently wrong total.
+ * Any failed page fails the list (null): returning what arrived would hand
+ * the caller a plausible, incomplete answer.
  */
-export async function payloadFetchAll<T>(path: string, perPage = 100): Promise<T[] | null> {
+export async function payloadFetchAll<T>(path: string, perPage = 500): Promise<T[] | null> {
   const join = path.includes("?") ? "&" : "?";
-  const all: T[] = [];
+  type PageData = { docs?: T[]; totalPages?: number };
 
-  for (let page = 1; ; page++) {
+  async function fetchPage(page: number): Promise<PageData | null> {
     const res = await payloadFetch(`${path}${join}limit=${perPage}&page=${page}`);
-    // A failed page is a failed list: returning what arrived so far would
-    // hand the caller a plausible, incomplete answer.
-    if (!res.ok) return null;
-
-    const data = (await res.json()) as { docs?: T[]; hasNextPage?: boolean };
-    all.push(...(data.docs ?? []));
-    if (!data.hasNextPage) return all;
+    return res.ok ? ((await res.json()) as PageData) : null;
   }
+
+  const first = await fetchPage(1);
+  if (!first) return null;
+  const pages: (T[] | undefined)[] = [first.docs ?? []];
+  const totalPages = first.totalPages ?? 1;
+
+  for (let start = 2; start <= totalPages; start += PAGE_CONCURRENCY) {
+    const batch = Array.from({ length: Math.min(PAGE_CONCURRENCY, totalPages - start + 1) }, (_, i) => start + i);
+    const results = await Promise.all(batch.map(fetchPage));
+    if (results.some((r) => r === null)) return null;
+    results.forEach((r, i) => (pages[batch[i] - 1] = r!.docs ?? []));
+  }
+
+  return pages.flatMap((docs) => docs ?? []);
+}
+
+/**
+ * How many documents match, without transferring any of them: Payload's
+ * `/api/<collection>/count`. `path` is that endpoint with its `where` query.
+ * Null when the request fails, so a caller can say "—" instead of 0.
+ */
+export async function payloadCount(path: string): Promise<number | null> {
+  const res = await payloadFetch(path);
+  if (!res.ok) return null;
+  const data = (await res.json().catch(() => null)) as { totalDocs?: unknown } | null;
+  return typeof data?.totalDocs === "number" ? data.totalDocs : null;
 }
 
 /** Resolves the current dashboard session, or null if unauthenticated/expired. Use in Server Components/route handlers. */
