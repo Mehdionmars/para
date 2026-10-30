@@ -2,6 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { markRead } from "@/app/dashboard/(app)/notifications/actions";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ function entityLabel(n: NotificationRow): string | null {
  */
 export function NotificationsList({ notifications }: { notifications: NotificationRow[] }) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const toast = useToast();
   const [readLocally, setReadLocally] = useState<Set<number>>(new Set());
 
@@ -93,7 +95,11 @@ export function NotificationsList({ notifications }: { notifications: Notificati
                 return next;
               });
               toast.error("Impossible de marquer comme lue");
+              return;
             }
+            // The counters above the list follow (the action revalidates
+            // nothing — see notifications/actions).
+            router.refresh();
           });
         }
 

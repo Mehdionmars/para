@@ -13,10 +13,21 @@ function revalidateNotifications() {
   revalidatePath("/dashboard/overview");
 }
 
+/*
+ * markRead and markAllRead revalidate nothing, on purpose.
+ *
+ * They are called from the bell, which sits on every dashboard page. A server
+ * action that revalidates makes Next re-render the *current* page in its
+ * response, and in the production build a page whose content sits under a
+ * Suspense boundary (the home, the overview) then left the calling
+ * useTransition pending for good. The bell keeps its own list in client
+ * state, and asks the router to refresh when the notification centre itself
+ * is on screen — the one page that shows read state. Every other page is
+ * dynamic and reads fresh data when it is opened.
+ */
 export async function markRead(id: number): Promise<ActionResult> {
   const res = await payloadFetch(`/api/notifications/${id}/read`, { method: "POST" });
   if (!res.ok) return { error: "Impossible de marquer comme lue.", ok: false };
-  revalidateNotifications();
   return { ok: true };
 }
 
@@ -24,7 +35,6 @@ export async function markAllRead(): Promise<ActionResult & { updated?: number }
   const res = await payloadFetch("/api/notifications/read-all", { method: "POST" });
   if (!res.ok) return { error: "Impossible de tout marquer comme lu.", ok: false };
   const data = await res.json().catch(() => ({}));
-  revalidateNotifications();
   return { ok: true, updated: data?.updated ?? 0 };
 }
 

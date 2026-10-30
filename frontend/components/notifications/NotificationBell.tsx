@@ -2,7 +2,7 @@
 
 import { Bell, Check, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { fetchBellData, markAllRead, markRead } from "@/app/dashboard/(app)/notifications/actions";
 import { Popover } from "@/components/dashboard/ui/Popover";
@@ -19,6 +19,13 @@ import { notificationHref, type NotificationRow } from "@/lib/dashboard/orders-t
  */
 export function NotificationBell() {
   const router = useRouter();
+  const pathname = usePathname();
+  // The mark-read actions revalidate nothing (see notifications/actions); the
+  // notification centre is the one page showing read state, so it alone is
+  // refreshed when it is on screen.
+  const refreshCentre = () => {
+    if (pathname.startsWith("/dashboard/notifications")) router.refresh();
+  };
   const [data, setData] = useState<{ unread: number; recent: NotificationRow[] } | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [isPending, startTransition] = useTransition();
@@ -89,6 +96,7 @@ export function NotificationBell() {
                       setReadLocally(new Set((data?.recent ?? []).map((n) => n.id)));
                       loadedOnce.current = false;
                       await load();
+                      refreshCentre();
                     }
                   })
                 }
@@ -138,6 +146,7 @@ export function NotificationBell() {
                           setReadLocally((prev) => new Set(prev).add(n.id));
                           startTransition(async () => {
                             await markRead(n.id);
+                            refreshCentre();
                           });
                         }
                         close();

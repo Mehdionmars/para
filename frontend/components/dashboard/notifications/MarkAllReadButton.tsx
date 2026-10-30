@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCheck, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { markAllRead } from "@/app/dashboard/(app)/notifications/actions";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { useToast } from "@/components/dashboard/ui/Toast";
 
 export function MarkAllReadButton({ count }: { count: number }) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const toast = useToast();
 
   return (
@@ -18,8 +20,12 @@ export function MarkAllReadButton({ count }: { count: number }) {
       onClick={() =>
         startTransition(async () => {
           const result = await markAllRead();
-          if (result.ok) toast.success(`${result.updated ?? count} notification(s) marquée(s) comme lue(s)`);
-          else toast.error("Impossible de tout marquer comme lu", result.error);
+          if (result.ok) {
+            toast.success(`${result.updated ?? count} notification(s) marquée(s) comme lue(s)`);
+            // The action revalidates nothing (see notifications/actions):
+            // the list and the counters are refreshed from here.
+            router.refresh();
+          } else toast.error("Impossible de tout marquer comme lu", result.error);
         })
       }
     >

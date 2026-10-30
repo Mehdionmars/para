@@ -38,9 +38,22 @@ function Line({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+/**
+ * No Suspense boundary on this page — no `loading.tsx` and none inline.
+ *
+ * Every action here (payment status, order status) is a server action that
+ * revalidates this page. In the production build, with the page content
+ * under any Suspense boundary, that left the action's useTransition pending
+ * for good: the select stayed disabled with its spinner although the change
+ * was saved and the response had arrived in ~100ms, and the page never
+ * showed the new state. The development server does not reproduce it. The
+ * page's data is three small requests (~100ms), so the skeleton the
+ * boundary bought was barely visible anyway.
+ */
 export default async function OrderDetailPage({ params }: PageProps<"/dashboard/orders/[id]">) {
   const user = await requireRole(isStaffUser);
   const { id } = await params;
+  const editable = canEditOrders(user);
   const order = await getOrder(id);
   if (!order) notFound();
 
@@ -53,7 +66,6 @@ export default async function OrderDetailPage({ params }: PageProps<"/dashboard/
 
   const itemCount = order.items.reduce((n, i) => n + i.quantity, 0);
   const discount = order.discount ?? 0;
-  const editable = canEditOrders(user);
   // Opens the chat with the message for where the order stands, ready to send.
   const whatsapp = whatsappLink(
     order.customerPhone,
