@@ -310,10 +310,11 @@ function formatMad(price: number): string {
   return \`\${price.toLocaleString("fr-FR")} MAD\`;
 }
 
-/** A service with a price list is priced from its cheapest line. */
+/** A service with a price list is priced from its own price, or else its cheapest line. */
 export function servicePriceLabel(service: Service): string {
   const priced = service.prices.map((p) => p.price).filter((p): p is number => p !== null);
-  if (priced.length > 0) return \`\${service.prices.length > 1 || service.prices[0].from ? "Dès " : ""}\${formatMad(Math.min(...priced))}\`;
+  // The service's own price, when set, is the headline "Dès …"; otherwise the cheapest line.
+  if (priced.length > 0) return \`\${service.prices.length > 1 || service.prices[0].from ? "Dès " : ""}\${formatMad(service.price || Math.min(...priced))}\`;
   if (!service.price) return "Offert";
   return formatMad(service.price);
 }
