@@ -24,8 +24,8 @@ export type FooterColumn = { title: string; links: FooterLink[] };
 export const TOPBAR_CONFIG: TopBarConfig = {
   "enabled": true,
   "messages": [
-    "Des remises exceptionnelles : -40% -50% -60% sur une sélection de produits, profitez-en vite",
     "Livraison partout au Maroc",
+    "Des remises exceptionnelles : -40% -50% -60% sur une sélection de produits, profitez-en vite",
     "Paiement 100% sécurisé",
     "Produits authentiques garantis",
     "Conseil pharmacien gratuit",
@@ -36,7 +36,8 @@ export const TOPBAR_CONFIG: TopBarConfig = {
 };
 
 export const LOGO: Logo = {
-  "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/logo-transparent.png",
+  "img": "/api/cms-media/para-dhiver-2.png",
+  "footerImg": "/api/cms-media/logo-1.png",
   "wordmark": "PARA D'HIVER",
   "href": "/"
 };
@@ -49,14 +50,14 @@ export const HEADER_SEARCH: HeaderSearchConfig = {
 export const HEADER_ACTIONS: HeaderAction[] = [
   {
     "key": "services",
-    "label": "Services et magasins",
+    "label": "Magasin et services",
     "icon": "MapPin",
     "href": "/services"
   },
   {
     "key": "contact",
     "label": "Contact",
-    "icon": "Phone",
+    "icon": "MessageCircle",
     "href": "/contact"
   },
   {
