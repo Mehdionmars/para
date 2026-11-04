@@ -6,13 +6,16 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { MEGA_MENU, NAV_ITEMS, type MegaMenuContent, type NavItem } from "@/data/nav";
 import { useFavorites } from "@/context/favorites-context";
-import { navItemClassName, navItemStyle } from "@/lib/navStyle";
+import { navAnimClassName, navItemStyle } from "@/lib/navStyle";
 import { NavItemLabel } from "./NavItemLabel";
 
 const SHELF = "#fff";
 const listStyle: React.CSSProperties = { listStyle: "none", margin: 0, padding: 0 };
 const rowGap: React.CSSProperties = { borderBottom: "1px solid var(--pdh-plum-tint)" };
 // navItemStyle brings the desktop pill; on this shelf a row is a flat strip.
+// The row's white `background` would also wipe a shimmer's gradient, which
+// paints the text itself (background-clip: text, transparent fill) — so the
+// animation classes go on the label, never on the row. See navAnimClassName.
 const rowFlat: React.CSSProperties = { borderRadius: 0, background: "#fff", padding: "0 20px", minHeight: 56 };
 const rowStyle: React.CSSProperties = {
   display: "flex",
@@ -165,10 +168,12 @@ export function MobileNavDrawer({
                         tabIndex={0}
                         onClick={() => navigate(link.href)}
                         onKeyDown={(e) => onNavKeyDown(e, link.href)}
-                        className={navItemClassName(link)}
-                        style={{ ...rowStyle, ...navItemStyle(link), ...rowFlat }}
+                        className="nav-link"
+                        style={{ ...rowStyle, ...navItemStyle(link), ...rowFlat, color: "var(--nav-color, var(--pdh-ink))" }}
                       >
-                        <NavItemLabel item={link} badgeScale={0.9} />
+                        <span className={navAnimClassName(link) || undefined}>
+                          <NavItemLabel item={link} badgeScale={0.9} />
+                        </span>
                       </div>
                     </li>
                   ))}
@@ -195,7 +200,7 @@ export function MobileNavDrawer({
                         if (hasChildren) setPanel(item);
                         else navigate(item.href);
                       }}
-                      className={navItemClassName(item)}
+                      className="nav-link"
                       style={{
                         ...rowStyle,
                         justifyContent: "space-between",
@@ -204,9 +209,11 @@ export function MobileNavDrawer({
                         ...navItemStyle(item),
                         "--nav-color": item.appearance?.color ?? "var(--pdh-ink)",
                         ...rowFlat,
+                        // rowStyle's inline ink would beat .nav-link's colour rule.
+                        color: "var(--nav-color)",
                       } as React.CSSProperties}
                     >
-                      <span style={{ display: "inline-flex", alignItems: "center" }}>
+                      <span className={navAnimClassName(item) || undefined} style={{ display: "inline-flex", alignItems: "center" }}>
                         <NavItemLabel item={item} />
                       </span>
                       {hasChildren ? <ChevronRight aria-hidden="true" size={20} style={{ color: "var(--pdh-ink)", flex: "none" }} /> : null}

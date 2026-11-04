@@ -50,9 +50,14 @@ export function navItemStyle(item: StyleableNavLink): StyleWithVars {
 /** `className` for a nav link: the base hook plus, when configured, the
  * animation classes. Caller appends its own layout classes if any. */
 export function navItemClassName(item: StyleableNavLink): string {
-  const classes = ["nav-link"];
-  if (item.animation) classes.push("nav-anim", `nav-anim--${item.animation.type}`);
-  return classes.join(" ");
+  const anim = navAnimClassName(item);
+  return anim ? `nav-link ${anim}` : "nav-link";
+}
+
+/** The animation classes alone, for a caller that puts them on the label
+ * rather than the link — see MobileNavDrawer. Empty when none is set. */
+export function navAnimClassName(item: StyleableNavLink): string {
+  return item.animation ? `nav-anim nav-anim--${item.animation.type}` : "";
 }
 
 /** Anchor attributes for "open in new tab", including the security rel that
