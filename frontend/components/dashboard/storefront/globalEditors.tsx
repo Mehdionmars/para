@@ -113,7 +113,7 @@ export function TopBarEditor({
   const update = (patch: Partial<TopBarDraft>) => onChange({ ...value, ...patch });
   return (
     <>
-      <EditorHeading title="Top Bar" description="Bandeau défilant au-dessus de l'en-tête, visible sur toutes les pages." />
+      <EditorHeading title="Bandeau d'annonce" description="Bandeau défilant au-dessus de l'en-tête, visible sur toutes les pages." />
       <FieldGroup>
         <CheckboxField label="Afficher la top bar" checked={value.enabled} onChange={(enabled) => update({ enabled })} />
         {value.enabled && (
@@ -272,7 +272,7 @@ export function FooterColumnsEditor({
 }: { value: FooterColumnDraft[]; onChange: (v: FooterColumnDraft[]) => void } & ChromeAppearanceProps) {
   return (
     <>
-      <EditorHeading title="Footer" description="Colonnes de liens, visibles sur toutes les pages." />
+      <EditorHeading title="Pied de page" description="Colonnes de liens, visibles sur toutes les pages." />
       <ArrayField<FooterColumnDraft>
         items={value}
         onChange={onChange}
@@ -366,7 +366,7 @@ export function ThemeEditor({ value, onChange }: { value: ThemeDraft; onChange: 
 
   return (
     <>
-      <EditorHeading title="Apparence" description="Change les couleurs de tout le site — boutons, liens, badges, en-tête, pied de page." />
+      <EditorHeading title="Couleurs du site" description="Change les couleurs de tout le site — boutons, liens, badges, en-tête, pied de page." />
 
       <div className="mb-5 grid grid-cols-2 gap-2">
         {THEME_PRESETS.map((p) => {

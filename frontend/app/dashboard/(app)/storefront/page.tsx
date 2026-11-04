@@ -4,9 +4,9 @@ import { payloadFetch } from "@/lib/dashboard/payload";
 import { canEditContent } from "@/lib/dashboard/roles";
 import { mapHomeDocToDraft, mapNavigationDocToDraft, mapSiteChromeDocToDraft, mapThemeDocToDraft } from "@/lib/dashboard/storefront-mapping";
 
-export default async function StorefrontPage({ searchParams }: { searchParams: Promise<{ tab?: string; panel?: string; section?: string }> }) {
+export default async function StorefrontPage({ searchParams }: { searchParams: Promise<{ tab?: string; panel?: string; section?: string; item?: string }> }) {
   await requireRole(canEditContent);
-  const { tab, panel, section } = await searchParams;
+  const { tab, panel, section, item } = await searchParams;
 
   const [homeRes, chromeRes, themeRes, navigationRes, brandsRes, categoriesRes, instagramRes] = await Promise.all([
     payloadFetch("/api/globals/home?draft=true&depth=2"),
@@ -50,7 +50,10 @@ export default async function StorefrontPage({ searchParams }: { searchParams: P
     .map((c: { id: number; name: string }) => ({ id: c.id, name: c.name }));
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col -m-6">
+    // Cancels the shell's gutter (p-5, sm:p-6) so the builder runs edge to
+    // edge, under the shell's h-14 header; dvh so a phone's collapsing address
+    // bar doesn't hide the bottom.
+    <div className="-m-5 flex h-[calc(100dvh-3.5rem)] flex-col sm:-m-6">
       <StorefrontBuilder
         initialDraft={mapHomeDocToDraft(homeDoc)}
         initialStatus={homeDoc._status || "draft"}
@@ -63,7 +66,7 @@ export default async function StorefrontPage({ searchParams }: { searchParams: P
         initialNavigationDraft={mapNavigationDocToDraft(navigationDoc)}
         initialNavigationStatus={navigationDoc._status || "draft"}
         instagramPostCount={instagramPostCount}
-        entry={{ tab, panel, section }}
+        entry={{ tab, panel, section, item }}
       />
     </div>
   );

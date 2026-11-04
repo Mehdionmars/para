@@ -68,7 +68,7 @@ export function NavigationList({
           <button
             type="button"
             onClick={() => onSelect(index)}
-            className={cn("flex-1 truncate text-left font-medium", item.visible ? "text-gray-800" : "text-gray-400 line-through")}
+            className={cn("min-w-0 flex-1 break-words text-left font-medium", item.visible ? "text-gray-800" : "text-gray-400 line-through")}
           >
             {item.label || "Nouveau lien"}
             {item.megaMenuEnabled && <span className="ml-1 text-[10px] font-normal text-violet-500">(mega menu)</span>}

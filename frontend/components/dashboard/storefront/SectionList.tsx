@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Eye, EyeOff, GripVertical, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff, GripVertical, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import { CONTENT_LESS_SECTIONS } from "@/components/dashboard/storefront/sectionEditors";
@@ -41,6 +41,8 @@ export function SectionList({
   onDeleteRail,
   draft,
   instagramPostCount,
+  onOpenCategories,
+  onOpenLogo,
 }: {
   sections: SectionEntry[];
   onChange: (next: SectionEntry[]) => void;
@@ -52,7 +54,12 @@ export function SectionList({
   /** The whole draft, to tell which visible blocks will render nothing. */
   draft: HomeDraft;
   instagramPostCount?: number;
+  /** The photo circles and the logo open the home page but are edited
+   * elsewhere; these jump there. */
+  onOpenCategories?: () => void;
+  onOpenLogo?: () => void;
 }) {
+  const [query, setQuery] = useState("");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<SectionEntryKey | null>(null);
 
@@ -78,9 +85,25 @@ export function SectionList({
   const reasons = sections.map((s) => (s.visible ? hiddenReason(s.key, draft, { instagramPostCount }) : null));
   const hiddenCount = reasons.filter(Boolean).length;
 
+  const needle = query.trim().toLocaleLowerCase("fr");
+  const matches = (key: SectionEntryKey) => !needle || labelFor(key, rails).toLocaleLowerCase("fr").includes(needle);
+
   return (
     <div className="flex flex-col gap-1">
-      <p className="px-2 pb-1 text-[11px] leading-snug text-gray-400">Dans l&apos;ordre de la page, de haut en bas.</p>
+      <label className="relative mb-1 block">
+        <span className="sr-only">Rechercher une section</span>
+        <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Rechercher une section"
+          className="h-9 w-full rounded-lg border border-input bg-transparent pr-2 pl-8 text-sm outline-none placeholder:text-gray-400 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        />
+      </label>
+      <p className="px-2 pb-1 text-xs leading-snug text-gray-500">
+        {needle ? "Résultats de la recherche." : "Dans l'ordre de la page, de haut en bas. Glissez pour réordonner."}
+      </p>
       {hiddenCount > 0 && (
         <p className="mx-1 mb-1 flex items-start gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] leading-snug text-amber-800">
           <AlertTriangle className="mt-px h-3.5 w-3.5 flex-none" aria-hidden="true" />
@@ -90,13 +113,14 @@ export function SectionList({
         </p>
       )}
       {sections.map((s, index) => {
+        if (!matches(s.key)) return null;
         const isRail = s.key.startsWith("rail:");
         const group = groupFor(s.key);
         const reason = reasons[index];
         return (
           <div key={s.key}>
             <div
-              draggable
+              draggable={!needle}
               onDragStart={() => setDragIndex(index)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
@@ -114,9 +138,9 @@ export function SectionList({
               <button
                 type="button"
                 onClick={() => onSelect(s.key)}
-                className={cn("flex-1 truncate text-left font-medium", s.visible ? "text-gray-800" : "text-gray-400 line-through")}
+                className={cn("min-w-0 flex-1 text-left font-medium", s.visible ? "text-gray-800" : "text-gray-400 line-through")}
               >
-                <span className="block truncate">
+                <span className="line-clamp-2 break-words">
                   {labelFor(s.key, rails)}
                   {!isRail && CONTENT_LESS_SECTIONS.includes(s.key as never) && (
                     <span className="ml-1 text-[10px] font-normal text-gray-400">(non éditable)</span>
@@ -162,6 +186,23 @@ export function SectionList({
       >
         <Plus className="h-3.5 w-3.5" /> Ajouter un rail produits
       </button>
+
+      {(onOpenCategories || onOpenLogo) && (
+        <p className="mt-3 px-2 text-xs leading-relaxed text-gray-500">
+          Aussi sur l&apos;accueil :{" "}
+          {onOpenCategories && (
+            <button type="button" onClick={onOpenCategories} className="font-medium text-violet-700 underline-offset-2 hover:underline">
+              catégories rapides
+            </button>
+          )}
+          {onOpenCategories && onOpenLogo && " · "}
+          {onOpenLogo && (
+            <button type="button" onClick={onOpenLogo} className="font-medium text-violet-700 underline-offset-2 hover:underline">
+              logo
+            </button>
+          )}
+        </p>
+      )}
 
       {confirmDeleteKey && (
         <Modal title="Supprimer ce rail ?" onClose={() => setConfirmDeleteKey(null)}>

@@ -1,8 +1,8 @@
 "use client";
 
 import { LinkBrandsProvider } from "@/components/dashboard/storefront/LinkPicker";
-import { Loader2, Monitor, PanelTop, Redo2, RotateCcw, Smartphone, Tablet, Undo2 } from "lucide-react";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { ExternalLink, Eye, EyeOff, Loader2, Monitor, MoreHorizontal, PanelTop, Pencil, Redo2, RotateCcw, Smartphone, Tablet, Undo2 } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
 import {
   discardDraft,
   discardNavigationDraft,
@@ -27,6 +27,8 @@ import { CategoryStripEditor, NavigationItemEditor } from "@/components/dashboar
 import { NavigationList } from "@/components/dashboard/storefront/NavigationList";
 import { SectionList } from "@/components/dashboard/storefront/SectionList";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/dashboard/cn";
 import { SaveToast, useSavedFlash } from "@/components/ui/toast-save";
 import { Modal } from "@/components/dashboard/ui/Modal";
 import {
@@ -257,7 +259,7 @@ function SectionEditor({
   brands: BrandOption[];
 }) {
   if (!selectedKey) {
-    return <p className="p-4 text-sm text-muted-foreground">Sélectionnez une section à gauche pour la modifier.</p>;
+    return <p className="text-sm text-muted-foreground">Choisissez une section dans la liste pour la modifier.</p>;
   }
 
   // Rails are dynamic — one entry per configured rail, addressed as
@@ -294,17 +296,19 @@ function SectionEditor({
 
 const GLOBAL_ITEMS = [
   { key: "logo", label: "Logo" },
-  { key: "topBar", label: "Top Bar" },
-  { key: "header", label: "Header" },
-  { key: "footer", label: "Footer" },
+  { key: "topBar", label: "Bandeau d'annonce" },
+  { key: "header", label: "En-tête" },
+  { key: "footer", label: "Pied de page" },
 ] as const;
 type GlobalItemKey = (typeof GLOBAL_ITEMS)[number]["key"];
 type BuilderTab = "home" | "navigation" | "theme" | "global";
 
 /** Where the builder opens. `?tab=global&panel=logo` and
  * `?tab=home&section=coffrets` are what the sidebar's "Logo" and "Coffrets &
- * cadeaux" links point at; anything unrecognised opens the default view. */
-export type BuilderEntry = { tab?: string; panel?: string; section?: string };
+ * cadeaux" links point at; anything unrecognised opens the default view.
+ * The builder also writes its own position back here (see the URL sync in
+ * StorefrontBuilder), so a reload reopens what was being edited. */
+export type BuilderEntry = { tab?: string; panel?: string; section?: string; item?: string };
 
 /** The home section an entry asks to open, if it names one the draft has. */
 function entrySection(entry: BuilderEntry | undefined, draft: HomeDraft): SectionEntryKey | null {
@@ -367,11 +371,19 @@ export function StorefrontBuilder({
 }) {
   const [activeTab, setActiveTab] = useState<BuilderTab>(() => resolveEntry(entry).tab);
   const [globalSelectedKey, setGlobalSelectedKey] = useState<GlobalItemKey>(() => resolveEntry(entry).panel);
-  const [navSelectedIndex, setNavSelectedIndex] = useState<number>(0);
+  const [navSelectedIndex, setNavSelectedIndex] = useState<number>(() => {
+    const n = Number(entry?.item);
+    return Number.isInteger(n) && n >= 0 && n < initialNavigationDraft.items.length ? n : 0;
+  });
 
   const [selectedKey, setSelectedKey] = useState<SectionEntryKey | null>(() => entrySection(entry, initialDraft));
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [viewport, setViewport] = useState<keyof typeof VIEWPORTS>("desktop");
+  // Below 1400px (the app sidebar takes 256 of it) only one pane fits: the list, the editor or the
+  // preview. Opening on the editor when the URL already names something to
+  // edit is what makes a reload land back where the editor was.
+  const [pane, setPane] = useState<Pane>(() => (entry?.section || entry?.panel || entry?.item ? "edit" : "list"));
+  const [showPreview, setShowPreview] = useStoredFlag("sfb:preview", true);
   const [previewNonce, setPreviewNonce] = useState(0);
 
   // Remounts the preview iframe. Handed to each draft rather than watched from
@@ -531,105 +543,149 @@ export function StorefrontBuilder({
 
   const previewSrc = `/api/dashboard-preview?next=${encodeURIComponent("/")}&v=${previewNonce}`;
 
+  // Theme has nothing to pick from: its editor is the whole page.
+  const hasList = activeTab !== "theme";
+  const listRef = useRef<HTMLElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const selectionKey =
+    activeTab === "home" ? selectedKey ?? "" : activeTab === "navigation" ? String(navSelectedIndex) : activeTab === "global" ? globalSelectedKey : "";
+
+  // Where the builder is, written to the URL. replaceState rather than a
+  // router navigation: nothing on the server needs to know, and a navigation
+  // would re-run the page's seven Payload fetches on every click.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set("tab", activeTab);
+    if (activeTab === "home" && selectedKey) params.set("section", selectedKey);
+    if (activeTab === "navigation") params.set("item", String(navSelectedIndex));
+    if (activeTab === "global") params.set("panel", globalSelectedKey);
+    const next = `${window.location.pathname}?${params.toString()}`;
+    if (next !== `${window.location.pathname}${window.location.search}`) window.history.replaceState(window.history.state, "", next);
+  }, [activeTab, selectedKey, navSelectedIndex, globalSelectedKey]);
+
+  // Scroll positions survive a reload: the list per tab, the editor per
+  // thing being edited. Restored before paint so the panes don't visibly jump.
+  // `pane` is passed so a pane that was hidden (display: none, scrollTop
+  // ignored) gets its position back when it is shown again.
+  useScrollMemory(listRef, `sfb:list:${activeTab}`, pane);
+  useScrollMemory(editorRef, `sfb:editor:${activeTab}:${selectionKey}`, pane);
+
+  function openTab(tab: BuilderTab) {
+    setActiveTab(tab);
+    setPane(tab === "theme" ? "edit" : "list");
+  }
+
+  function select<T>(setter: (v: T) => void) {
+    return (value: T) => {
+      setter(value);
+      setPane("edit");
+    };
+  }
+
+  const saveLabel =
+    active.saveState === "saving" ? (
+      <span className="flex items-center gap-1">
+        <Loader2 className="h-3 w-3 animate-spin" /> Enregistrement…
+      </span>
+    ) : active.saveState === "error" ? (
+      <span className="text-destructive">{active.saveError}</span>
+    ) : active.dirty ? (
+      "Modifications en attente"
+    ) : active.saveState === "saved" ? (
+      "Brouillon enregistré"
+    ) : null;
+
   return (
-    <div className="flex h-full flex-col bg-muted/50">
-      {/* Top bar */}
-      <div className="flex flex-none items-center justify-between gap-4 border-b border-border bg-card px-4 py-2.5">
-        <div className="flex items-center gap-3">
-          <h1 className="text-sm font-semibold text-foreground">Storefront Builder</h1>
-          <div className="flex items-center gap-1 rounded-lg bg-muted p-0.5">
-            {(
-              [
-                ["home", "Contenu"],
-                ["navigation", "Navigation"],
-                ["theme", "Apparence"],
-                ["global", "Global"],
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setActiveTab(key)}
-                className={`rounded-md px-2.5 py-1 text-xs font-medium ${activeTab === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                {label}
-              </button>
-            ))}
+    <div className="flex h-full min-h-0 flex-col bg-muted/50">
+      {/* Toolbar: what is being edited, its state, and the one action that
+          matters (Publier). Everything rarer sits behind the "…" menu. */}
+      <div className="flex-none border-b border-border bg-card">
+        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <h1 className="truncate text-base font-semibold text-foreground">Storefront</h1>
+            <span
+              className={cn(
+                "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium whitespace-nowrap",
+                active.status === "published" ? "bg-success/10 text-success-strong" : "bg-warning/10 text-warning-strong",
+              )}
+            >
+              {active.status === "published" ? "Publié" : "Non publié"}
+            </span>
+            <span className="hidden min-w-0 truncate text-xs text-muted-foreground md:block" aria-live="polite">
+              {saveLabel}
+            </span>
           </div>
-          <span
-            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-              active.status === "published" ? "bg-success/10 text-success-strong" : "bg-warning/10 text-warning-strong"
-            }`}
-          >
-            {active.status === "published" ? "Publié" : "Brouillon non publié"}
-          </span>
-        </div>
 
-        <div className="flex items-center gap-1 rounded-lg border border-border p-0.5">
-          {(Object.keys(VIEWPORTS) as (keyof typeof VIEWPORTS)[]).map((v) => {
-            const Icon = v === "desktop" ? Monitor : v === "tablet" ? Tablet : Smartphone;
-            return (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setViewport(v)}
-                aria-label={v}
-                className={`rounded p-1.5 ${viewport === v ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-muted/50"}`}
-              >
-                <Icon className="h-4 w-4" />
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">
-            {active.saveState === "saving" && (
-              <span className="flex items-center gap-1">
-                <Loader2 className="h-3 w-3 animate-spin" /> Enregistrement...
-              </span>
+          <div className="flex flex-none items-center gap-1.5">
+            {activeKind === "home" && (
+              <div className="hidden items-center sm:flex">
+                <Button type="button" variant="ghost" size="icon-sm" onClick={home.undo} disabled={!home.canUndo} aria-label="Annuler la dernière modification">
+                  <Undo2 />
+                </Button>
+                <Button type="button" variant="ghost" size="icon-sm" onClick={home.redo} disabled={!home.canRedo} aria-label="Rétablir">
+                  <Redo2 />
+                </Button>
+              </div>
             )}
-            {active.saveState === "saved" && !active.dirty && "Brouillon enregistré"}
-            {active.saveState === "error" && <span className="text-destructive">{active.saveError}</span>}
-            {active.saveState === "idle" && active.dirty && "Modifications non enregistrées"}
-          </span>
-          {activeKind === "home" && (
-            <>
-              <button type="button" onClick={home.undo} disabled={!home.canUndo} aria-label="Annuler" className="rounded p-1.5 text-muted-foreground hover:bg-muted disabled:opacity-30">
-                <Undo2 className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={home.redo}
-                disabled={!home.canRedo}
-                aria-label="Rétablir"
-                className="rounded p-1.5 text-muted-foreground hover:bg-muted disabled:opacity-30"
-              >
-                <Redo2 className="h-4 w-4" />
-              </button>
-            </>
-          )}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => active.handleDiscard()}
-            disabled={active.discarding}
-          >
-            {active.discarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
-            Annuler le brouillon
-          </Button>
-          <Button type="button" variant="outline" size="sm" onClick={() => window.open(previewSrc, "_blank")}>
-            Aperçu
-          </Button>
-          <Button type="button" size="sm" onClick={() => active.handlePublish()} disabled={active.publishing}>
-            {active.publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Publier"}
-          </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="outline" size="icon-sm" aria-label="Plus d'actions">
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60">
+                <DropdownMenuItem onSelect={() => window.open(previewSrc, "_blank")}>
+                  <ExternalLink /> Aperçu dans un nouvel onglet
+                </DropdownMenuItem>
+                {activeKind === "home" && (
+                  <>
+                    <DropdownMenuItem className="sm:hidden" disabled={!home.canUndo} onSelect={home.undo}>
+                      <Undo2 /> Annuler la dernière modification
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="sm:hidden" disabled={!home.canRedo} onSelect={home.redo}>
+                      <Redo2 /> Rétablir
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" disabled={active.discarding} onSelect={() => active.handleDiscard()}>
+                  <RotateCcw /> Revenir à la version publiée
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button type="button" size="sm" onClick={() => active.handlePublish()} disabled={active.publishing}>
+              {active.publishing ? <Loader2 className="animate-spin" /> : null}
+              Publier
+            </Button>
+          </div>
         </div>
+
+        <nav aria-label="Parties de la boutique" className="flex gap-1 overflow-x-auto px-3 [scrollbar-width:none]">
+          {TABS.map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => openTab(key)}
+              aria-current={activeTab === key ? "page" : undefined}
+              className={cn(
+                "-mb-px flex-none border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors",
+                activeTab === key ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {key === "global" ? (
+                <>
+                  En-tête &amp; pied<span className="hidden sm:inline"> de page</span>
+                </>
+              ) : (
+                label
+              )}
+            </button>
+          ))}
+        </nav>
       </div>
 
       {confirmDiscard && (
-        <Modal title="Annuler le brouillon ?" onClose={() => setConfirmDiscard(false)}>
+        <Modal title="Revenir à la version publiée ?" onClose={() => setConfirmDiscard(false)}>
           <p className="text-sm text-muted-foreground">
             Toutes les modifications non publiées seront perdues et la page reviendra à la dernière version publiée.
           </p>
@@ -653,147 +709,221 @@ export function StorefrontBuilder({
         </Modal>
       )}
 
-      {/* 3-column body */}
-      <div className="flex min-h-0 flex-1">
-        <aside className="w-64 flex-none overflow-y-auto border-r border-border bg-card p-3">
-          {activeTab === "home" ? (
-            <>
-            {/* The photo circles open the home page but are not a home
-                section: they are edited with the navigation. Without this
-                pointer editors looked for them in this list and found nothing. */}
+      {/* Pane switcher, below the wide layout. Phones get all three panes;
+          from `lg` the list always shows, so only editor/preview remain. */}
+      <div className="flex flex-none gap-1 border-b border-border bg-card px-3 py-2 min-[1400px]:hidden" role="group" aria-label="Affichage">
+        {(
+          [
+            ["list", "Sections", PanelTop],
+            ["edit", "Modifier", Pencil],
+            ["preview", "Aperçu", Eye],
+          ] as const
+        )
+          .filter(([key]) => key !== "list" || hasList)
+          .map(([key, label, Icon]) => (
             <button
+              key={key}
               type="button"
-              onClick={() => setActiveTab("navigation")}
-              className="mb-3 w-full rounded-md border border-dashed border-input px-2.5 py-2 text-left text-xs text-muted-foreground hover:border-primary/40 hover:bg-primary/10"
+              onClick={() => setPane(key)}
+              aria-pressed={pane === key || (key === "edit" && pane === "list" && !hasList)}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground aria-pressed:bg-primary/10 aria-pressed:text-primary",
+                key === "list" && "lg:hidden",
+              )}
             >
-              <span className="block font-medium text-foreground">Catégories rapides (ronds photo)</span>
-              Se modifient dans l&apos;onglet Navigation →
+              <Icon className="h-4 w-4" aria-hidden="true" />
+              {label}
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("global");
-                setGlobalSelectedKey("logo");
-              }}
-              className="mb-3 w-full rounded-md border border-dashed border-input px-2.5 py-2 text-left text-xs text-muted-foreground hover:border-primary/40 hover:bg-primary/10"
-            >
-              <span className="block font-medium text-foreground">Logo du site</span>
-              Se modifie dans l&apos;onglet Global → Logo
-            </button>
-            <SectionList
-              sections={draft.sections}
-              onChange={(sections) => update({ sections })}
-              selectedKey={selectedKey}
-              onSelect={setSelectedKey}
-              rails={draft.rails}
-              onAddRail={handleAddRail}
-              onDeleteRail={handleDeleteRail}
-              draft={draft}
-              instagramPostCount={instagramPostCount}
-            />
-            </>
-          ) : activeTab === "navigation" ? (
-            <NavigationList
-              items={navigation.draft.items}
-              onChange={(items) => navigation.setDraft({ ...navigation.draft, items })}
-              selectedIndex={navSelectedIndex}
-              onSelect={setNavSelectedIndex}
-              onAdd={handleAddNavItem}
-            />
-          ) : activeTab === "theme" ? (
-            <p className="p-2 text-xs text-muted-foreground">Couleurs et thèmes du storefront.</p>
-          ) : (
-            <div className="flex flex-col gap-1">
-              {GLOBAL_ITEMS.map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setGlobalSelectedKey(item.key)}
-                  className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-sm font-medium ${
-                    globalSelectedKey === item.key ? "border-primary/40 bg-primary/10 text-primary" : "border-transparent text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  <PanelTop className="h-3.5 w-3.5 flex-none" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </aside>
+          ))}
+      </div>
 
-        <div className="flex flex-1 items-start justify-center overflow-auto bg-muted p-4">
-          <iframe
-            key={previewNonce}
-            src={previewSrc}
-            title="Aperçu du storefront"
-            className="h-full rounded-lg border border-border bg-card shadow-sm transition-all"
-            style={{ width: VIEWPORTS[viewport], maxWidth: "100%" }}
-          />
+      <div className="flex min-h-0 flex-1">
+        {hasList && (
+          <aside
+            ref={listRef}
+            className={cn(
+              "min-h-0 w-full flex-none flex-col overflow-y-auto border-r border-border bg-card p-3 lg:flex lg:w-72",
+              pane === "list" ? "flex" : "hidden",
+            )}
+          >
+            {activeTab === "home" ? (
+              <SectionList
+                sections={draft.sections}
+                onChange={(sections) => update({ sections })}
+                selectedKey={selectedKey}
+                onSelect={select(setSelectedKey)}
+                rails={draft.rails}
+                onAddRail={() => {
+                  handleAddRail();
+                  setPane("edit");
+                }}
+                onDeleteRail={handleDeleteRail}
+                draft={draft}
+                instagramPostCount={instagramPostCount}
+                onOpenCategories={() => openTab("navigation")}
+                onOpenLogo={() => {
+                  openTab("global");
+                  setGlobalSelectedKey("logo");
+                  setPane("edit");
+                }}
+              />
+            ) : activeTab === "navigation" ? (
+              <NavigationList
+                items={navigation.draft.items}
+                onChange={(items) => navigation.setDraft({ ...navigation.draft, items })}
+                selectedIndex={navSelectedIndex}
+                onSelect={select(setNavSelectedIndex)}
+                onAdd={() => {
+                  handleAddNavItem();
+                  setPane("edit");
+                }}
+              />
+            ) : (
+              <div className="flex flex-col gap-1">
+                {GLOBAL_ITEMS.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => select(setGlobalSelectedKey)(item.key)}
+                    aria-current={globalSelectedKey === item.key ? "true" : undefined}
+                    className={cn(
+                      "rounded-lg border px-3 py-2.5 text-left text-sm font-medium",
+                      globalSelectedKey === item.key ? "border-primary/40 bg-primary/10 text-primary" : "border-transparent text-foreground hover:bg-muted/50",
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </aside>
+        )}
+
+        <div
+          ref={editorRef}
+          className={cn(
+            "min-h-0 min-w-0 flex-col overflow-y-auto bg-card",
+            pane === "edit" || (pane === "list" && !hasList) ? "flex" : "hidden",
+            pane === "preview" ? "lg:hidden" : "lg:flex",
+            "min-[1400px]:flex",
+            showPreview ? "flex-1 min-[1400px]:w-[440px] min-[1400px]:flex-none min-[1400px]:border-r min-[1400px]:border-border 2xl:w-[520px]" : "flex-1",
+          )}
+        >
+          <div className={cn("w-full p-4 sm:p-5", !showPreview && "mx-auto max-w-3xl")}>
+            {activeTab === "home" ? (
+              <SectionEditor selectedKey={selectedKey} draft={draft} update={update} brands={brands} />
+            ) : activeTab === "navigation" ? (
+              // The strip is always visible in this panel rather than being a
+              // thirteenth entry in the list on the left: it is not one more
+              // navigation link, it is a separate surface that happens to be
+              // built from the same links, and hiding it behind a selection
+              // would leave editors hunting for where categories are set.
+              <div className="flex flex-col gap-6">
+                {navigation.draft.items[navSelectedIndex] ? (
+                  <NavigationItemEditor
+                    value={navigation.draft.items[navSelectedIndex]}
+                    onChange={(item) => {
+                      const items = [...navigation.draft.items];
+                      items[navSelectedIndex] = item;
+                      navigation.setDraft({ ...navigation.draft, items });
+                    }}
+                    categories={categories}
+                    brands={brands}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">Choisissez un lien dans la liste pour le modifier.</p>
+                )}
+
+                <div className="border-t border-border pt-5">
+                  <CategoryStripEditor
+                    value={navigation.draft.catStrip}
+                    onChange={(catStrip) => navigation.setDraft({ ...navigation.draft, catStrip })}
+                    categories={categories}
+                    brands={brands}
+                  />
+                </div>
+              </div>
+            ) : activeTab === "theme" ? (
+              <ThemeEditor value={theme.draft} onChange={theme.setDraft} />
+            ) : globalSelectedKey === "logo" ? (
+              <LogoEditor logo={chrome.draft.logo} onChange={(logo) => chrome.setDraft({ ...chrome.draft, logo })} />
+            ) : globalSelectedKey === "topBar" ? (
+              <TopBarEditor
+                appearance={chromeAppearance}
+                onChange={(topBar) => chrome.setDraft({ ...chrome.draft, topBar })}
+                onChangeAppearance={setChromeAppearance}
+                value={chrome.draft.topBar}
+              />
+            ) : globalSelectedKey === "header" ? (
+              <HeaderEditor
+                appearance={chromeAppearance}
+                headerActions={chrome.draft.headerActions}
+                headerSearch={chrome.draft.headerSearch}
+                onChangeAppearance={setChromeAppearance}
+                onChangeHeaderActions={(headerActions) => chrome.setDraft({ ...chrome.draft, headerActions })}
+                onChangeHeaderSearch={(headerSearch) => chrome.setDraft({ ...chrome.draft, headerSearch })}
+              />
+            ) : (
+              <FooterColumnsEditor
+                appearance={chromeAppearance}
+                onChange={(footerColumns) => chrome.setDraft({ ...chrome.draft, footerColumns })}
+                onChangeAppearance={setChromeAppearance}
+                value={chrome.draft.footerColumns}
+              />
+            )}
+          </div>
         </div>
 
-        <aside className="w-80 flex-none overflow-y-auto border-l border-border bg-card p-4">
-          {activeTab === "home" ? (
-            <SectionEditor selectedKey={selectedKey} draft={draft} update={update} brands={brands} />
-          ) : activeTab === "navigation" ? (
-            // The strip is always visible in this panel rather than being a
-            // thirteenth entry in the list on the left: it is not one more
-            // navigation link, it is a separate surface that happens to be
-            // built from the same links, and hiding it behind a selection
-            // would leave editors hunting for where categories are set.
-            <div className="flex flex-col gap-6">
-              {navigation.draft.items[navSelectedIndex] ? (
-                <NavigationItemEditor
-                  value={navigation.draft.items[navSelectedIndex]}
-                  onChange={(item) => {
-                    const items = [...navigation.draft.items];
-                    items[navSelectedIndex] = item;
-                    navigation.setDraft({ ...navigation.draft, items });
-                  }}
-                  categories={categories}
-                  brands={brands}
-                />
-              ) : (
-                <p className="text-sm text-muted-foreground">Sélectionnez un lien à gauche pour le modifier.</p>
-              )}
-
-              <div className="border-t border-border pt-5">
-                <CategoryStripEditor
-                  value={navigation.draft.catStrip}
-                  onChange={(catStrip) => navigation.setDraft({ ...navigation.draft, catStrip })}
-                  categories={categories}
-                  brands={brands}
-                />
-              </div>
+        <section
+          aria-label="Aperçu de la boutique"
+          className={cn("min-h-0 min-w-0 flex-1 flex-col bg-muted", pane === "preview" ? "flex" : "hidden", showPreview ? "min-[1400px]:flex" : "min-[1400px]:hidden")}
+        >
+          <div className="flex flex-none items-center justify-between gap-2 border-b border-border bg-card/60 px-3 py-1.5">
+            <div className="flex items-center gap-0.5" role="group" aria-label="Taille de l'aperçu">
+              {(Object.keys(VIEWPORTS) as (keyof typeof VIEWPORTS)[]).map((v) => {
+                const Icon = v === "desktop" ? Monitor : v === "tablet" ? Tablet : Smartphone;
+                return (
+                  <Button
+                    key={v}
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => setViewport(v)}
+                    aria-label={VIEWPORT_LABELS[v]}
+                    aria-pressed={viewport === v}
+                    className="aria-pressed:bg-primary/10 aria-pressed:text-primary"
+                  >
+                    <Icon />
+                  </Button>
+                );
+              })}
             </div>
-          ) : activeTab === "theme" ? (
-            <ThemeEditor value={theme.draft} onChange={theme.setDraft} />
-          ) : globalSelectedKey === "logo" ? (
-            <LogoEditor logo={chrome.draft.logo} onChange={(logo) => chrome.setDraft({ ...chrome.draft, logo })} />
-          ) : globalSelectedKey === "topBar" ? (
-            <TopBarEditor
-              appearance={chromeAppearance}
-              onChange={(topBar) => chrome.setDraft({ ...chrome.draft, topBar })}
-              onChangeAppearance={setChromeAppearance}
-              value={chrome.draft.topBar}
+            <Button type="button" variant="ghost" size="sm" className="hidden min-[1400px]:inline-flex" onClick={() => setShowPreview(false)}>
+              <EyeOff /> Masquer l&apos;aperçu
+            </Button>
+          </div>
+          <div className="flex min-h-0 flex-1 items-start justify-center overflow-auto p-3 sm:p-4">
+            <iframe
+              key={previewNonce}
+              src={previewSrc}
+              title="Aperçu du storefront"
+              className="h-full rounded-lg border border-border bg-card shadow-sm transition-all"
+              style={{ width: VIEWPORTS[viewport], maxWidth: "100%" }}
             />
-          ) : globalSelectedKey === "header" ? (
-            <HeaderEditor
-              appearance={chromeAppearance}
-              headerActions={chrome.draft.headerActions}
-              headerSearch={chrome.draft.headerSearch}
-              onChangeAppearance={setChromeAppearance}
-              onChangeHeaderActions={(headerActions) => chrome.setDraft({ ...chrome.draft, headerActions })}
-              onChangeHeaderSearch={(headerSearch) => chrome.setDraft({ ...chrome.draft, headerSearch })}
-            />
-          ) : (
-            <FooterColumnsEditor
-              appearance={chromeAppearance}
-              onChange={(footerColumns) => chrome.setDraft({ ...chrome.draft, footerColumns })}
-              onChangeAppearance={setChromeAppearance}
-              value={chrome.draft.footerColumns}
-            />
-          )}
-        </aside>
+          </div>
+        </section>
+
+        {!showPreview && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="fixed right-6 bottom-6 z-20 hidden shadow-md min-[1400px]:inline-flex"
+            onClick={() => setShowPreview(true)}
+          >
+            <Eye /> Afficher l&apos;aperçu
+          </Button>
+        )}
       </div>
       <SaveToast
         state={active.saveState === "saving" ? "saving" : active.saveState === "error" ? "error" : savedFlash ? "saved" : "idle"}
@@ -801,4 +931,70 @@ export function StorefrontBuilder({
       />
     </div>
   );
+}
+
+type Pane = "list" | "edit" | "preview";
+
+const TABS = [
+  ["home", "Accueil"],
+  ["navigation", "Menu"],
+  ["theme", "Couleurs"],
+  ["global", "En-tête & pied de page"],
+] as const satisfies readonly (readonly [BuilderTab, string])[];
+
+const VIEWPORT_LABELS: Record<keyof typeof VIEWPORTS, string> = {
+  desktop: "Aperçu ordinateur",
+  tablet: "Aperçu tablette",
+  mobile: "Aperçu téléphone",
+};
+
+/** A boolean kept in localStorage — a per-person preference, like whether
+ * the preview pane is open. Falls back to the default where storage is
+ * unavailable. */
+function useStoredFlag(key: string, fallback: boolean): [boolean, (v: boolean) => void] {
+  const [value, setValue] = useState(fallback);
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(key);
+      if (stored !== null) setValue(stored === "1");
+    } catch {}
+  }, [key]);
+  const set = useCallback(
+    (v: boolean) => {
+      setValue(v);
+      try {
+        window.localStorage.setItem(key, v ? "1" : "0");
+      } catch {}
+    },
+    [key],
+  );
+  return [value, set];
+}
+
+/** Remembers an element's scroll position in sessionStorage under `key` and
+ * puts it back when the key comes round again — including after a reload,
+ * which is what used to send the editor back to the top of every list. */
+function useScrollMemory(ref: React.RefObject<HTMLElement | null>, key: string, visibility: string) {
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    try {
+      const saved = Number(window.sessionStorage.getItem(key));
+      el.scrollTop = Number.isFinite(saved) ? saved : 0;
+    } catch {}
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        try {
+          window.sessionStorage.setItem(key, String(el.scrollTop));
+        } catch {}
+      });
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, [ref, key, visibility]);
 }

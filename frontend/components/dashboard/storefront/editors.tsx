@@ -85,7 +85,7 @@ export function HeroSlidesEditor({
         renderItem={(s, _i, update) => (
           <FieldGroup>
             <CheckboxField label="Diapositive active" checked={s.active} onChange={(active) => update({ active })} />
-            <ImagePicker label="Image (desktop)" imageId={s.image.id} imageUrl={s.image.url} onChange={(id, url) => update({ image: { id, url } })} />
+            <ImagePicker label="Image (ordinateur)" imageId={s.image.id} imageUrl={s.image.url} onChange={(id, url) => update({ image: { id, url } })} />
             <ImagePicker
               label="Image (mobile, optionnelle)"
               imageId={s.mobileImage.id}
@@ -158,16 +158,16 @@ export function MarketingBannersEditor({ value, onChange }: { value: MarketingBa
               onChange={(imageMode) => update({ imageMode: imageMode as MarketingBannerImageMode })}
               options={MARKETING_BANNER_IMAGE_MODES}
             />
-            <ImagePicker label="Image desktop" imageId={b.image.id} imageUrl={b.image.url} onChange={(id, url) => update({ image: { id, url } })} />
+            <ImagePicker label="Image (ordinateur)" imageId={b.image.id} imageUrl={b.image.url} onChange={(id, url) => update({ image: { id, url } })} />
             <ImagePicker
-              label="Image mobile (optionnel — sinon l'image desktop est réutilisée)"
+              label="Image (téléphone) — facultatif, sinon l'image ordinateur est reprise"
               imageId={b.imageMobile.id}
               imageUrl={b.imageMobile.url}
               onChange={(id, url) => update({ imageMobile: { id, url } })}
             />
             {b.imageMode !== "imageOnly" && (
               <>
-                <TextField label="Eyebrow" value={b.eyebrow} onChange={(eyebrow) => update({ eyebrow })} placeholder="SAISON ÉTÉ" />
+                <TextField label="Surtitre" value={b.eyebrow} onChange={(eyebrow) => update({ eyebrow })} placeholder="SAISON ÉTÉ" />
                 <TextField label="Titre" value={b.title} onChange={(title) => update({ title })} />
                 <TextAreaField label="Description" value={b.description} onChange={(description) => update({ description })} />
               </>
@@ -221,7 +221,7 @@ export function CtaPairEditor({ title, value, onChange }: { title: string; value
         renderItem={(t, _i, update) => (
           <FieldGroup>
             <ImagePicker label="Image" imageId={t.image.id} imageUrl={t.image.url} onChange={(id, url) => update({ image: { id, url } })} />
-            <TextField label="Eyebrow" value={t.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+            <TextField label="Surtitre" value={t.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
             <TextField label="Titre" value={t.title} onChange={(title) => update({ title })} />
             <LinkPicker label="Lien de la tuile" value={t.ctaUrl} onChange={(ctaUrl) => update({ ctaUrl })} />
             <TextField label="Couleur de fond" value={t.bg} onChange={(bg) => update({ bg })} placeholder="#EFE6F3" />
@@ -249,7 +249,7 @@ function RailFields({
 }) {
   return (
     <FieldGroup>
-      <TextField label="Eyebrow" value={r.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+      <TextField label="Surtitre" value={r.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
       <TextField label="Titre" value={r.title} onChange={(title) => update({ title })} />
       <TextField label="Sous-titre" value={r.subtitle} onChange={(subtitle) => update({ subtitle })} />
       <SelectField label="Source des produits" value={r.productSource} onChange={(productSource) => update({ productSource })} options={RAIL_PRODUCT_SOURCES} />
@@ -352,7 +352,7 @@ export function SingleRailEditor({
 }) {
   return (
     <>
-      <EditorHeading title={rail.title || "Rail produits"} description="Les produits affichés sont toujours résolus en direct depuis Payload/PostgreSQL — jamais depuis un instantané statique." />
+      <EditorHeading title={rail.title || "Rail produits"} description="Les produits se mettent à jour tout seuls : prix, stock et nouveautés." />
       <RailFields rail={rail} update={(patch) => onChange({ ...rail, ...patch })} brands={brands} />
     </>
   );
@@ -461,7 +461,7 @@ export function DermoCornerCopyEditor({ value, onChange }: { value: DermoCornerC
   return (
     <FieldGroup>
       <ImagePicker label="Image éditoriale" imageId={value.image.id} imageUrl={value.image.url} onChange={(id, url) => update({ image: { id, url } })} />
-      <TextField label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+      <TextField label="Surtitre" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
       <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
       <TextAreaField label="Sous-titre" value={value.subtitle} onChange={(subtitle) => update({ subtitle })} />
       <TextField label="Texte du CTA" value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
@@ -494,7 +494,7 @@ export function ImageCarouselEditor({
       <EditorHeading title="Image + carrousel produits" description="Image éditoriale à gauche, carrousel de produits à droite — maximum 8 produits." />
       <FieldGroup>
         <ImagePicker label="Image éditoriale" imageId={copy.image.id} imageUrl={copy.image.url} onChange={(id, url) => update({ image: { id, url } })} />
-        <TextField label="Eyebrow" value={copy.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+        <TextField label="Surtitre" value={copy.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
         <TextField label="Titre" value={copy.title} onChange={(title) => update({ title })} />
         <TextAreaField label="Sous-titre" value={copy.subtitle} onChange={(subtitle) => update({ subtitle })} />
         <TextField label="Texte du CTA" value={copy.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
@@ -576,7 +576,7 @@ export function CoffretsCopyEditor({ value, onChange }: { value: CoffretsCopy; o
   const update = (patch: Partial<CoffretsCopy>) => onChange({ ...value, ...patch });
   return (
     <FieldGroup>
-      <TextField label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+      <TextField label="Surtitre" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
       <TextField label="Titre" value={value.title} onChange={(title) => update({ title })} />
       <TextField label="Sous-titre" value={value.subtitle} onChange={(subtitle) => update({ subtitle })} />
       <TextField label='Texte du lien "Tous les coffrets"' value={value.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
@@ -589,8 +589,8 @@ export function CoffretsCopyEditor({ value, onChange }: { value: CoffretsCopy; o
       />
       {value.layout === "carousel" && (
         <>
-          <NumberField label="Cartes visibles (desktop)" value={value.visibleDesktop} min={1} max={6} onChange={(visibleDesktop) => update({ visibleDesktop })} />
-          <NumberField label="Cartes visibles (mobile)" value={value.visibleMobile} min={1} max={3} onChange={(visibleMobile) => update({ visibleMobile })} />
+          <NumberField label="Cartes visibles (ordinateur)" value={value.visibleDesktop} min={1} max={6} onChange={(visibleDesktop) => update({ visibleDesktop })} />
+          <NumberField label="Cartes visibles (téléphone)" value={value.visibleMobile} min={1} max={3} onChange={(visibleMobile) => update({ visibleMobile })} />
         </>
       )}
     </FieldGroup>
@@ -683,7 +683,7 @@ export function CampaignEditor({
       <EditorHeading title="Campagne éditoriale" description="Le bloc est masqué automatiquement tant qu'aucun produit n'est sélectionné ci-dessous." />
       <FieldGroup>
         <ImagePicker label="Image" imageId={copy.image.id} imageUrl={copy.image.url} onChange={(id, url) => update({ image: { id, url } })} />
-        <TextField label="Eyebrow" value={copy.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+        <TextField label="Surtitre" value={copy.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
         <TextField label="Titre" value={copy.title} onChange={(title) => update({ title })} />
         <TextAreaField label="Description" value={copy.description} onChange={(description) => update({ description })} />
         <TextField label="Texte du bouton" value={copy.ctaLabel} onChange={(ctaLabel) => update({ ctaLabel })} />
@@ -925,7 +925,7 @@ export function SummerEditCopyEditor({ value, onChange }: { value: SummerEditCop
           description="Campagne saisonnière éditoriale, indépendante du Dermo Corner et de « Nos coups de cœur ». Même bloc, réutilisable pour une future campagne Noël, Ramadan, etc."
         />
         <FieldGroup>
-          <TextField label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
+          <TextField label="Surtitre" value={value.eyebrow} onChange={(eyebrow) => update({ eyebrow })} />
           <TextField label="Année (optionnelle)" value={value.year} onChange={(year) => update({ year })} placeholder="2026" />
           <TextField label="Titre (ligne 1)" value={value.title} onChange={(title) => update({ title })} />
           <TextField label="Titre (ligne 2, couleur accent)" value={value.titleAccent} onChange={(titleAccent) => update({ titleAccent })} />
@@ -938,7 +938,7 @@ export function SummerEditCopyEditor({ value, onChange }: { value: SummerEditCop
       <div className="border-t border-gray-100 pt-4">
         <EditorHeading title="Visuel" />
         <FieldGroup>
-          <ImagePicker label="Image (desktop)" imageId={value.heroImage.id} imageUrl={value.heroImage.url} onChange={(id, url) => update({ heroImage: { id, url } })} />
+          <ImagePicker label="Image (ordinateur)" imageId={value.heroImage.id} imageUrl={value.heroImage.url} onChange={(id, url) => update({ heroImage: { id, url } })} />
           <ImagePicker
             label="Image (mobile, optionnelle)"
             imageId={value.heroImageMobile.id}
@@ -1061,7 +1061,7 @@ export function SummerEditActsEditor({ value, onChange }: { value: SummerEditAct
         onAdd={value.length < MAX_SUMMER_ACTS ? () => ({ eyebrow: `Acte ${value.length + 1}`, title: "", description: "", products: [] }) : undefined}
         renderItem={(act, _i, updateAct) => (
           <FieldGroup>
-            <TextField label="Eyebrow" value={act.eyebrow} onChange={(eyebrow) => updateAct({ eyebrow })} />
+            <TextField label="Surtitre" value={act.eyebrow} onChange={(eyebrow) => updateAct({ eyebrow })} />
             <TextField label="Titre" value={act.title} onChange={(title) => updateAct({ title })} />
             <TextAreaField label="Description" value={act.description} onChange={(description) => updateAct({ description })} />
             <label className="flex flex-col gap-1">

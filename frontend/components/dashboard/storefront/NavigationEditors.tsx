@@ -158,7 +158,7 @@ export function NavigationItemEditor({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <EditorHeading title="Lien de navigation" />
+        <EditorHeading title="Lien du menu" />
         <FieldGroup>
           <LinkFieldsEditor value={value} onChange={(v) => update(v)} linkTypes={NAV_LINK_TYPES} categories={categories} brands={brands} />
           <TextField label="Badge (optionnel)" value={value.badgeLabel} onChange={(badgeLabel) => update({ badgeLabel })} placeholder="Nouveau" />
