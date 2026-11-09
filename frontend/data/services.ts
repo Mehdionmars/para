@@ -29,11 +29,11 @@ export type Service = {
 
 export const SERVICES: Service[] = [
   {
-    "id": 15,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-cheveux.webp",
+    "id": 13,
+    "img": "/api/cms-media/service-cheveux.webp",
     "title": "Cheveux",
     "sub": "Coupe, coloration, mèches, balayage et coiffage par nos coiffeuses.",
-    "price": 15,
+    "price": 35,
     "duration": "20 min – 3 h",
     "expert": "Coiffeuse",
     "bg": "#F3ECE6",
@@ -165,8 +165,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 16,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-bar-a-soins.webp",
+    "id": 14,
+    "img": "/api/cms-media/service-bar-a-soins.webp",
     "title": "Bar à soins",
     "sub": "Soins profonds pour cheveux secs, abîmés ou fragilisés.",
     "price": 150,
@@ -226,8 +226,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 17,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-lissage.webp",
+    "id": 15,
+    "img": "/api/cms-media/service-lissage.webp",
     "title": "Lissage",
     "sub": "Des cheveux lisses, disciplinés et brillants pendant des semaines.",
     "price": 600,
@@ -267,11 +267,11 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 18,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-soins-visage.jpg",
+    "id": 16,
+    "img": "/api/cms-media/service-soins-visage.jpg",
     "title": "Soins de visage",
     "sub": "Nettoyage, éclat et Hydrafacial pour une peau nette et lumineuse.",
-    "price": 100,
+    "price": 250,
     "duration": "30 – 75 min",
     "expert": "Esthéticienne",
     "bg": "#F3ECE6",
@@ -328,8 +328,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 19,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-ongles.webp",
+    "id": 17,
+    "img": "/api/cms-media/service-ongles.webp",
     "title": "Ongles",
     "sub": "Manucure, pédicure, vernis permanent, gel et faux ongles.",
     "price": 10,
@@ -429,8 +429,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 20,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-cils-sourcils.jpg",
+    "id": 18,
+    "img": "/api/cms-media/service-cils-sourcils.jpg",
     "title": "Cils et sourcils",
     "sub": "Extensions cil à cil, cils en soie et teinture des sourcils.",
     "price": 20,
@@ -485,8 +485,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 21,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-make-up.jpg",
+    "id": 19,
+    "img": "/api/cms-media/service-make-up.jpg",
     "title": "Make-up",
     "sub": "Maquillage de jour, invitée ou mariée, avec ou sans pose de cils.",
     "price": 150,
@@ -546,8 +546,8 @@ export const SERVICES: Service[] = [
     ]
   },
   {
-    "id": 22,
-    "img": "https://res.cloudinary.com/draqxinrp/image/upload/para-dhiver/service-epilation.jpg",
+    "id": 20,
+    "img": "/api/cms-media/service-epilation.jpg",
     "title": "Épilation",
     "sub": "Visage et corps, à la zone ou en forfait.",
     "price": 15,
@@ -661,10 +661,11 @@ function formatMad(price: number): string {
   return `${price.toLocaleString("fr-FR")} MAD`;
 }
 
-/** A service with a price list is priced from its cheapest line. */
+/** A service with a price list is priced from its own price, or else its cheapest line. */
 export function servicePriceLabel(service: Service): string {
   const priced = service.prices.map((p) => p.price).filter((p): p is number => p !== null);
-  if (priced.length > 0) return `${service.prices.length > 1 || service.prices[0].from ? "Dès " : ""}${formatMad(Math.min(...priced))}`;
+  // The service's own price, when set, is the headline "Dès …"; otherwise the cheapest line.
+  if (priced.length > 0) return `${service.prices.length > 1 || service.prices[0].from ? "Dès " : ""}${formatMad(service.price || Math.min(...priced))}`;
   if (!service.price) return "Offert";
   return formatMad(service.price);
 }
