@@ -130,7 +130,7 @@ export const RAILS: RailDef[] = [
   {
     "key": "best",
     "eyebrow": "Best sellers",
-    "title": "Soins du corps",
+    "title": "Les best sellers",
     "subtitle": "Laits, baumes et soins ciblés",
     "productSource": "category",
     "productIds": [],
@@ -164,18 +164,54 @@ export const RAILS: RailDef[] = [
   }
 ];
 
-export const BRANDS_FEATURED: BrandFeatured[] = [];
+export const BRANDS_FEATURED: BrandFeatured[] = [
+  {
+    "name": "Herôme",
+    "slug": "herome",
+    "phrase": "",
+    "img": "",
+    "ctaLabel": "Découvrir la marque"
+  },
+  {
+    "name": "Björn Axén",
+    "slug": "bjorn-axen",
+    "phrase": "",
+    "img": "",
+    "ctaLabel": "Découvrir la marque"
+  },
+  {
+    "name": "Novexpert",
+    "slug": "novexpert",
+    "phrase": "",
+    "img": "",
+    "ctaLabel": "Découvrir la marque"
+  },
+  {
+    "name": "Ecrinal",
+    "slug": "ecrinal",
+    "phrase": "",
+    "img": "",
+    "ctaLabel": "Découvrir la marque"
+  },
+  {
+    "name": "Héliabrine",
+    "slug": "heliabrine",
+    "phrase": "",
+    "img": "",
+    "ctaLabel": "Découvrir la marque"
+  }
+];
 
 export const CTA_PAIR_1 = [
   {
-    "eyebrow": "Dermocosmétique",
-    "title": "Prenez soin de votre peau",
+    "eyebrow": "Tendances",
+    "title": "Tendances sur les réseaux sociaux",
     "bg": "#EFE6F3",
     "img": "/api/cms-media/imgi_165_cat-3.jpg"
   },
   {
-    "eyebrow": "Cheveux",
-    "title": "Révélez la beauté de vos cheveux",
+    "eyebrow": "Saison",
+    "title": "Nos favoris de la saison",
     "bg": "#E4F1F4",
     "img": "/api/cms-media/imgi_276_cat-70-800x800.jpg"
   }
@@ -229,7 +265,7 @@ export const CTA_BANNER_COPY = {
   "title": "",
   "description": "",
   "ctaLabel": "",
-  "ctaUrl": "/contact",
+  "ctaUrl": "/catalogue",
   "bg": "#FFFFFF",
   "bgImage": "/api/cms-media/ChatGPT%20Image%2013%20ao%C3%BBt%202026%2C%2021_49_53.png",
   "bgImageWidth": 1448,
@@ -274,7 +310,7 @@ export const IMAGE_CAROUSEL_PRODUCT_IDS = [
 
 export const IMAGE_CAROUSEL_COPY = {
   "eyebrow": "Sélection",
-  "title": "Nos incontournables du moment",
+  "title": "Les incontournables",
   "subtitle": "Une sélection resserrée, à retrouver aussi en boutique.",
   "ctaLabel": "Voir la sélection",
   "ctaUrl": "/catalogue",
@@ -376,9 +412,9 @@ export const SUMMER_EDIT_ACTS: SummerEditAct[] = [
 export const TABS = ["Tous", "Visage", "Corps", "Cheveux"] as const;
 
 export const PROMOTIONS_GRID = {
-  "title": "Les offres du moment",
+  "title": "Remises exceptionnelles",
   "subtitle": "Profitez de nos meilleures offres.",
-  "limit": 8
+  "limit": 6
 };
 
 export type TrustBadge = { title: string; sub: string; icon: LucideIcon };
@@ -407,7 +443,7 @@ export const TRUST_BADGES: TrustBadge[] = [
 
 export const COFFRETS_COPY = {
   "eyebrow": "Idées cadeaux",
-  "title": "Coffrets & cadeaux",
+  "title": "Les coffrets cadeaux",
   "subtitle": "Des rituels prêts à offrir, emballés à la main dans nos boutiques.",
   "ctaLabel": "Tous les coffrets",
   "ctaUrl": "/collections",
@@ -665,76 +701,80 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
     "visible": true
   },
   {
+    "key": "rail:best",
+    "visible": true
+  },
+  {
+    "key": "imageCarousel",
+    "visible": true
+  },
+  {
     "key": "ctaPair1",
     "visible": true
-  },
-  {
-    "key": "rail:nouveautes",
-    "visible": true
-  },
-  {
-    "key": "summerEdit",
-    "visible": false
-  },
-  {
-    "key": "promotionsGrid",
-    "visible": true
-  },
-  {
-    "key": "featuredPromo",
-    "visible": true
-  },
-  {
-    "key": "rail:saison",
-    "visible": true
-  },
-  {
-    "key": "marketingBanner",
-    "visible": true
-  },
-  {
-    "key": "services",
-    "visible": false
   },
   {
     "key": "coffrets",
     "visible": true
   },
   {
-    "key": "campaign",
-    "visible": true
-  },
-  {
-    "key": "rail:best",
-    "visible": true
-  },
-  {
-    "key": "imageCarousel",
-    "visible": false
-  },
-  {
-    "key": "dermoCorner",
+    "key": "promotionsGrid",
     "visible": true
   },
   {
     "key": "brandsFeatured",
+    "visible": true
+  },
+  {
+    "key": "services",
+    "visible": true
+  },
+  {
+    "key": "trustBar",
+    "visible": true
+  },
+  {
+    "key": "rail:nouveautes",
+    "visible": false
+  },
+  {
+    "key": "summerEdit",
+    "visible": false
+  },
+  {
+    "key": "featuredPromo",
+    "visible": false
+  },
+  {
+    "key": "rail:saison",
+    "visible": false
+  },
+  {
+    "key": "marketingBanner",
+    "visible": false
+  },
+  {
+    "key": "campaign",
+    "visible": false
+  },
+  {
+    "key": "dermoCorner",
     "visible": false
   },
   {
     "key": "brandsMarquee",
-    "visible": true
+    "visible": false
   },
   {
     "key": "rail:rail-1788783106613",
-    "visible": true
+    "visible": false
   },
   {
     "key": "ctaPair2",
-    "visible": true
+    "visible": false
   },
   {
     "key": "ctaBanner",
-    "visible": true
+    "visible": false
   },
   {
     "key": "instagram",
@@ -742,10 +782,6 @@ export const SECTION_ORDER: { key: SectionEntryKey; visible: boolean }[] = [
   },
   {
     "key": "newsletter",
-    "visible": true
-  },
-  {
-    "key": "trustBar",
     "visible": false
   }
 ];
