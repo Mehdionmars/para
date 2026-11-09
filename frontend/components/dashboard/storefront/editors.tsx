@@ -758,7 +758,7 @@ export function BrandsMarqueeEditor({
         <label className="mt-3 flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-600">Ajouter une marque</span>
           <select
-            className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400"
+            className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-ring"
             value=""
             onChange={(e) => {
               const id = Number(e.target.value);

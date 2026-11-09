@@ -105,7 +105,7 @@ export function SectionList({
               }}
               className={cn(
                 "flex items-center gap-1.5 rounded-lg border px-2 py-2 text-sm",
-                selectedKey === s.key ? "border-violet-300 bg-violet-50" : "border-transparent hover:bg-gray-50",
+                selectedKey === s.key ? "border-primary/35 bg-primary/5" : "border-transparent hover:bg-gray-50",
               )}
             >
               <span className="cursor-grab text-gray-300" aria-hidden="true">
@@ -158,7 +158,7 @@ export function SectionList({
       <button
         type="button"
         onClick={onAddRail}
-        className="mt-1 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-2 py-2 text-xs font-medium text-gray-500 hover:border-violet-300 hover:text-violet-700"
+        className="mt-1 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-2 py-2 text-xs font-medium text-gray-500 hover:border-primary/40 hover:text-primary"
       >
         <Plus className="h-3.5 w-3.5" /> Ajouter un rail produits
       </button>

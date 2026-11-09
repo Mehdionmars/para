@@ -60,7 +60,7 @@ export function ProductPicker({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher un produit..."
-          className="w-full rounded-lg border border-gray-200 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-violet-400"
+          className="w-full rounded-lg border border-gray-200 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-ring"
         />
         {loading && <Loader2 className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-gray-400" />}
       </div>
@@ -84,9 +84,9 @@ export function ProductPicker({
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {selected.map((s) => (
-            <span key={s.id} className="flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700">
+            <span key={s.id} className="flex items-center gap-1 rounded-full bg-primary/5 px-2.5 py-1 text-xs font-medium text-primary">
               {s.label}
-              <button type="button" aria-label={`Retirer ${s.label}`} onClick={() => remove(s.id)} className="text-violet-400 hover:text-violet-700">
+              <button type="button" aria-label={`Retirer ${s.label}`} onClick={() => remove(s.id)} className="text-primary/70 hover:text-primary">
                 <X className="h-3 w-3" />
               </button>
             </span>

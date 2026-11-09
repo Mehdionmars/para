@@ -2,6 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { markRead } from "@/app/dashboard/(app)/notifications/actions";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ function entityLabel(n: NotificationRow): string | null {
  */
 export function NotificationsList({ notifications }: { notifications: NotificationRow[] }) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const toast = useToast();
   const [readLocally, setReadLocally] = useState<Set<number>>(new Set());
 
@@ -60,7 +62,7 @@ export function NotificationsList({ notifications }: { notifications: Notificati
                 {entity && (
                   <>
                     <span aria-hidden="true">·</span>
-                    <span className="inline-flex items-center gap-1 text-violet-700">
+                    <span className="inline-flex items-center gap-1 text-primary">
                       {entity}
                       {href && <ExternalLink className="h-3 w-3" aria-hidden="true" />}
                     </span>
@@ -70,14 +72,14 @@ export function NotificationsList({ notifications }: { notifications: Notificati
             </div>
 
             {isUnread && (
-              <span role="img" aria-label="Non lue" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-violet-600" />
+              <span role="img" aria-label="Non lue" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
             )}
           </>
         );
 
         const className = `flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
-          isUnread ? "border-violet-200 bg-violet-50/50" : "border-gray-100 bg-white"
-        } hover:border-violet-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300`;
+          isUnread ? "border-primary/25 bg-primary/5" : "border-gray-100 bg-white"
+        } hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50`;
 
         function handleRead() {
           if (!isUnread) return;
@@ -93,7 +95,11 @@ export function NotificationsList({ notifications }: { notifications: Notificati
                 return next;
               });
               toast.error("Impossible de marquer comme lue");
+              return;
             }
+            // The counters above the list follow (the action revalidates
+            // nothing — see notifications/actions).
+            router.refresh();
           });
         }
 

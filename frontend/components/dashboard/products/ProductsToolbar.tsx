@@ -19,7 +19,7 @@ import type { ColumnKey } from "./product-columns";
 import { COLUMN_LABELS, TOGGLEABLE_COLUMNS } from "./product-columns";
 
 const SELECT_CLASS =
-  "h-9 rounded-lg border border-gray-200 bg-white px-2.5 text-sm text-gray-700 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100";
+  "h-9 rounded-lg border border-gray-200 bg-white px-2.5 text-sm text-gray-700 outline-none focus:border-ring focus:ring-2 focus:ring-ring/30";
 
 export function ProductsToolbar({
   query,
@@ -185,7 +185,7 @@ export function ProductsToolbar({
                 stock: "all",
               })
             }
-            className="inline-flex items-center gap-1 text-xs font-medium text-violet-700 hover:text-violet-900"
+            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary"
           >
             <X className="h-3 w-3" aria-hidden="true" />
             Réinitialiser les filtres
@@ -241,10 +241,10 @@ function SearchField({
         onChange={(e) => setLocal(e.target.value)}
         placeholder="Nom, SKU, code-barres, marque…"
         aria-label="Rechercher un produit"
-        className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-9 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+        className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-9 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
       />
       {searching && (
-        <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-violet-500" aria-hidden="true" />
+        <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-primary/80" aria-hidden="true" />
       )}
     </div>
   );
@@ -270,7 +270,7 @@ function FiltersPanel({
           <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
           Filtres
           {activeCount > 0 && (
-            <span className="ml-0.5 rounded-full bg-violet-700 px-1.5 text-[11px] font-semibold text-white">
+            <span className="ml-0.5 rounded-full bg-primary px-1.5 text-[11px] font-semibold text-white">
               {activeCount}
             </span>
           )}

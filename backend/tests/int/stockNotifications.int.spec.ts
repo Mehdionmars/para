@@ -183,6 +183,27 @@ describe('Alertes de stock', () => {
     expect((await notificationsFor('LOW_STOCK')).length).toBe(before)
   })
 
+  it('un stock modifié depuis la fiche produit alerte aussi', async () => {
+    await payload.db.pool.query('UPDATE products SET stock = 20, low_stock_threshold = 5 WHERE id = $1', [productId])
+
+    const { rows: mark } = await payload.db.pool.query('SELECT COALESCE(MAX(id), 0) AS id FROM notifications')
+    const since = Number(mark[0].id)
+
+    try {
+      await payload.update({ collection: 'products', data: { stock: 0 }, id: productId, overrideAccess: true })
+
+      const rows = (await notificationsFor('OUT_OF_STOCK')).filter(
+        (r) => r.id > since && r.dedupe_key.includes('product-edit-'),
+      )
+      expect(rows.map((r) => r.channel).sort()).toEqual(['email', 'internal'])
+    } finally {
+      await payload.db.pool.query(
+        `DELETE FROM notifications WHERE id > $1 AND product_id = $2 AND dedupe_key LIKE '%product-edit-%'`,
+        [since, productId],
+      )
+    }
+  })
+
   it('l’index unique refuse un doublon inséré directement', async () => {
     const key = `product:${productId}:LOW_STOCK:${KEY_PREFIX}-1:internal`
     await expect(

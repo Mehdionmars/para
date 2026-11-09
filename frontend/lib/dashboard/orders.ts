@@ -1,4 +1,4 @@
-import { payloadFetch, payloadFetchAll } from "./payload";
+import { payloadCount, payloadFetch, payloadFetchAll } from "./payload";
 import { mediaSrc } from "@/lib/mediaSrc";
 import { ORDER_TYPES, STOCK_TYPES, type NotificationRow, type Order, type OrderStatusHistoryEntry } from "./orders-types";
 
@@ -75,9 +75,13 @@ export async function listNotifications(limit = 100): Promise<NotificationRow[]>
   return data.docs ?? [];
 }
 
-/** Counts by group, for the notification centre's stat row. One aggregate
- * request per counter rather than fetching every row and tallying in JS —
- * `limit=0` returns totalDocs and no documents. */
+/** Counts by group, for the notification centre's stat row. One count
+ * request per counter, on Payload's /count endpoint.
+ *
+ * These used `?limit=0` in the belief that it returns totalDocs and no
+ * documents. In Payload 3 it means *no limit*: each of the seven counters
+ * downloaded every notification — 18 000 rows, ~2.5s each, seven at once —
+ * which is what made this page take two seconds to answer. */
 export async function notificationStats(): Promise<{
   total: number;
   unread: number;
@@ -87,11 +91,7 @@ export async function notificationStats(): Promise<{
   orders: number;
   failed: number;
 }> {
-  const count = async (query: string) => {
-    const res = await payloadFetch(`/api/notifications?limit=0&depth=0&${query}`);
-    if (!res.ok) return 0;
-    return Number((await res.json()).totalDocs) || 0;
-  };
+  const count = async (query: string) => (await payloadCount(`/api/notifications/count${query ? `?${query}` : ""}`)) ?? 0;
 
   const [total, unread, lowStock, outOfStock, backInStock, orders, failed] = await Promise.all([
     count(""),
@@ -165,10 +165,6 @@ export async function listDeliveries(status?: "pending" | "sent" | "failed"): Pr
 
 /** Unread internal notifications, for the bell badge. */
 export async function countUnreadNotifications(): Promise<number> {
-  const res = await payloadFetch(
-    "/api/notifications?limit=0&depth=0&where[channel][equals]=internal&where[readAt][exists]=false",
-  );
-  if (!res.ok) return 0;
-  const data = await res.json();
-  return Number(data.totalDocs) || 0;
+  // /count, not ?limit=0 — see notificationStats.
+  return (await payloadCount("/api/notifications/count?where[channel][equals]=internal&where[readAt][exists]=false")) ?? 0;
 }

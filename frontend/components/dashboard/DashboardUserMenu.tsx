@@ -115,17 +115,14 @@ export function DashboardUserMenu({ email, roles }: { email: string; roles: Role
 
             <DropdownMenuSeparator />
 
-            {/* Settings is admin-only, matching the nav rule for the same page
-                — offering a link that redirects straight back is worse than
-                not offering it. */}
-            {hasRole({ roles }, "admin") && (
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="gap-2">
-                  <Settings className="size-4" />
-                  Paramètres
-                </Link>
-              </DropdownMenuItem>
-            )}
+            {/* Every staff account can open its own settings (password,
+                profile); shop-wide sections are gated on the page itself. */}
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings" className="gap-2">
+                <Settings className="size-4" />
+                Paramètres
+              </Link>
+            </DropdownMenuItem>
 
             <DropdownMenuItem
               onClick={handleLogout}

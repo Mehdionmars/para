@@ -36,7 +36,9 @@ export function PageHeader({
         )}
       </div>
 
-      {actions && <div className="flex flex-none items-center gap-2">{actions}</div>}
+      {/* Wraps rather than overflows: two labelled buttons are wider than a
+          320px screen, and an action pushed off the edge is an action lost. */}
+      {actions && <div className="flex flex-wrap items-center gap-2 sm:flex-none sm:justify-end">{actions}</div>}
     </div>
   );
 }

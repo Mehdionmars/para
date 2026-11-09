@@ -91,7 +91,7 @@ export default async function NotificationsPage({
             >
               {g.label}
               {g.value === "unread" && stats.unread > 0 && (
-                <span className={`ml-1.5 text-xs ${active ? "text-violet-100" : "text-primary"}`}>
+                <span className={`ml-1.5 text-xs ${active ? "text-primary-foreground/80" : "text-primary"}`}>
                   {stats.unread}
                 </span>
               )}

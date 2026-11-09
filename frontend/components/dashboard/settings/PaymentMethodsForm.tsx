@@ -14,10 +14,10 @@ import {
 } from "@/lib/dashboard/paymentSettings-types";
 
 const field =
-  "h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100";
+  "h-9 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40";
 const area =
-  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100";
-const label = "text-xs font-medium text-gray-600";
+  "w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40";
+const label = "text-xs font-medium text-foreground";
 
 /** Order and hints for the bank block, so the required three come first. */
 const BANK_ORDER: { key: keyof BankFields; hint?: string; required?: boolean }[] = [
@@ -93,11 +93,11 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
             type="checkbox"
             checked={codEnabled}
             onChange={(e) => setCodEnabled(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-violet-700 focus:ring-violet-300"
+            className="mt-0.5 h-4 w-4 rounded border-input accent-primary"
           />
           <span>
-            <span className="text-sm font-medium text-gray-900">Paiement à la livraison</span>
-            <span className="block text-xs text-gray-500">
+            <span className="text-sm font-medium text-foreground">Paiement à la livraison</span>
+            <span className="block text-xs text-muted-foreground">
               Le mode historique de la boutique. Toutes les commandes passées jusqu&apos;ici sont réglées ainsi.
             </span>
           </span>
@@ -119,7 +119,7 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
         )}
       </section>
 
-      <div className="border-t border-gray-100" />
+      <div className="border-t border-border" />
 
       {/* Bank transfer */}
       <section className="flex flex-col gap-3">
@@ -128,11 +128,11 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
             type="checkbox"
             checked={transferEnabled}
             onChange={(e) => setTransferEnabled(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-violet-700 focus:ring-violet-300"
+            className="mt-0.5 h-4 w-4 rounded border-input accent-primary"
           />
           <span>
-            <span className="text-sm font-medium text-gray-900">Virement bancaire</span>
-            <span className="block text-xs text-gray-500">
+            <span className="text-sm font-medium text-foreground">Virement bancaire</span>
+            <span className="block text-xs text-muted-foreground">
               Vos coordonnées sont affichées au client sur l&apos;écran de confirmation, avec la référence de
               sa commande.
             </span>
@@ -140,7 +140,7 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
         </label>
 
         {transferEnabled && missing.length > 0 && (
-          <p className="ml-6 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <p className="ml-6 flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning-strong">
             <Info className="mt-0.5 h-3.5 w-3.5 flex-none" aria-hidden="true" />
             Champs requis manquants : {missing.join(", ")}. Tant qu&apos;ils sont vides, le virement ne peut pas
             être proposé au client.
@@ -153,7 +153,7 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
               <div key={key} className="flex flex-col gap-1.5">
                 <label className={label} htmlFor={`bank-${key}`}>
                   {BANK_FIELD_LABELS[key]}
-                  {required && <span className="ml-1 text-amber-600">*</span>}
+                  {required && <span className="ml-1 text-warning-strong">*</span>}
                 </label>
                 <input
                   id={`bank-${key}`}
@@ -162,7 +162,7 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
                   inputMode={key === "rib" ? "numeric" : undefined}
                   className={cn(field, (key === "rib" || key === "iban" || key === "bic") && "font-mono")}
                 />
-                {hint && <p className="text-xs text-gray-400">{hint}</p>}
+                {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
               </div>
             ))}
           </div>
@@ -191,7 +191,7 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
               onChange={(e) => setField("instructions", e.target.value)}
               className={area}
             />
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               Optionnel. Affiché sous les coordonnées, après la référence de commande.
             </p>
           </div>
@@ -199,12 +199,12 @@ export function PaymentMethodsForm({ initial }: { initial: PaymentSettingsForm }
       </section>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive-strong">
           {error}
         </p>
       )}
       {saved && (
-        <p role="status" className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p role="status" className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-strong">
           <Check className="h-4 w-4 flex-none" aria-hidden="true" />
           Enregistré. La boutique est mise à jour.
         </p>

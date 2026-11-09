@@ -84,7 +84,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Catalogue",
+    label: "Catalogue & stock",
     items: [
       { label: "Produits", href: "/dashboard/products", icon: Package, visible: canViewProducts },
       {
@@ -120,15 +120,12 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Système",
+    label: "Administration",
     items: [
       { label: "Notifications", href: "/dashboard/notifications", icon: Bell, visible: isStaffUser },
-      {
-        label: "Paramètres",
-        href: "/dashboard/settings",
-        icon: Settings,
-        visible: (user) => hasRole(user, "admin"),
-      },
+      // Every staff member has a section here (their own account and password);
+      // the shop-wide sections inside are gated per role on the page itself.
+      { label: "Paramètres", href: "/dashboard/settings", icon: Settings, visible: isStaffUser },
     ],
   },
 ];

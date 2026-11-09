@@ -55,11 +55,11 @@ export function ProductBulkToolbar({
     <div
       role="region"
       aria-label="Actions groupées"
-      className="sticky bottom-0 z-40 -mx-4 border-t border-violet-200 bg-violet-50 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)] sm:bottom-auto sm:top-2 sm:mx-0 sm:rounded-xl sm:border sm:shadow-sm"
+      className="sticky bottom-0 z-40 -mx-4 border-t border-primary/25 bg-[color-mix(in_oklch,var(--primary)_6%,var(--card))] px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)] sm:bottom-auto sm:top-16 sm:mx-0 sm:rounded-xl sm:border sm:shadow-sm"
       style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-violet-900" aria-live="polite">
+        <span className="text-sm font-medium text-primary" aria-live="polite">
           {count} sélectionné{count > 1 ? "s" : ""}
         </span>
 
@@ -70,7 +70,7 @@ export function ProductBulkToolbar({
             type="button"
             onClick={onSelectAllMatching}
             disabled={busy}
-            className="text-xs font-medium text-violet-700 underline underline-offset-2 hover:text-violet-900 disabled:opacity-50"
+            className="text-xs font-medium text-primary underline underline-offset-2 hover:text-primary disabled:opacity-50"
           >
             Tout sélectionner dans les résultats ({totalMatching})
           </button>

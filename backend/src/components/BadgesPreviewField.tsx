@@ -3,7 +3,9 @@
 import { useFormFields } from '@payloadcms/ui'
 import React from 'react'
 
-import { BADGE_TYPE_PRESETS } from '../collections/Products'
+// From productBadges, never from collections/Products: this is a client
+// component, and the collection config would drag its server hooks along.
+import { BADGE_TYPE_PRESETS } from '../collections/productBadges'
 
 /**
  * Live preview of a product's badge stack, rendered inside the Products edit

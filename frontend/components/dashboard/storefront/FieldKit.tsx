@@ -4,7 +4,7 @@ import { type ReactNode, useState } from "react";
 import { clampNumber } from "@/lib/dashboard/clampNumber";
 
 const labelCls = "text-xs font-medium text-gray-600";
-const inputCls = "w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400";
+const inputCls = "w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-ring";
 
 export function TextField({
   label,

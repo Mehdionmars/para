@@ -593,7 +593,7 @@ export function ProductsView({
                 value={query.perPage}
                 onChange={(e) => pushQuery({ page: 1, perPage: Number(e.target.value) })}
                 aria-label="Produits par page"
-                className="h-8 rounded-lg border border-gray-200 bg-white px-2 text-xs outline-none focus:border-violet-400"
+                className="h-8 rounded-lg border border-gray-200 bg-white px-2 text-xs outline-none focus:border-ring"
               >
                 {[25, 50, 100].map((n) => (
                   <option key={n} value={n}>

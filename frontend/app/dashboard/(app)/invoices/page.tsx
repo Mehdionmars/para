@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/dashboard/guard";
@@ -31,13 +32,7 @@ export default async function InvoicesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Factures</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Générées à partir des commandes confirmées — pas de système de facturation séparé, une facture correspond
-          exactement à une commande payée ou en cours de traitement.
-        </p>
-      </div>
+      <PageHeader title="Factures" description="Générées à partir des commandes confirmées — pas de système de facturation séparé, une facture correspond exactement à une commande payée ou en cours de traitement." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-border bg-card shadow-xs p-4">
@@ -54,7 +49,7 @@ export default async function InvoicesPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
+      <div className="relative overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs font-medium text-muted-foreground">

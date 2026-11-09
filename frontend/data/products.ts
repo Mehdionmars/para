@@ -2402,6 +2402,558 @@ export const PRODUCTS: Product[] = [
     "reviews": 0,
     "tint": "#F2F2F2",
     "desc": "SUNSCREEN HYDRO ultra protection SPF 50+ est une crème solaire invisible avec une formule contenant « Tinosorb M, Tinosorb S, Emollionts et Aloe vera », offre une protection maximale contre les rayons UVA/UVB et hydrate profondément tous les types de peau.\n\nUTILISATION :\nAppliquer généreusement et uniformément DCP SUNSCREEN HYDRO sur la peau sèche 30 minutes avant l’exposition au soleil et aussi souvent que nécessaire.\nRenouveler l’application toutes les deux heures ou aprés la natation ou la transpiration.\n\nUNE PROTECTION OPTIMALE : TINOSORB M + TINOSORB S + UVINUL A Plus\nINDICATIONS :\n– Protection maximale absorbante UVA / UVB 50+\n– Prévention du veillissement cutané\n– Crème solaire adaptée à tous les types de peau\n– Ultra hydratant\n– Non comédogène, hypoallergénique, sans paraben\n– Toucher sec, fini mat immaculé\n– Résiste à l’eau\n– Resiste à la sudadtion\n– Miscibilité avec l’huile\n\nINGRÉDIENTS ACTIFS :\nTinsorb M : Protection et absorption maximale\nTinisorb S : Protection et absorption maximale\nUvinul A Plus : Protection et absorption maximale\nAloe Vera : Hydratation maximale. Renforcer la barrière cutanée\nVitamine E : Vieillissement cutané"
+  },
+  {
+    "id": 264,
+    "slug": "la-roche-posay-lipikar-huile-lavante-ap-200-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Lipikar Huile Lavante AP+",
+    "size": "200 ml",
+    "price": 120,
+    "old": 185,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Huile lavante relipidante anti-irritations pour peaux très sèches à tendance atopique, dès la naissance."
+  },
+  {
+    "id": 260,
+    "slug": "la-roche-posay-lipikar-stick-ap-anti-grattage-15-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Lipikar Stick AP+ Anti-Grattage",
+    "size": "15 ml",
+    "price": 133,
+    "old": 205,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Stick apaisant anti-grattage pour zones localisées des peaux sèches à tendance atopique, adultes, enfants et bébés."
+  },
+  {
+    "id": 254,
+    "slug": "la-roche-posay-kerium-ds-creme-visage-apaisante-40-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Kerium DS Crème Visage Apaisante",
+    "size": "40 ml",
+    "price": 144,
+    "old": 222,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin visage apaisant pro-desquamant au LHA pour les peaux à tendance squameuse (dermite séborrhéique) : réduit rougeurs, squames et démangeaisons."
+  },
+  {
+    "id": 262,
+    "slug": "la-roche-posay-lipikar-lait-urea-5-anti-rugosites-200-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Lipikar Lait Urea 5+ Anti-Rugosités",
+    "size": "200 ml",
+    "price": 174,
+    "old": 268,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Lait corps à 5 % d'urée : lisse les rugosités et hydrate les peaux sèches et rêches."
+  },
+  {
+    "id": 259,
+    "slug": "la-roche-posay-nutritic-levres-baume-nutri-reparateur-4-7-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Nutritic Lèvres Baume Nutri-Réparateur",
+    "size": "4,7 ml",
+    "price": 84,
+    "old": 129,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Baume nutri-réparateur pour lèvres très sèches et abîmées."
+  },
+  {
+    "id": 256,
+    "slug": "la-roche-posay-kerium-shampooing-creme-antipelliculaire-pellicules-seches-200-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Kerium Shampooing Crème Antipelliculaire Pellicules Sèches",
+    "size": "200 ml",
+    "price": 126,
+    "old": 194,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Shampooing crème antipelliculaire pour pellicules sèches, élimine les pellicules et apaise les démangeaisons."
+  },
+  {
+    "id": 274,
+    "slug": "la-roche-posay-toleriane-mascara-volume-noir-7-6-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Toleriane Mascara Volume Noir",
+    "size": "7,6 ml",
+    "price": 166,
+    "old": 255,
+    "cat": "Maquillage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Mascara volume haute tolérance pour yeux sensibles et porteurs de lentilles."
+  },
+  {
+    "id": 267,
+    "slug": "la-roche-posay-eau-micellaire-ultra-peaux-reactives-200-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Eau Micellaire Ultra Peaux Réactives",
+    "size": "200 ml",
+    "price": 139,
+    "old": 214,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Eau micellaire démaquillante pour peaux sensibles et réactives : nettoie, démaquille et apaise sans rinçage."
+  },
+  {
+    "id": 270,
+    "slug": "la-roche-posay-effaclar-gel-moussant-purifiant-200-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Effaclar Gel Moussant Purifiant",
+    "size": "200 ml",
+    "price": 156,
+    "old": 240,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Gel moussant purifiant pour peaux grasses et sensibles : élimine impuretés et excès de sébum."
+  },
+  {
+    "id": 253,
+    "slug": "la-roche-posay-kerium-ds-shampooing-antipelliculaire-intensif-125-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Kerium DS Shampooing Antipelliculaire Intensif",
+    "size": "125 ml",
+    "price": 138,
+    "old": 212,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Cure shampooing micro-exfoliante contre les pellicules sévères et récidivantes, cuir chevelu sensible."
+  },
+  {
+    "id": 272,
+    "slug": "la-roche-posay-anthelios-mineral-one-04-brune-spf50-30-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Anthelios Minéral One 04 Brune SPF50+",
+    "size": "30 ml",
+    "price": 166,
+    "old": 255,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Crème solaire minérale teintée très haute protection, teinte 04 Brune, pour peaux sensibles."
+  },
+  {
+    "id": 269,
+    "slug": "la-roche-posay-redermic-r-soin-anti-rides-au-retinol-30-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Redermic R Soin Anti-Rides au Rétinol",
+    "size": "30 ml",
+    "price": 233,
+    "old": 358,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin anti-rides correcteur intensif au rétinol pur, pour peaux sensibles."
+  },
+  {
+    "id": 265,
+    "slug": "la-roche-posay-toleriane-ultra-nuit-40-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Toleriane Ultra Nuit",
+    "size": "40 ml",
+    "price": 246,
+    "old": 378,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin de nuit apaisant et réparateur pour peaux intolérantes et allergiques."
+  },
+  {
+    "id": 261,
+    "slug": "la-roche-posay-lipikar-xerand-creme-mains-reparatrice-50-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Lipikar Xerand Crème Mains Réparatrice",
+    "size": "50 ml",
+    "price": 66,
+    "old": 102,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Crème réparatrice pour mains très sèches, abîmées et gercées. Non grasse."
+  },
+  {
+    "id": 258,
+    "slug": "la-roche-posay-nutritic-intense-creme-nutri-reconstituante-50-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Nutritic Intense Crème Nutri-Reconstituante",
+    "size": "50 ml",
+    "price": 144,
+    "old": 222,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin nutri-reconstituant profond pour peaux sèches à très sèches et sensibles."
+  },
+  {
+    "id": 257,
+    "slug": "la-roche-posay-rosaliac-ar-intense-serum-anti-rougeurs-40-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Rosaliac AR Intense Sérum Anti-Rougeurs",
+    "size": "40 ml",
+    "price": 240,
+    "old": 369,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Sérum concentré anti-rougeurs localisées pour peaux sensibles sujettes aux rougeurs, apaise et unifie."
+  },
+  {
+    "id": 273,
+    "slug": "la-roche-posay-anthelios-pigment-correct-spf50-medium-50-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Anthelios Pigment Correct SPF50+ Medium",
+    "size": "50 ml",
+    "price": 198,
+    "old": 305,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin solaire teinté très haute protection qui aide à prévenir et corriger les taches pigmentaires, teinte Medium."
+  },
+  {
+    "id": 252,
+    "slug": "la-roche-posay-pigmentclar-yeux-soin-anti-cernes-15-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Pigmentclar Yeux Soin Anti-Cernes",
+    "size": "15 ml",
+    "price": 240,
+    "old": 369,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin contour des yeux correcteur des cernes pigmentaires, texture fondante légèrement teintée."
+  },
+  {
+    "id": 271,
+    "slug": "la-roche-posay-anthelios-brume-solaire-invisible-spf50-75-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Anthelios Brume Solaire Invisible SPF50",
+    "size": "75 ml",
+    "price": 146,
+    "old": 225,
+    "cat": "Solaire",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Brume solaire visage invisible très haute protection, applicable sur le maquillage tout au long de la journée."
+  },
+  {
+    "id": 268,
+    "slug": "la-roche-posay-respectissime-demaquillant-yeux-physiologique-125-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Respectissime Démaquillant Yeux Physiologique",
+    "size": "125 ml",
+    "price": 110,
+    "old": 169,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Démaquillant yeux doux pour yeux sensibles et porteurs de lentilles, sans parfum."
+  },
+  {
+    "id": 266,
+    "slug": "la-roche-posay-toleriane-ultra-contour-des-yeux-20-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Toleriane Ultra Contour des Yeux",
+    "size": "20 ml",
+    "price": 216,
+    "old": 332,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Soin contour des yeux apaisant pour yeux sensibles et intolérants, réduit poches et irritations."
+  },
+  {
+    "id": 263,
+    "slug": "la-roche-posay-lipikar-lait-urea-5-anti-rugosites-400-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Lipikar Lait Urea 5+ Anti-Rugosités",
+    "size": "400 ml",
+    "price": 228,
+    "old": 351,
+    "cat": "Corps",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Lait corps à 5 % d'urée : lisse les rugosités et hydrate les peaux sèches et rêches."
+  },
+  {
+    "id": 255,
+    "slug": "la-roche-posay-kerium-shampooing-gel-antipelliculaire-pellicules-grasses-200-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Kerium Shampooing Gel Antipelliculaire Pellicules Grasses",
+    "size": "200 ml",
+    "price": 126,
+    "old": 194,
+    "cat": "Cheveux",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Shampooing gel antipelliculaire pour pellicules grasses, assainit et apaise le cuir chevelu sensible."
+  },
+  {
+    "id": 251,
+    "slug": "la-roche-posay-pigmentclar-serum-anti-taches-30-ml",
+    "brand": "La Roche-Posay",
+    "brandSlug": "la-roche-posay",
+    "name": "Pigmentclar Sérum Anti-Taches",
+    "size": "30 ml",
+    "price": 312,
+    "old": 480,
+    "cat": "Visage",
+    "badges": [
+      {
+        "text": "−35%",
+        "bgColor": "var(--pdh-sale-strong)",
+        "textColor": "#FFFFFF",
+        "priority": 1
+      }
+    ],
+    "rating": 5,
+    "reviews": 0,
+    "tint": "#F2F2F2",
+    "desc": "Sérum correcteur anti-taches à l'acide phéruléique et LHA. Unifie le teint et atténue les taches brunes, pour peaux sensibles."
   }
 ];
 
@@ -2739,7 +3291,31 @@ const PRODUCT_IMAGE: Record<number, string> = {
   "247": "/api/cms-media/novexpert-pack-duo-mousse-flash-eclat-1.jpg",
   "248": "/api/cms-media/bjorn-axen-pack-repair-1.png",
   "249": "/api/cms-media/herome-pack-durcisseur-fort-dissolvant-1.webp",
-  "250": "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-1.webp"
+  "250": "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-1.webp",
+  "251": "/assets/product-placeholder.svg",
+  "252": "/assets/product-placeholder.svg",
+  "253": "/assets/product-placeholder.svg",
+  "254": "/assets/product-placeholder.svg",
+  "255": "/assets/product-placeholder.svg",
+  "256": "/assets/product-placeholder.svg",
+  "257": "/assets/product-placeholder.svg",
+  "258": "/assets/product-placeholder.svg",
+  "259": "/assets/product-placeholder.svg",
+  "260": "/assets/product-placeholder.svg",
+  "261": "/assets/product-placeholder.svg",
+  "262": "/assets/product-placeholder.svg",
+  "263": "/assets/product-placeholder.svg",
+  "264": "/assets/product-placeholder.svg",
+  "265": "/assets/product-placeholder.svg",
+  "266": "/assets/product-placeholder.svg",
+  "267": "/assets/product-placeholder.svg",
+  "268": "/assets/product-placeholder.svg",
+  "269": "/assets/product-placeholder.svg",
+  "270": "/assets/product-placeholder.svg",
+  "271": "/assets/product-placeholder.svg",
+  "272": "/assets/product-placeholder.svg",
+  "273": "/assets/product-placeholder.svg",
+  "274": "/assets/product-placeholder.svg"
 };
 
 // Per-product gallery images (hero + alternates), keyed by product id.
@@ -2904,7 +3480,31 @@ const PRODUCT_GALLERY: Record<number, string[]> = {
   "250": [
     "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-2.png",
     "/api/cms-media/herome-pack-durcisseur-extra-fort-dissolvant-3.png"
-  ]
+  ],
+  "251": [],
+  "252": [],
+  "253": [],
+  "254": [],
+  "255": [],
+  "256": [],
+  "257": [],
+  "258": [],
+  "259": [],
+  "260": [],
+  "261": [],
+  "262": [],
+  "263": [],
+  "264": [],
+  "265": [],
+  "266": [],
+  "267": [],
+  "268": [],
+  "269": [],
+  "270": [],
+  "271": [],
+  "272": [],
+  "273": [],
+  "274": []
 };
 
 export function getProduct(id: number): Product {

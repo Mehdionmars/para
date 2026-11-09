@@ -10,96 +10,70 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import type { Role } from "@/lib/dashboard/roles";
 
 /**
- * Dashboard chrome.
+ * Dashboard chrome: the sidebar, the sticky bar, and the page's gutter.
  *
- * This used to own the responsive behaviour itself: an off-canvas wrapper, the
- * open/closed state, a body scroll lock, an Escape handler, a backdrop, and a
- * burger — plus a separate collapse toggle living inside the sidebar. That
- * arrangement produced three defects worth naming, since they are the reason
- * for the rewrite rather than a preference for shadcn:
+ * SidebarProvider owns the responsive behaviour — a Sheet below `lg`, a
+ * collapsible rail above it, ⌘B, and a TooltipProvider for the rail's labels.
+ * `defaultOpen` comes from the cookie the provider itself writes, read on the
+ * server by the layout, so a collapsed rail stays collapsed on the next page
+ * load instead of opening for one frame and snapping shut.
  *
- *  - the collapse toggle, offset to straddle the sidebar's edge, stayed ~11px
- *    inside the viewport while the drawer itself was off-canvas;
- *  - the closed drawer was only translated away, so all twelve nav links kept
- *    their place in the tab order;
- *  - a collapsed desktop preference was replayed on mobile, opening the drawer
- *    as a 68px icon strip with no way to widen it.
- *
- * SidebarProvider answers all of it — a Sheet below `md`, cookie-persisted
- * collapse that survives the server render, ⌘B, and a TooltipProvider for the
- * icon rail's labels — so the shell is now layout and nothing else.
- *
- * Surfaces here are tokens (`bg-background`, `bg-card`, `border-border`), not
- * the `bg-gray-50` / `border-gray-100` they were: those are fixed light-mode
- * values, and the header is the one element on every admin page, so hardcoding
- * it was what made a dark theme impossible to add anywhere.
+ * Surfaces here are tokens (`bg-background`, `bg-card`, `border-border`), so
+ * the chrome follows the theme on every admin page.
  */
 export function DashboardShell({
   roles,
   email,
+  defaultOpen = true,
   children,
 }: {
   roles: Role[];
   email: string;
+  defaultOpen?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <DashboardSidebar roles={roles} email={email} />
 
       <SidebarInset className="min-w-0 bg-background">
-        {/* sticky, because the scroll container changed. The old shell was
-            `h-screen` with the main pane scrolling inside it, which held this
-            bar in place; SidebarProvider is `min-h-svh`, so the window scrolls
-            and an unpinned bar would ride away on the storefront builder and
-            the long product tables.
-
-            The backdrop blur is what keeps it legible over content scrolling
-            beneath it without going fully opaque, which at this height reads
-            as a second, heavier header. */}
-        <header className="sticky top-0 z-10 flex h-14 flex-none items-center gap-2 border-b border-border bg-card/80 px-2 backdrop-blur supports-[backdrop-filter]:bg-card/60 sm:px-4">
-          <SidebarTrigger className="text-muted-foreground transition-colors hover:text-foreground" />
+        {/* Sticky, because the window scrolls (SidebarProvider is min-h-svh).
+            Opaque rather than blurred: a translucent bar over the long product
+            tables read as a second, heavier header, and the blur bought
+            nothing a solid card surface does not. `relative` is load-bearing:
+            the phone search opens laid over this bar. */}
+        <header className="sticky top-0 z-20 flex h-14 flex-none items-center gap-1.5 border-b border-border bg-card px-2 sm:gap-2 sm:px-4">
+          {/* 40px on touch layouts; the rail-era 28px was below any tap
+              target guideline once the bar became the only way to the menu. */}
+          <SidebarTrigger
+            aria-label="Ouvrir ou fermer le menu"
+            className="size-10 flex-none text-muted-foreground transition-colors hover:text-foreground lg:size-8"
+          />
 
           {/* Fixed height rather than inherited, so the rule does not stretch
-              to the full 64px of the bar. */}
+              to the full height of the bar. */}
           <Separator orientation="vertical" className="mr-1 !h-4" />
 
-          <DashboardBreadcrumb />
+          {/* min-w-0 + flex-1 is what lets a long trail truncate instead of
+              pushing the bell off a 320px screen. */}
+          <div className="min-w-0 flex-1">
+            <DashboardBreadcrumb />
+          </div>
           <VisitRecorder />
 
-          {/* The space in the middle of the bar is deliberately empty. A
-              scrolling greeting-date-clock marquee lived here: 32s of motion
-              on every page, `aria-hidden` by its own admission, stating
-              nothing the operator cannot read on their own screen. */}
-          <div className="hidden flex-1 md:block" />
-
-          {/* min-w-0 is what lets the search field shrink: a flex child
-              defaults to min-width:auto and refuses to go below its content,
-              which is what pushed the whole dashboard sideways on a phone.
-              flex-1 below `md` (where the ticker is gone and the search should
-              take the room), fixed from `md` up so the ticker keeps its
-              space instead of the two fighting over it. */}
-          <div className="min-w-0 flex-1 md:flex-none">
-            <Topbar />
-          </div>
-
-          {/* The theme toggle is withdrawn until the dark sweep is done:
-              ~450 hardcoded light utilities remain in the dashboard, so
-              choosing dark produced white panels on a near-black shell.
-              ThemeToggle.tsx and the provider stay — putting it back is one
-              line once the sweep lands. */}
-          <div className="flex flex-none items-center gap-0.5">
+          <div className="flex flex-none items-center gap-1">
+            <Topbar roles={roles} />
             <NotificationBell />
           </div>
         </header>
 
-        {/* A div, not a <main>. SidebarInset *is* the <main> element, so this
-            was a second main landmark nested inside the first — invalid HTML,
-            and two "main" landmarks for a screen reader to choose between.
-            The padding is the page's own gutter: 20px on a phone, 24px from
-            `sm`, tighter than the 16/24 it replaced so the content starts
-            closer to the chrome. */}
-        <div className="min-w-0 flex-1 overflow-y-auto p-5 sm:p-6">{children}</div>
+        {/* A div, not a <main>: SidebarInset already is the <main> landmark.
+            16px gutter on a phone, 24px from `sm`, 32px once the rail is
+            beside the page. The inner max width keeps a 2560px monitor from
+            stretching a table row into one line the eye has to cross. */}
+        <div className="min-w-0 flex-1 px-4 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-6 xl:px-8">
+          <div className="mx-auto w-full max-w-[1600px]">{children}</div>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

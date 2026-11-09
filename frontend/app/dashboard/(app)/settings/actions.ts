@@ -7,7 +7,27 @@ import {
   missingBankFields,
   type PaymentSettingsForm,
 } from "@/lib/dashboard/paymentSettings-types";
-import { canEditContent } from "@/lib/dashboard/roles";
+import { canEditContent, hasRole, type Role } from "@/lib/dashboard/roles";
+import {
+  cleanService,
+  cleanShippingRule,
+  cleanStore,
+  deleteDoc,
+  saveDoc,
+  toServiceForm,
+  toShippingRuleForm,
+  toStaffAccount,
+  toStoreForm,
+  validateService,
+  validateShippingRule,
+  validateStaffAccount,
+  validateStore,
+  type ServiceForm,
+  type ShippingRuleForm,
+  type StaffAccount,
+  type StaffAccountInput,
+  type StoreForm,
+} from "@/lib/dashboard/settings";
 
 export async function updatePassword(newPassword: string): Promise<{ error?: string }> {
   if (newPassword.length < 8) return { error: "Le mot de passe doit contenir au moins 8 caractères." };
@@ -81,4 +101,100 @@ export async function updatePaymentSettings(
   // the dashboard's own copy of the page.
   revalidatePath("/dashboard/settings");
   return {};
+}
+
+// ------------------------------------------------------------------ Boutique,
+// livraison, services, équipe.
+//
+// Each action re-runs the rule the form already ran (lib/dashboard/settings-
+// types), then writes through the operator's own session: Payload's access
+// rules are still the boundary, these checks only turn a refusal into a
+// sentence. Each returns the stored document, so the list on screen shows
+// what Payload actually kept — a service's generated slug, a default tariff
+// another rule just lost.
+
+type Saved<T> = { item?: T; error?: string };
+
+const canDelete = (user: { roles: Role[] }) => hasRole(user, "admin", "manager");
+
+export async function saveStore(input: StoreForm): Promise<Saved<StoreForm>> {
+  await requireRole(canEditContent);
+  const problem = validateStore(input);
+  if (problem) return { error: problem };
+  const res = await saveDoc("stores", input.id, cleanStore(input));
+  if ("error" in res) return { error: res.error };
+  revalidatePath("/dashboard/settings/boutique");
+  return { item: toStoreForm(res.doc) };
+}
+
+export async function deleteStore(id: number): Promise<{ error?: string }> {
+  const user = await requireRole(canEditContent);
+  if (!canDelete(user)) return { error: "Seul un administrateur ou un manager peut supprimer une boutique." };
+  const res = await deleteDoc("stores", id);
+  if (!res.error) revalidatePath("/dashboard/settings/boutique");
+  return res;
+}
+
+export async function saveShippingRule(input: ShippingRuleForm): Promise<Saved<ShippingRuleForm>> {
+  await requireRole(canEditContent);
+  const problem = validateShippingRule(input);
+  if (problem) return { error: problem };
+  const res = await saveDoc("shipping-rules", input.id, cleanShippingRule(input));
+  if ("error" in res) return { error: res.error };
+  revalidatePath("/dashboard/settings/livraison");
+  return { item: toShippingRuleForm(res.doc) };
+}
+
+export async function deleteShippingRule(id: number): Promise<{ error?: string }> {
+  const user = await requireRole(canEditContent);
+  if (!canDelete(user)) return { error: "Seul un administrateur ou un manager peut supprimer un tarif." };
+  const res = await deleteDoc("shipping-rules", id);
+  if (!res.error) revalidatePath("/dashboard/settings/livraison");
+  return res;
+}
+
+export async function saveService(input: ServiceForm): Promise<Saved<ServiceForm>> {
+  await requireRole(canEditContent);
+  const problem = validateService(input);
+  if (problem) return { error: problem };
+  const res = await saveDoc("services", input.id, cleanService(input));
+  if ("error" in res) return { error: res.error };
+  revalidatePath("/dashboard/settings/services");
+  // The image URL is not in a depth=0 answer; the form already has it.
+  return { item: toServiceForm(res.doc, input.imageId ? input.imageUrl : "") };
+}
+
+export async function deleteService(id: number): Promise<{ error?: string }> {
+  const user = await requireRole(canEditContent);
+  if (!canDelete(user)) return { error: "Seul un administrateur ou un manager peut supprimer un service." };
+  const res = await deleteDoc("services", id);
+  if (!res.error) revalidatePath("/dashboard/settings/services");
+  return res;
+}
+
+const isAdmin = (user: { roles: Role[] }) => hasRole(user, "admin");
+
+/** Creates a staff account (email, password, roles) or changes one's roles
+ * and, optionally, its password. Admin only, as in Payload. */
+export async function saveStaffAccount(input: StaffAccountInput): Promise<Saved<StaffAccount>> {
+  const user = await requireRole(isAdmin);
+  const problem = validateStaffAccount(input, { isSelf: input.id === user.id });
+  if (problem) return { error: problem };
+
+  const data: Record<string, unknown> = { roles: input.roles };
+  if (!input.id) data.email = input.email.trim().toLowerCase();
+  if (input.password) data.password = input.password;
+
+  const res = await saveDoc("users", input.id, data);
+  if ("error" in res) return { error: res.error };
+  revalidatePath("/dashboard/settings/equipe");
+  return { item: toStaffAccount(res.doc) };
+}
+
+export async function deleteStaffAccount(id: number): Promise<{ error?: string }> {
+  const user = await requireRole(isAdmin);
+  if (id === user.id) return { error: "Vous ne pouvez pas supprimer votre propre compte." };
+  const res = await deleteDoc("users", id);
+  if (!res.error) revalidatePath("/dashboard/settings/equipe");
+  return res;
 }

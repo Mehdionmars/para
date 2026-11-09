@@ -50,7 +50,9 @@ export default async function StorefrontPage({ searchParams }: { searchParams: P
     .map((c: { id: number; name: string }) => ({ id: c.id, name: c.name }));
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col -m-6">
+    // Full-bleed workspace: cancels the shell's gutter exactly (16/24/32px,
+    // pt-5/6, pb-6) and fills the viewport under its 56px bar.
+    <div className="-mx-4 -mt-5 -mb-6 flex h-[calc(100svh-3.5rem)] flex-col sm:-mx-6 sm:-mt-6 xl:-mx-8">
       <StorefrontBuilder
         initialDraft={mapHomeDocToDraft(homeDoc)}
         initialStatus={homeDoc._status || "draft"}
