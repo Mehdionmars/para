@@ -90,7 +90,12 @@ async function run() {
     slug: 'home',
     depth: 0,
     data: {
+      // Home has drafts on: without this the save lands as an unpublished draft.
+      _status: 'published',
       brandsFeatured,
+      // A gift box left half-filled in the builder has no image, which the
+      // schema rejects and would block the whole save.
+      coffrets: ((home.coffrets as { image?: unknown }[]) || []).filter((c) => c.image),
       brandsFeaturedCopy: { ...home.brandsFeaturedCopy, eyebrow: 'Nouveautés', title: 'Les nouveautés marques' },
       coffretsCopy: { ...home.coffretsCopy, title: 'Les coffrets cadeaux' },
       ctaPair1,
