@@ -16,7 +16,7 @@ import {
   type SectionEntryKey,
 } from "@/lib/dashboard/storefront-mapping";
 
-function labelFor(key: SectionEntryKey, rails: Rail[]): string {
+export function labelFor(key: SectionEntryKey, rails: Rail[]): string {
   if (key.startsWith("rail:")) {
     const railKey = key.slice("rail:".length);
     return rails.find((r) => r.key === railKey)?.title || "Rail produits";

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 import Link from "next/link";
 import { useRef } from "react";
@@ -57,7 +58,15 @@ export function BrandsFeaturedSection({ brands, copy: copyProp }: { brands: Bran
               }}
             >
               <div style={{ position: "relative", aspectRatio: "4/3", background: "var(--pdh-sand)" }}>
-                {b.img && <CloudinaryImage preset="brand" src={b.img} alt={b.name} fill sizes="300px" style={{ objectFit: "cover" }} />}
+                {b.img ? (
+                  <CloudinaryImage preset="brand" src={b.img} alt={b.name} fill sizes="300px" style={{ objectFit: "cover" }} />
+                ) : (
+                  // No photo picked for this brand yet: sign the card with its
+                  // mark instead of leaving an empty sand block.
+                  <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", padding: 24 }}>
+                    <BrandLogo logo={null} name={b.name} slug={b.slug} size="lg" />
+                  </div>
+                )}
               </div>
               <div style={{ padding: "18px 20px 22px" }}>
                 <div className="card-title" style={{ fontSize: 22, letterSpacing: ".04em", color: "var(--pdh-plum)" }}>{b.name}</div>

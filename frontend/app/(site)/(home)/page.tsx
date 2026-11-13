@@ -2,10 +2,10 @@ import { draftMode } from "next/headers";
 import { Fragment, type ReactNode } from "react";
 import { BrandsFeaturedSection } from "@/components/home/BrandsFeaturedSection";
 import { BrandsMarquee } from "@/components/home/BrandsMarquee";
+import { BuilderBridge } from "@/components/home/BuilderBridge";
 import { CampaignSection } from "@/components/home/CampaignSection";
 import { CtaBanner } from "@/components/home/CtaBanner";
 import { GuidanceCards } from "@/components/home/GuidanceCards";
-import { CategoryShelves } from "@/components/home/CategoryShelves";
 import { CategoryTiles } from "@/components/layout/CategoryTiles";
 import { CtaPair, type CtaTile } from "@/components/home/CtaPair";
 import { DermoCorner } from "@/components/home/DermoCorner";
@@ -15,8 +15,10 @@ import { InstagramGrid } from "@/components/home/InstagramGrid";
 import { MarketingCarousel, type MarketingBannerData } from "@/components/home/MarketingCarousel";
 import { Newsletter } from "@/components/home/Newsletter";
 import { FeaturedWithPromo } from "@/components/home/FeaturedWithPromo";
+import { FallingLeaves } from "@/components/home/FallingLeaves";
 import { PromotionsGrid } from "@/components/home/PromotionsGrid";
 import { RailSection } from "@/components/home/RailSection";
+import { RayonsGrid, type Rayon } from "@/components/home/RayonsGrid";
 import { ServicesTeaser } from "@/components/home/ServicesTeaser";
 import { SummerEdit } from "@/components/home/SummerEdit";
 import { TrustBar } from "@/components/home/TrustBar";
@@ -36,8 +38,8 @@ import {
 } from "@/data/home";
 import { fetchLiveHomeContent, fetchPublishedHomeContent } from "@/lib/storefront/homeContent";
 import { fetchInstagramPosts } from "@/lib/storefront/instagram";
-import { fetchDiscountedProducts, fetchFeaturedProducts, fetchRailProducts, fetchShelfProducts } from "@/lib/storefront/products";
-import { routes } from "@/lib/routes";
+import { fetchDiscountedProducts, fetchFeaturedProducts, fetchMegaMenuFeatured, fetchRailProducts } from "@/lib/storefront/products";
+import { REAL_CATEGORY_BY_SLUG } from "@/lib/storefront/shopTaxonomy";
 import { fetchCategoryCounts } from "@/lib/storefront/catalogue";
 import { isCampaignLive } from "@/lib/storefront/marketingBanners";
 import { CATEGORY_STRIP } from "@/data/nav";
@@ -112,6 +114,24 @@ const SECTION_MOVEMENT: Partial<Record<SectionKey, Movement>> = {
   // there dropped an opening-movement island into the middle of the tail and
   // split the editorial sections in two. It belongs to whatever surrounds it.
 };
+
+/**
+ * The shelves shown in "Nos rayons", in display order. Each slug is a real
+ * /shop/<slug> page; REAL_CATEGORY_BY_SLUG gives the product category behind
+ * it. A shelf with a known zero count is left out, so the grid never leads to
+ * an empty page — it appears on its own once products are added.
+ */
+const RAYONS: { label: string; slug: string }[] = [
+  { label: "Visage", slug: "visage" },
+  { label: "Solaire", slug: "solaire" },
+  { label: "Cheveux", slug: "cheveux" },
+  { label: "Corps", slug: "corps" },
+  { label: "Bébé & Maman", slug: "bebe-maman" },
+  { label: "Hygiène", slug: "hygiene" },
+  { label: "Maquillage", slug: "maquillage" },
+  { label: "Compléments alimentaires", slug: "complements-alimentaires" },
+  { label: "Bucco-dentaire", slug: "bucco-dentaire" },
+];
 
 function movementOf(key: SectionEntryKey): Movement {
   // Every product rail is part of the shop, whatever its key.
@@ -263,7 +283,7 @@ export default async function HomePage() {
   // Rail copy/config is synced content (data/home.ts, or live draft above);
   // the actual products shown are resolved live against Payload/Postgres on
   // every request either way — a product with stock 0 never appears here.
-  const [railProducts, instagramPosts, promotionProducts, featuredProducts, categoryCounts, visageShelf, cheveuxShelf, corpsShelf] = await Promise.all([
+  const [railProducts, instagramPosts, promotionProducts, featuredProducts, categoryCounts] = await Promise.all([
     Promise.all(rails.map((rail) => fetchRailProducts(rail))),
     fetchInstagramPosts(instagramSection.postCount),
     // Same live resolution as the rails: an offer edited in the admin is
@@ -271,11 +291,14 @@ export default async function HomePage() {
     fetchDiscountedProducts(promotionsGridCopy?.limit || 8).catch(() => null),
     fetchFeaturedProducts(featuredPromoCopy?.limit || 3).catch(() => []),
     fetchCategoryCounts().catch(() => new Map()),
-    // The shelves: live, never padded (see fetchShelfProducts).
-    fetchShelfProducts("Visage", 8).catch(() => []),
-    fetchShelfProducts("Cheveux", 8).catch(() => []),
-    fetchShelfProducts("Corps", 8).catch(() => []),
   ]);
+  const rayonImages = await Promise.all(
+    RAYONS.map((r) => fetchMegaMenuFeatured(REAL_CATEGORY_BY_SLUG[r.slug]).catch(() => null)),
+  );
+  const rayons: Rayon[] = RAYONS.map((r, i) => {
+    const count = categoryCounts.size > 0 ? (categoryCounts.get(REAL_CATEGORY_BY_SLUG[r.slug]) ?? 0) : null;
+    return { ...r, count, image: rayonImages[i]?.image ?? "" };
+  }).filter((r) => r.count !== 0);
   const railProductsByKey = new Map(rails.map((rail, i) => [rail.key, railProducts[i]]));
   const liveBanners = liveCampaigns(marketingBanners);
 
@@ -341,6 +364,13 @@ export default async function HomePage() {
     return sectionsByKey[key as SectionKey] ?? null;
   }
 
+  // In the Storefront Builder's preview every CMS block is wrapped so
+  // BuilderBridge can outline it and select it on click. The wrapper has no
+  // styles of its own; the spacing variables it sits between are inherited.
+  function editable(key: SectionEntryKey, node: ReactNode): ReactNode {
+    return isPreview ? <div data-builder-key={key}>{node}</div> : node;
+  }
+
   const order = withMissingSections(sectionOrder.length > 0 ? sectionOrder : DEFAULT_ORDER);
   const visibleKeys = relegatePromotions(
     order
@@ -363,26 +393,23 @@ export default async function HomePage() {
   // is hidden); the guidance cards open the closing movement (or close the
   // page when there is none). The counter ("Au comptoir") now opens the
   // footer, on every page, so it is not rendered here as well.
-  const shelves = [
-    { title: "Visage", href: routes.category("visage"), products: visageShelf, image: categoryTree.roots.get("visage")?.image },
-    { title: "Cheveux", href: routes.category("cheveux"), products: cheveuxShelf, image: categoryTree.roots.get("cheveux")?.image },
-    { title: "Corps", href: routes.category("corps"), products: corpsShelf, image: categoryTree.roots.get("corps")?.image },
-  ];
-  // The aisle index ("Quel est votre souci ?") lives on /catalogue.
-  const aisleIndex = <CategoryShelves shelves={shelves} />;
+  // The Visage / Cheveux / Corps shelves are not shown on the homepage: the
+  // page goes straight from the category tiles to the CMS-ordered sections.
   const hasHero = visibleKeys.includes("hero");
   const firstCloseRun = movements.findIndex((run) => run.movement === "close");
 
   return (
     <>
+      <FallingLeaves />
+
       {/* The banner carousel opens the page directly under the header,
           wherever the CMS order puts it; the round category tiles follow it
           (and only show on a phone — see .cat-tiles in globals.css). */}
-      {hasHero ? sectionsByKey.hero : null}
+      {isPreview ? <BuilderBridge /> : null}
+
+      {hasHero ? editable("hero", sectionsByKey.hero) : null}
 
       <CategoryTiles categoryCounts={categoryCounts} strip={categoryStrip} />
-
-      {aisleIndex}
 
       {movements.map((run, i) => {
         // classifyMovements has already demoted any stranded rail, so a run
@@ -391,9 +418,14 @@ export default async function HomePage() {
 
         return (
           <div key={`${run.movement}-${i}`} className={className}>
-            {i === firstCloseRun ? <GuidanceCards /> : null}
+            {i === firstCloseRun ? (
+              <>
+                <RayonsGrid rayons={rayons} />
+                <GuidanceCards />
+              </>
+            ) : null}
             {run.keys.map((key) => (
-              <Fragment key={key}>{renderSection(key)}</Fragment>
+              <Fragment key={key}>{editable(key, renderSection(key))}</Fragment>
             ))}
           </div>
         );
@@ -401,6 +433,7 @@ export default async function HomePage() {
 
       {firstCloseRun === -1 ? (
         <div className="home-movement">
+          <RayonsGrid rayons={rayons} />
           <GuidanceCards />
         </div>
       ) : null}

@@ -25,7 +25,7 @@ import {
 import { FooterColumnsEditor, HeaderEditor, LogoEditor, ThemeEditor, TopBarEditor } from "@/components/dashboard/storefront/globalEditors";
 import { CategoryStripEditor, NavigationItemEditor } from "@/components/dashboard/storefront/NavigationEditors";
 import { NavigationList } from "@/components/dashboard/storefront/NavigationList";
-import { SectionList } from "@/components/dashboard/storefront/SectionList";
+import { SectionList, labelFor } from "@/components/dashboard/storefront/SectionList";
 import { Button } from "@/components/ui/button";
 import { SaveToast, useSavedFlash } from "@/components/ui/toast-save";
 import { Modal } from "@/components/dashboard/ui/Modal";
@@ -529,6 +529,67 @@ export function StorefrontBuilder({
           ? navigation
           : chrome;
 
+  // Click-to-edit in the preview (see components/home/BuilderBridge.tsx): the
+  // frame reports clicks and toolbar actions, and is told which block is
+  // selected. Actions edit the draft through `update`, like the list does.
+  const previewRef = useRef<HTMLIFrameElement>(null);
+  const [confirmDeleteRail, setConfirmDeleteRail] = useState<string | null>(null);
+
+  const postSelection = useCallback(() => {
+    const frame = previewRef.current?.contentWindow;
+    if (!frame) return;
+    const key = activeTab === "home" ? selectedKey : null;
+    frame.postMessage(
+      {
+        type: "builder:selected",
+        key,
+        label: key ? labelFor(key, draft.rails) : "",
+        canDelete: Boolean(key?.startsWith("rail:")),
+      },
+      window.location.origin,
+    );
+  }, [activeTab, selectedKey, draft.rails]);
+
+  useEffect(postSelection, [postSelection]);
+
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      if (e.origin !== window.location.origin || e.source !== previewRef.current?.contentWindow) return;
+      const data = e.data as { type?: string; key?: SectionEntryKey; action?: "up" | "down" | "hide" | "delete" };
+      if (data?.type === "builder:ready") {
+        postSelection();
+        return;
+      }
+      const key = data?.key;
+      if (!key || !draft.sections.some((s) => s.key === key)) return;
+      if (data.type === "builder:select") {
+        setActiveTab("home");
+        setSelectedKey(key);
+        return;
+      }
+      if (data.type !== "builder:action") return;
+      const index = draft.sections.findIndex((s) => s.key === key);
+      if (data.action === "up" || data.action === "down") {
+        // Step over hidden entries, so every click visibly moves the block
+        // past the next block that is actually on the page.
+        const step = data.action === "up" ? -1 : 1;
+        let to = index + step;
+        while (to >= 0 && to < draft.sections.length && !draft.sections[to].visible) to += step;
+        if (to < 0 || to >= draft.sections.length) return;
+        const sections = [...draft.sections];
+        const [moved] = sections.splice(index, 1);
+        sections.splice(to, 0, moved);
+        update({ sections });
+      } else if (data.action === "hide") {
+        update({ sections: draft.sections.map((s) => (s.key === key ? { ...s, visible: false } : s)) });
+      } else if (data.action === "delete" && key.startsWith("rail:")) {
+        setConfirmDeleteRail(key.slice("rail:".length));
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [draft.sections, update, postSelection]);
+
   const previewSrc = `/api/dashboard-preview?next=${encodeURIComponent("/")}&v=${previewNonce}`;
 
   return (
@@ -656,6 +717,28 @@ export function StorefrontBuilder({
         </Modal>
       )}
 
+      {confirmDeleteRail && (
+        <Modal title="Supprimer ce rail ?" onClose={() => setConfirmDeleteRail(null)}>
+          <p className="text-sm text-muted-foreground">Cette action supprimera ce rail produits de la page d&apos;accueil, avec tout son contenu.</p>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setConfirmDeleteRail(null)}>
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                handleDeleteRail(confirmDeleteRail);
+                setConfirmDeleteRail(null);
+              }}
+            >
+              Supprimer
+            </Button>
+          </div>
+        </Modal>
+      )}
+
       {/* Three columns from `lg`. Below it the three would need ~1 000px side
           by side, so they stack in one scrolling column instead — list,
           editor, then the preview — and every panel stays usable on a tablet
@@ -729,6 +812,7 @@ export function StorefrontBuilder({
 
         <div className="order-last flex h-[75svh] flex-none items-start justify-center overflow-auto bg-muted p-4 lg:order-none lg:h-auto lg:flex-1">
           <iframe
+            ref={previewRef}
             key={previewNonce}
             src={previewSrc}
             title="Aperçu du storefront"
