@@ -217,8 +217,14 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
           {variant === "dermo" && dermo && <span>{dermo.claim}</span>}
         </div>
 
+        {/* The price and the action share one slot. With a mouse, the price
+            rests in it and hovering the card cross-fades it into "Ajouter au
+            panier" — same box, so the card never changes height. On touch the
+            wrapper dissolves (display: contents) and both stay on screen, the
+            price above the action, as before. See .pdh-buy in globals.css. */}
+        <div className="pdh-buy">
         <div className="pdh-price-row">
-          <span className="pdh-price" style={{ fontSize: config.large ? 22 : 20 }}>
+          <span className={product.old ? "pdh-price pdh-price--sale" : "pdh-price"} style={{ fontSize: config.large ? 22 : 20 }}>
             {money(product.price)}
           </span>
           {!!product.old && <span className="pdh-price-old">{money(product.old)}</span>}
@@ -243,6 +249,7 @@ export function ProductCard({ product, variant, delayMs, dermo }: Props) {
             {!outOfStock && <ArrowUpRight aria-hidden="true" size={14} strokeWidth={1.8} />}
           </span>
         </button>
+        </div>
       </div>
     </article>
   );

@@ -3317,6 +3317,10 @@ nav[aria-label^="Fil d"] a::after {
   color: var(--pdh-primary);
   white-space: nowrap;
 }
+/* A discounted price, in the offer purple, beside the struck-through one. */
+.pdh-price--sale {
+  color: #7030d5;
+}
 .pdh-price-old {
   font-size: 12.5px;
   font-weight: 500;
@@ -3423,20 +3427,54 @@ nav[aria-label^="Fil d"] a::after {
   inset-inline-start: 0 !important;
 }
 
-/* Touch and pen: there is no hover to give, so the action is simply there. */
+/* The price/action slot.
+
+   Touch and pen: there is no hover to give, so the wrapper dissolves and the
+   price and the action are both simply there, one above the other. */
+.pdh-buy {
+  display: contents;
+}
+
+.pdh-cta:focus-visible {
+  outline: 2px solid var(--pdh-plum);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Mouse: one slot under the hairline. The price rests in it; hovering the
+   card (or focusing anything in it) cross-fades the price out and the action
+   in. Both sit in the same grid cell, so the slot is as tall as the taller
+   of the two in either state — opacity only, no layout animation, and since
+   the trigger is the whole card, moving between the card and its action
+   never flickers. */
 @media (hover: hover) and (pointer: fine) {
-  .pdh-cta-inner {
-    opacity: 0;
-    transform: translateY(5px);
-    transition: opacity 0.26s ease, transform 0.32s cubic-bezier(0.2, 0.7, 0.3, 1);
+  .pdh-buy {
+    display: grid;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 12px;
+    min-height: 42px;
+    border-top: 1px solid var(--pdh-plum-tint);
   }
-  .pdh-card:hover .pdh-cta-inner,
-  .pdh-card:focus-within .pdh-cta-inner,
-  /* Out of stock never hides: "Indisponible" is information, not an offer,
-     and a shopper must not have to hover to find it. */
-  .pdh-cta--static .pdh-cta-inner {
+  .pdh-buy > .pdh-price-row,
+  .pdh-buy > .pdh-cta {
+    grid-area: 1 / 1;
+    margin: 0;
+    transition: opacity 0.2s ease;
+  }
+  .pdh-buy > .pdh-cta {
+    min-height: 0;
+    padding: 0 2px;
+    border-top: none;
+    opacity: 0;
+  }
+  .pdh-card:hover .pdh-buy > .pdh-cta,
+  .pdh-card:focus-within .pdh-buy > .pdh-cta {
     opacity: 1;
-    transform: none;
+  }
+  .pdh-card:hover .pdh-buy > .pdh-price-row,
+  .pdh-card:focus-within .pdh-buy > .pdh-price-row {
+    opacity: 0;
   }
 
   /* The favourite button is chrome over a photograph. It appears with the
@@ -3455,13 +3493,11 @@ nav[aria-label^="Fil d"] a::after {
 @media (prefers-reduced-motion: reduce) {
   .pdh-shot,
   .pdh-card:hover .pdh-shot,
-  .pdh-cta-inner,
-  .pdh-cta svg {
+  .pdh-cta svg,
+  .pdh-buy > .pdh-price-row,
+  .pdh-buy > .pdh-cta {
     transition: none;
     transform: none;
-  }
-  .pdh-cta-inner {
-    opacity: 1;
   }
 }
 
